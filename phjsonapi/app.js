@@ -2,8 +2,11 @@
 // const url = 'http://checkip.amazonaws.com/';
 let response;
 
-const phlogger = require("dist/logger/phLogger").default
-const phs3 = require("dist/s3facade/phS3Facade").default
+const phlogger = require("./dist/logger/phLogger").default
+const delegate = require("./dist/delegate/appLambdaDelegate").default
+
+const app = new delegate()
+app.prepare()
 
 /**
  *
@@ -20,6 +23,7 @@ const phs3 = require("dist/s3facade/phS3Facade").default
 exports.lambdaHandler = async (event, context) => {
     try {
         phlogger.info("alfredyang test")
+        app.exec(event)
 
         response = {
             'statusCode': 200,

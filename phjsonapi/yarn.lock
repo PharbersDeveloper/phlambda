@@ -1599,7 +1599,7 @@ json-api@^3.0.0-rc.6.0.1:
     url-template "^2.0.4"
     vary "^1.1.2"
 
-json2typescript@^1.2.3:
+json2typescript@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/json2typescript/-/json2typescript-1.4.1.tgz#de4b8ef5044bce7a580ebd4fafbe75d807001016"
   integrity sha512-l+gmzjK4klnIG4Nr9SdHlhc03e63ln6UN1AASTTufrRoG3MjR443HqGmx/1OMOb/xvp7Ztb7UKZIzxXyDjGSsw==

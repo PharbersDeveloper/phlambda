@@ -1,0 +1,15 @@
+{
+    "appenders": {
+        "out": {
+            "type": "stdout",
+            "level": "TRACE",
+            "layout": {
+                "type": "pattern", "pattern": "{\"Time\": \"%d{yyyy-MM-dd hh:mm:ss}\",\"Hostname\": \"%h\",\"ProjectName\": \"ntm-curd\",\"File\": \"%f:%l\",\"Func\": \"\",\"JobId\": \"\",\"TraceId\": \"\",\"UserId\": \"\",\"Message\": \"%m\",\"Level\": \"%p\"}"
+            }
+        }
+    },
+    "categories": {
+        "default": { "appenders": [ "out" ], "level": "DEBUG" ,"enableCallStack": true },
+        "http": { "appenders": [ "out" ], "level": "DEBUG" ,"enableCallStack": true }
+    }
+}

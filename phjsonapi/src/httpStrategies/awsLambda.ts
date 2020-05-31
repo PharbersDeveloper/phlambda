@@ -1,7 +1,13 @@
 
 import {APIController, DocumentationController} from "json-api"
-// import {APIControllerOpts} from "json-api/build/src/controllers/API"
 import Base, {HTTPStrategyOptions} from "json-api/build/src/http-strategies/Base"
+import {
+    ErrorOrErrorArray,
+    HTTPResponse,
+    Request as JSONAPIRequest,
+    Result
+} from "json-api/build/src/types/index"
+import AWSReq from "./awsRequest"
 
 /**
  * This controller receives requests directly from AWS Lambda and sends responses
@@ -34,5 +40,26 @@ export default class AWSLambdaStrategy extends Base {
                 docsController?: DocumentationController,
                 options?: HTTPStrategyOptions) {
         super(apiController, docsController, options)
+    }
+
+    /**
+     * Builds a Request object from an IncomingMessage object. It is not
+     * possible to infer the protocol or the url params from the IncomingMessage
+     * object alone so they must be passed as arguments. Optionally a query object
+     * can be passed, otherwise the query parameters will be inferred from the
+     * IncomingMessage url property and parsed using the qs node module.
+     *
+     * @param {http.IncomingMessage} req original request object from core node module http
+     * @param {string} protocol
+     * @param {string} fallbackHost Host to use if strategy.options.host is not set
+     * @param {Object} params object containing url parameters
+     * @param {Object} [parsedQuery] object containing pre-parsed query parameters
+     */
+    public async buildRequestObject(req: AWSReq): Promise<JSONAPIRequest> {
+        const genericReqPromise =
+            // tslint:disable-next-line deprecation
+            super.buildRequestObject(req, req.protocol, req.host, req.params, req.query)
+
+        return genericReqPromise
     }
 }

@@ -6,6 +6,8 @@ import ExpressStrategy from "json-api/build/src/http-strategies/Express"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import mongoose = require("mongoose")
 import {ServerConf} from "../configFactory/serverConf"
+import AWSLambdaStrategy from "../httpStrategies/awsLambda"
+import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
 import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
 
@@ -19,7 +21,7 @@ import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
 export default class AppLambdaDelegate {
 
     private conf: ServerConf
-    private httpStrategies: ExpressStrategy
+    private httpStrategies: AWSLambdaStrategy
 
     public prepare() {
         this.loadConfiguration()
@@ -27,9 +29,11 @@ export default class AppLambdaDelegate {
         this.generateRoutes(this.getModelRegistry())
     }
 
-    public exec(event: Map<string, any>) {
+    public async exec(event: Map<string, any>) {
         phLogger.info(event)
         phLogger.info(this.httpStrategies)
+        const reqObj = await this.httpStrategies.buildRequestObject(new AWSReq(event))
+        phLogger.info(reqObj)
     }
 
     protected loadConfiguration() {
@@ -109,7 +113,8 @@ export default class AppLambdaDelegate {
             filterParser: urlEncodeFilterParser
         }
 
-        this.httpStrategies = new API.httpStrategies.Express(
+        // this.httpStrategies = new API.httpStrategies.Express(
+        this.httpStrategies = new AWSLambdaStrategy(
             new API.controllers.API(registry, opts),
             new API.controllers.Documentation(registry, {name: "Pharbers API"})
         )

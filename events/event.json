@@ -1,14 +1,15 @@
 {
   "body": "{\"message\": \"hello world\"}",
-  "resource": "/{proxy+}",
-  "path": "/path/to/resource",
-  "httpMethod": "POST",
+  "resource": "/{type}/{id}",
+  "path": "/proposals/5e00862a28e9fe103c5e2f4e",
+  "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
     "foo": "bar"
   },
   "pathParameters": {
-    "proxy": "/path/to/resource"
+    "type": "proposals",
+    "id":  "5e00862a28e9fe103c5e2f4e"
   },
   "stageVariables": {
     "baz": "qux"
@@ -53,9 +54,9 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/prod/path/to/resource",
-    "resourcePath": "/{proxy+}",
-    "httpMethod": "POST",
+    "path": "/proposals/5e00862a28e9fe103c5e2f4e",
+    "resourcePath": "/{type}/{id}",
+    "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"
   }

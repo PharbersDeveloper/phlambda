@@ -23,7 +23,7 @@ app.prepare()
 exports.lambdaHandler = async (event, context) => {
     try {
         phlogger.info("alfredyang test")
-        app.exec(event)
+        await app.exec(event)
 
         response = {
             'statusCode': 200,

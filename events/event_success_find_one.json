@@ -1,12 +1,10 @@
 {
-  "body": "{\"message\": \"hello world\"}",
+  "body": "",
   "resource": "/{type}/{id}",
-  "path": "/proposals/5e00862a28e9fe103c5e2f4e?foo=bar",
+  "path": "/proposals/5e00862a28e9fe103c5e2f4e",
   "httpMethod": "GET",
   "isBase64Encoded": false,
-  "queryStringParameters": {
-    "foo": "bar"
-  },
+  "queryStringParameters": {},
   "pathParameters": {
     "type": "proposals",
     "id":  "5e00862a28e9fe103c5e2f4e"
@@ -54,7 +52,7 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/proposals/5e00862a28e9fe103c5e2f4e?foo=bar",
+    "path": "/proposals/5e00862a28e9fe103c5e2f4e",
     "resourcePath": "/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",

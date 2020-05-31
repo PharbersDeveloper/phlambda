@@ -93,12 +93,17 @@ export default class AWSLambdaStrategy extends Base {
         } catch (err) {
             // This case should only occur if building a request object fails, as the
             // controller should catch any internal errors and always returns a response.
-//             this.sendError(err, req, res, next)
+            return this.sendError(err, req) //, res, next)
         }
     }
 
     protected sendResponse(responseObj: HTTPResponse): HTTPResponse {
         phLogger.info(responseObj)
+        return responseObj
+    }
+
+    protected sendError(errors: ErrorOrErrorArray, req: AWSReq): HTTPResponse {
+        const responseObj = await API.responseFromError(errors, req.headers.accept);
         return responseObj
     }
 }

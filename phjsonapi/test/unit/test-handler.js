@@ -4,12 +4,12 @@ const app = require('../../app.js')
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
-const event = JSON.parse(fs.readFileSync("../events/event.json", 'utf8'))
 var context;
 const mongoose = require("mongoose")
 
 describe('Tests index', function () {
-    it('verifies successful response', async () => {
+    it('verify find one successfully', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
         const result = await app.lambdaHandler(event, context)
 
         expect(result).to.be.an('object');
@@ -21,6 +21,22 @@ describe('Tests index', function () {
         expect(response).to.be.an('object');
         expect(response.data.id).to.be.equal("5e00862a28e9fe103c5e2f4e");
         expect(response.data.type).to.be.equal("proposals");
+        // expect(response.location).to.be.an("string");
+    });
+
+    it('verify find one error', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_error_find_one.json", 'utf8'))
+        const result = await app.lambdaHandler(event, context)
+
+        expect(result).to.be.an('object');
+        expect(result.statusCode).to.equal(404);
+        expect(result.body).to.be.an('string');
+
+        let response = JSON.parse(result.body);
+
+        expect(response).to.be.an('object');
+        expect(response.errors[0].detail).to.be.equal("Invalid ID.");
+        expect(response.errors[0].title).to.be.equal("One or more of the targeted resources could not be found.");
         // expect(response.location).to.be.an("string");
     });
 

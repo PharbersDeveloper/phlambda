@@ -1,6 +1,7 @@
 
 import {ServerResponse} from "http"
 import {APIController, DocumentationController} from "json-api"
+import API from "json-api/build/src/controllers/API"
 import Base, {HTTPStrategyOptions} from "json-api/build/src/http-strategies/Base"
 import Controller from "json-api/build/src/http-strategies/Base"
 import {
@@ -10,7 +11,7 @@ import {
     Result
 } from "json-api/build/src/types/index"
 import R = require("ramda")
-import phLogger from "../logger/PhLogger"
+import phLogger from "../logger/phLogger"
 import AWSReq from "./awsRequest"
 
 /**
@@ -93,7 +94,7 @@ export default class AWSLambdaStrategy extends Base {
         } catch (err) {
             // This case should only occur if building a request object fails, as the
             // controller should catch any internal errors and always returns a response.
-            return this.sendError(err, req) //, res, next)
+            return this.sendError(err, req) // , res, next)
         }
     }
 
@@ -102,8 +103,8 @@ export default class AWSLambdaStrategy extends Base {
         return responseObj
     }
 
-    protected sendError(errors: ErrorOrErrorArray, req: AWSReq): HTTPResponse {
-        const responseObj = await API.responseFromError(errors, req.headers.accept);
+    protected async sendError(errors: ErrorOrErrorArray, req: AWSReq): Promise<HTTPResponse> {
+        const responseObj = await API.responseFromError(errors, req.headers.accept)
         return responseObj
     }
 }

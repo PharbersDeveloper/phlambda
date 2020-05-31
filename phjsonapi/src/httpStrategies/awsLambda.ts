@@ -1,12 +1,16 @@
 
+import {ServerResponse} from "http"
 import {APIController, DocumentationController} from "json-api"
 import Base, {HTTPStrategyOptions} from "json-api/build/src/http-strategies/Base"
+import Controller from "json-api/build/src/http-strategies/Base"
 import {
     ErrorOrErrorArray,
     HTTPResponse,
     Request as JSONAPIRequest,
     Result
 } from "json-api/build/src/types/index"
+import R = require("ramda")
+import phLogger from "../logger/PhLogger"
 import AWSReq from "./awsRequest"
 
 /**
@@ -36,6 +40,7 @@ import AWSReq from "./awsRequest"
  *    can set this option to false to have this code just pass on to Express.
  */
 export default class AWSLambdaStrategy extends Base {
+
     constructor(apiController: APIController,
                 docsController?: DocumentationController,
                 options?: HTTPStrategyOptions) {
@@ -61,5 +66,37 @@ export default class AWSLambdaStrategy extends Base {
             super.buildRequestObject(req, req.protocol, req.host, req.params, req.query)
 
         return genericReqPromise
+    }
+
+    /**
+     * A middleware to handle supported API requests.
+     *
+     * Supported requests included: GET /:type, GET /:type/:id/:relationship,
+     * POST /:type, PATCH /:type/:id, PATCH /:type, DELETE /:type/:id,
+     * DELETE /:type, GET /:type/:id/relationships/:relationship,
+     * PATCH /:type/:id/relationships/:relationship,
+     * POST /:type/:id/relationships/:relationship, and
+     * DELETE /:type/:id/relationships/:relationship.
+     *
+     * Note: this will ignore any port number if you're using Express 4.
+     * See: https://expressjs.com/en/guide/migrating-5.html#req.host
+     * The workaround is to use the host configuration option.
+     */
+//     public apiRequest = R.partial(this.doRequest, [this.api.handle])
+//     public async doRequest(controller: Controller, req: AWSReq, res: ServerResponse) {
+    public async doRequest(req: AWSReq, res: ServerResponse) {
+        try {
+            const requestObj = await this.buildRequestObject(req)
+            phLogger.info(requestObj)
+
+//             const responseObj = await controller(requestObj, req, res)
+            const responseObj = await this.api.handle(requestObj, req, res)
+            phLogger.info(responseObj)
+//             this.sendResponse(responseObj, res, next)
+        } catch (err) {
+            // This case should only occur if building a request object fails, as the
+            // controller should catch any internal errors and always returns a response.
+//             this.sendError(err, req, res, next)
+        }
     }
 }

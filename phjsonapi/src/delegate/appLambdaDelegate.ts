@@ -32,8 +32,10 @@ export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         phLogger.info(event)
         phLogger.info(this.httpStrategies)
-        const reqObj = await this.httpStrategies.buildRequestObject(new AWSReq(event))
-        phLogger.info(reqObj)
+        const req = new AWSReq(event)
+        // @ts-ignore
+        const response = await this.httpStrategies.doRequest(req, null)
+        phLogger.info(response)
     }
 
     protected loadConfiguration() {

@@ -18,16 +18,23 @@ export default class AWSReq extends IncomingMessage {
         this.httpVersionMajor = 1.1
         this.httpVersionMinor = 1.1
         this.connection = null
-        // TODO: init the headers with event
-        this.headers = {}
+        // @ts-ignore
+        const hds = event.headers
+        this.headers = {
+            "accept": hds.Accept,
+            "content-length": hds.contentLength,
+            "content-type": hds.contentType,
+            "transfer-encoding": hds.tranferEncoding
+        }
         // @ts-ignore
         this.rawHeaders = event.headers
         // @ts-ignore
         this.method = event.httpMethod
         // @ts-ignore
         this.url = event.path
-        this.protocol = this.httpVersion.substr(0, this.httpVersion.indexOf("/"))
-        this.host = "localhost"
+        this.protocol =
+            this.httpVersion.substr(0, this.httpVersion.indexOf("/")).toLowerCase()
+        this.host = hds.host
         // @ts-ignore
         this.params = event.pathParameters
         // @ts-ignore

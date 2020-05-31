@@ -1,7 +1,7 @@
 {
   "body": "{\"message\": \"hello world\"}",
   "resource": "/{type}/{id}",
-  "path": "/proposals/5e00862a28e9fe103c5e2f4e",
+  "path": "/proposals/5e00862a28e9fe103c5e2f4e?foo=bar",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
@@ -15,7 +15,7 @@
     "baz": "qux"
   },
   "headers": {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept": "application/vnd.api+json",
     "Accept-Encoding": "gzip, deflate, sdch",
     "Accept-Language": "en-US,en;q=0.8",
     "Cache-Control": "max-age=0",
@@ -54,7 +54,7 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/proposals/5e00862a28e9fe103c5e2f4e",
+    "path": "/proposals/5e00862a28e9fe103c5e2f4e?foo=bar",
     "resourcePath": "/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",

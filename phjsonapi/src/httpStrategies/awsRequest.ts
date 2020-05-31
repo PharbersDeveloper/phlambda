@@ -34,7 +34,7 @@ export default class AWSReq extends IncomingMessage {
         this.url = event.path
         this.protocol =
             this.httpVersion.substr(0, this.httpVersion.indexOf("/")).toLowerCase()
-        this.host = hds.host
+        this.host = hds.Host
         // @ts-ignore
         this.params = event.pathParameters
         // @ts-ignore

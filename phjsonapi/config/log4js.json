@@ -4,7 +4,7 @@
             "type": "stdout",
             "level": "TRACE",
             "layout": {
-                "type": "pattern", "pattern": "{\"Time\": \"%d{yyyy-MM-dd hh:mm:ss}\",\"Hostname\": \"%h\",\"ProjectName\": \"ntm-curd\",\"File\": \"%f:%l\",\"Func\": \"\",\"JobId\": \"\",\"TraceId\": \"\",\"UserId\": \"\",\"Message\": \"%m\",\"Level\": \"%p\"}"
+                "type": "pattern", "pattern": "{\"Time\": \"%d{yyyy-MM-dd hh:mm:ss}\",\"Hostname\": \"%h\",\"ProjectName\": \"lambda-json-api\",\"File\": \"%f:%l\",\"Func\": \"\",\"JobId\": \"\",\"TraceId\": \"\",\"UserId\": \"\",\"Message\": \"%m\",\"Level\": \"%p\"}"
             }
         }
     },

@@ -1,11 +1,13 @@
 import * as fs from "fs"
 import * as yaml from "js-yaml"
+import API, {ResourceTypeRegistry} from "json-api"
+import {APIControllerOpts} from "json-api/build/src/controllers/API"
+import ExpressStrategy from "json-api/build/src/http-strategies/Express"
+import {JsonConvert, ValueCheckingMode} from "json2typescript"
+import mongoose = require("mongoose")
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
-
-import j2t = require("json2typescript")
-const JsonConvert = j2t.JsonConvert
-const ValueCheckingMode = j2t.ValueCheckingMode
+import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
 
 /**
  * The summary section should be brief. On a documentation web site,
@@ -17,14 +19,17 @@ const ValueCheckingMode = j2t.ValueCheckingMode
 export default class AppLambdaDelegate {
 
     private conf: ServerConf
+    private httpStrategies: ExpressStrategy
 
     public prepare() {
         this.loadConfiguration()
-        phLogger.info(this.conf)
+        this.connect2MongoDB()
+        this.generateRoutes(this.getModelRegistry())
     }
 
     public exec(event: Map<string, any>) {
         phLogger.info(event)
+        phLogger.info(this.httpStrategies)
     }
 
     protected loadConfiguration() {
@@ -41,5 +46,72 @@ export default class AppLambdaDelegate {
         } catch (e) {
             phLogger.fatal( e as Error )
         }
+    }
+
+    protected connect2MongoDB() {
+        const prefix = this.conf.mongo.algorithm
+        const host = this.conf.mongo.host
+        const port = `${this.conf.mongo.port}`
+        const username = this.conf.mongo.username
+        const pwd = this.conf.mongo.pwd
+        const coll = this.conf.mongo.coll
+        const auth = this.conf.mongo.auth
+        if (auth) {
+            phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
+            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll,
+                { useNewUrlParser: true },
+                (err) => {
+                    if (err != null) {
+                        phLogger.error(err)
+                    }
+                })
+        } else {
+            phLogger.info(`connect mongodb without auth`)
+            mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll, { useNewUrlParser: true }, (err) => {
+                if (err != null) {
+                    phLogger.error(err)
+                }
+            })
+        }
+    }
+
+    protected getModelRegistry(): ResourceTypeRegistry {
+        const result: {[index: string]: any} = {}
+        this.conf.models.forEach((ele) => {
+            result[ele.reg] = {}
+        })
+        return new API.ResourceTypeRegistry(result, {
+            dbAdapter: new API.dbAdapters.Mongoose(this.generateModels()),
+            info: {
+                description: "Blackmirror inc. Alfred Yang 2019"
+            },
+            urlTemplates: {
+                self: "/{type}/{id}"
+            },
+        })
+    }
+
+    protected generateModels(): any {
+        const path = "../models/"
+        const suffix = ".js"
+        const result: {[index: string]: any} = {}
+        this.conf.models.forEach((ele) => {
+            const filename = path + ele.file + suffix
+            const one = require(filename).default
+            result[ele.file] = new one().getModel()
+        })
+        return result
+    }
+
+    protected generateRoutes(registry: ResourceTypeRegistry) {
+
+        const opts: APIControllerOpts = {
+            filterParser: urlEncodeFilterParser
+        }
+
+        this.httpStrategies = new API.httpStrategies.Express(
+            new API.controllers.API(registry, opts),
+            new API.controllers.Documentation(registry, {name: "Pharbers API"})
+        )
     }
 }

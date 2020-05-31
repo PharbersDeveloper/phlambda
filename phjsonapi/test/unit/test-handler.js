@@ -1,9 +1,12 @@
 'use strict';
 
-const app = require('../../app.js');
-const chai = require('chai');
-const expect = chai.expect;
-var event, context;
+const app = require('../../app.js')
+const chai = require('chai')
+const expect = chai.expect
+const fs = require('fs')
+const event = JSON.parse(fs.readFileSync("../events/event.json", 'utf8'))
+var context;
+const mongoose = require("mongoose")
 
 describe('Tests index', function () {
     it('verifies successful response', async () => {
@@ -18,5 +21,9 @@ describe('Tests index', function () {
         expect(response).to.be.an('object');
         expect(response.message).to.be.equal("hello world");
         // expect(response.location).to.be.an("string");
+    });
+
+    after("desconnect db", async () => {
+        await mongoose.disconnect()
     });
 });

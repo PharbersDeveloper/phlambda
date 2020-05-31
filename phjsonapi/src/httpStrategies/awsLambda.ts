@@ -84,19 +84,21 @@ export default class AWSLambdaStrategy extends Base {
      */
 //     public apiRequest = R.partial(this.doRequest, [this.api.handle])
 //     public async doRequest(controller: Controller, req: AWSReq, res: ServerResponse) {
-    public async doRequest(req: AWSReq, res: ServerResponse) {
+    public async doRequest(req: AWSReq, res: ServerResponse): Promise<HTTPResponse> {
         try {
             const requestObj = await this.buildRequestObject(req)
             phLogger.info(requestObj)
-
-//             const responseObj = await controller(requestObj, req, res)
             const responseObj = await this.api.handle(requestObj, req, res)
-            phLogger.info(responseObj)
-//             this.sendResponse(responseObj, res, next)
+            return this.sendResponse(responseObj)
         } catch (err) {
             // This case should only occur if building a request object fails, as the
             // controller should catch any internal errors and always returns a response.
 //             this.sendError(err, req, res, next)
         }
+    }
+
+    protected sendResponse(responseObj: HTTPResponse): HTTPResponse {
+        phLogger.info(responseObj)
+        return responseObj
     }
 }

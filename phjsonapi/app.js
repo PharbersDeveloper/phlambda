@@ -23,14 +23,11 @@ app.prepare()
 exports.lambdaHandler = async (event, context) => {
     try {
         phlogger.info("alfredyang test")
-        await app.exec(event)
+        const result = await app.exec(event)
 
         response = {
-            'statusCode': 200,
-            'body': JSON.stringify({
-                message: 'hello world',
-                // location: ret.data.trim()
-            })
+            'statusCode': result.status,
+            'body': result.body
         }
     } catch (err) {
         console.log(err);

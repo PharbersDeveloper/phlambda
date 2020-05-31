@@ -30,12 +30,9 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
-        phLogger.info(event)
-        phLogger.info(this.httpStrategies)
         const req = new AWSReq(event)
         // @ts-ignore
-        const response = await this.httpStrategies.doRequest(req, null)
-        phLogger.info(response)
+        return await this.httpStrategies.doRequest(req, null)
     }
 
     protected loadConfiguration() {
@@ -115,7 +112,6 @@ export default class AppLambdaDelegate {
             filterParser: urlEncodeFilterParser
         }
 
-        // this.httpStrategies = new API.httpStrategies.Express(
         this.httpStrategies = new AWSLambdaStrategy(
             new API.controllers.API(registry, opts),
             new API.controllers.Documentation(registry, {name: "Pharbers API"})

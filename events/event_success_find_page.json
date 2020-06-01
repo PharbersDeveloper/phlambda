@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/{type}?page[offset]=0&page[limit]=1",
-    "path": "/proposals?page[offset]=0&page[limit]=1",
+    "resource": "/{type}",
+    "path": "/proposals",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
@@ -54,8 +54,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/{type}?page[offset]=0&page[limit]=1",
-        "resourcePath": "/proposals?page[offset]=0&page[limit]=1",
+        "path": "/{type}",
+        "resourcePath": "/proposals",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

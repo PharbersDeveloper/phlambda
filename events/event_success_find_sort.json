@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/{type}?sort=name",
-    "path": "/proposals?sort=name",
+    "resource": "/{type}",
+    "path": "/proposals",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
@@ -53,8 +53,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/{type}?sort=name",
-        "resourcePath": "/proposals?sort=name",
+        "path": "/{type}",
+        "resourcePath": "/proposals",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

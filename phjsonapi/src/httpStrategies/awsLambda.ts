@@ -64,7 +64,26 @@ export default class AWSLambdaStrategy extends Base {
     public async buildRequestObject(req: AWSReq): Promise<JSONAPIRequest> {
         const genericReqPromise =
             // tslint:disable-next-line deprecation
-            super.buildRequestObject(req, req.protocol, req.host, req.params, req.query)
+            await super.buildRequestObject(req, req.protocol, req.host, req.params, req.query)
+
+        // @ts-ignore
+        const hasFilterQuery = req.query.filter !== undefined
+        // @ts-ignore
+        const hasSortQuery = req.query.sort !== undefined
+        const hasQuery = hasFilterQuery || hasSortQuery
+        // @ts-ignore
+        const filterQueryString = hasFilterQuery && "filter=" + req.query.filter
+        // @ts-ignore
+        const sortQueryString = hasSortQuery && "sort=" + req.query.sort
+
+//         let rawQueryString
+        if (hasFilterQuery && hasSortQuery) {
+            genericReqPromise.rawQueryString = filterQueryString + "&" + sortQueryString
+        } else if (hasFilterQuery) {
+            genericReqPromise.rawQueryString = filterQueryString
+        } else if (hasSortQuery) {
+            genericReqPromise.rawQueryString = sortQueryString
+        }
 
         return genericReqPromise
     }

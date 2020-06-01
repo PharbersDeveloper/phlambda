@@ -22,7 +22,7 @@ app.prepare()
  */
 exports.lambdaHandler = async (event, context) => {
     try {
-        phlogger.info("alfredyang test")
+        phlogger.info(event)
         const result = await app.exec(event)
 
         response = {

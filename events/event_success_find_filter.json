@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/{type}?filter=(id,:eq,`5e00862a28e9fe103c5e2f4e`)",
-    "path": "/proposals?filter=(id,:eq,`5e00862a28e9fe103c5e2f4e`)",
+    "resource": "/{type}",
+    "path": "/proposals",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
@@ -53,8 +53,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/{type}?filter=(id,:eq,`5e00862a28e9fe103c5e2f4e`)",
-        "resourcePath": "/proposals?filter=(id,:eq,`5e00862a28e9fe103c5e2f4e`)",
+        "path": "/{type}",
+        "resourcePath": "/proposals",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

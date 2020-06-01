@@ -58,5 +58,15 @@ export default class AWSReq extends IncomingMessage {
             // @ts-ignore
             this.query.page = this.pagination
         }
+        // @ts-ignore
+        if (event.queryStringParameters["filter"] !== undefined) {
+            // @ts-ignore
+            this.query.filter = event.queryStringParameters["filter"]
+        }
+        // @ts-ignore
+        if (event.queryStringParameters["sort"] !== undefined) {
+            // @ts-ignore
+            this.query.sort = event.queryStringParameters["sort"]
+        }
     }
 }

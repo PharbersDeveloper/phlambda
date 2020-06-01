@@ -23,6 +23,11 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
+"@billjs/query-string@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@billjs/query-string/-/query-string-1.0.2.tgz#4c9fbdcb0f94f8206bba5f87dcf2e1f0e6d3dd95"
+  integrity sha512-7PyNNOhyFLIJCOcPEiw26FGycceE4a80uslJvYexdwNBco/H0wSH4Ukymy1vAW16Zi2yuLaVFGwV2NljLU4eoQ==
+
 "@json-api/querystring@^1.0.0":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@json-api/querystring/-/querystring-1.0.2.tgz#c12a8ebfc19c042baa556317dba9349bb5d85064"

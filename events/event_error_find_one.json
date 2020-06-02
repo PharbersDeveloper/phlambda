@@ -4,7 +4,7 @@
   "path": "/proposals/abcdealfredtest",
   "httpMethod": "GET",
   "isBase64Encoded": false,
-  "queryStringParameters": {},
+  "queryStringParameters": null,
   "pathParameters": {
     "type": "proposals",
     "id":  "abcdealfredtest"

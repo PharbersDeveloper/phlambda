@@ -76,7 +76,6 @@ export default class AWSLambdaStrategy extends Base {
         // @ts-ignore
         const sortQueryString = hasSortQuery && "sort=" + req.query.sort
 
-//         let rawQueryString
         if (hasFilterQuery && hasSortQuery) {
             genericReqPromise.rawQueryString = filterQueryString + "&" + sortQueryString
         } else if (hasFilterQuery) {

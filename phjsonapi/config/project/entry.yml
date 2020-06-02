@@ -1,0 +1,90 @@
+models:
+  - file: SandboxIndex
+    reg: sandbox-indices
+  - file: FileVersion
+    reg: file-versions
+  - file: FileDetail
+    reg: file-details
+  - file: Asset
+    reg: assets
+  - file: DataSet
+    reg: data-sets
+  - file: Job
+    reg: jobs
+  - file: DbSource
+    reg: db-sources
+  - file: File
+    reg: files
+  - file: Mart
+    reg: marts
+mongo:
+  algorithm: mongodb
+  host: pharbers.com
+  port: 5555
+  username: ""
+  pwd: ""
+  coll: "pharbers-sandbox-merge"
+  authSource: ""
+  auth: true
+oauth:
+  debugging: true
+  oauthHost: oauth.pharbers.com
+  oauthPort: ""
+  oauthApiNamespace: "v0"
+oss:
+  region: oss-cn-beijing
+  accessKeyId: LTAI4Fuc5oo46peAcc3LmHb3
+  accessKeySecret: aJRr3DP4nXCFDR3KGRICpIhq5bHfTm
+  bucket: pharbers-PhSandBox
+kfk:
+  kafkaBrokerList: "http://broker-svc.message:8082"
+  kafkaTopic: "alfredtest"
+modules:
+  - protocol: http
+    host: localhost
+    port: 30000
+    routers:
+      - sql
+  - protocol: http
+    host: localhost
+    port: 30001
+    routers:
+      - identify
+      - sendEmail
+handlers:
+  - name: fileEnd
+    file: fileEndPointHandler
+    entrance: uploadFileEnd
+  - name: findFilePath
+    file: findFilePathHandler
+    entrance: findFilePathWithId
+  - name: updateAssetVersion
+    file: updateAssetVersionHandler
+    entrance: updateAssetVersion
+  - name: reCommitJob
+    file: reCommitJobHandler
+    entrance: reCommitJobWithAssetId
+  - name: createDFSAndJob
+    file: jobBloodHandler
+    entrance: createDataSetsAndJob
+  - name: initJobs
+    file: jobBloodHandler
+    entrance: initJobs
+  - name: pushDs
+    file: jobBloodHandler
+    entrance: pushDs
+  - name: findNextJob
+    file: jobBloodHandler
+    entrance: findNextJob
+  - name: dataMark
+    file: assetDataMartHandler
+    entrance: assetDataMart
+  - name: pushJob
+    file: pushJobHandler
+    entrance: pushJob
+  - name: complementAsset
+    file: complementAssetHandler
+    entrance: complementAsset
+  - name: setMartTags2Asset
+    file: assetDataMartHandler
+    entrance: setMartTags2Asset

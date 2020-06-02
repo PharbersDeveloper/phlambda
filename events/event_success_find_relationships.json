@@ -4,7 +4,7 @@
     "path": "/proposals/5e00862c28e9fe103c5e3019/relationships/products",
     "httpMethod": "GET",
     "isBase64Encoded": false,
-    "queryStringParameters": {},
+    "queryStringParameters": null,
     "pathParameters": {
         "type": "proposals",
         "id": "5e00862a28e9fe103c5e2f4e",

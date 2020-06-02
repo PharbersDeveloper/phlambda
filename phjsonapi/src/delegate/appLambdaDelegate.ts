@@ -29,6 +29,10 @@ export default class AppLambdaDelegate {
         this.generateRoutes(this.getModelRegistry())
     }
 
+    public checkDBConnection() {
+
+    }
+
     public async exec(event: Map<string, any>) {
         const req = new AWSReq(event)
         // @ts-ignore
@@ -62,7 +66,7 @@ export default class AppLambdaDelegate {
         if (auth) {
             phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
             mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll,
-                { useNewUrlParser: true },
+                { useNewUrlParser: true, autoReconnect: true },
                 (err) => {
                     if (err != null) {
                         phLogger.error(err)
@@ -70,10 +74,12 @@ export default class AppLambdaDelegate {
                 })
         } else {
             phLogger.info(`connect mongodb without auth`)
-            mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll, { useNewUrlParser: true }, (err) => {
-                if (err != null) {
-                    phLogger.error(err)
-                }
+            mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll,
+                { useNewUrlParser: true, autoReconnect: true },
+                (err) => {
+                    if (err != null) {
+                        phLogger.error(err)
+                    }
             })
         }
     }

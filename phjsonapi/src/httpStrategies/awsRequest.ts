@@ -44,29 +44,37 @@ export default class AWSReq extends IncomingMessage {
         this.query = {}
         this.pagination = {}
         // @ts-ignore
-        if (event.queryStringParameters["page[offset]"] !== undefined) {
+        this.processQueryStringParameters(event.queryStringParameters)
+
+    }
+
+    private processQueryStringParameters(queryStringParameters: object) {
+        if (queryStringParameters) {
             // @ts-ignore
-            this.pagination.offset = event.queryStringParameters["page[offset]"]
-        }
-        // @ts-ignore
-        if (event.queryStringParameters["page[limit]"] !== undefined) {
+            if (queryStringParameters["page[offset]"] !== undefined) {
+                // @ts-ignore
+                this.pagination.offset = queryStringParameters["page[offset]"]
+            }
             // @ts-ignore
-            this.pagination.limit = event.queryStringParameters["page[limit]"]
-        }
-        // @ts-ignore
-        if (this.pagination.offset !== undefined || this.pagination.limit !== undefined) {
+            if (queryStringParameters["page[limit]"] !== undefined) {
+                // @ts-ignore
+                this.pagination.limit = queryStringParameters["page[limit]"]
+            }
             // @ts-ignore
-            this.query.page = this.pagination
-        }
-        // @ts-ignore
-        if (event.queryStringParameters.filter !== undefined) {
+            if (this.pagination.offset !== undefined || this.pagination.limit !== undefined) {
+                // @ts-ignore
+                this.query.page = this.pagination
+            }
             // @ts-ignore
-            this.query.filter = event.queryStringParameters.filter
-        }
-        // @ts-ignore
-        if (event.queryStringParameters.sort !== undefined) {
+            if (queryStringParameters.filter !== undefined) {
+                // @ts-ignore
+                this.query.filter = queryStringParameters.filter
+            }
             // @ts-ignore
-            this.query.sort = event.queryStringParameters.sort
+            if (queryStringParameters.sort !== undefined) {
+                // @ts-ignore
+                this.query.sort = queryStringParameters.sort
+            }
         }
     }
 }

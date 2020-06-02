@@ -30,6 +30,9 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
+        if (mongoose.connection.readyState !== 1) {
+            this.connect2MongoDB()
+        }
         const req = new AWSReq(event)
         // @ts-ignore
         return await this.httpStrategies.doRequest(req, null)

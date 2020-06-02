@@ -1,7 +1,7 @@
 {
   "body": "",
-  "resource": "/{type}/{id}",
-  "path": "/proposals/5e00862a28e9fe103c5e2f4e",
+  "resource": "/ntm/{type}/{id}",
+  "path": "/ntm/proposals/5e00862a28e9fe103c5e2f4e",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": null,
@@ -52,8 +52,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/proposals/5e00862a28e9fe103c5e2f4e",
-    "resourcePath": "/{type}/{id}",
+    "path": "/ntm/proposals/5e00862a28e9fe103c5e2f4e",
+    "resourcePath": "/ntm/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

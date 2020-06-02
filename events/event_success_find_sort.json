@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/{type}",
-    "path": "/proposals",
+    "resource": "/ntm/{type}",
+    "path": "/ntm/proposals",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
@@ -53,8 +53,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/{type}",
-        "resourcePath": "/proposals",
+        "path": "/ntm/{type}",
+        "resourcePath": "/ntm/proposals",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

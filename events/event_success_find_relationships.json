@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/{type}/{id}/relationships/{relationship}",
-    "path": "/proposals/5e00862c28e9fe103c5e3019/relationships/products",
+    "resource": "/ntm/{type}/{id}/relationships/{relationship}",
+    "path": "/ntm/proposals/5e00862c28e9fe103c5e3019/relationships/products",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": null,
@@ -53,8 +53,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/proposals/5e00862c28e9fe103c5e3019/relationships/products",
-        "resourcePath": "/{type}/{id}/relationships/{relationship}",
+        "path": "/ntm/proposals/5e00862c28e9fe103c5e3019/relationships/products",
+        "resourcePath": "/ntm/{type}/{id}/relationships/{relationship}",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

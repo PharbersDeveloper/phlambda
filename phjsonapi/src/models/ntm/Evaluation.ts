@@ -1,7 +1,7 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import { arrayProp, prop, Ref, Typegoose } from "typegoose"
-import { ResultCategory } from "../enum/ResultCategory"
+import { ResultCategory } from "../../enum/ResultCategory"
 import IModelBase from "./modelBase"
 
 @JsonObject("Evaluation")

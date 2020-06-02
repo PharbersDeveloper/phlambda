@@ -29,10 +29,6 @@ export default class AppLambdaDelegate {
         this.generateRoutes(this.getModelRegistry())
     }
 
-    public checkDBConnection() {
-
-    }
-
     public async exec(event: Map<string, any>) {
         const req = new AWSReq(event)
         // @ts-ignore
@@ -101,7 +97,7 @@ export default class AppLambdaDelegate {
     }
 
     protected generateModels(): any {
-        const path = "../models/"
+        const path = "../models/" + this.conf.project + "/"
         const suffix = ".js"
         const result: {[index: string]: any} = {}
         this.conf.models.forEach((ele) => {

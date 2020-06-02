@@ -1,3 +1,4 @@
+project: "ntm"
 models:
   - file: Proposal
     reg: proposals

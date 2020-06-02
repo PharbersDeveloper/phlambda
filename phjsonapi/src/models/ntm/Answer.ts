@@ -1,6 +1,6 @@
 "use strict"
 import { prop, Ref, Typegoose } from "typegoose"
-import { AnswerCategory } from "../enum/AnswerCategory"
+import { AnswerCategory } from "../../enum/AnswerCategory"
 import Hospital from "./Hospital"
 import IModelBase from "./modelBase"
 import Product from "./Product"

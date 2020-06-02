@@ -1,3 +1,4 @@
+project: "entry"
 models:
   - file: SandboxIndex
     reg: sandbox-indices
@@ -25,12 +26,18 @@ mongo:
   pwd: ""
   coll: "pharbers-sandbox-merge"
   authSource: ""
-  auth: true
-oauth:
-  debugging: true
+  auth: false
+env:
   oauthHost: oauth.pharbers.com
   oauthPort: ""
   oauthApiNamespace: "v0"
+  kafkaBrokerList: "59.110.31.50:9092"
+  kafkaTopic: "test"
+  kafkaSecretsDir: "/Users/sunchenghao/secrets/"
+  kafkaPassword: "pharbers"
+  schemaRegisterHost: "59.110.31.50:8081"
+  httpCallUrl: "http://59.110.31.50:28888/spark/job/run"
+  httpCallRUrl: "http://59.110.31.50:9213/v1.0/job_reg"
 oss:
   region: oss-cn-beijing
   accessKeyId: LTAI4Fuc5oo46peAcc3LmHb3
@@ -39,52 +46,3 @@ oss:
 kfk:
   kafkaBrokerList: "http://broker-svc.message:8082"
   kafkaTopic: "alfredtest"
-modules:
-  - protocol: http
-    host: localhost
-    port: 30000
-    routers:
-      - sql
-  - protocol: http
-    host: localhost
-    port: 30001
-    routers:
-      - identify
-      - sendEmail
-handlers:
-  - name: fileEnd
-    file: fileEndPointHandler
-    entrance: uploadFileEnd
-  - name: findFilePath
-    file: findFilePathHandler
-    entrance: findFilePathWithId
-  - name: updateAssetVersion
-    file: updateAssetVersionHandler
-    entrance: updateAssetVersion
-  - name: reCommitJob
-    file: reCommitJobHandler
-    entrance: reCommitJobWithAssetId
-  - name: createDFSAndJob
-    file: jobBloodHandler
-    entrance: createDataSetsAndJob
-  - name: initJobs
-    file: jobBloodHandler
-    entrance: initJobs
-  - name: pushDs
-    file: jobBloodHandler
-    entrance: pushDs
-  - name: findNextJob
-    file: jobBloodHandler
-    entrance: findNextJob
-  - name: dataMark
-    file: assetDataMartHandler
-    entrance: assetDataMart
-  - name: pushJob
-    file: pushJobHandler
-    entrance: pushJob
-  - name: complementAsset
-    file: complementAssetHandler
-    entrance: complementAsset
-  - name: setMartTags2Asset
-    file: assetDataMartHandler
-    entrance: setMartTags2Asset

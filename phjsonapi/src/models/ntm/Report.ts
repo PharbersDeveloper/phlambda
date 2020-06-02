@@ -3,7 +3,7 @@
 // import Proposal from "./Proposal"
 import { JsonObject, JsonProperty } from "json2typescript"
 import { prop, Ref, Typegoose } from "typegoose"
-import { ReportCategory } from "../enum/ReportCategory"
+import { ReportCategory } from "../../enum/ReportCategory"
 import Hospital from "./Hospital"
 import IModelBase from "./modelBase"
 import Product from "./Product"

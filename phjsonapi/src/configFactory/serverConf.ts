@@ -9,6 +9,9 @@ import { OssConf } from "./ossConf"
 @JsonObject("ServerConf")
 export class ServerConf {
 
+    @JsonProperty("project", String)
+    public project: string = undefined
+
     @JsonProperty("models", [ModelConf])
     public models: ModelConf[] = undefined
 

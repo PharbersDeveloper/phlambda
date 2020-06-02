@@ -1,7 +1,7 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import { prop, Ref, Typegoose } from "typegoose"
-import { ValidationType } from "../enum/ValidationType"
+import { ValidationType } from "../../enum/ValidationType"
 import IModelBase from "./modelBase"
 
 @JsonObject("Validation")

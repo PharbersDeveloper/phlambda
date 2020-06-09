@@ -39,6 +39,9 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @prop({ default: "", required: true })
     public contentDesc: string
 
+    @prop({ default: [], required: true })
+    public gallery: string[]
+
     @arrayProp({ itemsRef: Report, required: false })
     public attachments?: Array<Ref<Report>>
 

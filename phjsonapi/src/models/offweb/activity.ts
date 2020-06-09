@@ -2,6 +2,7 @@
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
 import IModelBase from "./modelBase"
 import Report from "./report"
+import Zone from "./zone"
 
 class Activity extends Typegoose implements IModelBase<Activity> {
 
@@ -40,6 +41,9 @@ class Activity extends Typegoose implements IModelBase<Activity> {
 
     @arrayProp({ itemsRef: Report, required: false })
     public attachments?: Array<Ref<Report>>
+
+    @arrayProp({ itemsRef: Zone, required: false })
+    public agendes?: Array<Ref<Zone>>
 
     public getModel() {
         return this.getModelForClass(Activity)

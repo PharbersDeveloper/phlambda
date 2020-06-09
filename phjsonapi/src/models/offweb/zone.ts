@@ -2,6 +2,7 @@
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
 import IModelBase from "./modelBase"
 import Participant from "./participant"
+import Event from "./event"
 
 class Zone extends Typegoose implements IModelBase<Zone> {
 
@@ -22,6 +23,9 @@ class Zone extends Typegoose implements IModelBase<Zone> {
 
     @arrayProp({ itemsRef: Participant, required: true })
     public hosts?: Array<Ref<Participant>>
+
+    @arrayProp({ itemsRef: Event, required: true })
+    public agendas?: Array<Ref<Event>>
 
     public getModel() {
         return this.getModelForClass(Zone)

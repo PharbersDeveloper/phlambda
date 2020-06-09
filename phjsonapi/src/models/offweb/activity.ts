@@ -29,6 +29,15 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @prop({ default: "", required: true })
     public logoOnTime: string
 
+    @prop({ default: "", required: true })
+    public type: string
+
+    @prop({ default: "", required: true })
+    public contentTitle: string
+
+    @prop({ default: "", required: true })
+    public contentDesc: string
+
     @arrayProp({ itemsRef: Report, required: false })
     public attachments?: Array<Ref<Report>>
 

@@ -61,9 +61,9 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @arrayProp({ itemsRef: Report, required: false })
     public attachments?: Array<Ref<Report>>
 
-    @JsonProperty("agendes", Array)
+    @JsonProperty("agendas", Array)
     @arrayProp({ itemsRef: Zone, required: false })
-    public agendes?: Array<Ref<Zone>>
+    public agendas?: Array<Ref<Zone>>
 
     @JsonProperty("partners", Array)
     @arrayProp({ itemsRef: Cooperation, required: false })

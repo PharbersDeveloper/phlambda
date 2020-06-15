@@ -9,30 +9,29 @@ class Event extends Typegoose implements IModelBase<Event> {
 
     @JsonProperty("title", String)
     @prop({ default: "", required: true })
-    public title: string
+    public title: string = ""
 
     @JsonProperty("subTitle", String)
-    @prop({ default: "", required: true })
-    public subTitle: string
+    @prop({ default: "", required: false })
+    public subTitle: string = ""
 
     @JsonProperty("description", String)
-    @prop({ default: "", required: true })
-    public description: string
+    @prop({ default: "", required: false })
+    public description: string = ""
 
     @JsonProperty("startDate", Number)
-    @prop({ default: 0, required: true })
+    @prop({ default: 0, required: false })
     public startDate: number
 
     @JsonProperty("endDate", Number)
-    @prop({ default: 0, required: true })
+    @prop({ default: 0, required: false })
     public endDate: number
 
-    @JsonProperty("speakers", Array)
-    @arrayProp({ itemsRef: Participant, required: true })
-    public speakers?: Array<Ref<Participant>>
+    @arrayProp({ itemsRef: Participant, required: false })
+    public speakers?: Array<Ref<Participant>> = []
     
     @JsonProperty("id", Number)
-    public id: number
+    public jid: number
 
     public getModel() {
         return this.getModelForClass(Event)

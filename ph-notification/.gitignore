@@ -1,0 +1,11 @@
+\.idea/
+
+test/message.json
+test/event.json
+
+plugin/*.so
+plugin/*.zip
+
+*.zip
+
+lambda

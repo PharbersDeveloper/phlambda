@@ -75,6 +75,10 @@ export default class AWSLambdaStrategy extends Base {
         const filterQueryString = hasFilterQuery && "filter=" + req.query.filter
         // @ts-ignore
         const sortQueryString = hasSortQuery && "sort=" + req.query.sort
+    
+        // @ts-ignore
+        const testBody = req.testBody
+    
 
         if (hasFilterQuery && hasSortQuery) {
             genericReqPromise.rawQueryString = filterQueryString + "&" + sortQueryString
@@ -82,6 +86,16 @@ export default class AWSLambdaStrategy extends Base {
             genericReqPromise.rawQueryString = filterQueryString
         } else if (hasSortQuery) {
             genericReqPromise.rawQueryString = sortQueryString
+        }
+
+        if (testBody instanceof Object) {
+            genericReqPromise.body = JSON.stringify({data: {
+                // @ts-ignore
+                type: req.params.type,
+                //@ts-ignore
+                id: req.params.id,
+                attributes: testBody
+            }})
         }
 
         return genericReqPromise

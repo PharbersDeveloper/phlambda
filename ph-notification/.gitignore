@@ -1,5 +1,7 @@
 \.idea/
 
+ph-notification
+
 test/message.json
 test/event.json
 

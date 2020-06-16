@@ -62,11 +62,12 @@ export default class AppLambdaDelegate {
         const pwd = this.conf.mongo.pwd
         const coll = this.conf.mongo.coll
         const auth = this.conf.mongo.auth
+        const authSource = this.conf.mongo.authSource
         if (auth) {
             phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
-            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll,
+            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
                 { useNewUrlParser: true, autoReconnect: true },
-                (err) => {
+                (err: any) => {
                     if (err != null) {
                         phLogger.error(err)
                     }
@@ -75,7 +76,7 @@ export default class AppLambdaDelegate {
             phLogger.info(`connect mongodb without auth`)
             mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll,
                 { useNewUrlParser: true, autoReconnect: true },
-                (err) => {
+                (err: any) => {
                     if (err != null) {
                         phLogger.error(err)
                     }

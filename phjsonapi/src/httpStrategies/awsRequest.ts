@@ -9,6 +9,7 @@ export default class AWSReq extends IncomingMessage {
     public params?: object
     public query?: object
     public pagination: object
+    public body ?: object
 
     constructor(event: object) {
         super(null)
@@ -43,6 +44,13 @@ export default class AWSReq extends IncomingMessage {
         // this.query = parse(event.queryStringParameters)
         this.query = {}
         this.pagination = {}
+
+        // @ts-ignore
+        if (event.body) {
+            // @ts-ignore
+            this.body = JSON.parse( event.body )
+        }
+
         // @ts-ignore
         this.processQueryStringParameters(event.queryStringParameters)
 

@@ -84,6 +84,16 @@ export default class AWSLambdaStrategy extends Base {
             genericReqPromise.rawQueryString = sortQueryString
         }
 
+        if (req.body && req.method === "PATCH") {
+            // @ts-ignore
+            genericReqPromise.body = { data: {type: req.params.type, id: req.params.id, attributes: req.body }}
+            genericReqPromise.contentType = "application/vnd.api+json"
+        } else if (req.body && req.method === "POST") {
+            // @ts-ignore
+            genericReqPromise.body = { data: {type: req.params.type, attributes: req.body }}
+            genericReqPromise.contentType = "application/vnd.api+json"
+        }
+
         return genericReqPromise
     }
 

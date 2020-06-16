@@ -8,23 +8,26 @@ class Participant extends Typegoose implements IModelBase<Participant> {
 
     @JsonProperty("name", String)
     @prop({ default: "", required: true })
-    public name: string
+    public name: string = ""
 
     @JsonProperty("title", String)
-    @prop({ default: "", required: true })
-    public title: string
+    @prop({ default: "", required: false })
+    public title: string = ""
 
     @JsonProperty("occupation", String)
     @prop({ default: "", required: true })
-    public occupation: string
+    public occupation: string = ""
 
     @JsonProperty("avatar", String)
-    @prop({ default: "", required: true })
-    public avatar: string
+    @prop({ default: "", required: false })
+    public avatar: string = ""
 
     @JsonProperty("id", Number)
+    public jid: number = 0
+
+    @JsonProperty("language", Number)
     @prop({ default: "", required: true })
-    public id: number
+    public language: number = 1
 
     public getModel() {
         return this.getModelForClass(Participant)

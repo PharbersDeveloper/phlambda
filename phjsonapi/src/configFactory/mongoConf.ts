@@ -22,6 +22,9 @@ export class MongoConf {
     @JsonProperty("coll", String)
     public coll: string = undefined
 
+    @JsonProperty("authSource", String)
+    public authSource: string = undefined
+
     @JsonProperty("auth", Boolean)
     public auth: boolean = false
 }

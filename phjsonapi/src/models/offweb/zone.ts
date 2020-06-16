@@ -1,44 +1,46 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
+import Event from "./event"
 import IModelBase from "./modelBase"
 import Participant from "./participant"
-import Event from "./event"
 
 @JsonObject("Zone")
 class Zone extends Typegoose implements IModelBase<Zone> {
 
     @JsonProperty("title", String)
-    @prop({ default: "", required: true })
-    public title: string
+    @prop({ default: "", required: false })
+    public title: string = ""
 
     @JsonProperty("subTitle", String)
-    @prop({ default: "", required: true })
-    public subTitle: string
+    @prop({ default: "", required: false })
+    public subTitle: string = ""
 
     @JsonProperty("description", String)
-    @prop({ default: "", required: true })
-    public description: string
+    @prop({ default: "", required: false })
+    public description: string = ""
 
     @JsonProperty("startDate", Number)
-    @prop({ default: 0, required: true })
-    public startDate: number
+    @prop({ default: 0, required: false })
+    public startDate: number = 0
 
     @JsonProperty("endDate", Number)
-    @prop({ default: 0, required: true })
-    public endDate: number
+    @prop({ default: 0, required: false })
+    public endDate: number = 0
 
     @JsonProperty("hosts", Array)
-    @arrayProp({ itemsRef: Participant, required: true })
+    @arrayProp({ itemsRef: Participant, required: false })
     public hosts?: Array<Ref<Participant>>
 
-    @JsonProperty("agendas", Array)
     @arrayProp({ itemsRef: Event, required: true })
-    public agendas?: Array<Ref<Event>>
+    public agendas?: Array<Ref<Event>> = []
 
     @JsonProperty("id", Number)
-    public id: number
-    
+    public jid: number
+
+    @JsonProperty("language", Number)
+    @prop({ default: "", required: true })
+    public language: number = 1
 
     public getModel() {
         return this.getModelForClass(Zone)

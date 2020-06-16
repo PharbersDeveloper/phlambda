@@ -197,9 +197,10 @@ export default class AppDelegate {
         const pwd = this.conf.mongo.pwd
         const coll = this.conf.mongo.coll
         const auth = this.conf.mongo.auth
+        const authSource = this.conf.mongo.authSource
         if (auth) {
             PhLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
-            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll,
+            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
                 { useNewUrlParser: true },
                 (err) => {
                     if (err != null) {

@@ -66,6 +66,7 @@ export default class AppLambdaDelegate {
         if (auth) {
             phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
             mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
+                { useNewUrlParser: true, autoReconnect: true },
                 (err: any) => {
                     if (err != null) {
                         phLogger.error(err)

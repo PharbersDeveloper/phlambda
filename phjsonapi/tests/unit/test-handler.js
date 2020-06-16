@@ -88,21 +88,67 @@ describe('Tests index', function () {
         // expect(response.location).to.be.an("string");
     });
 
-    it('verify find sort', async () => {
-        const event = JSON.parse(fs.readFileSync("../events/event_success_find_sort.json", 'utf8'))
+    // it('verify find sort', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_success_find_sort.json", 'utf8'))
+    //     const result = await app.lambdaHandler(event, context)
+
+    //     expect(result).to.be.an('object');
+    //     expect(result.statusCode).to.equal(200);
+    //     expect(result.body).to.be.an('string');
+
+    //     let response = JSON.parse(result.body);
+
+    //     expect(response).to.be.an('object');
+    //     expect(response.data[0].id).to.be.equal("5e00862c28e9fe103c5e3019");
+    //     expect(response.data[1].id).to.be.equal("5e00862a28e9fe103c5e2f4e");
+    //     // expect(response.location).to.be.an("string");
+    // });
+
+   
+    // it('verify delete one', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_success_delete_one.json", 'utf8'))
+    //     const result = await app.lambdaHandler(event, context)
+
+    //     expect(result).to.be.an('object');
+    //     expect(result.statusCode).to.equal(204);
+
+    //     // let response = JSON.parse(result.body);
+
+    //     // expect(response).to.be.an('object');
+    //     // expect(response.data.length).to.be.equal(0);
+    // });
+
+    it('verify post one', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_success_post_one.json", 'utf8'))
         const result = await app.lambdaHandler(event, context)
 
         expect(result).to.be.an('object');
-        expect(result.statusCode).to.equal(200);
+        expect(result.statusCode).to.equal(201);
         expect(result.body).to.be.an('string');
 
         let response = JSON.parse(result.body);
 
         expect(response).to.be.an('object');
-        expect(response.data[0].id).to.be.equal("5e00862c28e9fe103c5e3019");
-        expect(response.data[1].id).to.be.equal("5e00862a28e9fe103c5e2f4e");
-        // expect(response.location).to.be.an("string");
+        expect(response.data.type).to.be.equal("proposals");
+
     });
+
+    //  it('verify patch one', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_success_patch_one.json", 'utf8'))
+    //     const result = await app.lambdaHandler(event, context)
+
+    //     expect(result).to.be.an('object');
+    //     expect(result.statusCode).to.equal(200);
+    //     expect(result.body).to.be.an('string');
+
+    //     let response = JSON.parse(result.body);
+
+    //     expect(response).to.be.an('object');
+    //     expect(response.data.type).to.be.equal("proposals");
+    //     expect(response.data.attributes.describe).to.be.equal("修改-辅助地区经理进行区域管理实战模拟测试与练习工具");
+    //     // expect(response.location).to.be.an("string");
+    // });
+
 
     after("desconnect db", async () => {
         await mongoose.disconnect()

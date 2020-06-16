@@ -44,7 +44,7 @@ mongo:
   port: 5555
   username: alfredyang
   pwd: "12345"
-  coll: "pharbers-ntm-client"
+  coll: "pharbers-ntm-client-test"
   auth: false
 env:
   oauthHost: oauth.pharbers.com

@@ -37,6 +37,10 @@ class Zone extends Typegoose implements IModelBase<Zone> {
 
     @JsonProperty("id", Number)
     public jid: number
+
+    @JsonProperty("language", Number)
+    @prop({ default: "", required: true })
+    public language: number = 1
     
 
     public getModel() {

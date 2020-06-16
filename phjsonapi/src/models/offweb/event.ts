@@ -33,6 +33,10 @@ class Event extends Typegoose implements IModelBase<Event> {
     @JsonProperty("id", Number)
     public jid: number
 
+    @JsonProperty("language", Number)
+    @prop({ default: "", required: true })
+    public language: number = 1
+
     public getModel() {
         return this.getModelForClass(Event)
     }

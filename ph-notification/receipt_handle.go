@@ -38,8 +38,9 @@ func handleSQSMsg(sqsMsg events.SQSMessage) SQSResponse {
 		Attributes: nil,
 	}
 
+	layerDir := "/opt/"
 	// Load plugin
-	pluginModule, err := plugin.Open(sqsMsg.ReceiptHandle + ".so")
+	pluginModule, err := plugin.Open(layerDir + sqsMsg.ReceiptHandle + ".so")
 	if err != nil {
 		log.Printf("Unable to load %s module", sqsMsg.ReceiptHandle)
 		return dealErrorResponse(res, err)

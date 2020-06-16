@@ -2,12 +2,5 @@
 
 ph-notification
 
-test/message.json
-test/event.json
-
-plugin/*.so
-plugin/*.zip
-
-*.zip
-
+test
 lambda

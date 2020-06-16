@@ -11,7 +11,7 @@ import (
 
 func SendSmsHandle(sqsMsg events.SQSMessage) error {
 
-	if sqsMsg.ReceiptHandle != "SendSmsHandle" {
+	if sqsMsg.Body != "SendSmsHandle" {
 		return errors.New("Not SendSmsHandle SQS Msg. ")
 	}
 
@@ -35,10 +35,10 @@ func SendSmsHandle(sqsMsg events.SQSMessage) error {
 	req.Version = version
 	req.ApiName = "SendSms"
 	req.QueryParams["RegionId"] = regionId
-	req.QueryParams["PhoneNumbers"] = sqsMsg.Attributes["PhoneNumbers"]
+	req.QueryParams["PhoneNumbers"] = *sqsMsg.MessageAttributes["PhoneNumbers"].StringValue
 	req.QueryParams["SignName"] = signName
 	req.QueryParams["TemplateCode"] = templateCode
-	req.QueryParams["TemplateParam"] = "{\"code\":\"" + sqsMsg.Attributes["Code"] + "\"}"
+	req.QueryParams["TemplateParam"] = "{\"code\":\"" + *sqsMsg.MessageAttributes["Code"].StringValue + "\"}"
 	res, err := client.ProcessCommonRequest(req)
 	log.Printf("SendSmsHandle response=(%v)", res)
 	return err

@@ -1,9 +1,9 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
+import Event from "./event"
 import IModelBase from "./modelBase"
 import Participant from "./participant"
-import Event from "./event"
 
 @JsonObject("Zone")
 class Zone extends Typegoose implements IModelBase<Zone> {
@@ -30,7 +30,7 @@ class Zone extends Typegoose implements IModelBase<Zone> {
 
     @JsonProperty("hosts", Array)
     @arrayProp({ itemsRef: Participant, required: false })
-    public hosts?: Array<Ref<Participant>> 
+    public hosts?: Array<Ref<Participant>>
 
     @arrayProp({ itemsRef: Event, required: true })
     public agendas?: Array<Ref<Event>> = []
@@ -41,7 +41,6 @@ class Zone extends Typegoose implements IModelBase<Zone> {
     @JsonProperty("language", Number)
     @prop({ default: "", required: true })
     public language: number = 1
-    
 
     public getModel() {
         return this.getModelForClass(Zone)

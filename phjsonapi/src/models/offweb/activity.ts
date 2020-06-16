@@ -1,10 +1,10 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
+import Cooperation from "./cooperation"
 import IModelBase from "./modelBase"
 import Report from "./report"
 import Zone from "./zone"
-import Cooperation from "./cooperation"
 
 @JsonObject("Activity")
 class Activity extends Typegoose implements IModelBase<Activity> {
@@ -44,7 +44,7 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @JsonProperty("type", String)
     @prop({ default: "", required: true })
     public type: string = ""
-    
+
     @JsonProperty("contentTitle", String)
     @prop({ default: "", required: true })
     public contentTitle: string = ""

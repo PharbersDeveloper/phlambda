@@ -29,7 +29,6 @@ class Participant extends Typegoose implements IModelBase<Participant> {
     @prop({ default: "", required: true })
     public language: number = 1
 
-
     public getModel() {
         return this.getModelForClass(Participant)
     }

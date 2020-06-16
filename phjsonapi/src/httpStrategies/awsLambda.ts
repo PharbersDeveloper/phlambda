@@ -75,7 +75,7 @@ export default class AWSLambdaStrategy extends Base {
         const filterQueryString = hasFilterQuery && "filter=" + req.query.filter
         // @ts-ignore
         const sortQueryString = hasSortQuery && "sort=" + req.query.sort
-    
+
         if (hasFilterQuery && hasSortQuery) {
             genericReqPromise.rawQueryString = filterQueryString + "&" + sortQueryString
         } else if (hasFilterQuery) {
@@ -86,11 +86,11 @@ export default class AWSLambdaStrategy extends Base {
 
         if (req.body && req.method === "PATCH") {
             // @ts-ignore
-            genericReqPromise.body = { data: {type: req.params.type, id: req.params.id, attributes: req.body }} 
+            genericReqPromise.body = { data: {type: req.params.type, id: req.params.id, attributes: req.body }}
             genericReqPromise.contentType = "application/vnd.api+json"
         } else if (req.body && req.method === "POST") {
             // @ts-ignore
-            genericReqPromise.body = { data: {type: req.params.type, attributes: req.body }} 
+            genericReqPromise.body = { data: {type: req.params.type, attributes: req.body }}
             genericReqPromise.contentType = "application/vnd.api+json"
         }
 

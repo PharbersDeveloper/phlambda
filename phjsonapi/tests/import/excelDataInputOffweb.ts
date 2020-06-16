@@ -1,6 +1,9 @@
+import AWS = require("aws-sdk")
+import * as fs from "fs"
 import { JsonConvert, OperationMode, ValueCheckingMode } from "json2typescript"
 import { slow, suite, test, timeout } from "mocha-typescript"
 import mongoose = require("mongoose")
+import * as path from "path"
 // import uuidv4 from "uuid/v4"
 import XLSX = require("xlsx")
 import PhLogger from "../../src/logger/phLogger"
@@ -10,11 +13,7 @@ import Event from "../../src/models/offweb/event"
 import Participant from "../../src/models/offweb/participant"
 import Report from "../../src/models/offweb/report"
 import Zone from "../../src/models/offweb/zone"
-import * as fs from "fs"
-import AWS = require('aws-sdk')
-import * as path from "path"
 // import e = require("express")
-
 
 @suite(timeout(1000 * 60), slow(2000))
 class ExcelDataInputOffweb {
@@ -30,9 +29,8 @@ class ExcelDataInputOffweb {
         mongoose.disconnect()
     }
 
-
-    constructor() {
-    }
+    // constructor() {
+    // }
 
     @test public async excelModelData() {
         PhLogger.info(`start input data with excel`)
@@ -41,19 +39,19 @@ class ExcelDataInputOffweb {
         await this.loadExcelData(file)
         await this.uploadAssets()
     }
-    
+
     public async uploadAssets() {
         // 0. init oss
         // Set the Region
-        AWS.config.update({region: 'cn-northwest-1'})
-        const s3 = new AWS.S3({apiVersion: '2006-03-01'})
-    
+        AWS.config.update({region: "cn-northwest-1"})
+        const s3 = new AWS.S3({apiVersion: "2006-03-01"})
+
         // 1. create bucket
         // const bucketParams = {
         //     Bucket: "ph-offweb",
         //     ACL: "public-read"
         // }
-    
+
         // s3.createBucket(bucketParams, function(err:any, data:any) {
         //     if (err) {
         //         PhLogger.info("Error", err);
@@ -64,13 +62,13 @@ class ExcelDataInputOffweb {
 
         // 需要改成参数传入/配置
         const assetsDir = "test/data/offweb/assets"
-        let that = this
-        let arr:any = []
-        
+        const that = this
+        const arr: any = []
+
         // 遍历文件夹
         this.readFileList(assetsDir, arr)
 
-        arr.forEach(async (item:any) => {
+        arr.forEach(async (item: any) => {
             const s3key =  "public/" + that.getFileName(item)
             const existsQuery = {
                 Bucket: "ph-offweb",
@@ -110,7 +108,7 @@ class ExcelDataInputOffweb {
     //                     fileArr.push(filePath)
     //                 } else {
     //                     files.push()
-    //                     that.getFiles(filePath, fileArr )               
+    //                     that.getFiles(filePath, fileArr )
     //                 }
     //             })
     //         })
@@ -119,32 +117,30 @@ class ExcelDataInputOffweb {
     // }
 
     public readFileList(assetsDir: any, filesList: any) {
-        let that = this
-        var files = fs.readdirSync(assetsDir);
-        files.forEach(function(itm, index) {
-            let filePath = path.join(assetsDir, itm);
-            var stat = fs.statSync(filePath);
+        const that = this
+        const files = fs.readdirSync(assetsDir)
+        files.forEach((itm, index) => {
+            const filePath = path.join(assetsDir, itm)
+            const stat = fs.statSync(filePath)
             if (stat.isDirectory()) {
                 that.readFileList(filePath, filesList)
             } else {
-                filesList.push(filePath);
+                filesList.push(filePath)
             }
         })
     }
 
-
-    public getFileName(path: string) {
-        if (path.indexOf("/") >= 0) {
-            return path.substr(path.lastIndexOf("/") + 1)
+    public getFileName(fpath: string) {
+        if (fpath.indexOf("/") >= 0) {
+            return fpath.substr(fpath.lastIndexOf("/") + 1)
         } else {
-            return path.substr(path.lastIndexOf("\\") + 1)
+            return fpath.substr(fpath.lastIndexOf("\\") + 1)
         }
     }
 
     public async loadExcelData(file: string) {
         const wb = XLSX.readFile(file)
-        
-        
+
         /**
          * 1. read Participant data in the excel
          * and colleect all the insertion ids
@@ -165,7 +161,7 @@ class ExcelDataInputOffweb {
             }))
         }
 
-         /**
+        /**
          * 2. read events data in the excel
          * and colleect all the insertion ids
          */
@@ -183,7 +179,7 @@ class ExcelDataInputOffweb {
                 const tmp = jsonConvert.deserializeObject(x, Event)
                 const eventSpeakers = x.speakers.toString().split("\n")
                 const speakers = participants.filter((it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return eventSpeakers.includes(i)
                 })
                 tmp.speakers = speakers
@@ -191,7 +187,7 @@ class ExcelDataInputOffweb {
             }))
         }
 
-         /**
+        /**
          * 3. read zone in the excel
          * and colleect all the insertion ids
          */
@@ -210,11 +206,11 @@ class ExcelDataInputOffweb {
                 const zoneHosts = x.hosts.toString().split("\n")
                 const zoneAgendas = x.agendas.toString().split("\n")
                 const hosts = participants.filter((it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return zoneHosts.includes(i)
                 })
                 const agendas = zones.filter( (it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return zoneAgendas.includes(i)
                 })
                 tmp.hosts = hosts
@@ -243,7 +239,7 @@ class ExcelDataInputOffweb {
                 const tmp = jsonConvert.deserializeObject(x, Report)
                 const reportWriter = x.writers
                 const writer = participants.filter((it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return reportWriter.includes(i)
                 })
                 tmp.writers = writer
@@ -252,7 +248,7 @@ class ExcelDataInputOffweb {
             }))
         }
 
-         /**
+        /**
          * 5. read cooperations data in the excel
          * and colleect all the insertion ids
          */
@@ -274,7 +270,6 @@ class ExcelDataInputOffweb {
             }))
         }
 
-
         /**
          * 6. read hospital data in the excel
          * and collect all the insertion ids
@@ -289,18 +284,18 @@ class ExcelDataInputOffweb {
             const th = new Activity()
 
             activities = await Promise.all(data.map (async (x: any) => {
-                jsonConvert.ignorePrimitiveChecks = true 
-                jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL 
+                jsonConvert.ignorePrimitiveChecks = true
+                jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL
                 const tmp = jsonConvert.deserializeObject(x, Activity)
                 // logo,logoOnTime,gallery 图片问题
                 const activityAttachment = x.attachments.toString().split("\n")
                 const activityAgenda = x.agendas.toString().split("\n")
                 const attachments = reports.filter((it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return activityAttachment.includes(i)
                 })
                 const agendas = zones.filter((it, index) => {
-                    let i = index.toString()
+                    const i = index.toString()
                     return activityAgenda.includes(i)
                 })
                 tmp.attachments = attachments
@@ -308,6 +303,6 @@ class ExcelDataInputOffweb {
                 // tmp.avatar = await this.pushAvatar2Oss(tmp.avatarPath)
                 return th.getModel().create(tmp)
             }))
-        } 
+        }
     }
 }

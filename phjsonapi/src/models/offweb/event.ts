@@ -29,7 +29,7 @@ class Event extends Typegoose implements IModelBase<Event> {
 
     @arrayProp({ itemsRef: Participant, required: false })
     public speakers?: Array<Ref<Participant>> = []
-    
+
     @JsonProperty("id", Number)
     public jid: number
 

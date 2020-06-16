@@ -22,7 +22,7 @@
 6. 函数集动态加载
 
 #### ph-notificaton 开发约定
-为方便使用SQSEvent调用，我们在处理SQSEvent时根据"ReceiptHandle"的值来决定使用哪个plugin进行处理。
+为方便使用SQS调用，我们在处理SQSMsg时根据"body"的值来决定使用哪个plugin进行处理，即"body"="功能名+Handle"。
 
 所以在编写指定功能的plugin时，plugin要实现以"功能名+Handle"为命名的函数`func(events.SQSMessage) error`，build -o时指定输出以"功能名+Handle+.so"为名字的文件。
 

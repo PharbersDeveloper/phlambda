@@ -10,7 +10,7 @@ import (
 
 func SendEmailHandle(sqsMsg events.SQSMessage) error {
 
-	if sqsMsg.ReceiptHandle != "SendEmailHandle" {
+	if sqsMsg.Body != "SendEmailHandle" {
 		return errors.New("Not SendEmailHandle SQS Msg. ")
 	}
 
@@ -27,9 +27,9 @@ func SendEmailHandle(sqsMsg events.SQSMessage) error {
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", user)
-	m.SetHeader("To", sqsMsg.Attributes["To"])
-	m.SetHeader("Subject", sqsMsg.Attributes["Subject"])
-	m.SetBody(sqsMsg.Attributes["ContentType"], sqsMsg.Attributes["Content"])
+	m.SetHeader("To", *sqsMsg.MessageAttributes["To"].StringValue)
+	m.SetHeader("Subject", *sqsMsg.MessageAttributes["Subject"].StringValue)
+	m.SetBody(*sqsMsg.MessageAttributes["ContentType"].StringValue, *sqsMsg.MessageAttributes["Content"].StringValue)
 
 	err = d.DialAndSend(m)
 	return err

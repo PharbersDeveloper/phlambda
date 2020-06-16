@@ -10,10 +10,9 @@ import (
 
 type SQSResponse struct {
 	MessageId     string            `json:"messageId"`
-	ReceiptHandle string            `json:"receiptHandle"`
+	MessageHandle string            `json:"messageHandle"`
 	Status        string            `json:"status"`
 	ErrMsg        string            `json:"errMsg"`
-	Attributes    map[string]string `json:"attributes"`
 }
 
 func DealSQSMessage(ctx context.Context, sqsMsg events.SQSMessage) SQSResponse {
@@ -31,24 +30,23 @@ func DealSQSMessage(ctx context.Context, sqsMsg events.SQSMessage) SQSResponse {
 
 func handleSQSMsg(sqsMsg events.SQSMessage) SQSResponse {
 	res := SQSResponse{
-		MessageId: sqsMsg.MessageId,
-		ReceiptHandle: sqsMsg.ReceiptHandle,
-		Status: "ok",
-		ErrMsg: "",
-		Attributes: nil,
+		MessageId:     sqsMsg.MessageId,
+		MessageHandle: sqsMsg.Body,
+		Status:        "ok",
+		ErrMsg:        "",
 	}
 
 	layerDir := "/opt/"
 	// Load plugin
-	pluginModule, err := plugin.Open(layerDir + sqsMsg.ReceiptHandle + ".so")
+	pluginModule, err := plugin.Open(layerDir + sqsMsg.Body + ".so")
 	if err != nil {
-		log.Printf("Unable to load %s module", sqsMsg.ReceiptHandle)
+		log.Printf("Unable to load %s module", sqsMsg.Body)
 		return dealErrorResponse(res, err)
 	}
 	//Load symbol
-	handleSQSMsgSymbol, err := pluginModule.Lookup(sqsMsg.ReceiptHandle)
+	handleSQSMsgSymbol, err := pluginModule.Lookup(sqsMsg.Body)
 	if err != nil {
-		log.Printf("Unable to load %s symbol", sqsMsg.ReceiptHandle)
+		log.Printf("Unable to load %s symbol", sqsMsg.Body)
 		return dealErrorResponse(res, err)
 	}
 

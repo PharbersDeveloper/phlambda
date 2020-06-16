@@ -1,12 +1,11 @@
 {
-    "body": {
-        "describe": "辅助地区经理进行区域管理实战模拟测试与练习工具"
-    },
+    "body": "{ \"describe\": \"修改-辅助地区经理进行区域管理实战模拟测试与练习工具\" }",
     "resource": "/ntm/{type}/{id}",
     "path": "/ntm/proposals/5e00862a28e9fe103c5e2f4e",
     "httpMethod": "PATCH",
     "isBase64Encoded": false,
-    "queryStringParameters": null,
+    "queryStringParameters": {
+    },
     "pathParameters": {
       "type": "proposals",
       "id":  "5e00862a28e9fe103c5e2f4e"

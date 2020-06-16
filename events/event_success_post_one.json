@@ -1,13 +1,12 @@
 {
-    "body": "",
-    "resource": "/ntm/{type}/{id}",
-    "path": "/ntm/proposals/5e00862a28e9fe103c5e2f4e",
+  "body": "{ \"name\": \"测试POST-辅助地区经理进行区域管理实战模拟测试与练习工具\", \"periodBase\": 1546300800000.0, \"describe\": \"测试\", \"totalPhase\": 1, \"case\": \"测试\", \"periodStep\": \"测试\" }",
+    "resource": "/ntm/{type}",
+    "path": "/ntm/proposals",
     "httpMethod": "POST",
     "isBase64Encoded": false,
     "queryStringParameters": null,
     "pathParameters": {
-      "type": "proposals",
-      "id":  "5e00862a28e9fe103c5e2f4e"
+      "type": "proposals"
     },
     "stageVariables": {
       "baz": "qux"
@@ -52,8 +51,8 @@
         "userAgent": "Custom User Agent String",
         "user": null
       },
-      "path": "/ntm/proposals/5e00862a28e9fe103c5e2f4e",
-      "resourcePath": "/ntm/{type}/{id}",
+      "path": "/ntm/proposals",
+      "resourcePath": "/ntm/{type}",
       "httpMethod": "PATCH",
       "apiId": "1234567890",
       "protocol": "HTTP/1.1"

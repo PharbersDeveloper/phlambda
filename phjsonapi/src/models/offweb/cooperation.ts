@@ -21,6 +21,10 @@ class Cooperation extends Typegoose implements IModelBase<Cooperation> {
     @JsonProperty("id", Number)
     public jid: number
 
+    @JsonProperty("language", Number)
+    @prop({ default: "", required: true })
+    public language: number = 1
+
     public getModel() {
         return this.getModelForClass(Cooperation)
     }

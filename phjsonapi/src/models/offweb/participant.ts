@@ -25,6 +25,11 @@ class Participant extends Typegoose implements IModelBase<Participant> {
     @JsonProperty("id", Number)
     public jid: number = 0
 
+    @JsonProperty("language", Number)
+    @prop({ default: "", required: true })
+    public language: number = 1
+
+
     public getModel() {
         return this.getModelForClass(Participant)
     }

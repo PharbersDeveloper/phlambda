@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aws/aws-lambda-go/events"
@@ -9,6 +10,10 @@ import (
 )
 
 func SendSmsHandle(sqsMsg events.SQSMessage) error {
+
+	if sqsMsg.ReceiptHandle != "SendSmsHandle" {
+		return errors.New("Not SendSmsHandle SQS Msg. ")
+	}
 
 	regionId := os.Getenv("PH_SMS__REGION_ID")
 	accessKeyId := os.Getenv("PH_SMS__ACCESS_KEY_ID")

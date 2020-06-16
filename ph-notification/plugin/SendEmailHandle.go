@@ -1,22 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/go-gomail/gomail"
+	"os"
+	"strconv"
 )
-
-type EmailInfo struct {
-	ServerHost  string `json:"server-host"`
-	ServerPort  int    `json:"server-port"`
-	From        string `json:"from"`
-	Pwd         string `json:"pwd"`
-	To          string `json:"to"`
-	Subject     string `json:"subject"`
-	ContentType string `json:"content-type"`
-	Content     string `json:"content"`
-}
 
 func SendEmailHandle(sqsMsg events.SQSMessage) error {
 
@@ -24,19 +14,23 @@ func SendEmailHandle(sqsMsg events.SQSMessage) error {
 		return errors.New("Not SendEmailHandle SQS Msg. ")
 	}
 
-	var emailInfo EmailInfo
-	err := json.Unmarshal([]byte(sqsMsg.Body), &emailInfo)
+	host := os.Getenv("PH_EMAIL__SERVER_HOST")
+	portStr := os.Getenv("PH_EMAIL__SERVER_PORT")
+	port, err := strconv.Atoi(portStr)
 	if err != nil {
 		return err
 	}
+	user := os.Getenv("PH_EMAIL__USER")
+	pswd := os.Getenv("PH_EMAIL__PSWD")
+
+	d := gomail.NewDialer(host, port, user, pswd)
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", emailInfo.From)
-	m.SetHeader("To", emailInfo.To)
-	m.SetHeader("Subject", emailInfo.Subject)
-	m.SetBody(emailInfo.ContentType, emailInfo.Content)
+	m.SetHeader("From", user)
+	m.SetHeader("To", sqsMsg.Attributes["To"])
+	m.SetHeader("Subject", sqsMsg.Attributes["Subject"])
+	m.SetBody(sqsMsg.Attributes["ContentType"], sqsMsg.Attributes["Content"])
 
-	d := gomail.NewDialer(emailInfo.ServerHost, emailInfo.ServerPort, emailInfo.From, emailInfo.Pwd)
 	err = d.DialAndSend(m)
 	return err
 }

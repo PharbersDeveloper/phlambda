@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/lambdacontext"
@@ -32,11 +33,17 @@ func handleRequest(ctx context.Context, event events.SQSEvent) (PhEventResponse,
 		Responses: make([]SQSResponse, 0),
 	}
 
+	var err error
+
 	for _, sqsMsg := range event.Records {
-		res.Responses = append(res.Responses, DealSQSMessage(ctx, sqsMsg))
+		oneRes := DealSQSMessage(ctx, sqsMsg)
+		if oneRes.Status != "ok" {
+			err = errors.New(oneRes.ErrMsg)
+		}
+		res.Responses = append(res.Responses, oneRes)
 	}
 
-	return res, nil
+	return res, err
 }
 
 func main() {

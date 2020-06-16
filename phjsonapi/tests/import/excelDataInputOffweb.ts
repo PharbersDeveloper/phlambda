@@ -13,7 +13,6 @@ import Zone from "../../src/models/offweb/zone"
 import * as fs from "fs"
 import AWS = require('aws-sdk')
 import * as path from "path"
-import phLogger from "../../src/logger/phLogger"
 // import e = require("express")
 
 
@@ -63,6 +62,7 @@ class ExcelDataInputOffweb {
         //       }
         // })
 
+        // 需要改成参数传入/配置
         const assetsDir = "test/data/offweb/assets"
         let that = this
         let arr:any = []
@@ -71,7 +71,6 @@ class ExcelDataInputOffweb {
         this.readFileList(assetsDir, arr)
 
         arr.forEach(async (item:any) => {
-            console.log(item)
             const s3key =  "public/" + that.getFileName(item)
             const existsQuery = {
                 Bucket: "ph-offweb",

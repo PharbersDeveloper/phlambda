@@ -1,0 +1,5 @@
+{
+    "importDataFromExcel": true,
+    "excelPath": "/Users/simon/Desktop/offweb/offweb.xlsx",
+    "assetsPath": "/Users/simon/Desktop/offweb/assets"
+}

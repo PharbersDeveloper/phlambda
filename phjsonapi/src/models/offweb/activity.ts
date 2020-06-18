@@ -2,6 +2,7 @@
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
 import Cooperation from "./cooperation"
+import Image from "./image"
 import IModelBase from "./modelBase"
 import Report from "./report"
 import Zone from "./zone"
@@ -33,13 +34,11 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @prop({ default: "", required: true })
     public city: string = ""
 
-    @JsonProperty("logo", String)
-    @prop({ default: "", required: false })
-    public logo: string = ""
+    @prop({ ref: Image, required: false })
+    public logo?: Ref<Image>
 
-    @JsonProperty("logoOnTime", String)
-    @prop({ default: "", required: false })
-    public logoOnTime: string = ""
+    @prop({ ref: Image, required: false })
+    public logoOnTime?: Ref<Image>
 
     @JsonProperty("type", String)
     @prop({ default: "", required: true })
@@ -53,9 +52,8 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @prop({ default: "", required: true })
     public contentDesc: string = ""
 
-    @JsonProperty("gallery", String)
-    @prop({ default: [], required: false })
-    public gallery: string[] = []
+    @arrayProp({ itemsRef: Image, default: [], required: false })
+    public gallery?: Array<Ref<Image>> = []
 
     @arrayProp({ itemsRef: Report, required: false })
     public attachments?: Array<Ref<Report>> = []

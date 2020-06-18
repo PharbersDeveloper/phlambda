@@ -1,6 +1,7 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
+import Image from "./image"
 import IModelBase from "./modelBase"
 import Participant from "./participant"
 
@@ -18,9 +19,8 @@ class Report extends Typegoose implements IModelBase<Report> {
     @prop({ default: "", required: true })
     public description: string = ""
 
-    @JsonProperty("cover", String)
-    @prop({ default: "", required: true })
-    public cover: string = ""
+    @prop({  ref: Image, default: [], required: false })
+    public cover?: Ref<Image>
 
     @JsonProperty("date", Number)
     @prop({ default: 0, required: true })

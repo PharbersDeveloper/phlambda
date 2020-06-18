@@ -23,7 +23,14 @@ app.prepare()
 exports.lambdaHandler = async (event, context) => {
     try {
         phlogger.info(event)
-        const result = await app.exec(event)
+        // const result = await app.exec(event)
+        let result
+
+        if (event.importDataFromExcel) {
+            result = await app.excelImportData(event)
+        } else {
+            result = await app.exec(event)
+        }
 
         response = {
             'statusCode': result.status,

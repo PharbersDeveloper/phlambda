@@ -6,11 +6,11 @@ import ExpressStrategy from "json-api/build/src/http-strategies/Express"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import mongoose = require("mongoose")
 import {ServerConf} from "../configFactory/serverConf"
+import { default as ExcelDataInputOffweb } from "../exportProject/excelDataInputOffweb"
 import AWSLambdaStrategy from "../httpStrategies/awsLambda"
 import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
 import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
-
 /**
  * The summary section should be brief. On a documentation web site,
  * it will be shown on a page that lists summaries for many different
@@ -36,6 +36,15 @@ export default class AppLambdaDelegate {
         const req = new AWSReq(event)
         // @ts-ignore
         return await this.httpStrategies.doRequest(req, null)
+    }
+
+    public async excelImportData(event: Map<string, any>) {
+        if (mongoose.connection.readyState !== 1) {
+            this.connect2MongoDB()
+        }
+        const importData = new ExcelDataInputOffweb(event)
+
+        return await importData.excelModelData()
     }
 
     protected loadConfiguration() {

@@ -1,43 +1,53 @@
+"use strict"
 import AWS = require("aws-sdk")
 import * as fs from "fs"
 import { JsonConvert, OperationMode, ValueCheckingMode } from "json2typescript"
-import { slow, suite, test, timeout } from "mocha-typescript"
+// import { slow, suite, test, timeout } from "mocha-typescript"
 import mongoose = require("mongoose")
 import * as path from "path"
+import { index } from "typegoose"
 // import uuidv4 from "uuid/v4"
 import XLSX = require("xlsx")
-import PhLogger from "../../src/logger/phLogger"
-import Activity from "../../src/models/offweb/activity"
-import Cooperation from "../../src/models/offweb/cooperation"
-import Event from "../../src/models/offweb/event"
-import Participant from "../../src/models/offweb/participant"
-import Report from "../../src/models/offweb/report"
-import Zone from "../../src/models/offweb/zone"
+import PhLogger from "../logger/phLogger"
+import Activity from "../models/offweb/activity"
+import Cooperation from "../models/offweb/cooperation"
+import Event from "../models/offweb/event"
+import Image from "../models/offweb/image"
+import Participant from "../models/offweb/participant"
+import Report from "../models/offweb/report"
+import Zone from "../models/offweb/zone"
 // import e = require("express")
 
-@suite(timeout(1000 * 60), slow(2000))
-class ExcelDataInputOffweb {
+// @suite(timeout(1000 * 60), slow(20000))
+export default class ExcelDataInputOffweb {
 
-    public static before() {
-        PhLogger.info(`before starting the test`)
-        mongoose.connect("mongodb://pharbers.com:5555/pharbers-offweb")
-        // mongoose.connect("mongodb://localhost:27017/pharbers-ntm-client")
-    }
-
-    public static after() {
-        PhLogger.info(`after starting the test`)
-        mongoose.disconnect()
-    }
-
-    // constructor() {
+    // public static before() {
+    //     PhLogger.info(`before starting the test`)
+    //     // mongoose.connect("mongodb://localhost:27017/pharbers-ntm-client")
     // }
 
-    @test public async excelModelData() {
-        PhLogger.info(`start input data with excel`)
-        const file = "test/data/offweb/offweb.xlsx"
+    // public static after() {
+    //     PhLogger.info(`after starting the test`)
+    //     // mongoose.disconnect()
+    // }
+    public excelPath ?: string
+    public assetsPath ?: string
 
-        await this.loadExcelData(file)
-        await this.uploadAssets()
+    constructor(event: object) {
+        // @ts-ignore
+        this.excelPath = event.excelPath
+        // @ts-ignore
+        this.assetsPath = event.assetsPath
+    }
+
+    public async excelModelData() {
+        PhLogger.info(`start input data with excel`)
+        // 传入的xlsx文件 >>> excelPath
+        // const file = "test/data/offweb/offweb.xlsx"
+        const file = this.excelPath
+
+        return await this.loadExcelData(file) // 将数据导入到数据库
+        // await this.uploadAssets() // 将文件上传到s3
     }
 
     public async uploadAssets() {
@@ -54,14 +64,15 @@ class ExcelDataInputOffweb {
 
         // s3.createBucket(bucketParams, function(err:any, data:any) {
         //     if (err) {
-        //         PhLogger.info("Error", err);
+        //        PhLogger.info("Error", err);
         //       } else {
-        //         PhLogger.info("Success", data.Location);
+        //        PhLogger.info("Success", data.Location);
         //       }
         // })
 
-        // 需要改成参数传入/配置
-        const assetsDir = "test/data/offweb/assets"
+        // 需要改成参数传入/配置 >>> assetsPath
+        // const assetsDir = "test/data/offweb/assets"
+        const assetsDir = this.assetsPath
         const that = this
         const arr: any = []
 
@@ -119,7 +130,7 @@ class ExcelDataInputOffweb {
     public readFileList(assetsDir: any, filesList: any) {
         const that = this
         const files = fs.readdirSync(assetsDir)
-        files.forEach((itm, index) => {
+        files.forEach((itm) => {
             const filePath = path.join(assetsDir, itm)
             const stat = fs.statSync(filePath)
             if (stat.isDirectory()) {
@@ -142,6 +153,26 @@ class ExcelDataInputOffweb {
         const wb = XLSX.readFile(file)
 
         /**
+         * 0. read Image data in the excel
+         * and colleect all the insertion ids
+         */
+        let images: Image[] = []
+        {
+            PhLogger.info(`0. read Image data in the excel`)
+
+            const data = XLSX.utils.sheet_to_json(wb.Sheets.Image, { header: 2, defval: "" })
+
+            const jsonConvert: JsonConvert = new JsonConvert()
+            const th = new Image()
+            images = await Promise.all(data.map ( (x: any) => {
+                // jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
+                jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
+                jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
+                return th.getModel().create(jsonConvert.deserializeObject(x, Image))
+            }))
+        }
+
+        /**
          * 1. read Participant data in the excel
          * and colleect all the insertion ids
          */
@@ -157,7 +188,10 @@ class ExcelDataInputOffweb {
                 // jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
                 jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
                 jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-                return th.getModel().create(jsonConvert.deserializeObject(x, Participant))
+                const tmp = jsonConvert.deserializeObject(x, Participant)
+                const avatarRef = images.find((it, indexA) =>  indexA.toString() === x.avatar.toString() )
+                tmp.avatar = avatarRef
+                return th.getModel().create(tmp)
             }))
         }
 
@@ -178,8 +212,8 @@ class ExcelDataInputOffweb {
                 jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
                 const tmp = jsonConvert.deserializeObject(x, Event)
                 const eventSpeakers = x.speakers.toString().split("\n")
-                const speakers = participants.filter((it, index) => {
-                    const i = index.toString()
+                const speakers = participants.filter((it, curIndex) => {
+                    const i = curIndex.toString()
                     return eventSpeakers.includes(i)
                 })
                 tmp.speakers = speakers
@@ -205,12 +239,12 @@ class ExcelDataInputOffweb {
                 const tmp = jsonConvert.deserializeObject(x, Zone)
                 const zoneHosts = x.hosts.toString().split("\n")
                 const zoneAgendas = x.agendas.toString().split("\n")
-                const hosts = participants.filter((it, index) => {
-                    const i = index.toString()
+                const hosts = participants.filter((it, curIndex) => {
+                    const i = curIndex.toString()
                     return zoneHosts.includes(i)
                 })
-                const agendas = zones.filter( (it, index) => {
-                    const i = index.toString()
+                const agendas = events.filter( (it, curIndex) => {
+                    const i = curIndex.toString()
                     return zoneAgendas.includes(i)
                 })
                 tmp.hosts = hosts
@@ -237,13 +271,15 @@ class ExcelDataInputOffweb {
                 jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
                 jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
                 const tmp = jsonConvert.deserializeObject(x, Report)
+                const coverRef = images.find((it, curIndex) => curIndex.toString() === x.cover.toString())
                 const reportWriter = x.writers
-                const writer = participants.filter((it, index) => {
-                    const i = index.toString()
+                const writer = participants.filter((it, curIndex) => {
+                    const i = curIndex.toString()
                     return reportWriter.includes(i)
                 })
                 tmp.writers = writer
-                // 有个封面要上传
+                tmp.cover = coverRef
+
                 return th.getModel().create(tmp)
             }))
         }
@@ -265,7 +301,8 @@ class ExcelDataInputOffweb {
                 jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
                 jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
                 const tmp = jsonConvert.deserializeObject(x, Cooperation)
-                // 有个logo要上传的哈
+                const logoRef = images.find((it, curIndex) => curIndex.toString() === x.logo.toString())
+                tmp.logo = logoRef
                 return th.getModel().create(tmp)
             }))
         }
@@ -288,18 +325,28 @@ class ExcelDataInputOffweb {
                 jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL
                 const tmp = jsonConvert.deserializeObject(x, Activity)
                 // logo,logoOnTime,gallery 图片问题
+                const logoRef = images.find((it, curIndex) => curIndex.toString() === x.logo.toString())
+                const logoOnTimeRef = images.find((it, curIndex) => curIndex.toString() === x.logoOnTime.toString())
+                const acticityGallery = x.gallery.toString().split("\n")
                 const activityAttachment = x.attachments.toString().split("\n")
                 const activityAgenda = x.agendas.toString().split("\n")
-                const attachments = reports.filter((it, index) => {
-                    const i = index.toString()
+                const attachments = reports.filter((it, curIndex) => {
+                    const i = curIndex.toString()
                     return activityAttachment.includes(i)
                 })
-                const agendas = zones.filter((it, index) => {
-                    const i = index.toString()
+                const agendas = zones.filter((it, curIndex) => {
+                    const i = curIndex.toString()
                     return activityAgenda.includes(i)
+                })
+                const galleryRef = images.filter((it, curIndex) => {
+                    const i = curIndex.toString()
+                    return acticityGallery.includes(i)
                 })
                 tmp.attachments = attachments
                 tmp.agendas = agendas
+                tmp.logo = logoRef
+                tmp.logoOnTime = logoOnTimeRef
+                tmp.gallery = galleryRef
                 // tmp.avatar = await this.pushAvatar2Oss(tmp.avatarPath)
                 return th.getModel().create(tmp)
             }))

@@ -1,7 +1,7 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
-import Image from "./image"
+import Image from "./Image"
 import IModelBase from "./modelBase"
 
 @JsonObject("Cooperation")

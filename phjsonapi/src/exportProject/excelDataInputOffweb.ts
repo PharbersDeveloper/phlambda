@@ -9,13 +9,13 @@ import { index } from "typegoose"
 // import uuidv4 from "uuid/v4"
 import XLSX = require("xlsx")
 import PhLogger from "../logger/phLogger"
-import Activity from "../models/offweb/activity"
-import Cooperation from "../models/offweb/cooperation"
-import Event from "../models/offweb/event"
-import Image from "../models/offweb/image"
-import Participant from "../models/offweb/participant"
-import Report from "../models/offweb/report"
-import Zone from "../models/offweb/zone"
+import Activity from "../models/offweb/Activity"
+import Cooperation from "../models/offweb/Cooperation"
+import Event from "../models/offweb/Event"
+import Image from "../models/offweb/Image"
+import Participant from "../models/offweb/Participant"
+import Report from "../models/offweb/Report"
+import Zone from "../models/offweb/Zone"
 // import e = require("express")
 
 // @suite(timeout(1000 * 60), slow(20000))

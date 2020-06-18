@@ -1,9 +1,9 @@
 "use strict"
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
-import Event from "./event"
+import Event from "./Event"
 import IModelBase from "./modelBase"
-import Participant from "./participant"
+import Participant from "./Participant"
 
 @JsonObject("Zone")
 class Zone extends Typegoose implements IModelBase<Zone> {

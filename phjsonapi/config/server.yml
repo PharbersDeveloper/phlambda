@@ -45,6 +45,7 @@ mongo:
   username: alfredyang
   pwd: "12345"
   coll: "pharbers-ntm-client-test"
+  authSource: "admin"
   auth: false
 env:
   oauthHost: oauth.pharbers.com

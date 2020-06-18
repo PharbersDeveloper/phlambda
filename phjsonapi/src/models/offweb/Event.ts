@@ -2,7 +2,7 @@
 import { JsonObject, JsonProperty } from "json2typescript"
 import {arrayProp, prop, Ref, Typegoose} from "typegoose"
 import IModelBase from "./modelBase"
-import Participant from "./participant"
+import Participant from "./Participant"
 
 @JsonObject("Event")
 class Event extends Typegoose implements IModelBase<Event> {

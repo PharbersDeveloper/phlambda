@@ -1,0 +1,41 @@
+project: "offweb"
+models:
+  - file: Participant
+    reg: participants
+  - file: Event
+    reg: events
+  - file: Zone
+    reg: zones
+  - file: Report
+    reg: reports
+  - file: Cooperation
+    reg: cooperation
+  - file: Activity
+    reg: activities
+mongo:
+  algorithm: mongodb
+  host: pharbers.com
+  port: 5555
+  username: alfredyang
+  pwd: "12345"
+  coll: "pharbers-ntm-client-test"
+  auth: false
+env:
+  oauthHost: oauth.pharbers.com
+  oauthPort: ""
+  oauthApiNamespace: "v0"
+  kafkaBrokerList: "59.110.31.50:9092"
+  kafkaTopic: "test"
+  kafkaSecretsDir: "/Users/sunchenghao/secrets/"
+  kafkaPassword: "pharbers"
+  schemaRegisterHost: "59.110.31.50:8081"
+  httpCallUrl: "http://59.110.31.50:28888/spark/job/run"
+  httpCallRUrl: "http://59.110.31.50:9213/v1.0/job_reg"
+oss:
+  region: oss-cn-beijing
+  accessKeyId: LTAIEoXgk4DOHDGi
+  accessKeySecret: x75sK6191dPGiu9wBMtKE6YcBBh8EI
+  bucket: pharbers-sandbox
+kfk:
+  kafkaBrokerList: "http://pharbers.com:8082"
+  kafkaTopic: "alfredtest"

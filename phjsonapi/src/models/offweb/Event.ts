@@ -21,11 +21,11 @@ class Event extends Typegoose implements IModelBase<Event> {
 
     @JsonProperty("startDate", Number)
     @prop({ default: 0, required: false })
-    public startDate: number
+    public startDate: number = 0
 
     @JsonProperty("endDate", Number)
     @prop({ default: 0, required: false })
-    public endDate: number
+    public endDate: number = 0
 
     @arrayProp({ itemsRef: Participant, required: false })
     public speakers?: Array<Ref<Participant>> = []

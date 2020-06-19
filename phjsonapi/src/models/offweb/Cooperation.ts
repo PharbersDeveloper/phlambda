@@ -11,9 +11,9 @@ class Cooperation extends Typegoose implements IModelBase<Cooperation> {
     @prop({ default: "", required: true })
     public name: string = ""
 
-    @JsonProperty("type", String)
+    @JsonProperty("companyType", String)
     @prop({ default: "", required: true })
-    public type: string = ""
+    public companyType: string = ""
 
     @JsonProperty("logo", Image)
     @prop({ ref: Image, default: "", required: false })

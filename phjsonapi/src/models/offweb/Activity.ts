@@ -40,9 +40,9 @@ class Activity extends Typegoose implements IModelBase<Activity> {
     @prop({ ref: Image, required: false })
     public logoOnTime?: Ref<Image>
 
-    @JsonProperty("type", String)
+    @JsonProperty("activityType", String)
     @prop({ default: "", required: true })
-    public type: string = ""
+    public activityType: string = ""
 
     @JsonProperty("contentTitle", String)
     @prop({ default: "", required: true })

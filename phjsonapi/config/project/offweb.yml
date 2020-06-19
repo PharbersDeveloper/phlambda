@@ -1,5 +1,7 @@
 project: "offweb"
 models:
+  - file: Image
+    reg: images
   - file: Participant
     reg: participants
   - file: Event

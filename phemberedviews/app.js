@@ -4,9 +4,11 @@ let response;
 
 const phlogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLambdaDelegate").default
+// const htmldelegate = require("./dist/delegate/appHtmlDelegate").default
 
 const app = new delegate()
 app.prepare()
+// const html = new htmldelegate()
 
 /**
  *
@@ -24,6 +26,7 @@ exports.lambdaHandler = async (event, context) => {
     try {
         phlogger.info(event)
         const result = await app.exec(event)
+        // const hdb = await html.queryTemplate("", "")
 
         response = {
             'statusCode': result.status,

@@ -16,11 +16,10 @@ describe('Tests index', function () {
         expect(result.statusCode).to.equal(200);
         expect(result.body).to.be.an('string');
 
-        let response = JSON.parse(result.body);
+        let response = result.body;
 
-        expect(response).to.be.an('object');
-        expect(response.data.id).to.be.equal("5ef05c0d9223005ba26255fb");
-        expect(response.data.type).to.be.equal("components");
+        expect(response).to.be.an('string');
+        expect(response).to.be.equal("<h2>Hello {{name}}</h2>\n<p>Hello, p.{{name}}</p>");
         // expect(response.location).to.be.an("string");
     });
 

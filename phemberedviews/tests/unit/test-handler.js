@@ -8,8 +8,8 @@ var context;
 const mongoose = require("mongoose")
 
 describe('Tests index', function () {
-    it('verify find one successfully', async () => {
-        const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
+    it('verify find components successfully', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_ember_views_find_one.json", 'utf8'))
         const result = await app.lambdaHandler(event, context)
 
         expect(result).to.be.an('object');
@@ -19,8 +19,8 @@ describe('Tests index', function () {
         let response = JSON.parse(result.body);
 
         expect(response).to.be.an('object');
-        expect(response.data.id).to.be.equal("5e00862a28e9fe103c5e2f4e");
-        expect(response.data.type).to.be.equal("proposals");
+        expect(response.data.id).to.be.equal("5ef05c0d9223005ba26255fb");
+        expect(response.data.type).to.be.equal("components");
         // expect(response.location).to.be.an("string");
     });
 

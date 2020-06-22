@@ -1,7 +1,7 @@
 {
-  "name": "phjsonapi",
+  "name": "phemberedviews",
   "version": "0.0.1",
-  "description": "hello world sample for NodeJS",
+  "description": "pharbers components views",
   "main": "app.js",
   "author": "Alfred",
   "license": "MIT",
@@ -13,8 +13,7 @@
     "pretest": "tsc",
     "watch": "mocha-typescript-watch",
     "prepare": "tsc",
-    "test": "mocha tests/unit/",
-    "importTest": "mocha tests/import/ --timeout 50000"
+    "test": "mocha tests/unit/"
   },
   "dependencies": {
     "@billjs/query-string": "^1.0.2",

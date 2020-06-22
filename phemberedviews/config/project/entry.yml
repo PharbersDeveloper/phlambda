@@ -6,7 +6,7 @@ models:
     reg: file-versions
   - file: FileDetail
     reg: file-details
-  - file: Asset
+  - file: Component
     reg: assets
   - file: DataSet
     reg: data-sets

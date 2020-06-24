@@ -8,7 +8,7 @@ import Participant from "./Participant"
 class Event extends Typegoose implements IModelBase<Event> {
 
     @JsonProperty("title", String)
-    @prop({ default: "", required: true })
+    @prop({ default: "", required: false })
     public title: string = ""
 
     @JsonProperty("subTitle", String)

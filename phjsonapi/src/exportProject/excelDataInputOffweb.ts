@@ -9,6 +9,7 @@ import { index } from "typegoose"
 // import uuidv4 from "uuid/v4"
 import XLSX = require("xlsx")
 import PhLogger from "../logger/phLogger"
+import phLogger from "../logger/phLogger"
 import Activity from "../models/offweb/Activity"
 import Cooperation from "../models/offweb/Cooperation"
 import Event from "../models/offweb/Event"
@@ -330,6 +331,7 @@ export default class ExcelDataInputOffweb {
                 const acticityGallery = x.gallery.toString().split("\n")
                 const activityAttachment = x.attachments.toString().split("\n")
                 const activityAgenda = x.agendas.toString().split("\n")
+                const activityPartners = x.partners.toString().split("\n")
                 const attachments = reports.filter((it, curIndex) => {
                     const i = curIndex.toString()
                     return activityAttachment.includes(i)
@@ -342,11 +344,16 @@ export default class ExcelDataInputOffweb {
                     const i = curIndex.toString()
                     return acticityGallery.includes(i)
                 })
+                const partnersRef = cooperations.filter((it, curIndex) => {
+                    const i = curIndex.toString()
+                    return activityPartners.includes(i)
+                })
                 tmp.attachments = attachments
                 tmp.agendas = agendas
                 tmp.logo = logoRef
                 tmp.logoOnTime = logoOnTimeRef
                 tmp.gallery = galleryRef
+                tmp.partners = partnersRef
                 // tmp.avatar = await this.pushAvatar2Oss(tmp.avatarPath)
                 return th.getModel().create(tmp)
             }))

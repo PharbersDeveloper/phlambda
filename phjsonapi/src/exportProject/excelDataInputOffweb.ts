@@ -92,9 +92,18 @@ export default class ExcelDataInputOffweb {
                     /**
                      * 优先上传文件, 到S3
                      */
-                    const uploadParams = {Bucket: "ph-offweb", Key: s3key, Body: ""}
+                    const uploadParams = {Bucket: "ph-offweb", Key: s3key, Body: "", ContentType: ""}
                     const fileKeyName = item
-
+                    const nameArr = item.split(".")
+                    const imageType = nameArr[1]
+                    
+                    if (imageType === "svg") {
+                        uploadParams.ContentType = "image/svg+xml"
+                    } else if (imageType === "png") {
+                        uploadParams.ContentType = "image/png"
+                    } else if (imageType === "jpg" || imageType === "jpeg") {
+                        uploadParams.ContentType = "image/jpeg"
+                    }
                     // Configure the file stream and obtain the upload parameters
                     // @ts-ignore
                     uploadParams.Body = await fs.createReadStream(fileKeyName)

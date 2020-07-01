@@ -8,6 +8,8 @@ const delegate = require("./dist/delegate/appLambdaDelegate").default
 const app = new delegate()
 app.prepare()
 
+let tmp = 0
+
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -30,6 +32,7 @@ exports.lambdaHandler = async (event, context) => {
             result = await app.excelImportData(event)
         } else {
             result = await app.exec(event)
+            tmp = 0
         }
 
         response = {
@@ -38,7 +41,12 @@ exports.lambdaHandler = async (event, context) => {
             'body': result.body
         }
     } catch (err) {
-        console.log(err);
+        phlogger.error(err);
+        if (!app.checkMongoConnection() && tmp === 0) {
+            phlogger.info("retry connect mongodb for another round.");
+            tmp = 1
+            return lambdaHandler(event, context)
+        }
         return err;
     }
 

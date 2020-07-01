@@ -29,6 +29,10 @@ export default class AppLambdaDelegate {
         this.generateRoutes(this.getModelRegistry())
     }
 
+    public checkMongoConnection() {
+        return mongoose.connection.readyState === 1
+    }
+
     public async exec(event: Map<string, any>) {
         if (mongoose.connection.readyState !== 1) {
             this.connect2MongoDB()
@@ -39,7 +43,7 @@ export default class AppLambdaDelegate {
     }
 
     public async excelImportData(event: Map<string, any>) {
-        if (mongoose.connection.readyState !== 1) {
+        if (!this.checkMongoConnection()) {
             this.connect2MongoDB()
         }
         const importData = new ExcelDataInputOffweb(event)

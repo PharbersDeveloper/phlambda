@@ -35,6 +35,11 @@ exports.lambdaHandler = async (event, context) => {
             tmp = 0
         }
 
+        Object.assign(result.headers, {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+        })
         response = {
             'statusCode': result.status,
             'headers': result.headers,

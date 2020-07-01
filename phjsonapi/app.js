@@ -22,7 +22,7 @@ let tmp = 0
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-exports.lambdaHandler = async (event, context) => {
+exports.lambdaHandler = async function runLambda(event, context) {
     try {
         phlogger.info(event)
         // const result = await app.exec(event)
@@ -45,13 +45,13 @@ exports.lambdaHandler = async (event, context) => {
             'headers': result.headers,
             'body': result.body
         }
+        if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
+                phlogger.info("retry connect mongodb for another round.");
+                tmp = 1
+                return runLambda(event, context)
+        }
     } catch (err) {
         phlogger.error(err);
-        if (!app.checkMongoConnection() && tmp === 0) {
-            phlogger.info("retry connect mongodb for another round.");
-            tmp = 1
-            return lambdaHandler(event, context)
-        }
         return err;
     }
 

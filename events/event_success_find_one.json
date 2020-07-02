@@ -1,13 +1,14 @@
 {
   "body": "",
-  "resource": "/offweb/{type}",
-  "path": "/offweb/cooperation",
+  "resource": "/offweb/{type}/{id}",
+  "path": "/offweb/images/5efda2795320f5c502615d39",
   "httpMethod": "GET",
   "isBase64Encoded": true,
   "queryStringParameters": {},
   "multiValueQueryStringParameters": {},
   "pathParameters": {
-    "type": "cooperation"
+    "type": "images",
+    "id": "5efda2795320f5c502615d39"
   },
   "stageVariables": {
     "baz": "qux"
@@ -108,8 +109,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/offweb/cooperation",
-    "resourcePath": "/offweb/{type}",
+    "path": "/offweb/images/5efda2795320f5c502615d39",
+    "resourcePath": "/offweb/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

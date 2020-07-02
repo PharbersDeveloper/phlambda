@@ -78,13 +78,24 @@ export default class AppLambdaDelegate {
         const authSource = this.conf.mongo.authSource
         if (auth) {
             phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
-            mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
-                { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000 },
-                (err: any) => {
-                    if (err != null) {
-                        phLogger.error(err)
-                    }
-                })
+            if (prefix === "mongodb") {
+                mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
+                    { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000 },
+                    (err: any) => {
+                        if (err != null) {
+                            phLogger.error(err)
+                        }
+                    })
+            } else if (prefix === "mongodb+srv") {
+                mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll +
+                    "?retryWrites=true&w=majority",
+                    { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000 },
+                    (err: any) => {
+                        if (err != null) {
+                            phLogger.error(err)
+                        }
+                    })
+            }
         } else {
             phLogger.info(`connect mongodb without auth`)
             mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll,

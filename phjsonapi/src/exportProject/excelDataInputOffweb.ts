@@ -96,7 +96,7 @@ export default class ExcelDataInputOffweb {
                     const fileKeyName = item
                     const nameArr = item.split(".")
                     const imageType = nameArr[1]
-                    
+
                     if (imageType === "svg") {
                         uploadParams.ContentType = "image/svg+xml"
                     } else if (imageType === "png") {

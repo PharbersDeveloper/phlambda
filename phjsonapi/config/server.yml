@@ -1,52 +1,28 @@
-project: "ntm"
+project: "offweb"
 models:
-  - file: Proposal
-    reg: proposals
-  - file: UsableProposal
-    reg: usable-proposals
-  - file: Hospital
-    reg: hospitals
-  - file: Product
-    reg: products
-  - file: Resource
-    reg: resources
   - file: Image
     reg: images
-  - file: Policy
-    reg: policies
-  - file: Project
-    reg: projects
-  - file: Period
-    reg: periods
-  - file: Answer
-    reg: answers
-  - file: Requirement
-    reg: requirements
+  - file: Participant
+    reg: participants
+  - file: Event
+    reg: events
+  - file: Zone
+    reg: zones
   - file: Report
     reg: reports
-  - file: Preset
-    reg: presets
-  - file: Result
-    reg: results
-  - file: Level
-    reg: levels
-  - file: Evaluation
-    reg: evaluations
-  - file: Validation
-    reg: validations
-  - file: Region
-    reg: regions
-  - file: Final
-    reg: finals
+  - file: Cooperation
+    reg: cooperation
+  - file: Activity
+    reg: activities
 mongo:
-  algorithm: mongodb
-  host: pharbers.com
-  port: 5555
-  username: alfredyang
-  pwd: "12345"
-  coll: "pharbers-ntm-client-test"
+  algorithm: mongodb+srv
+  host: ph-db-gp.wqegl.azure.mongodb.net
+  port: 27017
+  username: "pharbers"
+  pwd: "Pharbers.84244216"
+  coll: "pharbers-offweb"
   authSource: "admin"
-  auth: false
+  auth: true
 env:
   oauthHost: oauth.pharbers.com
   oauthPort: ""

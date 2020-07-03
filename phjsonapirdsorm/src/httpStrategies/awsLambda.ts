@@ -1,15 +1,15 @@
 
 import {ServerResponse} from "http"
-import {APIController, DocumentationController} from "json-api"
-import API from "json-api/build/src/controllers/API"
-import Base, {HTTPStrategyOptions} from "json-api/build/src/http-strategies/Base"
-import Controller from "json-api/build/src/http-strategies/Base"
+import {APIController, DocumentationController} from "../json-api"
+import API from "../json-api/controllers/API"
+import Base, {HTTPStrategyOptions} from "../json-api/http-strategies/Base"
+import Controller from "../json-api/http-strategies/Base"
 import {
     ErrorOrErrorArray,
     HTTPResponse,
     Request as JSONAPIRequest,
     Result
-} from "json-api/build/src/types/index"
+} from "../json-api/types/index"
 import R = require("ramda")
 import phLogger from "../logger/phLogger"
 import AWSReq from "./awsRequest"

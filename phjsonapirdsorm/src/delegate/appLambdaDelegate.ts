@@ -1,8 +1,8 @@
 import * as fs from "fs"
 import * as yaml from "js-yaml"
-import API, {ResourceTypeRegistry} from "json-api"
-import {APIControllerOpts} from "json-api/build/src/controllers/API"
-import ExpressStrategy from "json-api/build/src/http-strategies/Express"
+import API, {ResourceTypeRegistry} from "../json-api"
+import {APIControllerOpts} from "../json-api/controllers/API"
+// import ExpressStrategy from "json-api/build/src/http-strategies/Express"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import mongoose = require("mongoose")
 import {ServerConf} from "../configFactory/serverConf"

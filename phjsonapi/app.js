@@ -23,11 +23,14 @@ let tmp = 0
  *
  */
 exports.lambdaHandler = async function runLambda(event, context) {
-    context.callbackWaitsForEmptyEventLoop = false
     try {
         phlogger.info(event)
         // const result = await app.exec(event)
         let result
+
+        if (context && context.callbackWaitsForEmptyEventLoop) {
+            context.callbackWaitsForEmptyEventLoop = false
+        }
 
         if (event.importDataFromExcel) {
             result = await app.excelImportData(event)

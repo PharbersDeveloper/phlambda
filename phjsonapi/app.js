@@ -23,6 +23,7 @@ let tmp = 0
  *
  */
 exports.lambdaHandler = async function runLambda(event, context) {
+    context.callbackWaitsForEmptyEventLoop = false
     try {
         phlogger.info(event)
         // const result = await app.exec(event)

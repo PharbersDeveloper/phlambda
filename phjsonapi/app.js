@@ -28,6 +28,10 @@ exports.lambdaHandler = async function runLambda(event, context) {
         // const result = await app.exec(event)
         let result
 
+        if (context && context.callbackWaitsForEmptyEventLoop) {
+            context.callbackWaitsForEmptyEventLoop = false
+        }
+
         if (event.importDataFromExcel) {
             result = await app.excelImportData(event)
         } else {

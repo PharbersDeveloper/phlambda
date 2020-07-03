@@ -1,8 +1,0 @@
-version: "2"
-plugins:
-  eslint:
-    enabled: true
-exclude_patterns:
-  - "build/"
-  - "test/"
-  - "coverage/"

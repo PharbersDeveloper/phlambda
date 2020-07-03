@@ -1,15 +1,13 @@
+import fortune from "fortune"
+import mongoAdapter from "fortune-mongodb"
 import * as fs from "fs"
 import * as yaml from "js-yaml"
-import API, {ResourceTypeRegistry} from "../json-api"
-import {APIControllerOpts} from "../json-api/controllers/API"
-// import ExpressStrategy from "json-api/build/src/http-strategies/Express"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
-import mongoose = require("mongoose")
 import {ServerConf} from "../configFactory/serverConf"
-import AWSLambdaStrategy from "../httpStrategies/awsLambda"
-import AWSReq from "../httpStrategies/awsRequest"
+// import AWSLambdaStrategy from "../httpStrategies/awsLambda"
+// import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
-import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
+
 /**
  * The summary section should be brief. On a documentation web site,
  * it will be shown on a page that lists summaries for many different
@@ -18,37 +16,24 @@ import {urlEncodeFilterParser} from "./urlEncodeFilterParser"
  *
  */
 export default class AppLambdaDelegate {
+    // private httpStrategies: AWSLambdaStrategy
+    public store: any
 
     private conf: ServerConf
-    private httpStrategies: AWSLambdaStrategy
 
-    public prepare() {
+    public async prepare() {
         this.loadConfiguration()
-        this.connect2MongoDB()
-        this.generateRoutes(this.getModelRegistry())
-    }
-
-    public checkMongoConnection() {
-        return mongoose.connection.readyState === 1
+        const record = this.genRecord()
+        const adapter = this.genAdapter()
+        this.store = fortune(record, {adapter})
+        await this.store.connect()
     }
 
     public async exec(event: Map<string, any>) {
-        if (mongoose.connection.readyState !== 1) {
-            this.connect2MongoDB()
-        }
-        const req = new AWSReq(event)
+        // const req = new AWSReq(event)
         // @ts-ignore
         return await this.httpStrategies.doRequest(req, null)
     }
-
-    // public async excelImportData(event: Map<string, any>) {
-    //     if (!this.checkMongoConnection()) {
-    //         this.connect2MongoDB()
-    //     }
-    //     const importData = new ExcelDataInputOffweb(event)
-    //
-    //     return await importData.excelModelData()
-    // }
 
     protected loadConfiguration() {
         try {
@@ -66,84 +51,24 @@ export default class AppLambdaDelegate {
         }
     }
 
-    protected connect2MongoDB() {
+    protected genRecord() {
+        const filename = "../models/" + this.conf.project + ".js"
+        return require(filename).default
+    }
+
+    protected genAdapter() {
         const prefix = this.conf.mongo.algorithm
         const host = this.conf.mongo.host
-        const port = `${this.conf.mongo.port}`
         const username = this.conf.mongo.username
         const pwd = this.conf.mongo.pwd
         const coll = this.conf.mongo.coll
-        const auth = this.conf.mongo.auth
-        const authSource = this.conf.mongo.authSource
-        if (auth) {
-            phLogger.info(`connect mongodb with ${ username } and ${ pwd }`)
-            if (prefix === "mongodb") {
-                mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + coll + "?authSource=" + authSource,
-                    { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000 },
-                    (err: any) => {
-                        if (err != null) {
-                            phLogger.error(err)
-                        }
-                    })
-            } else if (prefix === "mongodb+srv") {
-                mongoose.connect(prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll +
-                    "?retryWrites=true&w=majority",
-                    { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000 },
-                    (err: any) => {
-                        if (err != null) {
-                            phLogger.error(err)
-                        }
-                    })
-            }
-        } else {
-            phLogger.info(`connect mongodb without auth`)
-            mongoose.connect(prefix + "://" + host + ":" + port + "/" + coll,
-                { useNewUrlParser: true, autoReconnect: true, keepAlive: true, keepAliveInitialDelay: 1000},
-                (err: any) => {
-                    if (err != null) {
-                        phLogger.error(err)
-                    }
-            })
-        }
-    }
-
-    protected getModelRegistry(): ResourceTypeRegistry {
-        const result: {[index: string]: any} = {}
-        this.conf.models.forEach((ele) => {
-            result[ele.reg] = {}
-        })
-        return new API.ResourceTypeRegistry(result, {
-            dbAdapter: new API.dbAdapters.Mongoose(this.generateModels()),
-            info: {
-                description: "Blackmirror inc. Alfred Yang 2019"
-            },
-            urlTemplates: {
-                self: "/{type}/{id}"
-            },
-        })
-    }
-
-    protected generateModels(): any {
-        const path = "../models/" + this.conf.project + "/"
-        const suffix = ".js"
-        const result: {[index: string]: any} = {}
-        this.conf.models.forEach((ele) => {
-            const filename = path + ele.file + suffix
-            const one = require(filename).default
-            result[ele.file] = new one().getModel()
-        })
-        return result
-    }
-
-    protected generateRoutes(registry: ResourceTypeRegistry) {
-
-        const opts: APIControllerOpts = {
-            filterParser: urlEncodeFilterParser
-        }
-
-        this.httpStrategies = new AWSLambdaStrategy(
-            new API.controllers.API(registry, opts),
-            new API.controllers.Documentation(registry, {name: "Pharbers API"})
-        )
+        const url = prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll + "?retryWrites=true&w=majority"
+        return [ mongoAdapter, {
+            url,
+            autoReconnect: true,
+            keepAlive: true,
+            keepAliveInitialDelay: 1000,
+            useNewUrlParser: true
+        } ]
     }
 }

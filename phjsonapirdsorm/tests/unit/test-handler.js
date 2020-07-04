@@ -160,39 +160,40 @@ describe('Tests index', function () {
 			phlogger.error(e)
 		})
 
-		// const record1 =
-		// 	{
-		// 		path: "path01",
-		// 		tag: "tag01"
-		// 	}
+		const record1 =
+			{
+				path: "path01",
+				tag: "tag"
+			}
+
+		const record2 =
+			{
+				path: "path02",
+				tag: "tag"
+			}
+		const result1 = await app.store.create("image", record1)
+		const result2 = await app.store.create("image", record2)
 		//
-		// const record2 =
-		// 	{
-		// 		path: "path01",
-		// 		tag: "tag01"
-		// 	}
-		// const result1 = await app.store.create("image", record1)
-		// const result2 = await app.store.create("image", record2)
+		const record0 =
+			{
+				title: 'alfred test',
+				subTitle: 'alfred test sub',
+				startDate: new Date(2011, 5, 30),
+				endDate: new Date(),
+				location: "武汉wuhan",
+				city: "武汉",
+				activityType: "a",
+				contentTitle: "b",
+				contentDesc: "c",
+				language: 1,
+				logo: result1.payload.records[0].id,
+				logoOnTime: result2.payload.records[0].id
+			}
 
-		// const record0 =
-		// 	{
-		// 		title: 'alfred test',
-		// 		subTitle: 'alfred test sub',
-		// 		startDate: new Date(2011, 5, 30),
-		// 		endDate: new Date(),
-		// 		location: "武汉wuhan",
-		// 		city: "武汉",
-		// 		activityType: "a",
-		// 		contentTitle: "b",
-		// 		contentDesc: "c",
-		// 		language: 1,
-		// 		logo: result1.payload.records[0].id,
-		// 		logoOnTime: result2.payload.records[0].id
-		// 	}
-
-		// const result3 = await app.store.create("activity", record0)
-		// phlogger.info(result3)
-		const result = await app.store.find("activity", "ACa6GxDL6mwtb+4ZsHsq")
+		const result3 = await app.store.create("activity", record0)
+		phlogger.info(result3)
+		// const result = await app.store.find("image", "FGVE7yKtnyvyheTyutah")
+		// const result = await app.store.delete("image", "mZBp1BgU5suUrfTlCY56")
 
 		expect(result).to.be.an('object');
 		expect(result.statusCode).to.equal(200);

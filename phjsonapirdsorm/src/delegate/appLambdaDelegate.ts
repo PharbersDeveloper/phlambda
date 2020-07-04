@@ -1,5 +1,6 @@
 import fortune from "fortune"
 import mongoAdapter from "fortune-mongodb"
+import MySQLAdapter from "fortune-mysql"
 import * as fs from "fs"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
@@ -24,7 +25,7 @@ export default class AppLambdaDelegate {
     public async prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
-        const adapter = this.genAdapter()
+        const adapter = this.genMySQLAdapter()
         this.store = fortune(record, {adapter})
         await this.store.connect()
     }
@@ -54,6 +55,13 @@ export default class AppLambdaDelegate {
     protected genRecord() {
         const filename = "../models/" + this.conf.project + ".js"
         return require(filename).default
+    }
+
+    protected genMySQLAdapter() {
+        const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
+        return [MySQLAdapter , {
+            url
+        }]
     }
 
     protected genAdapter() {

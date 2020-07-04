@@ -5,6 +5,7 @@ import * as fs from "fs"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
+import ExcelDataInputOffweb from "../exportProject/excelDataInputOffweb"
 // import AWSLambdaStrategy from "../httpStrategies/awsLambda"
 // import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
@@ -31,9 +32,8 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
-        // const req = new AWSReq(event)
-        // @ts-ignore
-        return await this.httpStrategies.doRequest(req, null)
+        const handler = new ExcelDataInputOffweb(event)
+        return await handler.excelModelData()
     }
 
     protected loadConfiguration() {

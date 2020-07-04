@@ -10,7 +10,7 @@ app.prepare().then(() => {
     phlogger.info("connect db success")
 }).catch(e => {
     phlogger.error("connect db error")
-    phlogger.error(e as Error)
+    phlogger.error(e)
 })
 
 let tmp = 0

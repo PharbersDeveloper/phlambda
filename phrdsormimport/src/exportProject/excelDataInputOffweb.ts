@@ -18,10 +18,10 @@ export default class ExcelDataInputOffweb {
         this.assetsPath = event.assetsPath
     }
 
-    public async excelModelData() {
+    public async excelModelData(store: object) {
         PhLogger.info(`start input data with excel`)
         const file = this.excelPath
-        return await this.loadExcelData(file) // 将数据导入到数据库
+        return await this.loadExcelData(file, store) // 将数据导入到数据库
         // await this.uploadAssets() // 将文件上传到s3
     }
 
@@ -111,52 +111,77 @@ export default class ExcelDataInputOffweb {
         }
     }
 
-    public async loadExcelData(file: string) {
+    public async loadExcelData(file: string, store: object) {
         const wb = XLSX.readFile(file)
 
         /**
          * 0. read Image data in the excel
          * and colleect all the insertion ids
          */
-        const images = []
-        {
-            PhLogger.info(`0. read Image data in the excel`)
+        PhLogger.info(`0. read Image data in the excel`)
 
-            const data = XLSX.utils.sheet_to_json(wb.Sheets.Image, { header: 2, defval: "" })
-            PhLogger.info(data)
-
-            // const jsonConvert: JsonConvert = new JsonConvert()
-            // const th = new Image()
-            // images = await Promise.all(data.map ( (x: any) => {
-                // jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-                // jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-                // jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-                // return th.getModel().create(jsonConvert.deserializeObject(x, Image))
-            // }))
-        }
+        const imageData = XLSX.utils.sheet_to_json(wb.Sheets.Image, { header: 2, defval: "" })
+        const imagesResults = await Promise.all(imageData.map( async (record: object) => {
+            PhLogger.info("insert Image one")
+            // @ts-ignore
+            const tmp: string = record.id as string
+            // @ts-ignore
+            delete record.id
+            // @ts-ignore
+            const isr = await store.create("image", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
 
         /**
          * 1. read Participant data in the excel
          * and colleect all the insertion ids
          */
-        // let participants: Participant[] = []
-        // {
-        //     PhLogger.info(`1. read Participant data in the excel`)
-        //
-        //     const data = XLSX.utils.sheet_to_json(wb.Sheets.Participant, { header: 2, defval: "" })
-        //
-        //     const jsonConvert: JsonConvert = new JsonConvert()
-        //     const th = new Participant()
-        //     participants = await Promise.all(data.map ( (x: any) => {
-        //         jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-                // jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-                // jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-                // const tmp = jsonConvert.deserializeObject(x, Participant)
-                // const avatarRef = images.find((it, indexA) =>  indexA.toString() === x.avatar.toString() )
-                // tmp.avatar = avatarRef
-                // return th.getModel().create(tmp)
+        const participants = []
+        {
+            PhLogger.info(`1. read Participant data in the excel`)
+
+            const partData = XLSX.utils.sheet_to_json(wb.Sheets.Participant, { header: 2, defval: "" })
+            const partResults = await Promise.all(partData.map( async (record: object) => {
+                PhLogger.info("insert Participant one")
+                // @ts-ignore
+                const tmp = record.id
+                // @ts-ignore
+                delete record.id
+                // @ts-ignore
+                PhLogger.info(record.avatar)
+                // @ts-ignore
+                const m = imagesResults.filter((x) => x.id === parseInt(record.avatar, 10))
+                // @ts-ignore
+                record.avatar = m.map((x) => x.dbid)
+                // if (m) {
+                    // @ts-ignore
+                    // record.avatar = m.dbid
+                // }
+
+                // @ts-ignore
+                // record.host = []
+                // @ts-ignore
+                // record.speak = []
+                // @ts-ignore
+                // record.writeReports = []
+                // @ts-ignore
+                // PhLogger.info(record.avatar)
+                // @ts-ignore
+                const isr = await store.create("participant", record)
+                return { id: tmp, dbid: isr.payload.records[0].id }
+            }))
+            // const jsonConvert: JsonConvert = new JsonConvert()
+            // const th = new Participant()
+            // participants = await Promise.all(data.map ( (x: any) => {
+            //     jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
+            //     jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
+            //     jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
+            //     const tmp = jsonConvert.deserializeObject(x, Participant)
+            //     const avatarRef = images.find((it, indexA) =>  indexA.toString() === x.avatar.toString() )
+            //     tmp.avatar = avatarRef
+            //     return th.getModel().create(tmp)
             // }))
-        // }
+        }
 
         /**
          * 2. read events data in the excel

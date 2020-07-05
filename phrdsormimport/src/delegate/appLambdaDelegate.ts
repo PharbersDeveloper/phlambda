@@ -33,7 +33,7 @@ export default class AppLambdaDelegate {
 
     public async exec(event: Map<string, any>) {
         const handler = new ExcelDataInputOffweb(event)
-        return await handler.excelModelData()
+        return await handler.excelModelData(this.store)
     }
 
     protected loadConfiguration() {

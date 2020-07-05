@@ -1,7 +1,6 @@
 "use strict"
 import AWS = require("aws-sdk")
 import * as fs from "fs"
-import { JsonConvert, OperationMode, ValueCheckingMode } from "json2typescript"
 import * as path from "path"
 import XLSX = require("xlsx")
 import PhLogger from "../logger/phLogger"
@@ -136,111 +135,144 @@ export default class ExcelDataInputOffweb {
          * 1. read Participant data in the excel
          * and colleect all the insertion ids
          */
-        const participants = []
-        {
-            PhLogger.info(`1. read Participant data in the excel`)
+        PhLogger.info(`1. read Participant data in the excel`)
 
-            const partData = XLSX.utils.sheet_to_json(wb.Sheets.Participant, { header: 2, defval: "" })
-            const partResults = await Promise.all(partData.map( async (record: object) => {
-                PhLogger.info("insert Participant one")
+        const partData = XLSX.utils.sheet_to_json(wb.Sheets.Participant, { header: 2, defval: "" })
+        const partResults = await Promise.all(partData.map( async (record: object) => {
+            PhLogger.info("insert Participant one")
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+            // @ts-ignore
+            const m = imagesResults.find((x) => x.id === parseInt(record.avatar, 10))
+            if (m) {
                 // @ts-ignore
-                const tmp = record.id
+                record.avatar = m.dbid
+            } else {
                 // @ts-ignore
-                delete record.id
-                // @ts-ignore
-                PhLogger.info(record.avatar)
-                // @ts-ignore
-                const m = imagesResults.filter((x) => x.id === parseInt(record.avatar, 10))
-                // @ts-ignore
-                record.avatar = m.map((x) => x.dbid)
-                // if (m) {
-                    // @ts-ignore
-                    // record.avatar = m.dbid
-                // }
+                record.avatar = null
+            }
 
-                // @ts-ignore
-                // record.host = []
-                // @ts-ignore
-                // record.speak = []
-                // @ts-ignore
-                // record.writeReports = []
-                // @ts-ignore
-                // PhLogger.info(record.avatar)
-                // @ts-ignore
-                const isr = await store.create("participant", record)
-                return { id: tmp, dbid: isr.payload.records[0].id }
-            }))
-            // const jsonConvert: JsonConvert = new JsonConvert()
-            // const th = new Participant()
-            // participants = await Promise.all(data.map ( (x: any) => {
-            //     jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-            //     jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-            //     jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-            //     const tmp = jsonConvert.deserializeObject(x, Participant)
-            //     const avatarRef = images.find((it, indexA) =>  indexA.toString() === x.avatar.toString() )
-            //     tmp.avatar = avatarRef
-            //     return th.getModel().create(tmp)
-            // }))
-        }
+            // @ts-ignore
+            const isr = await store.create("participant", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
 
         /**
          * 2. read events data in the excel
          * and colleect all the insertion ids
          */
-        // let events: Event[] = []
-        // {
-        //     PhLogger.info(`2. read event data in the excel`)
-        //
-        //     const data = XLSX.utils.sheet_to_json(wb.Sheets.Event, { header: 2, defval: "" })
-        //
-        //     const jsonConvert: JsonConvert = new JsonConvert()
-        //     const th = new Event()
-        //     events = await Promise.all(data.map ( async (x: any) => {
-        //         jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-        //         jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-        //         const tmp = jsonConvert.deserializeObject(x, Event)
-        //         const eventSpeakers = x.speakers.toString().split("\n")
-        //         const speakers = participants.filter((it, curIndex) => {
-        //             const i = curIndex.toString()
-        //             return eventSpeakers.includes(i)
-        //         })
-        //         tmp.speakers = speakers
-        //         return th.getModel().create(tmp)
-        //     }))
-        // }
+        PhLogger.info(`2. read event data in the excel`)
+
+        const eventData = XLSX.utils.sheet_to_json(wb.Sheets.Event, { header: 2, defval: "" })
+
+        const eventResult = await Promise.all(eventData.map( async (record: object) => {
+            PhLogger.info("insert event one")
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+
+            // @ts-ignore
+            const eventSpeakers = record.speakers.toString().split("\n")
+            // @ts-ignore
+            record.speakers = eventSpeakers.map((s) => {
+                const m = partResults.find((x) => x.id === parseInt(s, 10))
+                if (m) {
+                    return m.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            if (record.startDate === "") {
+                // @ts-ignore
+                delete record.startDate
+                // record.startDate = new Date()
+            } else {
+                // @ts-ignore
+                record.startDate = new Date(parseInt(record.startDate, 10))
+            }
+
+            // @ts-ignore
+            if (record.endDate === "") {
+                // @ts-ignore
+                delete record.endDate
+                // record.endDate = new Date()
+            } else {
+                // @ts-ignore
+                record.endDate = new Date(parseInt(record.endDate, 10))
+            }
+
+            // @ts-ignore
+            const isr = await store.create("event", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
 
         /**
          * 3. read zone in the excel
          * and colleect all the insertion ids
          */
-        // let zones: Zone[] = []
-        // {
-        //     PhLogger.info(`3. read zones in the excel`)
-        //
-        //     const data = XLSX.utils.sheet_to_json(wb.Sheets.Zone, { header: 2, defval: "" })
-        //
-        //     const jsonConvert: JsonConvert = new JsonConvert()
-        //     const th = new Zone()
-        //     zones = await Promise.all(data.map ( async (x: any) => {
-        //         jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-        //         jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-        //         const tmp = jsonConvert.deserializeObject(x, Zone)
-        //         const zoneHosts = x.hosts.toString().split("\n")
-        //         const zoneAgendas = x.agendas.toString().split("\n")
-        //         const hosts = participants.filter((it, curIndex) => {
-        //             const i = curIndex.toString()
-        //             return zoneHosts.includes(i)
-        //         })
-        //         const agendas = events.filter( (it, curIndex) => {
-        //             const i = curIndex.toString()
-        //             return zoneAgendas.includes(i)
-        //         })
-        //         tmp.hosts = hosts
-        //         tmp.agendas = agendas
-        //         tmp.avatar = await this.pushAvatar2Oss(tmp.avatarPath)
-                // return th.getModel().create(tmp)
-            // }))
-        // }
+        PhLogger.info(`3. read zones in the excel`)
+
+        const zoneData = XLSX.utils.sheet_to_json(wb.Sheets.Zone, { header: 2, defval: "" })
+        const zoneResult = await Promise.all(zoneData.map(async (record: object) => {
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+
+            // @ts-ignore
+            const tmpHosts = record.hosts.toString().split("\n")
+            // @ts-ignore
+            record.hosts = tmpHosts.map((s) => {
+                const m = partResults.find((x) => x.id === parseInt(s, 10))
+                if (m) {
+                    return m.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const tmpAgendas = record.agendas.toString().split("\n")
+            // @ts-ignore
+            record.agendas = tmpAgendas.map((s) => {
+                const m = eventResult.find((x) => x.id === parseInt(s, 10))
+                if (m) {
+                    return m.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            if (record.startDate === "") {
+                // @ts-ignore
+                delete record.startDate
+                // record.startDate = new Date()
+            } else {
+                // @ts-ignore
+                record.startDate = new Date(parseInt(record.startDate, 10))
+            }
+
+            // @ts-ignore
+            if (record.endDate === "") {
+                // @ts-ignore
+                delete record.endDate
+                // record.endDate = new Date()
+            } else {
+                // @ts-ignore
+                record.endDate = new Date(parseInt(record.endDate, 10))
+            }
+
+            // @ts-ignore
+            const isr = await store.create("zone", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
+        PhLogger.info(zoneResult)
 
         /**
          * 4. read requirement data in the excel

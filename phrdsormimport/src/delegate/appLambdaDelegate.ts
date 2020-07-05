@@ -1,6 +1,7 @@
 import fortune from "fortune"
 import mongoAdapter from "fortune-mongodb"
 import MySQLAdapter from "fortune-mysql"
+import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
@@ -26,7 +27,7 @@ export default class AppLambdaDelegate {
     public async prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
-        const adapter = this.genMySQLAdapter()
+        const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
         await this.store.connect()
     }
@@ -60,6 +61,13 @@ export default class AppLambdaDelegate {
     protected genMySQLAdapter() {
         const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
         return [MySQLAdapter , {
+            url
+        }]
+    }
+
+    protected genPgAdapter() {
+        const url = "postgres://postgres:196125@localhost:5432/phoffweb"
+        return [postgresAdapter , {
             url
         }]
     }

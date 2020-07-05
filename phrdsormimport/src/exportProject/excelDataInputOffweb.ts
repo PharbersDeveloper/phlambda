@@ -272,7 +272,6 @@ export default class ExcelDataInputOffweb {
             const isr = await store.create("zone", record)
             return { id: tmp, dbid: isr.payload.records[0].id }
         }))
-        PhLogger.info(zoneResult)
 
         /**
          * 4. read requirement data in the excel
@@ -280,102 +279,189 @@ export default class ExcelDataInputOffweb {
          */
         // let reports: Report[] = []
         // {
-        //     PhLogger.info(`4. read Report data in the excel`)
-        //
-        //     const data = XLSX.utils.sheet_to_json(wb.Sheets.Report, { header: 2, defval: "" })
-        //
-        //     const jsonConvert: JsonConvert = new JsonConvert()
-        //     const th = new Report()
-        //     reports = await Promise.all(data.map ( (x: any) => {
-        //         jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-                // jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-                // jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-                // const tmp = jsonConvert.deserializeObject(x, Report)
-                // const coverRef = images.find((it, curIndex) => curIndex.toString() === x.cover.toString())
-                // const reportWriter = x.writers
-                // const writer = participants.filter((it, curIndex) => {
-                //     const i = curIndex.toString()
-                //     return reportWriter.includes(i)
-                // })
-                // tmp.writers = writer
-                // tmp.cover = coverRef
-                //
-                // return th.getModel().create(tmp)
-            // }))
-        // }
+        PhLogger.info(`4. read Report data in the excel`)
+
+        const reportDate = XLSX.utils.sheet_to_json(wb.Sheets.Report, { header: 2, defval: "" })
+        const reportResult = await Promise.all(reportDate.map(async (record: object) => {
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+
+            // @ts-ignore
+            const m = imagesResults.find((x) => x.id === parseInt(record.cover, 10))
+            if (m) {
+                // @ts-ignore
+                record.cover = m.dbid
+            } else {
+                // @ts-ignore
+                record.cover = null
+            }
+
+            // @ts-ignore
+            if (record.date === "") {
+                // @ts-ignore
+                delete record.date
+                // record.endDate = new Date()
+            } else {
+                // @ts-ignore
+                record.date = new Date(parseInt(record.date, 10))
+            }
+
+            // @ts-ignore
+            const tmpWriter = record.writers.toString().split("\n")
+            // @ts-ignore
+            record.writers = tmpWriter.map((s) => {
+                const t = partResults.find((x) => x.id === parseInt(s, 10))
+                if (t) {
+                    return t.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const isr = await store.create("report", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
 
         /**
          * 5. read cooperations data in the excel
          * and colleect all the insertion ids
          */
-        // let cooperations: Cooperation[] = []
-        // {
-        //     PhLogger.info(`5. read Cooperations data in the excel`)
-        //
-        //     const data = XLSX.utils.sheet_to_json(wb.Sheets.Cooperation, { header: 2, defval: "" })
-        //
-        //     const jsonConvert: JsonConvert = new JsonConvert()
-        //     const th = new Cooperation()
-        //     cooperations = await Promise.all(data.map ( (x: any) => {
-        //         jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-                // jsonConvert.ignorePrimitiveChecks = true // don't allow assigning number to string etc.
-                // jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-                // const tmp = jsonConvert.deserializeObject(x, Cooperation)
-                // const logoRef = images.find((it, curIndex) => curIndex.toString() === x.logo.toString())
-                // tmp.logo = logoRef
-                // return th.getModel().create(tmp)
-            // }))
-        // }
+        PhLogger.info(`5. read Cooperations data in the excel`)
+
+        const corData = XLSX.utils.sheet_to_json(wb.Sheets.Cooperation, { header: 2, defval: "" })
+        const corResult = await Promise.all(corData.map(async (record: object) => {
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+
+            // @ts-ignore
+            const m = imagesResults.find((x) => x.id === parseInt(record.logo, 10))
+            if (m) {
+                // @ts-ignore
+                record.logo = m.dbid
+            } else {
+                // @ts-ignore
+                record.logo = null
+            }
+
+            // @ts-ignore
+            const isr = await store.create("cooperation", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
 
         /**
          * 6. read hospital data in the excel
          * and collect all the insertion ids
          */
-        // let activities: Activity[] = []
-        // {
-        //     PhLogger.info(`6. read acticity data in the excel`)
-        //
-        //     header:2 ?
-            // const data = XLSX.utils.sheet_to_json(wb.Sheets.Activity, { header: 2, defval: "" })
-            // const jsonConvert: JsonConvert = new JsonConvert()
-            // const th = new Activity()
-            //
-            // activities = await Promise.all(data.map (async (x: any) => {
-            //     jsonConvert.ignorePrimitiveChecks = true
-            //     jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL
-            //     const tmp = jsonConvert.deserializeObject(x, Activity)
-            //     logo,logoOnTime,gallery 图片问题
-                // const logoRef = images.find((it, curIndex) => curIndex.toString() === x.logo.toString())
-                // const logoOnTimeRef = images.find((it, curIndex) => curIndex.toString() === x.logoOnTime.toString())
-                // const acticityGallery = x.gallery.toString().split("\n")
-                // const activityAttachment = x.attachments.toString().split("\n")
-                // const activityAgenda = x.agendas.toString().split("\n")
-                // const activityPartners = x.partners.toString().split("\n")
-                // const attachments = reports.filter((it, curIndex) => {
-                //     const i = curIndex.toString()
-                //     return activityAttachment.includes(i)
-                // })
-                // const agendas = zones.filter((it, curIndex) => {
-                //     const i = curIndex.toString()
-                //     return activityAgenda.includes(i)
-                // })
-                // const galleryRef = images.filter((it, curIndex) => {
-                //     const i = curIndex.toString()
-                //     return acticityGallery.includes(i)
-                // })
-                // const partnersRef = cooperations.filter((it, curIndex) => {
-                //     const i = curIndex.toString()
-                //     return activityPartners.includes(i)
-                // })
-                // tmp.attachments = attachments
-                // tmp.agendas = agendas
-                // tmp.logo = logoRef
-                // tmp.logoOnTime = logoOnTimeRef
-                // tmp.gallery = galleryRef
-                // tmp.partners = partnersRef
-                // tmp.avatar = await this.pushAvatar2Oss(tmp.avatarPath)
-                // return th.getModel().create(tmp)
-            // }))
-        // }
+        PhLogger.info(`6. read acticity data in the excel`)
+
+        const actData = XLSX.utils.sheet_to_json(wb.Sheets.Activity, { header: 2, defval: "" })
+        const actResult = await Promise.all(actData.map(async (record: object) => {
+            // @ts-ignore
+            const tmp = record.id
+            // @ts-ignore
+            delete record.id
+
+            // @ts-ignore
+            if (record.startDate === "") {
+                // @ts-ignore
+                delete record.startDate
+                // record.startDate = new Date()
+            } else {
+                // @ts-ignore
+                record.startDate = new Date(parseInt(record.startDate, 10))
+            }
+
+            // @ts-ignore
+            if (record.endDate === "") {
+                // @ts-ignore
+                delete record.endDate
+                // record.endDate = new Date()
+            } else {
+                // @ts-ignore
+                record.endDate = new Date(parseInt(record.endDate, 10))
+            }
+
+            // @ts-ignore
+            const m = imagesResults.find((x) => x.id === parseInt(record.logo, 10))
+            if (m) {
+                // @ts-ignore
+                record.logo = m.dbid
+            } else {
+                // @ts-ignore
+                record.logo = null
+            }
+
+            // @ts-ignore
+            const lm = imagesResults.find((x) => x.id === parseInt(record.logoOnTime, 10))
+            if (lm) {
+                // @ts-ignore
+                record.logoOnTime = lm.dbid
+            } else {
+                // @ts-ignore
+                record.logoOnTime = null
+            }
+
+            // @ts-ignore
+            const gx = record.gallery.toString().split("\n")
+            // @ts-ignore
+            record.gallery = gx.map((s) => {
+                // @ts-ignore
+                const g = imagesResults.find((x) => x.id === parseInt(s, 10))
+                if (g) {
+                    return g.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const at = record.attachments.toString().split("\n")
+            // @ts-ignore
+            record.attachments = at.map((s) => {
+                // @ts-ignore
+                const a = reportResult.find((x) => x.id === parseInt(s, 10))
+                if (a) {
+                    return a.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const ad = record.agendas.toString().split("\n")
+            // @ts-ignore
+            record.agendas = ad.map((s) => {
+                // @ts-ignore
+                const d = zoneResult.find((x) => x.id === parseInt(s, 10))
+                if (d) {
+                    return d.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const pt = record.partners.toString().split("\n")
+            // @ts-ignore
+            record.partners = pt.map((s) => {
+                // @ts-ignore
+                const p = corResult.find((x) => x.id === parseInt(s, 10))
+                if (p) {
+                    return p.dbid
+                } else {
+                    return undefined
+                }
+            }).filter((x) => x !== undefined)
+
+            // @ts-ignore
+            const isr = await store.create("activity", record)
+            return { id: tmp, dbid: isr.payload.records[0].id }
+        }))
+        PhLogger.info(actResult)
     }
 }

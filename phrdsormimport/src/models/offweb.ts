@@ -13,7 +13,10 @@ const records = {
         language: Number,
         logo: { link: "image", inverse: "actLogo" },
         logoOnTime: { link: "image", inverse: "actLogoOnTime" },
-        gallery: { link: "image", isArray: true, inverse: "actGallery"}
+        gallery: { link: "image", isArray: true, inverse: "actGallery"},
+        attachments: { link: "report", isArray: true, inverse: "actAttachments" },
+        agendas: { link: "zone", isArray: true, inverse: "actAgendas" },
+        partners: { link: "cooperation", isArray: true, inverse: "actPartners" }
     },
     image: {
         path: String,
@@ -30,9 +33,10 @@ const records = {
         subTitle: String,
         description: String,
         cover: { link: "image", inverse: "rptCover"},
-        data: Date,
+        date: Date,
         language: Number,
-        writers: { link: "participant", isArray: true, inverse: "writeReports"}
+        writers: { link: "participant", isArray: true, inverse: "writeReports"},
+        actAttachments: { link: "activity", isArray: true, inverse: "attachments" }
     },
     participant: {
         name: String,
@@ -48,7 +52,8 @@ const records = {
         name: String,
         companyType: String,
         logo: { link: "image", inverse: "coLogo" },
-        language: Number
+        language: Number,
+        actPartners: { link: "activity", isArray: true, inverse: "partners" }
     },
     event: {
         title: String,
@@ -68,7 +73,8 @@ const records = {
         endDate: Date,
         language: Number,
         hosts: { link: "participant", isArray: true, inverse: "host" },
-        agendas: { link: "event", isArray: true, inverse: "hold" }
+        agendas: { link: "event", isArray: true, inverse: "hold" },
+        actAgendas: { link: "activity", inverse: "agendas" }
     }
 }
 

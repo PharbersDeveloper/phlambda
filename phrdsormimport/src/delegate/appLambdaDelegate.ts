@@ -65,7 +65,7 @@ export default class AppLambdaDelegate {
         }]
     }
 
-    protected genPgAdapter() {
+   protected genPgAdapter() {
         const url = "postgres://postgres:196125@localhost:5432/phoffweb"
         return [postgresAdapter , {
             url

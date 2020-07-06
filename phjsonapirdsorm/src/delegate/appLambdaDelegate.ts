@@ -5,12 +5,11 @@ import mongoAdapter from "fortune-mongodb"
 import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
-import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
-// import AWSLambdaStrategy from "../httpStrategies/awsLambda"
+import http, {ServerResponse} from "http"
 import AWSReq from "../strategies/awsRequest"
 
 /**
@@ -75,7 +74,14 @@ export default class AppLambdaDelegate {
     }
 
     protected genPgAdapter() {
-        const url = "postgres://postgres:196125@localhost:5432/phoffweb"
+        const prefix = this.conf.postgres.algorithm
+        const host = this.conf.postgres.host
+        const port = this.conf.postgres.port
+        const username = this.conf.postgres.username
+        const pwd = this.conf.postgres.pwd
+        const dbName = this.conf.postgres.dbName
+        const url = prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + dbName
+        // const url = "postgres://postgres:196125@localhost:5432/phoffweb"
         return [postgresAdapter , {
             url
         }]

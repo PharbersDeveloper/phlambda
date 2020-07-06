@@ -6,12 +6,13 @@ const phlogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
-app.prepare().then(() => {
-    phlogger.info("connect db success")
-}).catch(e => {
-    phlogger.error("connect db error")
-    phlogger.error(e as Error)
-})
+app.prepare()
+    // .then(() => {
+    // phlogger.info("connect db success")
+// }).catch(e => {
+//     phlogger.error("connect db error")
+//     phlogger.error(e)
+// })
 
 let tmp = 0
 
@@ -40,15 +41,15 @@ exports.lambdaHandler = async function runLambda(event, context) {
         result = await app.exec(event)
         tmp = 0
 
-        Object.assign(result.headers, {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        })
+        // Object.assign(result.headers, {
+        //     "Access-Control-Allow-Headers" : "Content-Type",
+        //     "Access-Control-Allow-Origin": "*",
+        //     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+        // })
         response = {
-            'statusCode': result.status,
-            'headers': result.headers,
-            'body': result.body
+            'statusCode': result.statusCode,
+            'headers': result.output[0],
+            'body': String(result.output[1])
         }
         if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
                 phlogger.info("retry connect mongodb for another round.");

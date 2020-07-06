@@ -1,14 +1,17 @@
 import fortune from "fortune"
+import fortuneHTTP from "fortune-http"
+import jsonApiSerializer from "fortune-json-api"
 import mongoAdapter from "fortune-mongodb"
 import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
+import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
-// import AWSLambdaStrategy from "../httpStrategies/awsLambda"
-// import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
+// import AWSLambdaStrategy from "../httpStrategies/awsLambda"
+import AWSReq from "../strategies/awsRequest"
 
 /**
  * The summary section should be brief. On a documentation web site,
@@ -20,21 +23,27 @@ import phLogger from "../logger/phLogger"
 export default class AppLambdaDelegate {
     // private httpStrategies: AWSLambdaStrategy
     public store: any
-
+    public listener: any
     private conf: ServerConf
 
-    public async prepare() {
+    public prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
-        await this.store.connect()
+        // await this.store.connect()
+        this.listener = fortuneHTTP(this.store, {
+            serializers: [
+                [ jsonApiSerializer ]
+            ]
+        })
     }
 
     public async exec(event: Map<string, any>) {
-        // const req = new AWSReq(event)
-        // @ts-ignore
-        return await this.httpStrategies.doRequest(req, null)
+        const req = new AWSReq(event)
+        const response = new ServerResponse(req)
+        await this.listener(req, response)
+        return response
     }
 
     protected loadConfiguration() {

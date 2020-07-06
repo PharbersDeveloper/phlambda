@@ -1,8 +1,8 @@
 import fortune from "fortune"
 import fortuneHTTP from "fortune-http"
 import jsonApiSerializer from "fortune-json-api"
-import mongoAdapter from "fortune-mongodb"
-import MySQLAdapter from "fortune-mysql"
+// import mongoAdapter from "fortune-mongodb"
+// import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
 import http, {ServerResponse} from "http"
@@ -70,12 +70,12 @@ export default class AppLambdaDelegate {
         return require(filename).default
     }
 
-    protected genMySQLAdapter() {
-        const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
-        return [MySQLAdapter , {
-            url
-        }]
-    }
+    // protected genMySQLAdapter() {
+    //     const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
+    //     return [MySQLAdapter , {
+    //         url
+    //     }]
+    // }
 
     protected genPgAdapter() {
         const prefix = this.conf.postgres.algorithm
@@ -91,19 +91,19 @@ export default class AppLambdaDelegate {
         }]
     }
 
-    protected genAdapter() {
-        const prefix = this.conf.mongo.algorithm
-        const host = this.conf.mongo.host
-        const username = this.conf.mongo.username
-        const pwd = this.conf.mongo.pwd
-        const coll = this.conf.mongo.coll
-        const url = prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll + "?retryWrites=true&w=majority"
-        return [ mongoAdapter, {
-            url,
-            autoReconnect: true,
-            keepAlive: true,
-            keepAliveInitialDelay: 1000,
-            useNewUrlParser: true
-        } ]
-    }
+    // protected genAdapter() {
+    //     const prefix = this.conf.mongo.algorithm
+    //     const host = this.conf.mongo.host
+    //     const username = this.conf.mongo.username
+    //     const pwd = this.conf.mongo.pwd
+    //     const coll = this.conf.mongo.coll
+    //     const url = prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll + "?retryWrites=true&w=majority"
+    //     return [ mongoAdapter, {
+    //         url,
+    //         autoReconnect: true,
+    //         keepAlive: true,
+    //         keepAliveInitialDelay: 1000,
+    //         useNewUrlParser: true
+    //     } ]
+    // }
 }

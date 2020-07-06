@@ -1,7 +1,7 @@
 'use strict';
 
 const app = require('../../app.js')
-// const delegate = require("../../dist/delegate/appLambdaDelegate").default
+const delegate = require("../../dist/delegate/appLambdaDelegate").default
 const phlogger = require("../../dist/logger/phLogger").default
 const chai = require('chai')
 const expect = chai.expect
@@ -154,6 +154,6 @@ describe('Tests index', function () {
 
 	after("desconnect db", async () => {
 		// await mongoose.disconnect()
-		await app.store.disconnect()
+		await app.cleanUp()
 	});
 });

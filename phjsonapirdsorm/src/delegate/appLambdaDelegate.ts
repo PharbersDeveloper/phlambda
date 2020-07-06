@@ -38,6 +38,10 @@ export default class AppLambdaDelegate {
         })
     }
 
+    public async cleanUp() {
+        await this.store.disconnect()
+    }
+
     public async exec(event: Map<string, any>) {
         const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)

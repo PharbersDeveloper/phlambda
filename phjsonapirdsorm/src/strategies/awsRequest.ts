@@ -31,7 +31,7 @@ export default class AWSReq extends IncomingMessage {
             }
         } else {
             // @ts-ignore
-            const buffer = new Buffer.from(event.body)
+            const buffer = Buffer.from(event.body)
             this.headers = {
                 "accept": hds.Accept,
                 "content-length": String(buffer.length),

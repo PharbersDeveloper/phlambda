@@ -11,7 +11,7 @@ var context;
 
 describe('Tests index', function () {
 	it('verify find one successfully', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_page.json", 'utf8'))
+	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
 	    const result = await app.lambdaHandler(event, context)
 
 	    expect(result).to.be.an('object');
@@ -22,7 +22,7 @@ describe('Tests index', function () {
 	    phlogger.info(response)
 
 	    expect(response).to.be.an('object');
-	    expect(response.data.id).to.be.equal("1bhjk84ILJsn4eIPhX1f");
+	    expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
 	    expect(response.data.type).to.be.equal("images");
 	    // expect(response.location).to.be.an("string");
 	});

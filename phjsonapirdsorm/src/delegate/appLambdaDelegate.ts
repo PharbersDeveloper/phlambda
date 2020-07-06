@@ -5,11 +5,11 @@ import mongoAdapter from "fortune-mongodb"
 import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
+import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
-import http, {ServerResponse} from "http"
 import AWSReq from "../strategies/awsRequest"
 
 /**
@@ -39,7 +39,7 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
-        const req = new AWSReq(event)
+        const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)
         await this.listener(req, response)
         return response

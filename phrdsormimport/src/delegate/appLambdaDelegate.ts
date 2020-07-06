@@ -1,4 +1,6 @@
 import fortune from "fortune"
+import fortuneHTTP from "fortune-http"
+import jsonApiSerializer from "fortune-json-api"
 import mongoAdapter from "fortune-mongodb"
 import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
@@ -7,8 +9,6 @@ import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
 import ExcelDataInputOffweb from "../exportProject/excelDataInputOffweb"
-// import AWSLambdaStrategy from "../httpStrategies/awsLambda"
-// import AWSReq from "../httpStrategies/awsRequest"
 import phLogger from "../logger/phLogger"
 
 /**
@@ -21,15 +21,20 @@ import phLogger from "../logger/phLogger"
 export default class AppLambdaDelegate {
     // private httpStrategies: AWSLambdaStrategy
     public store: any
-
+    public listener: any
     private conf: ServerConf
 
-    public async prepare() {
+    public prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
-        await this.store.connect()
+        // await this.store.connect()
+        this.listener = fortuneHTTP(this.store, {
+            serializers: [
+                [ jsonApiSerializer ]
+            ]
+        })
     }
 
     public async exec(event: Map<string, any>) {
@@ -65,8 +70,15 @@ export default class AppLambdaDelegate {
         }]
     }
 
-   protected genPgAdapter() {
-        const url = "postgres://postgres:196125@localhost:5432/phoffweb"
+    protected genPgAdapter() {
+        const prefix = this.conf.postgres.algorithm
+        const host = this.conf.postgres.host
+        const port = this.conf.postgres.port
+        const username = this.conf.postgres.username
+        const pwd = this.conf.postgres.pwd
+        const dbName = this.conf.postgres.dbName
+        const url = prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + dbName
+        // const url = "postgres://postgres:196125@localhost:5432/phoffweb"
         return [postgresAdapter , {
             url
         }]

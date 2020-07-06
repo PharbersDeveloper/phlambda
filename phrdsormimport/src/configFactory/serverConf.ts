@@ -1,6 +1,7 @@
 "use strict"
 import {JsonObject, JsonProperty} from "json2typescript"
 import { MongoConf } from "./mongoConf"
+import { PostgresConf } from "./postgresConf"
 
 @JsonObject("ServerConf")
 export class ServerConf {
@@ -10,4 +11,7 @@ export class ServerConf {
 
     @JsonProperty("mongo", MongoConf)
     public mongo: MongoConf = undefined
+
+    @JsonProperty("postgres", PostgresConf)
+    public postgres: PostgresConf = undefined
 }

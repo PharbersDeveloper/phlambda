@@ -7,12 +7,6 @@ const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
 app.prepare()
-    // .then(() => {
-    // phlogger.info("connect db success")
-// }).catch(e => {
-//     phlogger.error("connect db error")
-//     phlogger.error(e)
-// })
 
 let tmp = 0
 
@@ -28,7 +22,7 @@ let tmp = 0
  * @returns {Object} object - API Gateway Lambda Proxy Output Format
  *
  */
-exports.lambdaHandler = async function runLambda(event, context) {
+exports.lambdaHandler = async function (event, context) {
     try {
         phlogger.info(event)
         // const result = await app.exec(event)
@@ -51,15 +45,19 @@ exports.lambdaHandler = async function runLambda(event, context) {
             'headers': result.output[0],
             'body': String(result.output[1])
         }
-        if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
-                phlogger.info("retry connect mongodb for another round.");
-                tmp = 1
-                return runLambda(event, context)
-        }
+        // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
+        //         phlogger.info("retry connect mongodb for another round.");
+        //         tmp = 1
+        //         return runLambda(event, context)
+        // }
     } catch (err) {
         phlogger.error(err);
         return err;
     }
 
     return response
+};
+
+exports.cleanUp = async () => {
+    await app.cleanUp()
 };

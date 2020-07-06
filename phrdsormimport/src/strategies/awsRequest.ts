@@ -9,7 +9,7 @@ export default class AWSReq extends IncomingMessage {
     public pagination: object
     public body ?: object
 
-    constructor(event: object, projectName: string) {
+    constructor(event: object) {
         super(null)
         this.aborted = false
         // @ts-ignore
@@ -45,7 +45,7 @@ export default class AWSReq extends IncomingMessage {
         // @ts-ignore
         this.method = event.httpMethod
         // @ts-ignore
-        this.url = event.path.substr(event.path.indexOf(projectName) + projectName.length)
+        this.url = event.path
         this.protocol =
             this.httpVersion.substr(0, this.httpVersion.indexOf("/")).toLowerCase()
         this.host = hds.Host

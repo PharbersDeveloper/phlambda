@@ -6,12 +6,7 @@ const phlogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
-app.prepare().then(() => {
-    phlogger.info("connect db success")
-}).catch(e => {
-    phlogger.error("connect db error")
-    phlogger.error(e)
-})
+app.prepare()
 
 let tmp = 0
 

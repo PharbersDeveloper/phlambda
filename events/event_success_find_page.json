@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/ntm/{type}",
-    "path": "/ntm/proposals",
+    "resource": "/{type}",
+    "path": "/images?page[offset]=0&page[limit]=1",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
@@ -9,7 +9,7 @@
         "page[limit]": "1"
     },
     "pathParameters": {
-        "type": "proposals"
+        "type": "images"
     },
     "stageVariables": {
         "baz": "qux"
@@ -54,8 +54,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/ntm/{type}",
-        "resourcePath": "/ntm/proposals",
+        "path": "/{type}",
+        "resourcePath": "/images",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

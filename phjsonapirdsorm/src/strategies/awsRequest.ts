@@ -10,7 +10,8 @@ export default class AWSReq extends IncomingMessage {
     public body ?: object
 
     constructor(event: object, projectName: string) {
-        super(null)
+        // @ts-ignore
+        super(event.body)
         this.aborted = false
         // @ts-ignore
         this.httpVersion = event.requestContext.protocol.toString()
@@ -35,7 +36,7 @@ export default class AWSReq extends IncomingMessage {
             this.headers = {
                 "accept": hds.Accept,
                 "content-length": String(buffer.length),
-                "content-type": hds.contentType,
+                "content-type": "application/vnd.api+json",//hds.contentType,
                 "transfer-encoding": hds.tranferEncoding
             }
         }
@@ -63,7 +64,6 @@ export default class AWSReq extends IncomingMessage {
 
         // @ts-ignore
         this.processQueryStringParameters(event.queryStringParameters)
-
     }
 
     private processQueryStringParameters(queryStringParameters: object) {

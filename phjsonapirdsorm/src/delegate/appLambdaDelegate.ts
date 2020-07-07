@@ -45,7 +45,11 @@ export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)
-        await this.listener(req, response)
+        // @ts-ignore
+        const buffer = Buffer.from(event.body)
+        // @ts-ignore
+        req._readableState.buffer = buffer
+        await this.listener(req, response, buffer)
         return response
     }
 

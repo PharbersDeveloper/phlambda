@@ -1,14 +1,14 @@
 {
-    "body": "{\"data\": {  \"type\": \"reports\", \"id\": \"zNgHrJahrCXDXtC3tPbe\", \"attributes\": { \"title\": \"《修改？广阔市场用药分析及展望》\" }} }",
+    "body": "{\"data\": {  \"type\": \"reports\", \"id\": \"MA636UOnS4BRVggmVqjA\", \"attributes\": { \"title\": \"《修改？广阔市场用药分析及展望》\" }} }",
     "resource": "/offweb/{type}/{id}",
-    "path": "/offweb/reports/zNgHrJahrCXDXtC3tPbe",
+    "path": "/offweb/reports/MA636UOnS4BRVggmVqjA",
     "httpMethod": "PATCH",
     "isBase64Encoded": false,
     "queryStringParameters": {
     },
     "pathParameters": {
       "type": "reports",
-      "id":  "zNgHrJahrCXDXtC3tPbe"
+      "id":  "MA636UOnS4BRVggmVqjA"
     },
     "stageVariables": {
       "baz": "qux"
@@ -53,11 +53,10 @@
         "userAgent": "Custom User Agent String",
         "user": null
       },
-      "path": "/offweb/reports/zNgHrJahrCXDXtC3tPbe",
+      "path": "/offweb/reports/MA636UOnS4BRVggmVqjA",
       "resourcePath": "/offweb/{type}/{id}",
       "httpMethod": "PATCH",
       "apiId": "1234567890",
       "protocol": "HTTP/1.1"
     }
   }
-  

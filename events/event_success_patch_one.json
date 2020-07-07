@@ -1,5 +1,5 @@
 {
-    "body": "{\"data\": {  \"type\": \"reports\", \"id\": \"zNgHrJahrCXDXtC3tPbe\", \"attributes\": { \"title\": \"《修改-广阔市场用药分析及展望》\" }} }",
+    "body": "{\"data\": {  \"type\": \"reports\", \"id\": \"zNgHrJahrCXDXtC3tPbe\", \"attributes\": { \"title\": \"《修改？广阔市场用药分析及展望》\" }} }",
     "resource": "/offweb/{type}/{id}",
     "path": "/offweb/reports/zNgHrJahrCXDXtC3tPbe",
     "httpMethod": "PATCH",

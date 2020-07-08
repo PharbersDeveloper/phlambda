@@ -27,24 +27,39 @@ exports.lambdaHandler = async function (event, context) {
         phlogger.info(event)
         // const result = await app.exec(event)
         let result
-
+        
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
+        
         result = await app.exec(event)
         tmp = 0
-
-        // Object.assign(result.headers, {
-        //     "Access-Control-Allow-Headers" : "Content-Type",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        // })
         response = {
             'statusCode': result.statusCode,
             'headers': result.output[0],
             'body': String(result.output[1])
         }
+        
+        const resultOutput = result.output[0].split("\r\n")
+        const corsHeader =   {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+        }
+        let objHeader = {}
+        
+        Object.assign(objHeader, corsHeader)
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(".");
+            if (element.length === 2) {
+                objHeader[element[0]] = objHeader[element[1]]
+            }
+            
+        }
+        response.headers = objHeader
+        phlogger.info("???", response)
+
+
         // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
         //         phlogger.info("retry connect mongodb for another round.");
         //         tmp = 1

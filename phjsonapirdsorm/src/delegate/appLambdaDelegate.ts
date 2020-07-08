@@ -43,6 +43,11 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
+        // @ts-ignore
+        if ( !event.body ) {
+            // @ts-ignore
+            event.body = ""
+        }
         const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)
         // @ts-ignore

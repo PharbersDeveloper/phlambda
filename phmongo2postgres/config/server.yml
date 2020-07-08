@@ -1,0 +1,18 @@
+project: "entry"
+postgres:
+  algorithm: postgres
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  port: 5432
+  username: "pharbers"
+  pwd: "Abcde196125"
+  dbName: "phentry"
+mongo:
+
+  algorithm: mongodb
+  host: a0eb74da798af11ea934b02ff50af4f4-919388620.cn-northwest-1.elb.amazonaws.com.cn
+  port: 30010
+  username: "pharbers"
+  pwd: "Pharbers.84244216"
+  coll: "pharbers-sandbox-merge"
+  authSource: "admin"
+  auth: true

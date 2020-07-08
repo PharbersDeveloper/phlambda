@@ -1,16 +1,21 @@
 "use strict"
 
-import S3 from "aws-sdk/clients/s3"
-import {AWSError} from "aws-sdk/lib/error"
-import phLogger from "../logger/phLogger"
+import AWS = require("aws-sdk")
+AWS.config.update({region: "cn-northwest-1"})
 
 class PhS3Facade {
 
-    private s3 = new S3()
+    private s3 = new AWS.S3({apiVersion: "2006-03-01"})
 
-    public listBuckets( bkName: string ) {
+    public async listBuckets( bkName: string ) {
         return this.s3.listBuckets().promise()
     }
+
+    public async getObject( bkName: string, key: string) {
+        const result = await this.s3.getObject({Bucket: bkName, Key: key }).promise()
+        return result.Body
+    }
+
 }
 
 export default new PhS3Facade()

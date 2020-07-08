@@ -1,17 +1,17 @@
-import phLogger from "../../../phemberedviews/src/logger/phLogger"
-import phS3Facade from "../../../phemberedviews/src/s3facade/phS3Facade"
-import AWSReq from "../../../phjsonapirdsorm/src/strategies/awsRequest"
+import phS3Facade from "../s3facade/phS3Facade"
 import AppLambdaDelegate from "./appLambdaDelegate"
-import {ServerResponse} from "http"
 
 export default class AppLambdaViewAgentDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
-        const response = await super.exec(event)
-        // const hbs = JSON.parse(responseObj.body).data.attributes.hbs
-        // const result = await phS3Facade.getObject("ph-cli-dag-template", hbs)
-        // responseObj.body = result.toString()
-        // responseObj.headers = { "content-type": "text/x-handlebars-template"}
-        // return this.sendResponse(responseObj)
-        return response
+        const res = await super.exec(event)
+        // @ts-ignore
+        const data = String(res.output[1])
+        const hbs = JSON.parse(data).data.attributes.hbs
+        const result = await phS3Facade.getObject("ph-cli-dag-template", hbs)
+        // @ts-ignore
+        res.output[1] = result.toString()
+        // @ts-ignore
+        res.headers = { "content-type": "text/x-handlebars-template"}
+        return res
     }
 }

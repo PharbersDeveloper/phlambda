@@ -28,7 +28,7 @@
             "description": "oauth login page",
             "created": 0,
             "updated": 0,
-            "hbs": "key",
+            "hbs": "components/example.hbs",
             "client": [1, 2, 3]
         }
     ],

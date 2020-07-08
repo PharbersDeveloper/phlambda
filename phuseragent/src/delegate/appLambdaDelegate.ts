@@ -1,12 +1,16 @@
 import fortune from "fortune"
+import jsonApiSerializer from "fortune-json-api"
+// import mongoAdapter from "fortune-mongodb"
+// import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
+import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
+import fortuneHTTP from "../../lib/fortune-http"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
-import AWSReq from "../../../phjsonapirdsorm/src/strategies/awsRequest"
-import {ServerResponse} from "http"
+import AWSReq from "../strategies/awsRequest"
 
 /**
  * The summary section should be brief. On a documentation web site,
@@ -26,6 +30,12 @@ export default class AppLambdaDelegate {
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
+        // await this.store.connect()
+        this.listener = fortuneHTTP(this.store, {
+            serializers: [
+                [ jsonApiSerializer ]
+            ]
+        })
     }
 
     public async cleanUp() {

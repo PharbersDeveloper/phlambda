@@ -1,6 +1,6 @@
 'use strict';
 
-const app = require('../../app.js')
+// const app = require('../../app.js')
 const delegate = require("../../dist/delegate/appLambdaDelegate").default
 const phlogger = require("../../dist/logger/phLogger").default
 const chai = require('chai')
@@ -10,9 +10,21 @@ var context;
 // const mongoose = require("mongoose")
 
 describe('Tests index', function () {
-	it('verify find one successfully', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
+	const del = new delegate()
+	before("before all", async () => {
+		await del.prepare()
+	})
+	it('init common database', async () => {
+	    const event = JSON.parse(fs.readFileSync("../events/event_init_comment_database.json", 'utf8'))
+		const clients = event["clients"]
+		const crs = await Promise.all(clients.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+
+			const isr = await del.store.create("client", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(crs)
 
 	    expect(result).to.be.an('object');
 	    expect(result.statusCode).to.equal(200);

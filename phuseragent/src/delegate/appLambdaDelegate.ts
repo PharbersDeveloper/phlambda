@@ -1,8 +1,4 @@
 import fortune from "fortune"
-import fortuneHTTP from "fortune-http"
-import jsonApiSerializer from "fortune-json-api"
-// import mongoAdapter from "fortune-mongodb"
-// import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
 import http, {ServerResponse} from "http"
@@ -10,6 +6,7 @@ import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
+import phS3Facade from "../s3facade/phS3Facade"
 import AWSReq from "../strategies/awsRequest"
 
 /**
@@ -30,12 +27,6 @@ export default class AppLambdaDelegate {
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
-        // await this.store.connect()
-        this.listener = fortuneHTTP(this.store, {
-            serializers: [
-                [ jsonApiSerializer ]
-            ]
-        })
     }
 
     public async cleanUp() {
@@ -43,14 +34,17 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
-        const req = new AWSReq(event, this.conf.project)
-        const response = new ServerResponse(req)
-        // @ts-ignore
-        const buffer = Buffer.from(event.body)
-        // @ts-ignore
-        req._readableState.buffer = buffer
-        await this.listener(req, response, buffer)
-        return response
+        // // @ts-ignore
+        // const req = new AWSReq(event)
+        // // @ts-ignore
+        // const hbs = JSON.parse(event.body).data.attributes.hbs
+        // const result = await phS3Facade.getObject("ph-cli-dag-template", hbs)
+        // const response = new ServerResponse(req)
+        // // @ts-ignore
+        // response.body = result.toString()
+        // // @ts-ignore
+        // response.headers = { "content-type": "text/x-handlebars-template"}
+        // return response
     }
 
     protected loadConfiguration() {
@@ -74,13 +68,6 @@ export default class AppLambdaDelegate {
         return require(filename).default
     }
 
-    // protected genMySQLAdapter() {
-    //     const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
-    //     return [MySQLAdapter , {
-    //         url
-    //     }]
-    // }
-
     protected genPgAdapter() {
         const prefix = this.conf.postgres.algorithm
         const host = this.conf.postgres.host
@@ -94,20 +81,4 @@ export default class AppLambdaDelegate {
             url
         }]
     }
-
-    // protected genAdapter() {
-    //     const prefix = this.conf.mongo.algorithm
-    //     const host = this.conf.mongo.host
-    //     const username = this.conf.mongo.username
-    //     const pwd = this.conf.mongo.pwd
-    //     const coll = this.conf.mongo.coll
-    //     const url = prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll + "?retryWrites=true&w=majority"
-    //     return [ mongoAdapter, {
-    //         url,
-    //         autoReconnect: true,
-    //         keepAlive: true,
-    //         keepAliveInitialDelay: 1000,
-    //         useNewUrlParser: true
-    //     } ]
-    // }
 }

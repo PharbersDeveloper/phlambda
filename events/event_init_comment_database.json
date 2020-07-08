@@ -1,0 +1,174 @@
+{
+    "init_common_database": true,
+    "clients": [
+        {
+            "id": 1,
+            "name": "maxview",
+            "description": "pharbers report system",
+            "secret": "abcde"
+        },
+        {
+            "id": 2,
+            "name": "offweb",
+            "description": "pharbers official website",
+            "secret": "abcde"
+        },
+        {
+            "id": 3,
+            "name": "datacat",
+            "description": "pharbers data catelog",
+            "secret": "abcde"
+        }
+    ],
+    "components": [
+        {
+            "id": 1,
+            "name": "oauth login page",
+            "title": "oauth login page",
+            "description": "oauth login page",
+            "created": 0,
+            "updated": 0,
+            "hbs": "key",
+            "client": [1, 2, 3]
+        }
+    ],
+    "partner": [
+        {
+            "id": 1,
+            "name": "法伯宏业发展科技有限公司",
+            "address": "北京市朝阳区东直门外大街斜街文创园56号A座111室",
+            "phoneNumber": "（010）84244216",
+            "web": "www.pharbers.com"
+        }
+    ],
+    "role": [
+        {
+            "id": 1,
+            "name": "admin",
+            "description": "admin only for a client"
+        },
+        {
+            "id": 2,
+            "name": "app explorer",
+            "description": "read access all app clients and website"
+        },
+        {
+            "id": 3,
+            "name": "data catelog all access",
+            "description": "all access to data catelog appliction"
+        },
+        {
+            "id": 4,
+            "name": "max view all access",
+            "description": "all access to data maxview bi report"
+        }
+    ],
+    "scope": [
+        {
+            "id": 1,
+            "name": "ALL ACCESS",
+            "scopePolicy": "*",
+            "owner": [1]
+        },
+        {
+            "id": 2,
+            "name": "READ ACCESS",
+            "scopePolicy": "APP|*|R",
+            "owner": [2]
+        },
+        {
+            "id": 3,
+            "name": "ALL ACCESS TO datacat",
+            "scopePolicy": "APP|datacat|A",
+            "owner": [3]
+        },
+        {
+            "id": 4,
+            "name": "ALL ACCESS TO maxview",
+            "scopePolicy": "APP|maxview|A",
+            "owner": [4]
+        }
+    ],
+    "account": [
+        {
+            "id": 1,
+            "name": "alfred",
+            "email": "alfredyang@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 2,
+            "name": "pqian",
+            "email": "pqian@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 3,
+            "name": "zyqi",
+            "email": "zyqi@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 4,
+            "name": "czhang",
+            "email": "czhang@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 5,
+            "name": "dcs",
+            "email": "csdeng@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 6,
+            "name": "hyfu",
+            "email": "hyfu@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 7,
+            "name": "jyan",
+            "email": "jyan@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        },
+        {
+            "id": 8,
+            "name": "zyyin",
+            "email": "zyyin@pharbers.com",
+            "password": "need secret",
+            "phoneNumber": "",
+            "wechatOpenId": "",
+            "defaultRole": 1,
+            "employer": 1
+        }
+    ]
+}

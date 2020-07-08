@@ -21,8 +21,6 @@
     "@types/js-yaml": "^3.12.1",
     "aws-sdk": "^2.686.0",
     "fortune": "^5.5.17",
-    "fortune-http": "^1.2.26",
-    "fortune-json-api": "^2.3.0",
     "fortune-postgres": "^1.6.10",
     "js-yaml": "^3.14.0",
     "json2typescript": "^1.4.1",

@@ -8,8 +8,6 @@ const delegate = require("./dist/delegate/appLambdaDelegate").default
 const app = new delegate()
 app.prepare()
 
-let tmp = 0
-
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -33,7 +31,6 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         result = await app.exec(event)
-        tmp = 0
 
         // Object.assign(result.headers, {
         //     "Access-Control-Allow-Headers" : "Content-Type",

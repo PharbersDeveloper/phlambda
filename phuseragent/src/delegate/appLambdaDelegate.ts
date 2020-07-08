@@ -1,13 +1,12 @@
 import fortune from "fortune"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
-import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
-import phS3Facade from "../s3facade/phS3Facade"
-import AWSReq from "../strategies/awsRequest"
+import AWSReq from "../../../phjsonapirdsorm/src/strategies/awsRequest"
+import {ServerResponse} from "http"
 
 /**
  * The summary section should be brief. On a documentation web site,
@@ -20,7 +19,7 @@ export default class AppLambdaDelegate {
     // private httpStrategies: AWSLambdaStrategy
     public store: any
     public listener: any
-    private conf: ServerConf
+    protected conf: ServerConf
 
     public prepare() {
         this.loadConfiguration()
@@ -34,17 +33,19 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
-        // // @ts-ignore
-        // const req = new AWSReq(event)
-        // // @ts-ignore
-        // const hbs = JSON.parse(event.body).data.attributes.hbs
-        // const result = await phS3Facade.getObject("ph-cli-dag-template", hbs)
-        // const response = new ServerResponse(req)
-        // // @ts-ignore
-        // response.body = result.toString()
-        // // @ts-ignore
-        // response.headers = { "content-type": "text/x-handlebars-template"}
-        // return response
+        // @ts-ignore
+        if ( !event.body ) {
+            // @ts-ignore
+            event.body = ""
+        }
+        const req = new AWSReq(event, this.conf.project)
+        const response = new ServerResponse(req)
+        // @ts-ignore
+        const buffer = Buffer.from(event.body)
+        // @ts-ignore
+        req._readableState.buffer = buffer
+        await this.listener(req, response, buffer)
+        return response
     }
 
     protected loadConfiguration() {

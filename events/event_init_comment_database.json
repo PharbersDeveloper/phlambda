@@ -32,7 +32,7 @@
             "client": [1, 2, 3]
         }
     ],
-    "partner": [
+    "partners": [
         {
             "id": 1,
             "name": "法伯宏业发展科技有限公司",
@@ -41,7 +41,7 @@
             "web": "www.pharbers.com"
         }
     ],
-    "role": [
+    "roles": [
         {
             "id": 1,
             "name": "admin",
@@ -63,33 +63,37 @@
             "description": "all access to data maxview bi report"
         }
     ],
-    "scope": [
+    "scopes": [
         {
             "id": 1,
             "name": "ALL ACCESS",
+            "description": "ALL ACCESS",
             "scopePolicy": "*",
             "owner": [1]
         },
         {
             "id": 2,
             "name": "READ ACCESS",
+            "description": "READ ACCESS",
             "scopePolicy": "APP|*|R",
             "owner": [2]
         },
         {
             "id": 3,
             "name": "ALL ACCESS TO datacat",
+            "description": "ALL ACCESS TO datacat",
             "scopePolicy": "APP|datacat|A",
             "owner": [3]
         },
         {
             "id": 4,
             "name": "ALL ACCESS TO maxview",
+            "description": "ALL ACCESS TO maxview",
             "scopePolicy": "APP|maxview|A",
             "owner": [4]
         }
     ],
-    "account": [
+    "accounts": [
         {
             "id": 1,
             "name": "alfred",

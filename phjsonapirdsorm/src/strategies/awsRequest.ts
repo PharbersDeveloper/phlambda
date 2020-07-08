@@ -55,6 +55,8 @@ export default class AWSReq extends IncomingMessage {
         // this.query = parse(event.queryStringParameters)
         this.query = {}
         this.pagination = {}
+        // @ts-ignore
+        this.ids = ["zTY0TuApelo9QuDo1SSn"]
 
         // @ts-ignore
         if (event.body) {

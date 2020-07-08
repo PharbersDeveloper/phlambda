@@ -136,6 +136,23 @@ describe('Tests index', function () {
 	//
 	// });
 
+	it('verify find ids success', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_success_find_ids.json", 'utf8'))
+		const result = await app.lambdaHandler(event, context)
+
+		expect(result).to.be.an('object');
+		expect(result.statusCode).to.equal(200);
+		expect(result.body).to.be.an('string');
+
+		let response = JSON.parse(result.body);
+		phlogger.info(response)
+
+		expect(response).to.be.an('object');
+		expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
+		expect(response.data.type).to.be.equal("images");
+		// expect(response.location).to.be.an("string");
+	});
+
 	 it('verify patch one', async () => {
 	    const event = JSON.parse(fs.readFileSync("../events/event_success_patch_one.json", 'utf8'))
 	    const result = await app.lambdaHandler(event, context)

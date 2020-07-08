@@ -13,7 +13,7 @@ const records = {
         name: String,
         description: String,
         scope: { link: "scope", isArray: true, inverse: "owner" },
-        accountRole: { link: "account", inverse: "defaultRole" },
+        accountRole: { link: "account", isArray: true, inverse: "defaultRole" },
     },
     scope: {
         name: String,
@@ -32,6 +32,7 @@ const records = {
         name: String,
         description: String,
         secret: String,
+        created: Date,
         clientComponents: { link: "component", isArray: true, inverse: "client" }
     },
     component: {

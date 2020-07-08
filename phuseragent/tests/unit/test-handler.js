@@ -7,7 +7,20 @@ const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
 var context;
+const CryptoJS = require("crypto-js");
 // const mongoose = require("mongoose")
+
+function hexEncode(value) {
+	return value.toString(CryptoJS.enc.Hex);
+}
+
+function hmac(secret, value) {
+	return CryptoJS.HmacSHA256(value, secret, {asBytes: true});
+}
+
+function hash(value) {
+	return CryptoJS.SHA256(value);
+}
 
 describe('Tests index', function () {
 	const del = new delegate()
@@ -20,11 +33,81 @@ describe('Tests index', function () {
 		const crs = await Promise.all(clients.map(async (c) => {
 			const tmp = c.id
 			delete c.id
-
+			c.seed = "alfred test"
+			c.created = new Date()
+			const need = String(tmp) + c.seed + c.created.toString()
+			c.secret = hexEncode(hmac(c.created.toString().substr(0,8), need))
 			const isr = await del.store.create("client", c)
 			return { id: tmp, dbid: isr.payload.records[0].id }
 		}))
 		phlogger.info(crs)
+
+		const components = event["components"]
+		const cprs = await Promise.all(components.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+			c.created = new Date();
+			c.updated = new Date();
+
+			const ids = c.client
+			c.client = ids.map(x => crs.find(y => y.id === x).dbid)
+
+			const isr = await del.store.create("component", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(cprs)
+
+		const partners = event["partners"]
+		const prs = await Promise.all(partners.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+
+			const isr = await del.store.create("partner", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(prs)
+
+		const roles = event["roles"]
+		const rrs = await Promise.all(roles.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+
+			const isr = await del.store.create("role", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(rrs)
+
+		const scopes = event["scopes"]
+		const srs = await Promise.all(scopes.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+
+			const ids = c.owner
+			c.owner = ids.map(x => rrs.find(y => y.id === x).dbid)
+
+			const isr = await del.store.create("scope", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(srs)
+
+		const accounts = event["accounts"]
+		const accs = await Promise.all(accounts.map(async (c) => {
+			const tmp = c.id
+			delete c.id
+
+			const rid = c.defaultRole
+			c.defaultRole = rrs.find(y => y.id === rid).dbid
+
+			const cid = c.employer
+			c.employer = prs.find(y => y.id === cid).dbid
+
+			const pwd = "Abcde196125"
+			c.password = hexEncode(hash(pwd))
+
+			const isr = await del.store.create("account", c)
+			return { id: tmp, dbid: isr.payload.records[0].id }
+		}))
+		phlogger.info(accs)
 
 	    expect(result).to.be.an('object');
 	    expect(result.statusCode).to.equal(200);
@@ -36,131 +119,6 @@ describe('Tests index', function () {
 	    expect(response).to.be.an('object');
 	    expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
 	    expect(response.data.type).to.be.equal("images");
-	    // expect(response.location).to.be.an("string");
-	});
-
-	// it('verify find one error', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_error_find_one.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(404);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.errors[0].detail).to.be.equal("Invalid ID.");
-	//     expect(response.errors[0].title).to.be.equal("One or more of the targeted resources could not be found.");
-	//     // expect(response.location).to.be.an("string");
-	// });
-	//
-	// it('verify find relationship success', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_relationships.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data[0].type).to.be.equal("products");
-	//     expect(response.data[0].id).to.be.equal("5e00862a28e9fe103c5e2f2d");
-	//     // expect(response.location).to.be.an("string");
-	// });
-	//
-	// it('verify find page success', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_page.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data[0].type).to.be.equal("proposals");
-	//     expect(response.data.length).to.be.equal(1);
-	//     // expect(response.location).to.be.an("string");
-	// });
-	//
-	// it('verify find filter page', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_filter.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data[0].type).to.be.equal("proposals");
-	//     expect(response.data.length).to.be.equal(1);
-	//     // expect(response.location).to.be.an("string");
-	// });
-
-	// it('verify find sort', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_sort.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-
-	//     let response = JSON.parse(result.body);
-
-	//     expect(response).to.be.an('object');
-	//     expect(response.data[0].id).to.be.equal("5e00862c28e9fe103c5e3019");
-	//     expect(response.data[1].id).to.be.equal("5e00862a28e9fe103c5e2f4e");
-	//     // expect(response.location).to.be.an("string");
-	// });
-
-
-	// it('verify delete one', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_delete_one.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(204);
-
-	//     // let response = JSON.parse(result.body);
-
-	//     // expect(response).to.be.an('object');
-	//     // expect(response.data.length).to.be.equal(0);
-	// });
-
-	// it('verify post one', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_post_one.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(201);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data.type).to.be.equal("proposals");
-	//
-	// });
-
-	 it('verify patch one', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_patch_one.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
-
-	    expect(result).to.be.an('object');
-	    expect(result.statusCode).to.equal(200);
-	    expect(result.body).to.be.an('string');
-
-	    let response = JSON.parse(result.body);
-
-	    expect(response).to.be.an('object');
-	    expect(response.data.type).to.be.equal("reports");
-	    expect(response.data.attributes.describe).to.be.equal("《修改-广阔市场用药分析及展望》")
 	    // expect(response.location).to.be.an("string");
 	});
 

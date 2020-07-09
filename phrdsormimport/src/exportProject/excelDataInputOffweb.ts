@@ -9,19 +9,34 @@ export default class ExcelDataInputOffweb {
 
     public excelPath?: string
     public assetsPath?: string
+    public bucketName?: string
+    public uploadAssetsToS3 ?: boolean
+    public importDataToDB?: boolean
 
     constructor(event: object) {
         // @ts-ignore
         this.excelPath = event.excelPath
         // @ts-ignore
         this.assetsPath = event.assetsPath
+        // @ts-ignore
+        this.bucketName = event.bucketName
+        // @ts-ignore
+        this.uploadAssetsToS3 = event.uploadAssetsToS3
+        // @ts-ignore
+        this.importDataToDB = event.importDataToDB
     }
 
     public async excelModelData(store: object) {
-        PhLogger.info(`start input data with excel`)
         const file = this.excelPath
-        return await this.loadExcelData(file, store) // 将数据导入到数据库
-        // await this.uploadAssets() // 将文件上传到s3
+
+        if (this.uploadAssetsToS3) {
+            PhLogger.info("start upload assets to S3")
+            await this.uploadAssets() // 将文件上传到s3
+        }
+        if (this.importDataToDB) {
+            PhLogger.info(`start input data with excel`)
+            return await this.loadExcelData(file, store) // 将数据导入到数据库
+        }
     }
 
     public async uploadAssets() {
@@ -47,6 +62,7 @@ export default class ExcelDataInputOffweb {
         // 需要改成参数传入/配置 >>> assetsPath
         // const assetsDir = "test/data/offweb/assets"
         const assetsDir = this.assetsPath
+        const bucketName = this.bucketName
         const that = this
         const arr: any = []
 
@@ -56,7 +72,7 @@ export default class ExcelDataInputOffweb {
         for (const item of arr) {
             const s3key =  "public/" + that.getFileName(item)
             const existsQuery = {
-                Bucket: "ph-offweb",
+                Bucket: bucketName,
                 Key: s3key,
                 Range: "bytes=0-9"
             }
@@ -65,7 +81,7 @@ export default class ExcelDataInputOffweb {
                     /**
                      * 优先上传文件, 到S3
                      */
-                    const uploadParams = {Bucket: "ph-offweb", Key: s3key, Body: "", ContentType: ""}
+                    const uploadParams = {Bucket: bucketName, Key: s3key, Body: "", ContentType: ""}
                     const fileKeyName = item
                     const nameArr = item.split(".")
                     const imageType = nameArr[1]

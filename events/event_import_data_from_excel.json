@@ -1,5 +1,8 @@
 {
     "importDataFromExcel": true,
     "excelPath": "/Users/alfredyang/Desktop/code/pharbers/lambda/phlambda/data/offweb.xlsx",
-    "assetsPath": "/Users/simon/Desktop/offweb/assets"
+    "assetsPath": "/Users/simon/Desktop/offweb/assets",
+    "bucketName": "www.pharbers.com",
+    "uploadAssetsToS3": true,
+    "importDataToDB": false
 }

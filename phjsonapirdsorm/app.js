@@ -48,17 +48,14 @@ exports.lambdaHandler = async function (event, context) {
         }
         let objHeader = {}
         
-        Object.assign(objHeader, corsHeader)
         for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(".");
+            const element = resultOutput[index].split(":");
             if (element.length === 2) {
-                objHeader[element[0]] = objHeader[element[1]]
-            }
-            
+                objHeader[element[0]] = element[1]
+            }    
         }
+        Object.assign(objHeader, corsHeader)
         response.headers = objHeader
-        phlogger.info("???", response)
-
 
         // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
         //         phlogger.info("retry connect mongodb for another round.");

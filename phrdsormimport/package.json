@@ -14,7 +14,7 @@
     "watch": "mocha-typescript-watch",
     "prepare": "tsc",
     "test": "mocha tests/unit/",
-    "importTest": "mocha tests/import/ --timeout 50000"
+    "importTest": "mocha tests/unit --timeout 50000"
   },
   "dependencies": {
     "@billjs/query-string": "^1.0.2",

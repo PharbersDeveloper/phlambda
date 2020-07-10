@@ -1,10 +1,10 @@
 project: "common"
 postgres:
   algorithm: postgres
-  host: localhost
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
   port: 5432
-  username: "postgres"
-  pwd: "196125"
+  username: "pharbers"
+  pwd: "Abcde196125"
   dbName: "phcommon"
 mongo:
   algorithm: mongodb+srv

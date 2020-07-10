@@ -1,7 +1,7 @@
 import {ServerResponse} from "http"
 import {
     errors2response, PhInvalidAuthGrant,
-    PhInvalidClient,
+    PhInvalidClient, PhInvalidGrantType,
     PhInvalidParameters,
     PhInvalidPassword,
     PhNotFoundError
@@ -29,6 +29,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.loginHandler(event, response)
         } else if (endpoint === "authorization") {
             await this.authHandler(event, response)
+        } else if (endpoint === "token") {
+            await this.tokenHandler(event, response)
         }
         return response
     }
@@ -127,13 +129,80 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         if (state === null) {
             state = "xyz"
         }
-        // @ts-ignore
-        response.statusCode = 302
-        // @ts-ignore
-        response.headers = {
-            Location: redirectUri + "?code=" + this.genAuthCode(userId, clientId, scope) + "&state=" + state
+
+        if (redirectUri !== null) {
+            // @ts-ignore
+            response.statusCode = 302
+            // @ts-ignore
+            response.headers = {
+                Location: redirectUri + "?code=" + await this.genAuthCode(userId, clientId, scope) + "&state=" + state,
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+        } else {
+            // @ts-ignore
+            response.statusCode = 200
+            // @ts-ignore
+            response.body = "code=" + await this.genAuthCode(userId, clientId, scope) + "&state=" + state
+            // @ts-ignore
+            response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         }
 
+
+        return response
+    }
+
+    /**
+     * token endpoint
+     * @param event
+     *        the parameters include
+     *          grant_type REQUIRED.  Value MUST be set to "authorization_code".
+     *          code REQUIRED.  The authorization code received from the authorization server.
+     *          redirect_uri. REQUIRED, if the "redirect_uri" parameter was included in the
+     *                        authorization request as described in Section 4.1.1, and their
+     *                        values MUST be identical.
+     *          client_id REQUIRED, if the client is not authenticating with the
+     *                        authorization server as described in Section 3.2.1.
+     * @param response handler http response
+     */
+    protected async tokenHandler(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const redirectUri = event.queryStringParameters.redirect_uri
+        // @ts-ignore
+        const clientId = event.queryStringParameters.client_id
+        // @ts-ignore
+        const code = event.queryStringParameters.code
+        // @ts-ignore
+        const grantType = event.queryStringParameters.grant_type
+
+        if (grantType !== "authorization_code") {
+            errors2response(PhInvalidGrantType, response)
+            return response
+        }
+
+        const codeRecord = await this.store.find("authorization", null, { match: { code }})
+        const content = codeRecord.payload.records[0]
+        phLogger.info(content)
+
+        if (content.redirectUri !== redirectUri ||
+            content.clientId !== clientId) {
+
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
+
+        const accessToken = await this.genAccessToken(clientId)
+
+        // @ts-ignore
+        response.statusCode = 200
+        // @ts-ignore
+        response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
+        // @ts-ignore
+        response.body = {
+            "access_token": accessToken.token,
+            "token_type": "bearer",
+            "expires_in": 64800,
+            "refresh_token": accessToken.refresh,
+        }
         return response
     }
 
@@ -148,12 +217,22 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
-        const exp = moment(new Date()).add(10, 'm').toDate();
-        const code = this.hexEncode(this.hash(uid + cid))
+        const exp = moment(new Date()).add(10, 'm').toDate()
+        const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save code to db, need to move to redis
         const authCode =  { uid, cid, code, scope, create: new Date(), expired: exp }
         await this.store.create("authorization", authCode)
         return code
+    }
+
+    protected async genAccessToken(cid: string) {
+        const exp = moment(new Date()).add(1, "week").toDate()
+        const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
+        // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
+        // TODO: save access_token to db, need to move to redis
+        const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
+        await this.store.create("access", tk)
+        return tk
     }
 
     protected hexEncode(value) {

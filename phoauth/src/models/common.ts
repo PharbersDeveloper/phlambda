@@ -33,6 +33,8 @@ const records = {
         description: String,
         secret: String,
         created: Date,
+        expired: Date,
+        registerRedirectUri: Array(String),
         clientComponents: { link: "component", isArray: true, inverse: "client" }
     },
     component: {
@@ -45,6 +47,22 @@ const records = {
         version: String,
         client: { link: "client", isArray: true, inverse: "clientComponents" }
     },
+    authorization: {
+        uid: String,
+        cid: String,
+        code: String,
+        scope: String,
+        create: Date,
+        expired: Date
+    },
+    access: {
+        uid: String,
+        cid: String,
+        token: String,
+        refresh: String,
+        create: Date,
+        expired: Date
+    }
 }
 
 export default records

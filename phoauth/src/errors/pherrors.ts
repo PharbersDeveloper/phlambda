@@ -42,6 +42,13 @@ export const PhInvalidClient: IPhErrors = {
     message: "Invalid Client, Please Contact Pharbers"
 }
 
+export const PhInvalidGrantType: IPhErrors = {
+    status: 403,
+    code: -5,
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    message: "Invalid Grant Type"
+}
+
 export function errors2response(err: IPhErrors, response: ServerResponse) {
     response.statusCode = err.status
     // @ts-ignore

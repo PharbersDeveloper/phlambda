@@ -3,12 +3,10 @@
 let response;
 
 const phlogger = require("./dist/logger/phLogger").default
-const delegate = require("./dist/delegate/appLambdaDelegate").default
+const delegate = require("./dist/delegate/appLmabdaAuthDelegate").default
 
 const app = new delegate()
 app.prepare()
-
-let tmp = 0
 
 /**
  *
@@ -33,7 +31,6 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         result = await app.exec(event)
-        tmp = 0
 
         // Object.assign(result.headers, {
         //     "Access-Control-Allow-Headers" : "Content-Type",

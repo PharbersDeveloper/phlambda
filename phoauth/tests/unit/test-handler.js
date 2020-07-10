@@ -10,8 +10,8 @@ var context;
 // const mongoose = require("mongoose")
 
 describe('Tests index', function () {
-	it('verify find one successfully', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
+	it('verify login successfully', async () => {
+	    const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
 	    const result = await app.lambdaHandler(event, context)
 
 	    expect(result).to.be.an('object');

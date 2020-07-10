@@ -9,7 +9,7 @@ export default class AWSReq extends IncomingMessage {
     public pagination: object
     public body ?: object
 
-    constructor(event: object, projectName: string) {
+    constructor(event: object, projectName: string | undefined) {
         // @ts-ignore
         super(event.body)
         this.aborted = false
@@ -36,7 +36,7 @@ export default class AWSReq extends IncomingMessage {
             this.headers = {
                 "accept": hds.Accept,
                 "content-length": String(buffer.length),
-                "content-type": "application/vnd.api+json",//hds.contentType,
+                "content-type": "application/vnd.api+json", // hds.contentType,
                 "transfer-encoding": hds.tranferEncoding
             }
         }
@@ -45,8 +45,14 @@ export default class AWSReq extends IncomingMessage {
         this.rawHeaders = event.headers
         // @ts-ignore
         this.method = event.httpMethod
-        // @ts-ignore
-        this.url = event.path.substr(event.path.indexOf(projectName) + projectName.length)
+        if (projectName) {
+            // @ts-ignore
+            this.url = event.path.substr(event.path.indexOf(projectName) + projectName.length)
+        } else {
+            // @ts-ignore
+            this.url = event.path
+        }
+
         this.protocol =
             this.httpVersion.substr(0, this.httpVersion.indexOf("/")).toLowerCase()
         this.host = hds.Host

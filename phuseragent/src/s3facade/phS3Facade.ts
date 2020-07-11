@@ -1,7 +1,15 @@
 "use strict"
 
 import AWS = require("aws-sdk")
-AWS.config.update({region: "cn-northwest-1"})
+import phLogger from "../logger/phLogger"
+AWS.config.update({
+    region: "cn-northwest-1",
+    maxRetries: 2,
+    httpOptions: {
+        timeout: 30000,
+        connectTimeout: 5000
+    }
+})
 
 class PhS3Facade {
 

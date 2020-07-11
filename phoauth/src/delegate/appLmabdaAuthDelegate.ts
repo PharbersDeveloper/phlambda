@@ -181,29 +181,34 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
         const codeRecord = await this.store.find("authorization", null, { match: { code }})
         const content = codeRecord.payload.records[0]
-        phLogger.info(content)
+        if (content) {
+            phLogger.info(content)
 
-        // if (content.redirectUri !== redirectUri ||
-        //     content.clientId !== clientId) {
+            // TODO: Check register redirect URI
+            // if (content.redirectUri !== redirectUri ||
+            //     content.clientId !== clientId) {
+            //     errors2response(PhInvalidParameters, response)
+            //     return response
+            // }
 
-        //     errors2response(PhInvalidParameters, response)
-        //     return response
-        // }
+            const accessToken = await this.genAccessToken(clientId)
 
-        const accessToken = await this.genAccessToken(clientId)
-
-        // @ts-ignore
-        response.statusCode = 200
-        // @ts-ignore
-        response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
-        // @ts-ignore
-        response.body = {
-            access_token: accessToken.token,
-            token_type: "bearer",
-            expires_in: 64800,
-            refresh_token: accessToken.refresh,
+            // @ts-ignore
+            response.statusCode = 200
+            // @ts-ignore
+            response.headers = { "Content-Type": "application/json" }
+            // @ts-ignore
+            response.body = {
+                access_token: accessToken.token,
+                token_type: "bearer",
+                expires_in: 64800,
+                refresh_token: accessToken.refresh,
+            }
+            return response
+        } else {
+            errors2response(PhInvalidParameters, response)
+            return response
         }
-        return response
     }
 
     // TODO: 暂时验证第一个

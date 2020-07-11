@@ -24,7 +24,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         // @ts-ignore
         if (!event.body) {
             // @ts-ignore
-            event.body = "";
+            event.body = ""
         }
         const req = new AWSReq(event, undefined)
         const response = new ServerResponse(req)
@@ -42,32 +42,27 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
     protected async loginHandler(event: Map<string, any>, response: ServerResponse) {
         // @ts-ignore
-        const body = JSON.parse(event.body)
+        // const body = JSON.parse(event.body)
         // @ts-ignore
-        const email = event.queryParameters.email
+        const email = event.queryStringParameters.email
         // @ts-ignore
         const result = await this.store.find("account", null, { match: { email } } )
         // const response = {}
         if (result.payload.records.length === 0) {
-            // @ts-ignore
-            response.statusCode = 404
-            // @ts-ignore
-            response.headers = { "Content-Type": "application/json", "Accept": "application/json" }
-            // @ts-ignore
-            response.body = "User Not Found"
+            errors2response(PhNotFoundError, response)
+            return response
         } else if (result.payload.records.length === 1) {
 
             const account = result.payload.records[0]
-            phLogger.info(account)
-
             // @ts-ignore
-            if (account.password === event.queryParameters.password) {
+            if (account.password === event.queryStringParameters.password) {
                 // @ts-ignore
                 response.statusCode = 200
                 // @ts-ignore
                 response.headers = { "Content-Type": "application/json", "Accept": "application/json" }
+                const record = result.payload.records[0]
                 // @ts-ignore
-                response.body = result.payload.records[0]
+                response.body = { message: "login success", uid: record.id }
             } else {
                 errors2response(PhInvalidPassword, response)
             }
@@ -138,24 +133,18 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
 
         // 需要返回一个url
-        if (redirectUri !== null) {
+
+        // @ts-ignore
+        response.statusCode = 200
+        if (redirectUri) {
             // @ts-ignore
-            response.statusCode = 302
-            // @ts-ignore
-            response.headers = {
-                "Location": redirectUri + "?code=" +
-                    await this.genAuthCode(userId, clientId, scope) + "&state=" + state,
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
+            response.body = "code=" + await this.genAuthCode(userId, clientId, scope) + "&redirect_uri=" + redirectUri + "&state=" + state
         } else {
             // @ts-ignore
-            response.statusCode = 200
-            // @ts-ignore
             response.body = "code=" + await this.genAuthCode(userId, clientId, scope) + "&state=" + state
-            // @ts-ignore
-            response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         }
-
+        // @ts-ignore
+        response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         return response
     }
 

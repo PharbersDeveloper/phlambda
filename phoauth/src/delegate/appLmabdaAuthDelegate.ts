@@ -21,6 +21,11 @@ import moment from "moment"
  */
 export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
+        // @ts-ignore
+        if (!event.body) {
+            // @ts-ignore
+            event.body = "";
+        }
         const req = new AWSReq(event, undefined)
         const response = new ServerResponse(req)
         // @ts-ignore
@@ -38,7 +43,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     protected async loginHandler(event: Map<string, any>, response: ServerResponse) {
         // @ts-ignore
         const body = JSON.parse(event.body)
-        const email = body.email
+        // @ts-ignore
+        const email = event.queryParameters.email
         // @ts-ignore
         const result = await this.store.find("account", null, { match: { email } } )
         // const response = {}
@@ -54,7 +60,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             const account = result.payload.records[0]
             phLogger.info(account)
 
-            if (account.password === body.password) {
+            // @ts-ignore
+            if (account.password === event.queryParameters.password) {
                 // @ts-ignore
                 response.statusCode = 200
                 // @ts-ignore

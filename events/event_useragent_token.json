@@ -1,17 +1,17 @@
 {
     "body": "",
     "resource": "/{edp}",
-    "path": "/authorization",
+    "path": "/token",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
-        "response_type": "code",
+        "redirect_uri": "www.pharbers.com",
         "client_id": "fjjnl2uSalHTdrppHG9u",
-        "user_id": "APqnkJ2TjdeYG-gsc9n8",
-        "redirect_uri": "www.pharbers.com"
+        "code": "277bfd50f9a36088e4794942ef62007a7b4989bec018d75a630c9eb6b1138825",
+        "grant_type": "authorization_code"
     },
     "pathParameters": {
-        "edp": "authorization"
+        "edp": "token"
     },
     "stageVariables": {
         "baz": "qux"

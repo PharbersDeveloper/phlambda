@@ -1,3 +1,4 @@
+import axios from "axios"
 import CryptoJS from "crypto-js"
 import {ServerResponse} from "http"
 import moment from "moment"
@@ -36,6 +37,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
+        } else if (endpoint === "callback") {
+            await this.callbackFunc(event, response)
         }
         return response
     }
@@ -230,6 +233,23 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
         await this.store.create("access", tk)
         return tk
+    }
+
+    protected async callbackFunc(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const redirectUri = event.queryStringParameters.redirect_uri
+        // TODO: Check redirectUri
+        // @ts-ignore
+        const clientId = "V5I67BHIRVR2Z59kq-a-"
+        // @ts-ignore
+        const code = event.queryStringParameters.code
+        const url = "callback?grant_type=authorization_code&code=" + code + "&&redirect_uri=" + redirectUri
+
+        const tokenResult = await axios.get("https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0/" + url)
+        phLogger.info("alfred callback test")
+        phLogger.info(tokenResult)
+        phLogger.info("alfred callback end")
+        return tokenResult
     }
 
     protected hexEncode(value) {

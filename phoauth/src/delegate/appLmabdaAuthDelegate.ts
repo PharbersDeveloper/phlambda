@@ -1,4 +1,6 @@
+import CryptoJS from "crypto-js"
 import {ServerResponse} from "http"
+import moment from "moment"
 import {
     errors2response, PhInvalidAuthGrant,
     PhInvalidClient, PhInvalidGrantType,
@@ -9,8 +11,6 @@ import {
 import phLogger from "../logger/phLogger"
 import AWSReq from "../strategies/awsRequest"
 import AppLambdaDelegate from "./appLambdaDelegate"
-const CryptoJS = require("crypto-js");
-import moment from "moment"
 
 /**
  * The summary section should be brief. On a documentation web site,
@@ -98,15 +98,15 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
      */
     protected async authHandler(event: Map<string, any>, response: ServerResponse) {
         // @ts-ignore
-        const redirectUri = event.queryStringParameters.redirect_uri
-            // @ts-ignore
-        const responseType = event.queryStringParameters.response_type
+        const redirectUri = event.queryStringParameters.redirect_uri // 重定向
+        // @ts-ignore
+        const responseType = event.queryStringParameters.response_type // code?
         if (responseType !== "code") {
             errors2response(PhInvalidParameters, response)
             return response
         }
         // @ts-ignore
-        const clientId = event.queryStringParameters.client_id
+        const clientId = event.queryStringParameters.client_id // client 是干啥的
         // @ts-ignore
         const client = await this.store.find("client", clientId)
         const clientRecord = client.payload.records[0]
@@ -117,7 +117,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const clientName = clientRecord.name
 
         // @ts-ignore
-        let scope = event.queryStringParameters.scope
+        let scope = event.queryStringParameters.scope // 不同前端项目对应不同的client和scope
         if (scope === undefined) {
             scope = ["APP", clientName, "R"].join("|")
         }
@@ -125,7 +125,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         // @ts-ignore
         const userId = event.queryStringParameters.user_id
         const account = await this.store.find("account", userId, null, ["defaultRole", "scope"])
-        const scopeRecord = account.payload.include.scope[0].map (x => x.scopePolicy)
+        const scopeRecord = account.payload.include.scope.map((x) => x.scopePolicy)
         if (!this.grantScopeAuth(scope, scopeRecord)) {
             errors2response(PhInvalidAuthGrant, response)
             return response
@@ -133,16 +133,18 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
         // @ts-ignore
         let state = event.queryStringParameters.state
-        if (state === null) {
+        if (state === null || state === undefined) {
             state = "xyz"
         }
 
+        // 需要返回一个url
         if (redirectUri !== null) {
             // @ts-ignore
             response.statusCode = 302
             // @ts-ignore
             response.headers = {
-                Location: redirectUri + "?code=" + await this.genAuthCode(userId, clientId, scope) + "&state=" + state,
+                "Location": redirectUri + "?code=" +
+                    await this.genAuthCode(userId, clientId, scope) + "&state=" + state,
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         } else {
@@ -153,7 +155,6 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             // @ts-ignore
             response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         }
-
 
         return response
     }
@@ -190,12 +191,12 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const content = codeRecord.payload.records[0]
         phLogger.info(content)
 
-        if (content.redirectUri !== redirectUri ||
-            content.clientId !== clientId) {
+        // if (content.redirectUri !== redirectUri ||
+        //     content.clientId !== clientId) {
 
-            errors2response(PhInvalidParameters, response)
-            return response
-        }
+        //     errors2response(PhInvalidParameters, response)
+        //     return response
+        // }
 
         const accessToken = await this.genAccessToken(clientId)
 
@@ -205,10 +206,10 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         // @ts-ignore
         response.body = {
-            "access_token": accessToken.token,
-            "token_type": "bearer",
-            "expires_in": 64800,
-            "refresh_token": accessToken.refresh,
+            access_token: accessToken.token,
+            token_type: "bearer",
+            expires_in: 64800,
+            refresh_token: accessToken.refresh,
         }
         return response
     }
@@ -224,7 +225,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
-        const exp = moment(new Date()).add(10, 'm').toDate()
+        const exp = moment(new Date()).add(10, "m").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save code to db, need to move to redis
         const authCode =  { uid, cid, code, scope, create: new Date(), expired: exp }
@@ -243,14 +244,14 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected hexEncode(value) {
-        return value.toString(CryptoJS.enc.Hex);
+        return value.toString(CryptoJS.enc.Hex)
     }
 
     protected hmac(secret, value) {
-        return CryptoJS.HmacSHA256(value, secret, {asBytes: true});
+        return CryptoJS.HmacSHA256(value, secret, {asBytes: true})
     }
 
     protected hash(value) {
-        return CryptoJS.SHA256(value);
+        return CryptoJS.SHA256(value)
     }
 }

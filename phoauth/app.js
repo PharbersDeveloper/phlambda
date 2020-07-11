@@ -31,28 +31,48 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         result = await app.exec(event)
+        
 
-        // Object.assign(result.headers, {
-        //     "Access-Control-Allow-Headers" : "Content-Type",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        // })
+        Object.assign(result.headers, {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+        })
         response = {
             'statusCode': result.statusCode,
-            'headers': result.output[0],
-            'body': String(result.output[1])
+            'headers': result.headers,
         }
-        // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
-        //         phlogger.info("retry connect mongodb for another round.");
-        //         tmp = 1
-        //         return runLambda(event, context)
-        // }
+        phlogger.info(result)
+   
+        if (event.pathParameters.edp === "authorization") {
+            response["client_id"] = event.queryStringParameters.client_id
+        }
     } catch (err) {
         phlogger.error(err);
         return err;
     }
-
+    
+    // const clientId = event.queryStringParameters.client_id
+    // const responseHeader = response.headers.Location.split("?code=")
+    // const responseHeaderRedirectUri = responseHeader[0]
+    // const responseHeaderCode = responseHeader[1].split("&state=")[0]
+    // const callbackEvent = {
+    //     "event": {
+    //         "queryStringParameters": {
+    //             "redirect_uri": responseHeaderRedirectUri,
+    //             "client_id": clientId,
+    //             "code": responseHeaderCode,
+    //             "grant_type": "authorization_code"
+    //         },
+    //         "pathParameters": {
+    //             "edp": "token"
+    //         }
+    //     }
+    // }
+    // const tokenResponse = await app.exec(callbackEvent)
+    // return tokenResponse
     return response
+    
 };
 
 exports.cleanUp = async () => {

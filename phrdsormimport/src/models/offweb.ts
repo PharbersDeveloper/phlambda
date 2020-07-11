@@ -25,7 +25,7 @@ const records = {
         actLogoOnTime: { link: "activity", inverse: "logoOnTime"},
         actGallery: { link: "activity", inverse: "gallery"},
         rptCover: { link: "report", inverse: "cover"},
-        partAvatar: { link: "participant", inverse: "avatar"},
+        partAvatar: { link: "participant", isArray: true, inverse: "avatar"},
         coLogo: { link: "cooperation", inverse: "logo"}
     },
     report: {

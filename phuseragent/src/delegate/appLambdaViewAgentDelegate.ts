@@ -18,7 +18,7 @@ export default class AppLambdaViewAgentDelegate extends AppLambdaDelegate {
         // @ts-ignore
         res.output[1] = String(hbs)
         // @ts-ignore
-        res.headers = { "content-type": "text/x-handlebars-template"}
+        res.headers = { "content-type": "text/x-handlebars-template" }
         return res
     }
 

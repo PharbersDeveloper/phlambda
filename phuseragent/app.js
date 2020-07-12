@@ -1,9 +1,7 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
 let response;
 
-const phlogger = require("./dist/logger/phLogger").default
-const delegate = require("./dist/delegate/appLambdaDelegate").default
+const phLogger = require("./dist/logger/phLogger").default
+const delegate = require("./dist/delegate/appLambdaViewAgentDelegate").default
 
 const app = new delegate()
 app.prepare()
@@ -22,8 +20,7 @@ app.prepare()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phlogger.info(event)
-        // const result = await app.exec(event)
+        phLogger.info(event)
         let result
 
         if (context && context.callbackWaitsForEmptyEventLoop) {
@@ -32,23 +29,27 @@ exports.lambdaHandler = async function (event, context) {
 
         result = await app.exec(event)
 
-        // Object.assign(result.headers, {
-        //     "Access-Control-Allow-Headers" : "Content-Type",
-        //     "Access-Control-Allow-Origin": "*",
-        //     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        // })
+        const resultOutput = result.output[0].split("\r\n")
+        const corsHeader =   {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST,GET"
+        }
+        let objHeader = {}
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(":");
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
+        }
+        Object.assign(objHeader, corsHeader)
         response = {
             'statusCode': result.statusCode,
-            'headers': result.output[0],
+            'headers': objHeader,
             'body': String(result.output[1])
         }
-        // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
-        //         phlogger.info("retry connect mongodb for another round.");
-        //         tmp = 1
-        //         return runLambda(event, context)
-        // }
     } catch (err) {
-        phlogger.error(err);
+        phLogger.error(err);
         return err;
     }
 

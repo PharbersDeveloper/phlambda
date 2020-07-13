@@ -1,33 +1,40 @@
 // import phS3Facade from "../s3facade/phS3Facade"
 import * as fs from "fs"
+import Handlebars from "handlebars"
 import phLogger from "../logger/phLogger"
 import AppLambdaDelegate from "./appLambdaDelegate"
 
 export default class AppLambdaViewAgentDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         const res = await super.exec(event)
-        // TODO: 暂时注释掉
         // @ts-ignore
-        // const data = String(res.output[1])
-        // const hbs = JSON.parse(data).data.attributes.hbs
-        // const result = await phS3Facade.getObject("ph-cli-dag-template", hbs)
-        // @ts-ignore
-        // res.output[1] = result.toString()
+        const clientId = event.pathParameters.id
         const hbs =  fs.readFileSync("config/login.hbs")
-        phLogger.log(String(hbs))
-        // @ts-ignore
-        res.output[1] = String(hbs)
+        const client = await this.store.find("client", [clientId], {})
         // @ts-ignore
         res.headers = { "content-type": "text/x-handlebars-template" }
+        if (client.payload.records.length === 1) {
+            // TODO: 暂时注释掉，Lambda啥时候解决读取S3的问题在变
+            // const components = await this.store.find("component", client.payload.records[0].clientComponents, {})
+            // if (components.payload.records.length === 1) {
+            //     phLogger.info(components.payload.records[0].hbs)
+            // }
+
+            const secret = client.payload.records[0].secret
+            const result = String(hbs).replace("{{client_id}}", clientId).replace("{{client_secret}}", secret)
+            phLogger.info(result)
+            // @ts-ignore
+            res.output[1] = result
+        } else {
+            // @ts-ignore
+            res.output[1] = String(hbs)
+        }
+
+        // const template = Handlebars.compile(String(hbs))
+        // const result = template({
+        //     client_id: clientId,
+        //     client_secret: ""
+        // })
         return res
     }
-
-    public prepare() {
-        super.prepare()
-    }
-
-    public async cleanUp() {
-        await super.cleanUp()
-    }
-
 }

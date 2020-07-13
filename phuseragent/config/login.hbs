@@ -26,12 +26,11 @@
 
 <body>
 	<form class="form-signin">
-		<input style="height: 48px" type="text" class="form-control mb-2" name="username" id="account"
-			placeholder={{accountDescribe}}>
-		<input style="height: 48px" type="password" class="form-control mb-3" name="password" id="password"
-			placeholder={{passwordDescribe}}>
-		<button style="height: 48px" id="authSubmit" class="btn btn-lg btn-primary btn-block"
-			type="button">{{btnDescribe}}</button>
+		<input style="height: 48px" type="text" class="form-control mb-2" name="username" id="account" placeholder={{accountDescribe}}>
+		<input style="height: 48px" type="password" class="form-control mb-3" name="password" id="password" placeholder={{passwordDescribe}}>
+		<input style="height: 48px" type="hidden" class="form-control mb-3" id="client_id" value={{client_id}}>
+		<input style="height: 48px" type="hidden" class="form-control mb-3" id="client_secret" value={{client_secret}}>
+		<button style="height: 48px" id="authSubmit" class="btn btn-lg btn-primary btn-block" type="button">{{btnDescribe}}</button>
 	</form>
 	<div id="alert"></div>
 	<script src="https://ph-oauth-cdn-js.s3.cn-northwest-1.amazonaws.com.cn/pharbers-secret.min.js"></script>

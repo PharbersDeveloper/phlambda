@@ -18,22 +18,23 @@
   },
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
-    "@types/js-yaml": "^3.12.1",
     "@types/crypto-js": "^3.1.47",
+    "@types/js-yaml": "^3.12.1",
     "aws-sdk": "^2.686.0",
-    "fortune": "^5.5.17",
-    "fortune-json-api": "^2.3.0",
-    "fortune-postgres": "^1.6.10",
-    "js-yaml": "^3.14.0",
-    "json2typescript": "^1.4.1",
-    "log4js": "^4.5.1",
-    "pluralize": "0.0.11",
-    "crypto-js": "^4.0.0",
     "busboy": "^0.3.1",
     "clean-css": "^4.2.1",
     "cookie": "^0.4.0",
+    "crypto-js": "^4.0.0",
     "fast-crc32c": "^2.0.0",
+    "fortune": "^5.5.17",
+    "fortune-json-api": "^2.3.0",
+    "fortune-postgres": "^1.6.10",
+    "handlebars": "^4.7.6",
+    "js-yaml": "^3.14.0",
+    "json2typescript": "^1.4.1",
+    "log4js": "^4.5.1",
     "negotiator": "^0.6.2",
+    "pluralize": "0.0.11",
     "simulacra": "^2.2.0"
   },
   "devDependencies": {
@@ -46,6 +47,8 @@
     "source-map-support": "^0.5.13",
     "tslint": "^5.18.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.1"
+    "typescript": "^3.3.1",
+    "form-data": "^2.5.1",
+    "fortune": "^5.5.17"
   }
 }

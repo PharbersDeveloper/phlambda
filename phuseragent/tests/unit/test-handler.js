@@ -6,6 +6,7 @@ const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
 var context;
+var del;
 const CryptoJS = require("crypto-js");
 
 function hexEncode(value) {
@@ -21,9 +22,11 @@ function hash(value) {
 }
 
 describe('Tests index', function () {
-	const del = new delegate()
+	 del = new delegate()
 	before("before all", async () => {
-		await del.prepare()
+		if (del.isFirstInit) {
+			await del.prepare()
+		}
 	})
 	// it('init common database', async () => {
 	//     const event = JSON.parse(fs.readFileSync("../events/event_init_comment_database.json", 'utf8'))
@@ -157,14 +160,27 @@ describe('Tests index', function () {
 	// 	// expect(response.location).to.be.an("string");
 	// });
 
-	it('verify find login hbs', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_useragent_views_find_relationships.json", 'utf8'))
+
+	// it('verify find one', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_find_one.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	// 	phLogger.log(result)
+	// })
+
+	// it('verify find relationships', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_find_relationships.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	// 	phLogger.info(result)
+	// })
+
+	it('verify find view', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_useragent_view_find.json", 'utf8'))
 		const result = await del.exec(event)
-		phLogger.log(result)
+		phLogger.info(result)
 	})
 
 	after("desconnect db", async () => {
 		// await mongoose.disconnect()
-		await app.cleanUp()
+		await del.cleanUp()
 	});
 });

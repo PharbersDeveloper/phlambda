@@ -1,13 +1,11 @@
 import fortune from "fortune"
-import jsonApiSerializer from "fortune-json-api"
-// import mongoAdapter from "fortune-mongodb"
-// import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
 import * as fs from "fs"
-import http, {ServerResponse} from "http"
+import {ServerResponse} from "http"
 import * as yaml from "js-yaml"
 import {JsonConvert, ValueCheckingMode} from "json2typescript"
 import fortuneHTTP from "../../lib/fortune-http"
+import jsonApiSerializer from "../../lib/fortune-json-api"
 import {ServerConf} from "../configFactory/serverConf"
 import phLogger from "../logger/phLogger"
 import AWSReq from "../strategies/awsRequest"
@@ -23,14 +21,16 @@ export default class AppLambdaDelegate {
     // private httpStrategies: AWSLambdaStrategy
     public store: any
     public listener: any
+    public isFirstInit = true
     protected conf: ServerConf
 
-    public prepare() {
+    public async prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
-        // await this.store.connect()
+        await this.store.connect()
+        this.isFirstInit = false
         this.listener = fortuneHTTP(this.store, {
             serializers: [
                 [ jsonApiSerializer ]
@@ -48,6 +48,7 @@ export default class AppLambdaDelegate {
             // @ts-ignore
             event.body = ""
         }
+
         const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)
         // @ts-ignore
@@ -87,7 +88,6 @@ export default class AppLambdaDelegate {
         const pwd = this.conf.postgres.pwd
         const dbName = this.conf.postgres.dbName
         const url = prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + dbName
-        // const url = "postgres://postgres:196125@localhost:5432/phoffweb"
         return [postgresAdapter , {
             url
         }]

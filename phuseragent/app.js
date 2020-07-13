@@ -4,7 +4,6 @@ const phLogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLambdaViewAgentDelegate").default
 
 const app = new delegate()
-app.prepare()
 
 /**
  *
@@ -21,6 +20,9 @@ app.prepare()
 exports.lambdaHandler = async function (event, context) {
     try {
         phLogger.info(event)
+        if (app.isFirstInit) {
+            await app.prepare()
+        }
         let result
 
         if (context && context.callbackWaitsForEmptyEventLoop) {

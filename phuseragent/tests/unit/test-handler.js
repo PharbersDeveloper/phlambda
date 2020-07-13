@@ -7,7 +7,6 @@ const expect = chai.expect
 const fs = require('fs')
 var context;
 const CryptoJS = require("crypto-js");
-// const mongoose = require("mongoose")
 
 function hexEncode(value) {
 	return value.toString(CryptoJS.enc.Hex);
@@ -121,42 +120,48 @@ describe('Tests index', function () {
 	//     // expect(response.location).to.be.an("string");
 	// }).timeout(30* 1000)
 
-	it('verify find components successfully', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_ember_views_find_one.json", 'utf8'))
+	// it('verify find components successfully', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_ember_views_find_one.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	//
+	// 	const resultOutput = result.output[0].split("\r\n")
+	// 	const corsHeader =   {
+	// 		"Access-Control-Allow-Headers" : "Content-Type",
+	// 		"Access-Control-Allow-Origin": "*",
+	// 		"Access-Control-Allow-Methods": "POST,GET"
+	// 	}
+	// 	let objHeader = {}
+	// 	for (let index = 0; index < resultOutput.length; index++) {
+	// 		const element = resultOutput[index].split(":");
+	// 		if (element.length === 2) {
+	// 			objHeader[element[0]] = element[1]
+	// 		}
+	// 	}
+	// 	Object.assign(objHeader, corsHeader)
+	//
+	// 	const response = {
+	// 		'statusCode': result.statusCode,
+	// 		'headers': objHeader,
+	// 		'body': String(result.output[1])
+	// 	}
+	//
+	// 	expect(response).to.be.an('object');
+	// 	expect(response.statusCode).to.equal(200);
+	// 	expect(response.body).to.be.an('string');
+	//
+	// 	let data = response.body;
+	//
+	// 	expect(data).to.be.an('string');
+	// 	phLogger.info(response)
+	// 	// expect(data).to.be.equal("<h2>Hello {{name}}</h2>\n<p>Hello, p.{{name}}</p>");
+	// 	// expect(response.location).to.be.an("string");
+	// });
+
+	it('verify find login hbs', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_useragent_views_find_relationships.json", 'utf8'))
 		const result = await del.exec(event)
-
-		const resultOutput = result.output[0].split("\r\n")
-		const corsHeader =   {
-			"Access-Control-Allow-Headers" : "Content-Type",
-			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Methods": "POST,GET"
-		}
-		let objHeader = {}
-		for (let index = 0; index < resultOutput.length; index++) {
-			const element = resultOutput[index].split(":");
-			if (element.length === 2) {
-				objHeader[element[0]] = element[1]
-			}
-		}
-		Object.assign(objHeader, corsHeader)
-
-		const response = {
-			'statusCode': result.statusCode,
-			'headers': objHeader,
-			'body': String(result.output[1])
-		}
-
-		expect(response).to.be.an('object');
-		expect(response.statusCode).to.equal(200);
-		expect(response.body).to.be.an('string');
-
-		let data = response.body;
-
-		expect(data).to.be.an('string');
-		phLogger.info(response)
-		// expect(data).to.be.equal("<h2>Hello {{name}}</h2>\n<p>Hello, p.{{name}}</p>");
-		// expect(response.location).to.be.an("string");
-	});
+		phLogger.log(result)
+	})
 
 	after("desconnect db", async () => {
 		// await mongoose.disconnect()

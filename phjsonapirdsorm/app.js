@@ -6,7 +6,6 @@ const phlogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
-app.prepare()
 
 let tmp = 0
 
@@ -25,13 +24,16 @@ let tmp = 0
 exports.lambdaHandler = async function (event, context) {
     try {
         phlogger.info(event)
+        if (app.isFirstInit) {
+            await app.prepare()
+        }
         // const result = await app.exec(event)
         let result
-        
+
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-        
+
         result = await app.exec(event)
         tmp = 0
         response = {
@@ -39,7 +41,7 @@ exports.lambdaHandler = async function (event, context) {
             'headers': result.output[0],
             'body': String(result.output[1])
         }
-        
+
         const resultOutput = result.output[0].split("\r\n")
         const corsHeader =   {
             "Access-Control-Allow-Headers" : "Content-Type",
@@ -47,12 +49,12 @@ exports.lambdaHandler = async function (event, context) {
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
         }
         let objHeader = {}
-        
+
         for (let index = 0; index < resultOutput.length; index++) {
             const element = resultOutput[index].split(":");
             if (element.length === 2) {
                 objHeader[element[0]] = element[1]
-            }    
+            }
         }
         Object.assign(objHeader, corsHeader)
         response.headers = objHeader

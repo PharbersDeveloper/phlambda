@@ -43,22 +43,22 @@ describe('Tests index', function () {
 	//     // expect(response.location).to.be.an("string");
 	// });
 	//
-	// it('verify find relationship success', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_relationships.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data[0].type).to.be.equal("products");
-	//     expect(response.data[0].id).to.be.equal("5e00862a28e9fe103c5e2f2d");
-	//     // expect(response.location).to.be.an("string");
-	// });
-	//
+	it('verify find relationship success', async () => {
+	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_relationships.json", 'utf8'))
+	    const result = await app.lambdaHandler(event, context)
+
+		expect(result).to.be.an('object');
+	    expect(result.statusCode).to.equal(200);
+	    expect(result.body).to.be.an('string');
+
+	    let response = JSON.parse(result.body);
+
+	    expect(response).to.be.an('object');
+	    expect(response.data[0].type).to.be.equal("products");
+	    expect(response.data[0].id).to.be.equal("5e00862a28e9fe103c5e2f2d");
+	    // expect(response.location).to.be.an("string");
+	});
+
 	// it('verify find page success', async () => {
 	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_page.json", 'utf8'))
 	//     const result = await app.lambdaHandler(event, context)
@@ -135,39 +135,39 @@ describe('Tests index', function () {
 	//     expect(response.data.type).to.be.equal("proposals");
 	//
 	// });
-
-	it('verify find ids success', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_success_find_ids.json", 'utf8'))
-		const result = await app.lambdaHandler(event, context)
-
-		expect(result).to.be.an('object');
-		expect(result.statusCode).to.equal(200);
-		expect(result.body).to.be.an('string');
-
-		let response = JSON.parse(result.body);
-		phlogger.info(response)
-
-		expect(response).to.be.an('object');
-		expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
-		expect(response.data.type).to.be.equal("images");
-		// expect(response.location).to.be.an("string");
-	});
-
-	 it('verify patch one', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_patch_one.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
-
-	    expect(result).to.be.an('object');
-	    expect(result.statusCode).to.equal(200);
-	    expect(result.body).to.be.an('string');
-
-	    let response = JSON.parse(result.body);
-
-	    expect(response).to.be.an('object');
-	    expect(response.data.type).to.be.equal("reports");
-	    expect(response.data.attributes.describe).to.be.equal("《修改-广阔市场用药分析及展望》")
-	    // expect(response.location).to.be.an("string");
-	});
+	//
+	// it('verify find ids success', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_success_find_ids.json", 'utf8'))
+	// 	const result = await app.lambdaHandler(event, context)
+	//
+	// 	expect(result).to.be.an('object');
+	// 	expect(result.statusCode).to.equal(200);
+	// 	expect(result.body).to.be.an('string');
+	//
+	// 	let response = JSON.parse(result.body);
+	// 	phlogger.info(response)
+	//
+	// 	expect(response).to.be.an('object');
+	// 	expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
+	// 	expect(response.data.type).to.be.equal("images");
+	// 	// expect(response.location).to.be.an("string");
+	// });
+	//
+	//  it('verify patch one', async () => {
+	//     const event = JSON.parse(fs.readFileSync("../events/event_success_patch_one.json", 'utf8'))
+	//     const result = await app.lambdaHandler(event, context)
+	//
+	//     expect(result).to.be.an('object');
+	//     expect(result.statusCode).to.equal(200);
+	//     expect(result.body).to.be.an('string');
+	//
+	//     let response = JSON.parse(result.body);
+	//
+	//     expect(response).to.be.an('object');
+	//     expect(response.data.type).to.be.equal("reports");
+	//     expect(response.data.attributes.describe).to.be.equal("《修改-广阔市场用药分析及展望》")
+	//     // expect(response.location).to.be.an("string");
+	// });
 
 	after("desconnect db", async () => {
 		// await mongoose.disconnect()

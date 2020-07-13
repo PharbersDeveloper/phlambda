@@ -1,14 +1,14 @@
 {
     "body": "",
-    "resource": "/ntm/{type}/{id}/relationships/{relationship}",
-    "path": "/ntm/proposals/5e00862c28e9fe103c5e3019/relationships/products",
+    "resource": "/offweb/{type}/{id}/relationships/{relationship}",
+    "path": "/offweb/reports/59iDQNsg-J6n1hRr4oTk/relationships/cover",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": null,
     "pathParameters": {
-        "type": "proposals",
-        "id": "5e00862a28e9fe103c5e2f4e",
-        "relationship": "products"
+        "type": "reports",
+        "id": "59iDQNsg-J6n1hRr4oTk",
+        "relationship": "cover"
     },
     "stageVariables": {
         "baz": "qux"
@@ -53,8 +53,8 @@
             "userAgent": "Custom User Agent String",
             "user": null
         },
-        "path": "/ntm/proposals/5e00862c28e9fe103c5e3019/relationships/products",
-        "resourcePath": "/ntm/{type}/{id}/relationships/{relationship}",
+        "path": "/offweb/reports/59iDQNsg-J6n1hRr4oTk/relationships/cover",
+        "resourcePath": "/offweb/{type}/{id}/relationships/{relationship}",
         "httpMethod": "GET",
         "apiId": "1234567890",
         "protocol": "HTTP/1.1"

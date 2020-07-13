@@ -1,3 +1,4 @@
+import axios from "axios"
 import CryptoJS from "crypto-js"
 import {ServerResponse} from "http"
 import moment from "moment"
@@ -21,6 +22,11 @@ import AppLambdaDelegate from "./appLambdaDelegate"
  */
 export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
+        // @ts-ignore
+        if (!event.body) {
+            // @ts-ignore
+            event.body = ""
+        }
         const req = new AWSReq(event, undefined)
         const response = new ServerResponse(req)
         // @ts-ignore
@@ -31,36 +37,35 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
+        } else if (endpoint === "callback") {
+            await this.callbackFunc(event, response)
         }
         return response
     }
 
     protected async loginHandler(event: Map<string, any>, response: ServerResponse) {
         // @ts-ignore
-        const body = JSON.parse(event.body)
-        const email = body.email
+        // const body = JSON.parse(event.body)
+        // @ts-ignore
+        const email = event.queryStringParameters.email
         // @ts-ignore
         const result = await this.store.find("account", null, { match: { email } } )
         // const response = {}
         if (result.payload.records.length === 0) {
-            // @ts-ignore
-            response.statusCode = 404
-            // @ts-ignore
-            response.headers = { "Content-Type": "application/json", "Accept": "application/json" }
-            // @ts-ignore
-            response.body = "User Not Found"
+            errors2response(PhNotFoundError, response)
+            return response
         } else if (result.payload.records.length === 1) {
 
             const account = result.payload.records[0]
-            phLogger.info(account)
-
-            if (account.password === body.password) {
+            // @ts-ignore
+            if (account.password === event.queryStringParameters.password) {
                 // @ts-ignore
                 response.statusCode = 200
                 // @ts-ignore
                 response.headers = { "Content-Type": "application/json", "Accept": "application/json" }
+                const record = result.payload.records[0]
                 // @ts-ignore
-                response.body = result.payload.records[0]
+                response.body = { message: "login success", uid: record.id }
             } else {
                 errors2response(PhInvalidPassword, response)
             }
@@ -131,24 +136,18 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
 
         // 需要返回一个url
-        if (redirectUri !== null) {
+
+        // @ts-ignore
+        response.statusCode = 200
+        if (redirectUri) {
             // @ts-ignore
-            response.statusCode = 302
-            // @ts-ignore
-            response.headers = {
-                "Location": redirectUri + "?code=" +
-                    await this.genAuthCode(userId, clientId, scope) + "&state=" + state,
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
+            response.body = "code=" + await this.genAuthCode(userId, clientId, scope) + "&redirect_uri=" + redirectUri + "&state=" + state
         } else {
             // @ts-ignore
-            response.statusCode = 200
-            // @ts-ignore
             response.body = "code=" + await this.genAuthCode(userId, clientId, scope) + "&state=" + state
-            // @ts-ignore
-            response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         }
-
+        // @ts-ignore
+        response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
         return response
     }
 
@@ -182,29 +181,34 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
         const codeRecord = await this.store.find("authorization", null, { match: { code }})
         const content = codeRecord.payload.records[0]
-        phLogger.info(content)
+        if (content) {
+            phLogger.info(content)
 
-        // if (content.redirectUri !== redirectUri ||
-        //     content.clientId !== clientId) {
+            // TODO: Check register redirect URI
+            // if (content.redirectUri !== redirectUri ||
+            //     content.clientId !== clientId) {
+            //     errors2response(PhInvalidParameters, response)
+            //     return response
+            // }
 
-        //     errors2response(PhInvalidParameters, response)
-        //     return response
-        // }
+            const accessToken = await this.genAccessToken(clientId)
 
-        const accessToken = await this.genAccessToken(clientId)
-
-        // @ts-ignore
-        response.statusCode = 200
-        // @ts-ignore
-        response.headers = { "Content-Type": "application/x-www-form-urlencoded" }
-        // @ts-ignore
-        response.body = {
-            access_token: accessToken.token,
-            token_type: "bearer",
-            expires_in: 64800,
-            refresh_token: accessToken.refresh,
+            // @ts-ignore
+            response.statusCode = 200
+            // @ts-ignore
+            response.headers = { "Content-Type": "application/json" }
+            // @ts-ignore
+            response.body = {
+                access_token: accessToken.token,
+                token_type: "bearer",
+                expires_in: 64800,
+                refresh_token: accessToken.refresh,
+            }
+            return response
+        } else {
+            errors2response(PhInvalidParameters, response)
+            return response
         }
-        return response
     }
 
     // TODO: 暂时验证第一个
@@ -234,6 +238,23 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
         await this.store.create("access", tk)
         return tk
+    }
+
+    protected async callbackFunc(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const redirectUri = event.queryStringParameters.redirect_uri
+        // TODO: Check redirectUri
+        // @ts-ignore
+        const clientId = "V5I67BHIRVR2Z59kq-a-"
+        // @ts-ignore
+        const code = event.queryStringParameters.code
+        const url = "callback?grant_type=authorization_code&code=" + code + "&&redirect_uri=" + redirectUri
+
+        const tokenResult = await axios.get("https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0/" + url)
+        phLogger.info("alfred callback test")
+        phLogger.info(tokenResult)
+        phLogger.info("alfred callback end")
+        return tokenResult
     }
 
     protected hexEncode(value) {

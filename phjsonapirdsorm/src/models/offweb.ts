@@ -21,12 +21,12 @@ const records = {
     image: {
         path: String,
         tag: String,
-        actLogo: { link: "activity", inverse: "logo"},
-        actLogoOnTime: { link: "activity", inverse: "logoOnTime"},
-        actGallery: { link: "activity", inverse: "gallery"},
-        rptCover: { link: "report", inverse: "cover"},
+        actLogo: { link: "activity", isArray: true, inverse: "logo"},
+        actLogoOnTime: { link: "activity", isArray: true, inverse: "logoOnTime"},
+        actGallery: { link: "activity", isArray: true, inverse: "gallery"},
+        rptCover: { link: "report", isArray: true, inverse: "cover"},
         partAvatar: { link: "participant", isArray: true, inverse: "avatar"},
-        coLogo: { link: "cooperation", inverse: "logo"}
+        coLogo: { link: "cooperation", isArray: true, inverse: "logo"}
     },
     report: {
         title: String,

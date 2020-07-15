@@ -8,7 +8,9 @@ export default class AppLambdaViewAgentDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         const res = await super.exec(event)
         // @ts-ignore
-        const clientId = event.pathParameters.id
+        const clientId = event.queryStringParameters.client_id
+        // @ts-ignore
+        const redirectUri = event.queryStringParameters.redirect_uri
         const hbs =  fs.readFileSync("config/login.hbs")
         const client = await this.store.find("client", [clientId], {})
         // @ts-ignore
@@ -20,8 +22,10 @@ export default class AppLambdaViewAgentDelegate extends AppLambdaDelegate {
             //     phLogger.info(components.payload.records[0].hbs)
             // }
 
-            const secret = client.payload.records[0].secret
-            const result = String(hbs).replace("{{client_id}}", clientId).replace("{{client_secret}}", secret)
+            // const secret = client.payload.records[0].secret
+            const result = String(hbs).replace("{{client_id}}", clientId).replace("{{redirect_uri}}", redirectUri)
+            // TODO: 暂时不需要secret
+            // .replace("{{client_secret}}", secret)
             phLogger.info(result)
             // @ts-ignore
             res.output[1] = result

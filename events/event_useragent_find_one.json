@@ -1,14 +1,13 @@
 {
   "body": "",
   "resource": "/{type}/{id}",
-  "path": "/common/clients/V5I67BHIRVR2Z59kq-a-",
+  "path": "/common/clients/5gfX6mL3YfJI56T_ipUZ",
   "httpMethod": "GET",
   "isBase64Encoded": false,
-  "queryStringParameters": {
-  },
+  "queryStringParameters": null,
   "pathParameters": {
     "type": "clients",
-    "id": "V5I67BHIRVR2Z59kq-a-"
+    "id": "5gfX6mL3YfJI56T_ipUZ"
   },
   "stageVariables": {
     "baz": "qux"
@@ -54,7 +53,7 @@
       "user": null
     },
     "resourcePath": "/{type}/{id}",
-    "path": "/common/clients/V5I67BHIRVR2Z59kq-a-",
+    "path": "/common/clients/5gfX6mL3YfJI56T_ipUZ",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

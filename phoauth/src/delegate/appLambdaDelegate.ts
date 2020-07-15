@@ -23,14 +23,16 @@ export default class AppLambdaDelegate {
     // private httpStrategies: AWSLambdaStrategy
     public store: any
     public listener: any
+    public isFirstInit = true
     private conf: ServerConf
 
-    public prepare() {
+    public async prepare() {
         this.loadConfiguration()
         const record = this.genRecord()
         const adapter = this.genPgAdapter()
         this.store = fortune(record, {adapter})
-        // await this.store.connect()
+        await this.store.connect()
+        this.isFirstInit = false
         this.listener = fortuneHTTP(this.store, {
             serializers: [
                 [ jsonApiSerializer ]

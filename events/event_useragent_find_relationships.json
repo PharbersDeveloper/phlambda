@@ -1,14 +1,14 @@
 {
   "body": "",
   "resource": "/{type}/{id}/{relationship}",
-  "path": "/common/accounts/lCnI1T6xeUm79epBnyS-/employer",
+  "path": "/common/clients/5gfX6mL3YfJI56T_ipUZ/clientComponents",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": null,
   "pathParameters": {
-    "type": "accounts",
-    "id": "lCnI1T6xeUm79epBnyS-",
-    "relationship": "employer"
+    "type": "clients",
+    "id": "5gfX6mL3YfJI56T_ipUZ",
+    "relationship": "clientComponents"
   },
   "stageVariables": {
     "baz": "qux"
@@ -53,8 +53,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/common/accounts/lCnI1T6xeUm79epBnyS-/employer",
     "resourcePath": "/{type}/{id}/{relationship}",
+    "path": "/common/clients/5gfX6mL3YfJI56T_ipUZ/clientComponents",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

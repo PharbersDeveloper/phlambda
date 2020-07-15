@@ -15,3 +15,8 @@ mongo:
   coll: "pharbers-offweb-test"
   authSource: "admin"
   auth: true
+redis:
+  algorithm: redis
+  host: 127.0.0.1
+  port: 6379
+  db: 0

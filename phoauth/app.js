@@ -45,8 +45,6 @@ exports.lambdaHandler = async function (event, context) {
             "headers": result.headers,
             "body": JSON.stringify(result.body)
         }
-        phlogger.info(result)
-
         // if (event.pathParameters.edp === "authorization") {
         //     response["client_id"] = event.queryStringParameters.client_id
         // }

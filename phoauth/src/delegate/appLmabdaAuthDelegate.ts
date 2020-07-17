@@ -225,7 +225,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
     }
 
-    // TODO: 暂时验证第一个
+    // TODO: 暂时验证第一个，这个还没做，下周开始
     protected grantScopeAuth(scope: string, policies: string[]) {
         const policy = policies[0]
         if (policy === "*") {
@@ -236,7 +236,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
-        const time = 10
+        const time = 2
         const exp = moment(new Date()).add(time, "m").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save code to db, need to move to redis
@@ -252,7 +252,6 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const exp = moment(new Date()).add(time, "week").toDate()
         const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
-        // TODO: save access_token to db, need to move to redis
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
         const result = await this.redisStore.create("access", tk)
         const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000

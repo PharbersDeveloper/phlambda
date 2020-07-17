@@ -2,7 +2,7 @@
 
 const app = require('../../app.js')
 const delegate = require("../../dist/delegate/appLambdaDelegate").default
-const phogger = require("../../dist/logger/phLogger").default
+const phLogger = require("../../dist/logger/phLogger").default
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
@@ -18,7 +18,7 @@ describe('Tests index', function () {
 	//     expect(result.body).to.be.an('string');
 	//
 	//     let response = JSON.parse(result.body);
-	//     phlogger.info(response)
+	//     phLogger.info(response)
 	//
 	//     expect(response).to.be.an('object');
 	//     expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
@@ -35,7 +35,7 @@ describe('Tests index', function () {
 	// 	expect(result.body).to.be.an('string');
 	//
 	// 	let response = JSON.parse(result.body);
-	// 	phlogger.info(response)
+	// 	phLogger.info(response)
 	//
 	// 	expect(response).to.be.an('object');
 	// 	expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
@@ -79,7 +79,7 @@ describe('Tests index', function () {
 	// it('test token', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))
 	// 	const result = await app.lambdaHandler(event, context)
-	// 	phlogger.info(result)
+	// 	phLogger.info(result)
 	// })
 
 	// after("desconnect db", async () => {

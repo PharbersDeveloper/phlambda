@@ -1,5 +1,5 @@
-import axios from "axios"
 import CryptoJS from "crypto-js"
+import fortune from "fortune"
 import {ServerResponse} from "http"
 import moment from "moment"
 import {
@@ -21,6 +21,17 @@ import AppLambdaDelegate from "./appLambdaDelegate"
  *
  */
 export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
+
+    public redisStore: any
+
+    public async prepare() {
+        await super.prepare()
+        const record = this.genTokenRecord()
+        const adapter = this.genRedisAdapter()
+        this.redisStore = fortune(record, {adapter})
+        await this.redisStore.connect()
+    }
+
     public async exec(event: Map<string, any>) {
         // @ts-ignore
         if (!event.body) {
@@ -37,10 +48,13 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
-        } else if (endpoint === "callback") {
-            await this.callbackFunc(event, response)
         }
         return response
+    }
+
+    protected genTokenRecord() {
+        const filename = "../models/token.js"
+        return require(filename).default
     }
 
     protected async loginHandler(event: Map<string, any>, response: ServerResponse) {
@@ -179,7 +193,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             return response
         }
 
-        const codeRecord = await this.store.find("authorization", null, { match: { code }})
+        const codeRecord = await this.redisStore.find("authorization", null, { match: { code }})
         const content = codeRecord.payload.records[0]
         if (content) {
             phLogger.info(content)
@@ -222,39 +236,28 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
-        const exp = moment(new Date()).add(10, "m").toDate()
+        const time = 10
+        const exp = moment(new Date()).add(time, "m").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save code to db, need to move to redis
-        const authCode =  { uid, cid, code, scope, create: new Date(), expired: exp }
-        await this.store.create("authorization", authCode)
+        const authCode = { uid, cid, code, scope, create: new Date(), expired: exp }
+        const result = await this.redisStore.create("authorization", authCode)
+        const seconds = (authCode.expired.getTime() - authCode.create.getTime()) / 1000
+        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} minute`)
         return code
     }
 
     protected async genAccessToken(cid: string) {
-        const exp = moment(new Date()).add(1, "week").toDate()
+        const time = 1
+        const exp = moment(new Date()).add(time, "week").toDate()
         const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save access_token to db, need to move to redis
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
-        await this.store.create("access", tk)
+        const result = await this.redisStore.create("access", tk)
+        const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000
+        await this.setRedisExpire(`access:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} week`)
         return tk
-    }
-
-    protected async callbackFunc(event: Map<string, any>, response: ServerResponse) {
-        // @ts-ignore
-        const redirectUri = event.queryStringParameters.redirect_uri
-        // TODO: Check redirectUri
-        // @ts-ignore
-        const clientId = "V5I67BHIRVR2Z59kq-a-"
-        // @ts-ignore
-        const code = event.queryStringParameters.code
-        const url = "callback?grant_type=authorization_code&code=" + code + "&&redirect_uri=" + redirectUri
-
-        const tokenResult = await axios.get("https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0/" + url)
-        phLogger.info("alfred callback test")
-        phLogger.info(tokenResult)
-        phLogger.info("alfred callback end")
-        return tokenResult
     }
 
     protected hexEncode(value) {
@@ -267,5 +270,9 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
     protected hash(value) {
         return CryptoJS.SHA256(value)
+    }
+
+    protected async setRedisExpire(key, value, description) {
+        return await this.redisStore.adapter.redis.set(key, description, "EX", value)
     }
 }

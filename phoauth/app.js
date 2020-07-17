@@ -6,7 +6,6 @@ const phlogger = require("./dist/logger/phLogger").default
 const delegate = require("./dist/delegate/appLmabdaAuthDelegate").default
 
 const app = new delegate()
-app.prepare()
 
 /**
  *
@@ -23,6 +22,9 @@ app.prepare()
 exports.lambdaHandler = async function (event, context) {
     try {
         phlogger.info(event)
+        if (app.isFirstInit) {
+            await app.prepare()
+        }
         // const result = await app.exec(event)
         let result
 
@@ -43,8 +45,6 @@ exports.lambdaHandler = async function (event, context) {
             "headers": result.headers,
             "body": JSON.stringify(result.body)
         }
-        phlogger.info(result)
-
         // if (event.pathParameters.edp === "authorization") {
         //     response["client_id"] = event.queryStringParameters.client_id
         // }

@@ -1,14 +1,13 @@
 'use strict';
 
-// const app = require('../././app.js')
 const delegate = require("../../dist/delegate/appLambdaViewAgentDelegate").default
-const phlogger = require("../../dist/logger/phLogger").default
+const phLogger = require("../../dist/logger/phLogger").default
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
 var context;
+var del;
 const CryptoJS = require("crypto-js");
-// const mongoose = require("mongoose")
 
 function hexEncode(value) {
 	return value.toString(CryptoJS.enc.Hex);
@@ -23,9 +22,11 @@ function hash(value) {
 }
 
 describe('Tests index', function () {
-	const del = new delegate()
+	 del = new delegate()
 	before("before all", async () => {
-		await del.prepare()
+		if (del.isFirstInit) {
+			await del.prepare()
+		}
 	})
 	// it('init common database', async () => {
 	//     const event = JSON.parse(fs.readFileSync("../events/event_init_comment_database.json", 'utf8'))
@@ -122,29 +123,64 @@ describe('Tests index', function () {
 	//     // expect(response.location).to.be.an("string");
 	// }).timeout(30* 1000)
 
-	it('verify find components successfully', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_ember_views_find_one.json", 'utf8'))
+	// it('verify find components successfully', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_ember_views_find_one.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	//
+	// 	const resultOutput = result.output[0].split("\r\n")
+	// 	const corsHeader =   {
+	// 		"Access-Control-Allow-Headers" : "Content-Type",
+	// 		"Access-Control-Allow-Origin": "*",
+	// 		"Access-Control-Allow-Methods": "POST,GET"
+	// 	}
+	// 	let objHeader = {}
+	// 	for (let index = 0; index < resultOutput.length; index++) {
+	// 		const element = resultOutput[index].split(":");
+	// 		if (element.length === 2) {
+	// 			objHeader[element[0]] = element[1]
+	// 		}
+	// 	}
+	// 	Object.assign(objHeader, corsHeader)
+	//
+	// 	const response = {
+	// 		'statusCode': result.statusCode,
+	// 		'headers': objHeader,
+	// 		'body': String(result.output[1])
+	// 	}
+	//
+	// 	expect(response).to.be.an('object');
+	// 	expect(response.statusCode).to.equal(200);
+	// 	expect(response.body).to.be.an('string');
+	//
+	// 	let data = response.body;
+	//
+	// 	expect(data).to.be.an('string');
+	// 	phLogger.info(response)
+	// 	// expect(data).to.be.equal("<h2>Hello {{name}}</h2>\n<p>Hello, p.{{name}}</p>");
+	// 	// expect(response.location).to.be.an("string");
+	// });
+
+
+	// it('verify find one', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_find_one.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	// 	phLogger.log(result)
+	// })
+
+	// it('verify find relationships', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_find_relationships.json", 'utf8'))
+	// 	const result = await del.exec(event)
+	// 	phLogger.info(result)
+	// })
+
+	it('verify find view', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_useragent_view_find.json", 'utf8'))
 		const result = await del.exec(event)
-
-		const response = {
-			'statusCode': result.statusCode,
-			'headers': result.output[0],
-			'body': String(result.output[1])
-		}
-
-		expect(response).to.be.an('object');
-		expect(response.statusCode).to.equal(200);
-		expect(response.body).to.be.an('string');
-
-		let data = response.body;
-
-		expect(data).to.be.an('string');
-		expect(data).to.be.equal("<h2>Hello {{name}}</h2>\n<p>Hello, p.{{name}}</p>");
-		// expect(response.location).to.be.an("string");
-	});
+		phLogger.info(result)
+	})
 
 	after("desconnect db", async () => {
 		// await mongoose.disconnect()
-		await app.cleanUp()
+		await del.cleanUp()
 	});
 });

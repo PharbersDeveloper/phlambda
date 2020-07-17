@@ -1,13 +1,15 @@
 {
   "body": "",
   "resource": "/{type}/{id}",
-  "path": "/common/components/OXE67oMY7RuFJ_rmBUzL",
+  "path": "/common/components/client_id",
   "httpMethod": "GET",
   "isBase64Encoded": false,
-  "queryStringParameters": null,
+  "queryStringParameters": {
+    "client_id": "V5I67BHIRVR2Z59kq-a-",
+    "redirect_uri": "http://www.pharbers.com/oauth-callback"
+  },
   "pathParameters": {
-    "type": "components",
-    "id":  "OXE67oMY7RuFJ_rmBUzL"
+    "type": "components"
   },
   "stageVariables": {
     "baz": "qux"
@@ -52,8 +54,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/common/components/OXE67oMY7RuFJ_rmBUzL",
-    "resourcePath": "/common/{type}/{id}",
+    "resourcePath": "/{type}/{id}",
+    "path": "/common/components/client_id",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

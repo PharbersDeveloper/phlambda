@@ -149,7 +149,8 @@ module.exports = function (HttpSerializer) {
     return updates
   }
 
-  JsonSerializer.mediaType = 'application/json'
+  JsonSerializer.mediaType = 'application/vnd.api+json'
+  // JsonSerializer.mediaType = 'application/json'
 
   return JsonSerializer
 

@@ -140,3 +140,7 @@ $RECYCLE.BIN/
 *.swp
 
 # End of https://www.gitignore.io/api/osx,node,linux,windows
+
+phoauth/package-lock.json
+
+phjsonapirdsorm/package-lock.json

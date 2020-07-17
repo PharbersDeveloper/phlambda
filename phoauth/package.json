@@ -26,6 +26,7 @@
     "fortune-http": "^1.2.26",
     "fortune-json-api": "^2.3.0",
     "fortune-postgres": "^1.6.10",
+    "fortune-redis": "^2.1.0",
     "js-yaml": "^3.14.0",
     "json2typescript": "^1.4.1",
     "log4js": "^4.5.1",

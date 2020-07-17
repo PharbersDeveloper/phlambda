@@ -44,11 +44,11 @@ describe('Tests index', function () {
 	// 	// expect(response.location).to.be.an("string");
 	// });
 
-	// it('test redis set', async () => {
-	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
-	// 	const result = await app.lambdaHandler(event, context)
-	// 	phlogger.info(result)
-	// })
+	it('test redis set', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
+		const result = await app.lambdaHandler(event, context)
+		phlogger.info(result)
+	})
 
 	// it('test token', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))

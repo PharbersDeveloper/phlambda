@@ -236,21 +236,27 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
-        const exp = moment(new Date()).add(10, "m").toDate()
+        const time = 10
+        const exp = moment(new Date()).add(time, "m").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save code to db, need to move to redis
-        const authCode =  { uid, cid, code, scope, create: new Date(), expired: exp }
-        await this.redisStore.create("authorization", authCode)
+        const authCode = { uid, cid, code, scope, create: new Date(), expired: exp }
+        const result = await this.redisStore.create("authorization", authCode)
+        const seconds = (authCode.expired.getTime() - authCode.create.getTime()) / 1000
+        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} minute`)
         return code
     }
 
     protected async genAccessToken(cid: string) {
-        const exp = moment(new Date()).add(1, "week").toDate()
+        const time = 1
+        const exp = moment(new Date()).add(time, "week").toDate()
         const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // TODO: save access_token to db, need to move to redis
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
-        await this.redisStore.create("access", tk)
+        const result = await this.redisStore.create("access", tk)
+        const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000
+        await this.setRedisExpire(`access:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} week`)
         return tk
     }
 
@@ -264,5 +270,9 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
     protected hash(value) {
         return CryptoJS.SHA256(value)
+    }
+
+    protected async setRedisExpire(key, value, description) {
+        return await this.redisStore.adapter.redis.set(key, description, "EX", value)
     }
 }

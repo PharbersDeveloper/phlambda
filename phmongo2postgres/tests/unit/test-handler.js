@@ -9,6 +9,7 @@ var context;
 
 describe('Tests index', function () {
 	it('test import data from mongodb', async () => {
+		// test Fix Bug PBDP-401: add fileIndex for the upload files'
 		const event = JSON.parse(fs.readFileSync("../events/event_import_data_from_excel.json", 'utf8'))
 		const result = await app.lambdaHandler(event, context)
 		phlogger.info(result)

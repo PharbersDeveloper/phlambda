@@ -18,7 +18,14 @@ export default async function mongo2postgres(mongo, store) {
         delete record.__v
         // record.id = tmp
         const isr = await store.create("file", record)
-        return { id: tmp, dbid: isr.payload.records[0].id }
+        return {
+            id: tmp,
+            dbid: isr.payload.records[0].id,
+            extension: isr.payload.records[0].extension,
+            size: isr.payload.records[0].size,
+            url: isr.payload.records[0].url,
+            createdTime: new Date()
+        }
     }))
     phLogger.info(files)
 
@@ -151,12 +158,26 @@ export default async function mongo2postgres(mongo, store) {
             return undefined
         }).filter((x) => x !== undefined)
 
+        let url: string
+        let extension: string
+        let createdTime: Date
+        let size: number
         if (record.file) {
             const fn = record.file.toString()
             // @ts-ignore
             const f = files.find((x) => x.id === fn)
-            // @ts-ignore
-            if (f) { record.file = f.dbid } else { delete record.file }
+            if (f) {
+                // @ts-ignore
+                record.file = f.dbid
+                // @ts-ignore
+                url = f.url
+                // @ts-ignore
+                createdTime = f.createdTime
+                // @ts-ignore
+                size = f.size
+                // @ts-ignore
+                extension = f.extension
+            } else { delete record.file }
         }
 
         if (record.dbs) {
@@ -187,7 +208,11 @@ export default async function mongo2postgres(mongo, store) {
             molecules: isr.payload.records[0].molecules,
             dataCover: isr.payload.records[0].dataCover,
             geoCover: isr.payload.records[0].geoCover,
-            labels: isr.payload.records[0].labels
+            labels: isr.payload.records[0].labels,
+            url,
+            createdTime,
+            size,
+            extension
         }
     }))
     phLogger.info(ams)
@@ -205,7 +230,7 @@ export default async function mongo2postgres(mongo, store) {
         const record = {
             fileName: fn,
             // @ts-ignore
-            owner: R.uniq(farray.map((x) => x.owner)),
+            owner: R.head(farray.map((x) => x.owner)),
             // @ts-ignore
             martTags: R.uniq(R.flatten(farray.map((x) => x.martTags))),
             // @ts-ignore
@@ -222,8 +247,32 @@ export default async function mongo2postgres(mongo, store) {
             labels: R.uniq(R.flatten(farray.map((x) => x.labels))),
             // @ts-ignore
             assets: R.uniq(farray.map((x) => x.dbid)),
+            // @ts-ignore
+            url: R.head(farray.map((x) => x.url)),
+            // @ts-ignore
+            extension: R.head(farray.map((x) => x.extension)),
+            // @ts-ignore
+            createdTime: R.head(farray.map((x) => x.createdTime)),
+            // @ts-ignore
+            size: R.head(farray.map((x) => x.size)),
         }
         // phLogger.info(doc.fileName)
+        if (record.url === undefined) {
+            record.url = null
+        }
+
+        if (record.createdTime === undefined) {
+            record.createdTime = new Date()
+        }
+
+        if (record.size === undefined) {
+            record.size = -1
+        }
+
+        if (record.extension === undefined) {
+            record.extension = null
+        }
+
         const isr = await store.create("fileIndex", record)
         return { id: isr.payload.records[0].id, dbid: isr.payload.records[0].id }
     }))

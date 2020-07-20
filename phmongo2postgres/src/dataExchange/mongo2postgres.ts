@@ -1,4 +1,5 @@
 "use strict"
+import * as R from "ramda"
 import phLogger from "../logger/phLogger"
 import Asset from "../models/entry/Asset"
 import DataSet from "../models/entry/DataSet"
@@ -15,7 +16,7 @@ export default async function mongo2postgres(mongo, store) {
         const tmp = record._id.toString()
         delete record._id
         delete record.__v
-        record.id = tmp
+        // record.id = tmp
         const isr = await store.create("file", record)
         return { id: tmp, dbid: isr.payload.records[0].id }
     }))
@@ -28,7 +29,7 @@ export default async function mongo2postgres(mongo, store) {
         const tmp = record._id.toString()
         delete record._id
         delete record.__v
-        record.id = tmp
+        // record.id = tmp
         if (record.create) {
             record.create = new Date(record.create)
         } else {
@@ -46,7 +47,7 @@ export default async function mongo2postgres(mongo, store) {
         const tmp = record._id.toString()
         delete record._id
         delete record.__v
-        record.id = tmp
+        // record.id = tmp
         if (record.create) {
             record.create = new Date(record.create)
         } else {
@@ -65,6 +66,7 @@ export default async function mongo2postgres(mongo, store) {
         delete record._id
         delete record.__v
         record.id = tmp
+
         // @ts-ignore
         const j = jobs.find((x) => x.id === record.job)
         if (j) {
@@ -80,6 +82,14 @@ export default async function mongo2postgres(mongo, store) {
     const inserted = []
     while (inserted.length !== records.length) {
         await Promise.all(records.map (async (record) => {
+            // if (record._id === undefined) {
+            //     return
+            // }
+            // const tmp = record._id.toString()
+            // delete record._id
+            // delete record.__v
+            // record.id = tmp
+
             if (inserted.indexOf(record.id) === -1) {
                 if (record.parent.length === 0) {
                     const isr = await store.create("dataSet", record)
@@ -105,7 +115,7 @@ export default async function mongo2postgres(mongo, store) {
         const tmp = record._id.toString()
         delete record._id
         delete record.__v
-        record.id = tmp
+        // record.id = tmp
 
         record.dfs = record.dfs.map((x) => x.toString())
         record.dfs.map((r) => {
@@ -126,7 +136,7 @@ export default async function mongo2postgres(mongo, store) {
         const tmp = record._id.toString()
         delete record._id
         delete record.__v
-        record.id = tmp
+        // record.id = tmp
 
         if (record.createTime) {
             record.createTime = new Date(record.createTime)
@@ -166,7 +176,56 @@ export default async function mongo2postgres(mongo, store) {
         }
 
         const isr = await store.create("asset", record)
-        return { id: tmp, dbid: isr.payload.records[0].id }
+        return {
+            id: tmp,
+            dbid: isr.payload.records[0].id,
+            owner: isr.payload.records[0].owner,
+            fileName: isr.payload.records[0].name,
+            martTags: isr.payload.records[0].martTags,
+            providers: isr.payload.records[0].providers,
+            markets: isr.payload.records[0].markets,
+            molecules: isr.payload.records[0].molecules,
+            dataCover: isr.payload.records[0].dataCover,
+            geoCover: isr.payload.records[0].geoCover,
+            labels: isr.payload.records[0].labels
+        }
     }))
     phLogger.info(ams)
+
+    /**
+     * 0. fileIndex for web page
+     */
+    // @ts-ignore
+    const byFileName = R.groupBy((at: object) => at.fileName)
+    // @ts-ignore
+    const fileIndex = byFileName(ams)
+    // @ts-ignore
+    const fir = await Promise.all(R.keys(fileIndex).map (async (fn: string) => {
+        const farray = fileIndex[fn]
+        const record = {
+            fileName: fn,
+            // @ts-ignore
+            owner: R.uniq(farray.map((x) => x.owner)),
+            // @ts-ignore
+            martTags: R.uniq(R.flatten(farray.map((x) => x.martTags))),
+            // @ts-ignore
+            providers: R.uniq(R.flatten(farray.map((x) => x.providers))),
+            // @ts-ignore
+            markets: R.uniq(R.flatten(farray.map((x) => x.markets))),
+            // @ts-ignore
+            molecules: R.uniq(R.flatten(farray.map((x) => x.molecules))),
+            // @ts-ignore
+            dataCover: R.uniq(R.flatten(farray.map((x) => x.dataCover))),
+            // @ts-ignore
+            geoCover: R.uniq(R.flatten(farray.map((x) => x.geoCover))),
+            // @ts-ignore
+            labels: R.uniq(R.flatten(farray.map((x) => x.labels))),
+            // @ts-ignore
+            assets: R.uniq(farray.map((x) => x.dbid)),
+        }
+        // phLogger.info(doc.fileName)
+        const isr = await store.create("fileIndex", record)
+        return { id: isr.payload.records[0].id, dbid: isr.payload.records[0].id }
+    }))
+    phLogger.info(fir)
 }

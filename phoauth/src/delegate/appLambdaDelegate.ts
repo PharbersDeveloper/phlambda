@@ -20,7 +20,6 @@ import AWSReq from "../strategies/awsRequest"
  */
 export default class AppLambdaDelegate {
     public store: any
-    public redisStore: any
     public listener: any
     public isFirstInit = true
     protected conf: ServerConf

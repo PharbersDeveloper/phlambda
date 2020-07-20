@@ -243,7 +243,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const authCode = { uid, cid, code, scope, create: new Date(), expired: exp }
         const result = await this.redisStore.create("authorization", authCode)
         const seconds = (authCode.expired.getTime() - authCode.create.getTime()) / 1000
-        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} minute`)
+        // tslint:disable-next-line:max-line-length
+        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
         return code
     }
 
@@ -255,7 +256,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
         const result = await this.redisStore.create("access", tk)
         const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000
-        await this.setRedisExpire(`access:${result.payload.records[0].id}`, seconds.toFixed(0), `will expire in ${time} week`)
+        // tslint:disable-next-line:max-line-length
+        await this.setRedisExpire(`access:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
         return tk
     }
 
@@ -271,7 +273,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         return CryptoJS.SHA256(value)
     }
 
-    protected async setRedisExpire(key, value, description) {
-        return await this.redisStore.adapter.redis.set(key, description, "EX", value)
+    protected async setRedisExpire(key, expire, value) {
+        return await this.redisStore.adapter.redis.set(key, value, "EX", expire)
     }
 }

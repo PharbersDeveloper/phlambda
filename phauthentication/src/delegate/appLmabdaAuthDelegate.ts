@@ -36,9 +36,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         // const req = new AWSReq(event, undefined)
         // const response = new ServerResponse(req)
-        const response = {}
-        await this.authHandler(event, response)
-        return response
+        return await this.authHandler(event)
     }
 
     protected genTokenRecord() {
@@ -46,19 +44,47 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         return require(filename).default
     }
 
-    protected async authHandler(event: Map<string, any>, response: object) {
+    protected async authHandler(event: Map<string, any>) {
         // @ts-ignore
         const token = event.authorizationToken
         const result = await this.redisStore.find("access", null, { match: { token }})
         const records = result.payload.records
+        // @ts-ignore
+        const arnList = event.methodArn.split(":")
+        const resource = arnList[5]
+        const resourceList = resource.split("/")
+        // resourceList[3]
         if ( records.length === 0 ) {
-            return response
+            // @ts-ignore
+            return this.generatePolicy(records[0].uid, "Deny", event.methodArn)
         }
-        const uid = records[0].uid
-        const role = await this.store.find("role", null, { match: { accountRole: uid }})
-        const scope = await this.store.find("scope", null, { match: { owner: role.payload.records[0].id }})
-        const policy = scope.payload.records[0].scopePolicy
-        phLogger.info(policy)
-        return response
+        // @ts-ignore
+        return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
+    }
+
+    protected generatePolicy(principalId, effect, resource) {
+        const authResponse = {}
+        // @ts-ignore
+        authResponse.principalId = principalId
+        if (effect && resource) {
+            // @ts-ignore
+            const policyDocument = {}
+            // @ts-ignore
+            policyDocument.Version = "2012-10-17"
+            // @ts-ignore
+            policyDocument.Statement = []
+            const statementOne = {}
+            // @ts-ignore
+            statementOne.Action = "execute-api:Invoke"
+            // @ts-ignore
+            statementOne.Effect = effect
+            // @ts-ignore
+            statementOne.Resource = resource
+            // @ts-ignore
+            policyDocument.Statement[0] = statementOne
+            // @ts-ignore
+            authResponse.policyDocument = policyDocument
+        }
+        return authResponse
     }
 }

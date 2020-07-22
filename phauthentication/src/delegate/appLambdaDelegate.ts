@@ -61,7 +61,6 @@ export default class AppLambdaDelegate {
             jsonConvert.ignorePrimitiveChecks = false // don't allow assigning number to string etc.
             jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
             this.conf = jsonConvert.deserializeObject(doc, ServerConf)
-
         } catch (e) {
             phLogger.fatal( e as Error )
         }

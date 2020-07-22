@@ -33,11 +33,7 @@ exports.lambdaHandler = async function (event, context) {
 
         result = await app.exec(event)
 
-        response = {
-            "statusCode": result.statusCode,
-            "headers": result.headers,
-            "body": JSON.stringify(result.body)
-        }
+        response = result
     } catch (err) {
         phlogger.error(err);
         return err;

@@ -13,7 +13,7 @@ describe('Tests index', function () {
     it('verify token auth successfully', async () => {
     	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token_auth.json", 'utf8'))
     	const result = await app.lambdaHandler(event, context)
-        phLogger.info(result)
+        phLogger.info(JSON.stringify(result))
     	// expect(result).to.be.an('object');
     	// expect(result.statusCode).to.equal(200);
     	// expect(result.body).to.be.an('string');

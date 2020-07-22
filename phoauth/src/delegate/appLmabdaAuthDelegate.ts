@@ -204,7 +204,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             //     errors2response(PhInvalidParameters, response)
             //     return response
             // }
-            const accessToken = await this.genAccessToken(content.uid, clientId)
+            const accessToken = await this.genAccessToken(content.uid, clientId, content.scope)
 
             // @ts-ignore
             response.statusCode = 200
@@ -224,14 +224,11 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
     }
 
-    // TODO: 暂时验证第一个，这个还没做，下周开始
     protected grantScopeAuth(scope: string, policies: string[]) {
-        const policy = policies[0]
-        if (policy === "*") {
+        if (policies.includes("*")) {
             return true
         }
-
-        // TODO: check account scope
+        return policies.includes(scope)
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -247,12 +244,12 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         return code
     }
 
-    protected async genAccessToken(uid: string, cid: string) {
+    protected async genAccessToken(uid: string, cid: string, scope: string) {
         const time = 1
         const exp = moment(new Date()).add(time, "week").toDate()
         const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
-        const tk = { uid, cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
+        const tk = { uid, cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp, scope }
         const result = await this.redisStore.create("access", tk)
         const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000
         // tslint:disable-next-line:max-line-length

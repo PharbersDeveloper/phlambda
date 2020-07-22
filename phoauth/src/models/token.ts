@@ -13,6 +13,7 @@ const records = {
         cid: String,
         token: String,
         refresh: String,
+        scope: String,
         create: Date,
         expired: Date
     }

@@ -8,7 +8,8 @@
         "response_type": "code",
         "client_id": "fjjnl2uSalHTdrppHG9u",
         "user_id": "APqnkJ2TjdeYG-gsc9n8",
-        "redirect_uri": "www.pharbers.com"
+        "redirect_uri": "www.pharbers.com",
+        "scope": "APP|*|R"
     },
     "pathParameters": {
         "edp": "authorization"

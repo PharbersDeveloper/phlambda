@@ -48,6 +48,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
+        } else if (endpoint === "getUserInfo") {
+            await this.getUserInfo(event, response)
         }
         return response
     }
@@ -222,6 +224,33 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             errors2response(PhInvalidParameters, response)
             return response
         }
+    }
+
+    protected async getUserInfo(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const token = event.queryStringParameters.token
+        const result = await this.redisStore.find("access", null, { match: { token } })
+        const tokenRecords = result.payload.records
+        if ( tokenRecords.length === 0 ) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
+        const uid = tokenRecords[0].uid
+        const userInfo = await this.store.find("account", uid)
+        const userInfoRecords = userInfo.payload.records
+        if ( userInfoRecords.length === 0 ) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
+        // @ts-ignore
+        response.statusCode = 200
+        // @ts-ignore
+        response.headers = { "Content-Type": "application/json" }
+        // @ts-ignore
+        response.body = {
+            userName: userInfoRecords[0].name
+        }
+        return response
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {

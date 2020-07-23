@@ -9,6 +9,34 @@ const fs = require('fs')
 var context;
 
 describe('Tests index', function () {
+
+    it('verify token auth allow successfully', async () => {
+    	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token_auth.json", 'utf8'))
+    	const result = await app.lambdaHandler(event, context)
+        expect(result).to.be.an('object')
+        expect(result.policyDocument.Version).to.equal("2012-10-17")
+        expect(result.policyDocument.Statement[0].Effect).to.equal("Allow")
+    });
+
+    it('verify token auth deny successfully', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_useragent_token_auth.json", 'utf8'))
+        event.methodArn = "arn:aws-cn:execute-api:cn-northwest-1:444603803904:2t69b7x032/v0/DELETE/test/components/OXE67oMY7RuFJ_rmBUzL"
+        const result = await app.lambdaHandler(event, context)
+        expect(result).to.be.an('object')
+        expect(result.policyDocument.Version).to.equal("2012-10-17")
+        expect(result.policyDocument.Statement[0].Effect).to.equal("Deny")
+    });
+
+
+    it('verify token auth Post successfully', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_useragent_token_auth.json", 'utf8'))
+        event.methodArn = "arn:aws-cn:execute-api:cn-northwest-1:444603803904:2t69b7x032/v0/POST/test/components/OXE67oMY7RuFJ_rmBUzL"
+        const result = await app.lambdaHandler(event, context)
+        expect(result).to.be.an('object')
+        expect(result.policyDocument.Version).to.equal("2012-10-17")
+        expect(result.policyDocument.Statement[0].Effect).to.equal("Deny")
+    });
+
 	// it('verify login successfully', async () => {
 	//     const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
 	//     const result = await app.lambdaHandler(event, context)
@@ -26,23 +54,25 @@ describe('Tests index', function () {
 	//     // expect(response.location).to.be.an("string");
 	// });
 
-	it('verify authorization successfully', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
-		const result = await app.lambdaHandler(event, context)
+	// it('verify authorization successfully', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
+	// 	const result = await app.lambdaHandler(event, context)
+	//
+	// 	expect(result).to.be.an('object');
+	// 	expect(result.statusCode).to.equal(200);
+	// 	expect(result.body).to.be.an('string');
+	//
+	// 	let response = JSON.parse(result.body);
+	// 	phLogger.info(response)
+	//
+	// 	expect(response).to.be.an('string');
+	// });
 
-		expect(result).to.be.an('object');
-		expect(result.statusCode).to.equal(200);
-		expect(result.body).to.be.an('string');
-
-		let response = JSON.parse(result.body);
-		phLogger.info(response)
-
-		expect(response).to.be.an('string');
-	});
 
 	// it('verify token successfully', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))
 	// 	const result = await app.lambdaHandler(event, context)
+	//
 	// 	expect(result).to.be.an('object');
 	// 	expect(result.statusCode).to.equal(200);
 	// 	expect(result.body).to.be.an('string');

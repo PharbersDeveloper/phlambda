@@ -80,9 +80,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         function resourceFlag() {
             if (resource === "*") {
                 return true
-            } else if (arnRes[3] !== resource) {
-                return false
             }
+            return resource.split("::").includes(arnRes[3])
         }
         function permissionFlag() {
             // R => Read   W => R + Update + Create   X => R + Delete   A => 所有权限

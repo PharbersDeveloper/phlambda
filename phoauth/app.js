@@ -25,55 +25,39 @@ exports.lambdaHandler = async function (event, context) {
         if (app.isFirstInit) {
             await app.prepare()
         }
-        // const result = await app.exec(event)
         let result
-
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
         result = await app.exec(event)
 
+        response = {
+            'statusCode': result.statusCode,
+            'headers': result.output[0],
+            'body': String(result.output[1])
+        }
 
-        Object.assign(result.headers, {
+        const resultOutput = result.output[0].split("\r\n")
+        const corsHeader =   {
             "Access-Control-Allow-Headers" : "Content-Type",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        })
-        response = {
-            "statusCode": result.statusCode,
-            "headers": result.headers,
-            "body": JSON.stringify(result.body)
         }
-        // if (event.pathParameters.edp === "authorization") {
-        //     response["client_id"] = event.queryStringParameters.client_id
-        // }
+        let objHeader = {}
+
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(":");
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
+        }
+        Object.assign(objHeader, corsHeader)
+        response.headers = objHeader
     } catch (err) {
         phlogger.error(err);
         return err;
     }
-
-    // const clientId = event.queryStringParameters.client_id
-    // const responseHeader = response.headers.Location.split("?code=")
-    // const responseHeaderRedirectUri = responseHeader[0]
-    // const responseHeaderCode = responseHeader[1].split("&state=")[0]
-    // const callbackEvent = {
-    //     "event": {
-    //         "queryStringParameters": {
-    //             "redirect_uri": responseHeaderRedirectUri,
-    //             "client_id": clientId,
-    //             "code": responseHeaderCode,
-    //             "grant_type": "authorization_code"
-    //         },
-    //         "pathParameters": {
-    //             "edp": "token"
-    //         }
-    //     }
-    // }
-    // const tokenResponse = await app.exec(callbackEvent)
-    // return tokenResponse
     return response
-
 };
 
 exports.cleanUp = async () => {

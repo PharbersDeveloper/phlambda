@@ -49,7 +49,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
         } else if (endpoint === "getUserInfo") {
-            await this.getUserInfo(event, response)
+            return await this.getUserInfo(event, response)
         }
         return response
     }
@@ -236,21 +236,23 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             return response
         }
         const uid = tokenRecords[0].uid
-        const userInfo = await this.store.find("account", uid)
-        const userInfoRecords = userInfo.payload.records
-        if ( userInfoRecords.length === 0 ) {
-            errors2response(PhInvalidParameters, response)
-            return response
-        }
+
         // @ts-ignore
-        response.statusCode = 200
+        event.resource = "/{type}/{id}"
         // @ts-ignore
-        response.headers = { "Content-Type": "application/json" }
+        event.path = "/oauth/accounts/" + uid
         // @ts-ignore
-        response.body = {
-            userName: userInfoRecords[0].name
-        }
-        return response
+        delete event.queryStringParameters.token
+        // @ts-ignore
+        event.queryStringParameters.type = "accounts"
+        // @ts-ignore
+        event.queryStringParameters.id = uid
+        // @ts-ignore
+        event.requestContext.resourcePath = "/{type}/{id}"
+        // @ts-ignore
+        event.requestContext.path = "/oauth/accounts/" + uid
+
+        return await super.exec(event)
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {

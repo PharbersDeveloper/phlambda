@@ -51,15 +51,55 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const records = result.payload.records
         // @ts-ignore
         const arnList = event.methodArn.split(":")
-        const resource = arnList[5]
-        const resourceList = resource.split("/")
-        // resourceList[3]
+        const resourceList = arnList[5].split("/")
         if ( records.length === 0 ) {
+            // @ts-ignore
+            return this.generatePolicy("undefined", "Deny", event.methodArn)
+        }
+        const scopes = records[0].scope.split("|")
+        if (scopes.length === 1 && scopes[0] === "*") {
+            // @ts-ignore
+            return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
+        }
+        if (this.identify(resourceList, scopes)) {
+            // @ts-ignore
+            return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
+        } else {
             // @ts-ignore
             return this.generatePolicy(records[0].uid, "Deny", event.methodArn)
         }
-        // @ts-ignore
-        return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
+    }
+
+    protected identify(arnRes: string[], scopes: string[]) {
+        // const agent = scopes[0]
+        const resource = scopes[1]
+        const permissions = scopes[2]
+        const permissionsValues = this.conf.permissions.values
+        phLogger.info("resource ==>", resource)
+        phLogger.info("permissions ==>", permissions)
+        function resourceFlag() {
+            if (resource === "*") {
+                return true
+            } else if (arnRes[3] !== resource) {
+                return false
+            }
+        }
+        function permissionFlag() {
+            // R => Read   W => R + Update + Create   X => R + Delete   A => 所有权限
+            if (permissions === "A") {
+                return true
+            }
+            const pem = permissionsValues.map((item) => {
+                if ( item[0] === "W" || item[0] === "X") {
+                    const read = permissionsValues.find((p) => p[0] === "R").substr(1)
+                    return permissionsValues.find((p) => p[0] === item[0]) + read
+                } else {
+                    return item
+                }
+            })
+            return pem.find((item) => scopes[2] === item[0]).split("::").includes(arnRes[2])
+        }
+        return resourceFlag() && permissionFlag()
     }
 
     protected generatePolicy(principalId, effect, resource) {

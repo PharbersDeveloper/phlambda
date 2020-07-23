@@ -1,6 +1,7 @@
 "use strict"
 import {JsonObject, JsonProperty} from "json2typescript"
 import { MongoConf } from "./mongoConf"
+import {PermissionsConf} from "./permissionsConf"
 import { PostgresConf } from "./postgresConf"
 import {RedisConf} from "./redisConf"
 
@@ -18,4 +19,7 @@ export class ServerConf {
 
     @JsonProperty("redis", RedisConf)
     public redis: RedisConf = undefined
+
+    @JsonProperty("permissions", PermissionsConf)
+    public permissions: PermissionsConf = undefined
 }

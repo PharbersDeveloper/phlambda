@@ -43,6 +43,11 @@ export default class AppLambdaDelegate {
     }
 
     public async exec(event: Map<string, any>) {
+        // @ts-ignore
+        if ( !event.body ) {
+            // @ts-ignore
+            event.body = ""
+        }
         const req = new AWSReq(event, this.conf.project)
         const response = new ServerResponse(req)
         // @ts-ignore
@@ -61,7 +66,6 @@ export default class AppLambdaDelegate {
             jsonConvert.ignorePrimitiveChecks = false // don't allow assigning number to string etc.
             jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
             this.conf = jsonConvert.deserializeObject(doc, ServerConf)
-
         } catch (e) {
             phLogger.fatal( e as Error )
         }

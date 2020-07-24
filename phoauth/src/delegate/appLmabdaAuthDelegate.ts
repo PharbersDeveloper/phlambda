@@ -48,6 +48,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
+        } else if (endpoint === "getUserInfo") {
+            return await this.getUserInfo(event, response)
         }
         return response
     }
@@ -222,6 +224,35 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             errors2response(PhInvalidParameters, response)
             return response
         }
+    }
+
+    protected async getUserInfo(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const token = event.queryStringParameters.token
+        const result = await this.redisStore.find("access", null, { match: { token } })
+        const tokenRecords = result.payload.records
+        if ( tokenRecords.length === 0 ) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
+        const uid = tokenRecords[0].uid
+
+        // @ts-ignore
+        event.resource = "/{type}/{id}"
+        // @ts-ignore
+        event.path = "/oauth/accounts/" + uid
+        // @ts-ignore
+        delete event.queryStringParameters.token
+        // @ts-ignore
+        event.queryStringParameters.type = "accounts"
+        // @ts-ignore
+        event.queryStringParameters.id = uid
+        // @ts-ignore
+        event.requestContext.resourcePath = "/{type}/{id}"
+        // @ts-ignore
+        event.requestContext.path = "/oauth/accounts/" + uid
+
+        return await super.exec(event)
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {

@@ -1,10 +1,13 @@
 {
-  "body": "{ \"client\": \"abcde\", \"secret\": \"MA636UOnS4BRVggmVqjA\", \"email\": \"alfredyang@pharbers.com\", \"password\": \"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582\" }",
+  "body": "",
   "resource": "/{edp}",
   "path": "/login",
   "httpMethod": "POST",
   "isBase64Encoded": false,
-  "queryStringParameters": null,
+  "queryStringParameters": {
+    "email":"alfredyang@pharbers.com",
+    "password":"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
+  },
   "pathParameters": {
     "edp": "login"
   },

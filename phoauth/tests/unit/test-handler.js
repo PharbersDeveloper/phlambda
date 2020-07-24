@@ -9,22 +9,17 @@ const fs = require('fs')
 var context;
 
 describe('Tests index', function () {
-	// it('verify login successfully', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
-	//     const result = await app.lambdaHandler(event, context)
-	//
-	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
-	//     expect(result.body).to.be.an('string');
-	//
-	//     let response = JSON.parse(result.body);
-	//     phLogger.info(response)
-	//
-	//     expect(response).to.be.an('object');
-	//     expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
-	//     expect(response.data.type).to.be.equal("images");
-	//     // expect(response.location).to.be.an("string");
-	// });
+	it('verify login successfully', async () => {
+	    const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
+	    const result = await app.lambdaHandler(event, context)
+
+	    expect(result).to.be.an('object');
+	    expect(result.statusCode).to.equal(200);
+	    expect(result.body).to.be.an('string');
+
+	    let response = JSON.parse(result.body);
+	    phLogger.info(response)
+	});
 
 	// it('verify authorization successfully', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
@@ -51,7 +46,7 @@ describe('Tests index', function () {
         let response = JSON.parse(result.body);
         phLogger.info(response)
 
-        expect(response).to.be.an('object');
+        expect(response).to.be.an('string');
     });
 
 	// it('verify token successfully', async () => {

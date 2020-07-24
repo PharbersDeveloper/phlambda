@@ -46,7 +46,7 @@ describe('Tests index', function () {
         let response = JSON.parse(result.body);
         phLogger.info(response)
 
-        expect(response).to.be.an('string');
+        expect(response).to.be.an('object');
     });
 
 	// it('verify token successfully', async () => {

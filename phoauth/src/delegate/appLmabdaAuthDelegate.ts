@@ -268,7 +268,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         // @ts-ignore
         response.headers = objHeader
         // @ts-ignore
-        response.body = String(res.output[1])
+        response.body = JSON.parse(String(res.output[1]))
         return response
     }
 

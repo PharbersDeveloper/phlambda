@@ -252,7 +252,24 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         // @ts-ignore
         event.requestContext.path = "/oauth/accounts/" + uid
 
-        return await super.exec(event)
+        const res = await super.exec(event)
+
+        // @ts-ignore
+        const headersOutput = res.output[0].split("\r\n")
+        const objHeader = {}
+        for (const item of headersOutput) {
+            const element = item.split(":")
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
+        }
+        // @ts-ignore
+        response.statusCode = res.statusCode
+        // @ts-ignore
+        response.headers = objHeader
+        // @ts-ignore
+        response.body = String(res.output[1])
+        return response
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {

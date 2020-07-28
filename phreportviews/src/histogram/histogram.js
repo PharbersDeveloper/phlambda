@@ -2,22 +2,23 @@
 export class Histogram {
     constructor(
         source,
-        theme) {
+        theme,
+        scales) {
 
         this.theme = theme
         this.source = source
+        this.scales = scales
     }
 
     displayHistogram(width, height) {
-        const dataset = this.source.apply()
-        this.render(width, height, dataset)
+        this.render(width, height)
         // this.events()
     }
 
     /**
      * 3. Render the initial view
      */
-    render(width, height, dataset) {
+    render(width, height) {
         console.info("render the view")
         throw new Error("not Implemented")
     }

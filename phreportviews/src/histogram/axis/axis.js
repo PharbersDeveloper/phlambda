@@ -1,3 +1,4 @@
+import * as d3 from "d3"
 
 export const AxisDirections= {
 	Left: 'Left',
@@ -40,5 +41,21 @@ export class Axis {
 
 	axisWidth() {
 		return this.width
+	}
+
+	render(svg, s, ivp) {
+		if (this.isBottom()) {
+			const xAxis = d3.axisBottom().scale(s)
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(0," + ivp.h + ")")
+				.call(xAxis)
+		} else if (this.isLeft()) {
+			const yAxis = d3.axisLeft().scale(s)
+			svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(" + ivp.x + ", 0)")
+				.call(yAxis)
+		}
 	}
 }

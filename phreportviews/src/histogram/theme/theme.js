@@ -3,6 +3,7 @@ import defaultPalette from "./property/palette"
 import defaultPadding from "./property/padding"
 import {Position} from "./utils/position"
 import {Axis, AxisDirections} from "../axis/axis"
+import defaultLabel from "../label/defaultlabel"
 
 export class Theme {
     constructor(
@@ -11,11 +12,13 @@ export class Theme {
         axis = [
             new Axis(AxisDirections.Left),
             new Axis(AxisDirections.Bottom)
-        ]) {
+        ],
+        label =  defaultLabel) {
 
         this.palette = palette
         this.padding = padding
         this.axis = axis
+        this.label = label
     }
 
     colors(idx) {
@@ -54,6 +57,20 @@ export class Theme {
         return result
     }
 
+    queryHorAxis() {
+        return this.axis.filter(x => x.isX())
+    }
+
+    queryVerAxis() {
+        return this.axis.filter(x => x.isY())
+    }
+
+    hasLabel() {
+        return this.label !== undefined
+    }
+    queryLabel() {
+        return this.label
+    }
 }
 
 export default new Theme()

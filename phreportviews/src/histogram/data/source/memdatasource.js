@@ -1,11 +1,11 @@
 
 import * as d3 from "d3"
-import DefaultAdapter from "../adapter/defaultadapter"
+import {Datasource} from "./datasource"
 
-export class MemoryDatasource {
-	constructor(dataset, adapter = DefaultAdapter) {
+export class MemoryDatasource extends Datasource {
+	constructor(dataset) {
+		super()
 		this.dataset = dataset
-		this.adapter = adapter
 	}
 
 	apply(key) {
@@ -14,11 +14,11 @@ export class MemoryDatasource {
 	}
 
 	max() {
-		return d3.max(this.dataset, d => this.adapter.measure(d))
+		return d3.max(this.dataset, d => d)
 	}
 
 	min() {
-		return d3.min(this.dataset, d => this.adapter.measure(d))
+		return d3.min(this.dataset, d => d)
 	}
 
 	length() {
@@ -26,6 +26,6 @@ export class MemoryDatasource {
 	}
 
 	measure(d) {
-		return this.adapter.measure(d)
+		return d
 	}
 }

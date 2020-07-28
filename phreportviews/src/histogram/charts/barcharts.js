@@ -1,15 +1,13 @@
 import * as d3 from "d3"
-import {Histogram} from "../histogram"
-import {Position} from "../theme/utils/position"
+import {Charts} from "./chats"
 
-export class BarCharts extends Histogram {
+export class BarCharts extends Charts {
 
     constructor(
         source,
-        theme,
-        scales) {
+        theme) {
 
-        super(source, theme, scales)
+        super(source, theme)
     }
 
     genXScale(ivp) {
@@ -20,18 +18,6 @@ export class BarCharts extends Histogram {
     }
 
     genYScale(ivp) {
-        return d3.scaleLinear()
-            .domain([0, this.source.max()])
-            .range([ivp.h, ivp.y])
-    }
-
-    genXAxisScale(ivp) {
-        return d3.scaleLinear()
-            .domain([0, this.source.max()])
-            .range([ivp.x, ivp.w])
-    }
-
-    genYAxisScale(ivp) {
         return d3.scaleLinear()
             .domain([0, this.source.max()])
             .range([ivp.h, ivp.y])
@@ -53,19 +39,9 @@ export class BarCharts extends Histogram {
         return ys(this.source.measure(d))
     }
 
-    render(width, height) {
-        const vp = this.theme.histogramRect(new Position(0, 0, width, height))
-        const ivp = this.theme.histogramInnerRect(vp)
-        const svg = d3.select("body")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height)
-
+    render(svg, ivp) {
         const xScale = this.genXScale(ivp)
         const yScale = this.genYScale(ivp)
-
-        const xAxisScale = this.genXAxisScale(ivp)
-        const yAxisScale = this.genYAxisScale(ivp)
 
         svg.selectAll("rect")
             .data(this.source.apply())
@@ -81,9 +57,6 @@ export class BarCharts extends Histogram {
             const l = this.theme.queryLabel()
             l.render(svg, this.source, xScale, yScale)
         }
-
-        this.theme.queryHorAxis().forEach(x => x.render(svg, xAxisScale, ivp))
-        this.theme.queryVerAxis().forEach(x => x.render(svg, yAxisScale, ivp))
     }
 
     /**
@@ -91,6 +64,5 @@ export class BarCharts extends Histogram {
      */
     events() {
         console.error("not implemented")
-        throw new Error("not Implemented")
     }
 }

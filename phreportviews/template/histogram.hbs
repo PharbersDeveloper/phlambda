@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="../style/histogram.css"/>
+    <script src="../dist/app.bundle.js"></script>
+</head>
+
+<body>
+    <!-- 布局小付同学添加吧 -->
+    <div class="histogram-container">
+        <div class="histogram-title">
+            Hello {{name}}
+        </div>
+        <div class="histogram-legacy">
+
+        </div>
+        <div class="histogram-content" id={{histogramId}}>
+            Hello {{name}}
+        </div>
+    </div>
+    <script type="text/javascript" >
+        const hid = {{histogramId}}
+        const w = {{width}}
+        const h = {{height}}
+        const tmp = reportFactory.createHistogram()
+        tmp.displayHistogram(w, h)
+    </script>
+</body>
+</html>

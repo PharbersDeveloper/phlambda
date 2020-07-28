@@ -24,4 +24,8 @@ export class MemoryDatasource {
 	length() {
 		return this.dataset.length
 	}
+
+	measure(d) {
+		return this.adapter.measure(d)
+	}
 }

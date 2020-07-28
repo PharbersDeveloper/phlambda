@@ -37,6 +37,22 @@ export class BarCharts extends Histogram {
             .range([ivp.h, ivp.y])
     }
 
+    getBarHeight(d, i, ys, ivp) {
+        return ivp.h - ys(this.source.measure(d))
+    }
+
+    getBarBand(d, i, xs, ivp) {
+        return xs.bandwidth()
+    }
+
+    getBarPosX(d, i, xs, ivp) {
+        return xs(i)
+    }
+
+    getBarPosY(d, i, ys, ivp) {
+        return ys(this.source.measure(d))
+    }
+
     render(width, height) {
         const vp = this.theme.histogramRect(new Position(0, 0, width, height))
         const ivp = this.theme.histogramInnerRect(vp)
@@ -55,10 +71,10 @@ export class BarCharts extends Histogram {
             .data(this.source.apply())
             .enter()
             .append("rect")
-            .attr("x", (d, i) => xScale(i))
-            .attr("y", (d) => yScale(d))
-            .attr("width", xScale.bandwidth())
-            .attr("height", (d) => ivp.h - yScale(d))
+            .attr("x", (d, i) => this.getBarPosX(d, i, xScale, ivp))
+            .attr("y", (d, i) => this.getBarPosY(d, i, yScale, ivp))
+            .attr("width", (d, i) => this.getBarBand(d,i, xScale, ivp))
+            .attr("height", (d, i) => this.getBarHeight(d, i, yScale, ivp))
             .attr("fill", (d, i) => this.theme.colors(i))
 
         if (this.theme.hasLabel()) {

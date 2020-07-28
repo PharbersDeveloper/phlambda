@@ -13,9 +13,10 @@ export class Histogram {
     }
 
     genXAxisScale(ivp) {
-        return d3.scaleLinear()
-            .domain([0, this.source.max()])
-            .range([ivp.x, ivp.w])
+        return d3.scaleBand()
+            .domain(d3.range(this.source.length()))
+            .rangeRound([ivp.x, ivp.w])
+            .paddingInner(0.05)
     }
 
     genYAxisScale(ivp) {
@@ -43,17 +44,13 @@ export class Histogram {
         const xAxisScale = this.genXAxisScale(ivp)
         const yAxisScale = this.genYAxisScale(ivp)
 
+        this.charts.forEach(x => x.render(svg, ivp))
+
         this.theme.queryHorAxis().forEach(x => x.render(svg, xAxisScale, ivp))
         this.theme.queryVerAxis().forEach(x => x.render(svg, yAxisScale, ivp))
-
-        this.charts.forEach(x => x.render(svg, ivp))
     }
 
-    /**
-     * 4. interactivity
-     */
-    events() {
-        console.error("not implemented")
-        throw new Error("not Implemented")
+    registerCharts(c) {
+        this.charts.push(c)
     }
 }

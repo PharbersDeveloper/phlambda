@@ -9,8 +9,7 @@ export class MeasureArrayAdapter extends Datasource {
     }
 
     apply(key) {
-        if (key === undefined) return this.ds.apply(key)
-        else this.dataset.map (x => this.ds.apply(key, x.key))
+        return this.ds.apply(key)
     }
 
     max() {

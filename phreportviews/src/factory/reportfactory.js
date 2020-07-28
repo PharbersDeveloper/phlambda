@@ -5,14 +5,30 @@ import {MemoryDatasource} from "../histogram/data/source/memdatasource"
 import {MeasureArrayAdapter} from "../histogram/data/adapter/measurearrayadapter"
 
 class ReportFactory {
-    createBarChart() {
-        const source = new MemoryDatasource([1,2,3,4,5])
-        const adapter = new MeasureArrayAdapter(source)
+    createHistogram(dataset, fn, theme = defaultTheme) {
+        const source = new MemoryDatasource(dataset)
+        // const adapter = new MeasureArrayAdapter(source)
+        const adapter = fn(source)
         return new Histogram(
             adapter,
-            defaultTheme,
-            [new BarCharts(adapter, defaultTheme)]
+            theme, []
+            // [new BarCharts(adapter, defaultTheme)]
         )
+    }
+    createBarCharts(dataset, fn, theme = defaultTheme) {
+        const source = new MemoryDatasource(dataset)
+        // const adapter = new MeasureArrayAdapter(source)
+        const adapter = fn(source)
+        return new BarCharts(
+            adapter,
+            theme
+        )
+    }
+    // registerCharts(h, c) {
+    //     h.registerCharts(c)
+    // }
+    createArrayAdapter(source) {
+        return new MeasureArrayAdapter(source)
     }
 }
 

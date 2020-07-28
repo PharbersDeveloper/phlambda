@@ -45,7 +45,7 @@ export class Axis {
 
 	render(svg, s, ivp) {
 		if (this.isBottom()) {
-			const xAxis = d3.axisBottom().scale(s)
+			const xAxis = d3.axisBottom().scale(s)//.tickValues([0, "b", "c", "d", "e"])
 			svg.append("g")
 				.attr("class", "axis")
 				.attr("transform", "translate(0," + ivp.h + ")")

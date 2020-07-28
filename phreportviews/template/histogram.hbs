@@ -22,11 +22,53 @@
         </div>
     </div>
     <script type="text/javascript" >
+
+        function createATAdapter(ds) {
+        	return new ATAdapter(ds)
+        }
+
+        class ATAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return d3.max(this.ds.dataset, d => d.v)
+            }
+
+            min() {
+                return d3.min(this.ds.dataset, d => d.v)
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+        const data = [
+            { k: "a", v: 1 },
+            { k: "b", v: 2 },
+            { k: "c", v: 3 },
+            { k: "d", v: 4 },
+            { k: "e", v: 5 }
+        ]
+
+
         const hid = {{histogramId}}
         const w = {{width}}
         const h = {{height}}
-        const tmp = reportFactory.createBarChart()
-        tmp.displayHistogram(w, h)
+        const histogram = reportFactory.createHistogram(data, createATAdapter)
+        const barchart = reportFactory.createBarCharts(data, createATAdapter)
+        histogram.registerCharts(barchart)
+        histogram.displayHistogram(w, h)
     </script>
 </body>
 </html>

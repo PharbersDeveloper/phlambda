@@ -32,11 +32,10 @@ export class PieCharts extends Charts {
 			.attr("fill", (d,i) => this.theme.colors(i))
 			.attr("d", arc)
 
-		arcs.append("text")
-			.attr("transform", d => "translate(" + arc.centroid(d) + ")")
-			.attr("text-anchor", "middle")
-			// .text(d => this.source.measure(d)[0])
-			.text(d => "ab")
+		if (this.theme.hasLabel()) {
+			const l = this.theme.queryLabel()
+			l.render(arcs, arc, this.source)
+		}
 	}
 
 	/**

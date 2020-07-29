@@ -19,3 +19,9 @@
     stroke: teal;
     stroke-width: 2.5;
 }
+
+g.arc > text {
+    font-family: Optima, Futura, sans-serif; font-weight: bold;
+    font-size: 14px;
+    fill: teal;
+}

@@ -58,8 +58,6 @@ export class Histogram {
 
         const xAxisScale = this.genXAxisScale(ivp)
         const yAxisScale = this.genYAxisScale(ivp)
-        console.log(xAxisScale)
-        console.log(yAxisScale)
 
         this.charts.forEach(x => x.render(svg, ivp))
 

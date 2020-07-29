@@ -1,6 +1,7 @@
 import {BarCharts} from "../histogram/charts/barcharts"
 import {Histogram} from "../histogram/histogram"
 import defaultTheme from "../histogram/theme/theme"
+import defaultPieTheme from "../histogram/theme/pietheme"
 import {MemoryDatasource} from "../histogram/data/source/memdatasource"
 import {MeasureArrayAdapter} from "../histogram/data/adapter/measurearrayadapter"
 import {BandScale} from "../histogram/scale/band"
@@ -49,7 +50,7 @@ class ReportFactory {
         return new CircleCharts(adapter, theme, scales)
     }
     createPieCharts(dataset, fn,
-                    theme = defaultTheme) {
+                    theme = defaultPieTheme) {
 
         const source = new MemoryDatasource(dataset)
         const adapter = fn(source)

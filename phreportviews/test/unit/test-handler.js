@@ -15,6 +15,7 @@ describe('Test report index', function () {
 		const template = Handlebars.compile(content.toString())
 		const histogram = template({
 			histogramId: "test",
+			histogramPieId: "pietest",
 			name:"alfred",
 			width: 500,
 			height: 500

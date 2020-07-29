@@ -17,8 +17,9 @@
         <div class="histogram-legacy">
 
         </div>
-        <div class="histogram-content" id={{histogramId}}>
-            Hello {{name}}
+        <div class="histogram-content" id={{histogramId}} >
+        </div>
+        <div class="histogram-content" id={{histogramPieId}} >
         </div>
     </div>
     <script type="text/javascript" >
@@ -119,6 +120,36 @@
             }
         }
 
+        function createATPieAdapter(ds) {
+            return new ATPieAdapter(ds)
+        }
+
+        class ATPieAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return d3.max(this.ds.dataset, d => d.v)
+            }
+
+            min() {
+                return d3.min(this.ds.dataset, d => d.v)
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).k, this.ds.measure(d).y]
+            }
+        }
+
         const data = [
             { k: "a", v: 1, x: 1, y: 1, r: 0.05 },
             { k: "b", v: 2, x: 2, y: 2, r: 0.05 },
@@ -128,9 +159,10 @@
         ]
 
         const hid = {{histogramId}}
+        const piehid = {{histogramPieId}}
         const w = {{width}}
         const h = {{height}}
-        const histogram = reportFactory.createHistogram(data, createATBarAdapter)
+        const histogram = reportFactory.createHistogram(hid, data, createATBarAdapter)
         const barchart = reportFactory.createBarCharts(data, createATBarAdapter)
         const linechart = reportFactory.createLineCharts(data, createATLineAdapter)
         const circlechart = reportFactory.createCircleCharts(data, createATRAdapter)
@@ -138,6 +170,11 @@
         histogram.registerCharts(linechart)
         histogram.registerCharts(circlechart)
         histogram.displayHistogram(w, h)
+
+        const piehistogram = reportFactory.createHistogramWithOutAxis(piehid, data)
+        const piechart = reportFactory.createPieCharts(data, createATPieAdapter)
+        piehistogram.registerCharts(piechart)
+        piehistogram.displayHistogram(w, h)
     </script>
 </body>
 </html>

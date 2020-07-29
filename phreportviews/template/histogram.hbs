@@ -23,11 +23,11 @@
     </div>
     <script type="text/javascript" >
 
-        function createATAdapter(ds) {
-        	return new ATAdapter(ds)
+        function createATBarAdapter(ds) {
+        	return new ATBarAdapter(ds)
         }
 
-        class ATAdapter {
+        class ATBarAdapter {
             constructor(ds) {
                 this.ds = ds
             }
@@ -53,21 +53,90 @@
             }
         }
 
-        const data = [
-            { k: "a", v: 1 },
-            { k: "b", v: 2 },
-            { k: "c", v: 3 },
-            { k: "d", v: 4 },
-            { k: "e", v: 5 }
-        ]
+        function createATLineAdapter(ds) {
+            return new ATLineAdapter(ds)
+        }
 
+        class ATLineAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x), d3.max(this.ds.dataset, d => d.v)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x), d3.min(this.ds.dataset, d => d.v)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).x, this.ds.measure(d).y]
+            }
+        }
+
+        function createATRAdapter(ds) {
+            return new ATRAdapter(ds)
+        }
+
+        class ATRAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x),
+                    d3.max(this.ds.dataset, d => d.v),
+                    d3.max(this.ds.dataset, d => d.r)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x),
+                    d3.min(this.ds.dataset, d => d.v),
+                    d3.min(this.ds.dataset, d => d.r)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).x,
+                    this.ds.measure(d).y,
+                    this.ds.measure(d).r]
+            }
+        }
+
+        const data = [
+            { k: "a", v: 1, x: 1, y: 1, r: 0.05 },
+            { k: "b", v: 2, x: 2, y: 2, r: 0.05 },
+            { k: "c", v: 3, x: 3, y: 3, r: 0.05 },
+            { k: "d", v: 4, x: 4, y: 4, r: 0.05 },
+            { k: "e", v: 5, x: 5, y: 1, r: 0.05 },
+        ]
 
         const hid = {{histogramId}}
         const w = {{width}}
         const h = {{height}}
-        const histogram = reportFactory.createHistogram(data, createATAdapter)
-        const barchart = reportFactory.createBarCharts(data, createATAdapter)
+        const histogram = reportFactory.createHistogram(data, createATBarAdapter)
+        const barchart = reportFactory.createBarCharts(data, createATBarAdapter)
+        const linechart = reportFactory.createLineCharts(data, createATLineAdapter)
+        const circlechart = reportFactory.createCircleCharts(data, createATRAdapter)
         histogram.registerCharts(barchart)
+        histogram.registerCharts(linechart)
+        histogram.registerCharts(circlechart)
         histogram.displayHistogram(w, h)
     </script>
 </body>

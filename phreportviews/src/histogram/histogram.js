@@ -1,28 +1,50 @@
 import {Position} from "./theme/utils/position"
 import * as d3 from "d3"
+import {LinearScale} from "./scale/linear"
 
 export class Histogram {
     constructor(
         source,
         theme,
-        charts) {
+        charts = [],
+        scales = { x : new LinearScale(), y: new LinearScale() }) {
 
         this.theme = theme
         this.source = source
         this.charts = charts
+        this.scales = scales
     }
 
     genXAxisScale(ivp) {
-        return d3.scaleBand()
-            .domain(d3.range(this.source.length()))
-            .rangeRound([ivp.x, ivp.w])
-            .paddingInner(0.05)
+        const x = this.scales["x"]
+        if (x) {
+            const opt = {
+                domain: [0, this.source.max()],
+                rangeRound: [ivp.x, ivp.w],
+                paddingInner: 0.05
+            }
+            return x.genScale(opt)
+        } else {
+            return d3.scaleBand()
+                .domain(d3.range(this.source.length()))
+                .rangeRound([ivp.x, ivp.w])
+                .paddingInner(0.05)
+        }
     }
 
     genYAxisScale(ivp) {
-        return d3.scaleLinear()
-            .domain([0, this.source.max()])
-            .range([ivp.h, ivp.y])
+        const y = this.scales["y"]
+        if (y) {
+            const opt = {
+                domain: [0, this.source.max()],
+                rangeRound: [ivp.h, ivp.y]
+            }
+            return y.genScale(opt)
+        } else {
+            return d3.scaleLinear()
+                .domain([0, this.source.max()])
+                .range([ivp.h, ivp.y])
+        }
     }
 
     displayHistogram(width, height) {

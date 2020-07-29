@@ -4,10 +4,12 @@ export class Charts {
 
 	constructor(
 		source,
-		theme) {
+		theme,
+		scales) {
 
 		this.source = source
 		this.theme = theme
+		this.scales = scales
 	}
 
 	genXScale(ivp) {

@@ -1,26 +1,48 @@
 import * as d3 from "d3"
 import {Charts} from "./chats"
+import {BandScale} from "../scale/band"
+import {LinearScale} from "../scale/linear"
 
 export class BarCharts extends Charts {
 
     constructor(
         source,
-        theme) {
+        theme,
+        scales = { x: new BandScale(), y: new LinearScale() }) {
 
-        super(source, theme)
+        super(source, theme, scales)
     }
 
     genXScale(ivp) {
-        return d3.scaleBand()
-            .domain(d3.range(this.source.length()))
-            .rangeRound([ivp.x, ivp.w])
-            .paddingInner(0.05)
+        const x = this.scales["x"]
+        if (x) {
+            const opt = {
+                domain: d3.range(this.source.length()),
+                rangeRound: [ivp.x, ivp.w],
+                paddingInner: 0.05
+            }
+            return x.genScale(opt)
+        } else {
+            return d3.scaleBand()
+                .domain(d3.range(this.source.length()))
+                .rangeRound([ivp.x, ivp.w])
+                .paddingInner(0.05)
+        }
     }
 
     genYScale(ivp) {
-        return d3.scaleLinear()
-            .domain([0, this.source.max()])
-            .range([ivp.h, ivp.y])
+        const y = this.scales["y"]
+        if (y) {
+            const opt = {
+                domain: [0, this.source.max()],
+                rangeRound: [ivp.h, ivp.y]
+            }
+            return y.genScale(opt)
+        } else {
+            return d3.scaleLinear()
+                .domain([0, this.source.max()])
+                .range([ivp.h, ivp.y])
+        }
     }
 
     getBarHeight(d, i, ys, ivp) {

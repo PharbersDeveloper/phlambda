@@ -19,10 +19,15 @@ describe('Tests index', function () {
 	// 	await app.lambdaHandler(event, context)
 	// })
 
-	it ('verify set asset mart tags successfully', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_sqs_set_assets_mart_tags_schedule.json", 'utf8'))
-		await app.lambdaHandler(event, context)
-	})
+	// it ('verify set asset mart tags successfully', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_sqs_set_assets_mart_tags_schedule.json", 'utf8'))
+	// 	await app.lambdaHandler(event, context)
+	// })
+
+    it ('verify asset data mart successfully', async () => {
+        const event = JSON.parse(fs.readFileSync("../events/event_sqs_assets_data_mart_schedule.json", 'utf8'))
+        await app.lambdaHandler(event, context)
+    })
 
 	// it('verify post one', async () => {
 	// 	const del = new delegate()

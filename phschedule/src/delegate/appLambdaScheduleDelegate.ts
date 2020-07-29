@@ -35,6 +35,8 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                     await this.SetMartTags(event.Records[0].body, entryEvent)
                     break
                 case "AssetDataMart":
+                    // @ts-ignore
+                    await this.AssetDataMart(event.Records[0].body, entryEvent)
                     break
                 case "SandBoxDataSet":
                     break
@@ -142,6 +144,52 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         }
     }
 
+    private async AssetDataMart(data: any, event: Map<string, any>) {
+        // 1. 根据asset name查询到最新Asset记录 2. 处理 append与overwrite情况 3. create DataMart记录
+        const dobj = typeof data === "string" ? JSON.parse(data) : data
+        const assetName = dobj.assetName
+        const saveMode = dobj.saveMode
+        const assetUrl = `?sort=-createTime&filter[name]=${assetName}&filter[isNewVersion]=true&page[limit]=1&page[offset]=0`
+        const assetRes = await super.exec(this.genEvent(`GET`, `assets`, `${assetUrl}`, "", event))
+        // @ts-ignore
+        const asset = JSON.parse(String(assetRes.output[1]))
+        if (asset.data.length === 0) {
+            return await this.createDataMart(data, event)
+        }
+        phLogger.info("Fuck")
+        switch (saveMode) {
+            case "append":
+                const martRes = await super.exec(this.genEvent(`GET`, `assets`, `/${asset.data[0].id}/mart`, ``, event))
+                // @ts-ignore
+                const mart = JSON.parse(String(martRes.output[1]))
+                const dfs = dobj.dfs.map((item) => {
+                    return {type: "data-sets", id: item}
+                }).concat(mart.data.relationships.dfs.data)
+                await super.exec(this.genEvent(`PATCH`, `assets`, `/${asset.data[0].id}`, {
+                    data: {
+                        type: "assets",
+                        id: `${asset.data[0].id}`,
+                        relationships: { dfs: { data: dfs } }
+                    }
+                }, event))
+                phLogger.info(dfs)
+                break
+            case "overwrite":
+                await super.exec(this.genEvent(`PATCH`, `assets`, `/${asset.data[0].id}`, {
+                    data: {
+                        type: "assets",
+                        id: `${asset.data[0].id}`,
+                        attributes: { isNewVersion: false }
+                    }
+                }, event))
+                await this.createDataMart(data, event)
+                break
+            default:
+                phLogger.info("其他情况")
+                break
+        }
+    }
+
     private async SetMartTags(data: any, event: Map<string, any>) {
         const dobj = typeof data === "string" ? JSON.parse(data) : data
         const assetId = dobj.assetId
@@ -232,6 +280,70 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                                 id: pyJob.id
                             }
                         ]
+                    }
+                }
+            }
+        }, event))
+    }
+
+    private async createDataMart(data: any, event: Map<string, any>) {
+        const dobj = typeof data === "string" ? JSON.parse(data) : data
+        const martName = dobj.martName
+        const martUrl = dobj.martUrl
+        const martDataType = dobj.martDataType
+        const assetDescription = dobj.assetDescription
+        const assetVersion = dobj.assetVersion
+        const assetDataType = dobj.assetDataType
+        const providers = [dobj.providers]
+        const markets = [dobj.markets]
+        const molecules = [dobj.molecules]
+        const dataCover = [dobj.dataCover]
+        const geoCover = [dobj.geoCover]
+        const labels = [dobj.labels]
+        const dfs = dobj.dfs.map((item) => {
+            return {type: "data-sets", id: item}
+        })
+
+        const martRes = await super.exec(this.genEvent(`POST`, `marts`, ``, {
+            data: {
+                type: "marts",
+                attributes: {
+                    name: martName,
+                    url: martUrl,
+                    dataType: martDataType
+                },
+                relationships: {
+                    dfs: { data: dfs }
+                }
+            }
+        }, event))
+        // @ts-ignore
+        const mart = JSON.parse(martRes.output[1])
+
+        await super.exec(this.genEvent(`POST`, `assets`, ``, {
+            data: {
+                type: "assets",
+                attributes: {
+                    name: dobj.assetName,
+                    description: assetDescription,
+                    version: assetVersion,
+                    dataType: assetDataType,
+                    providers,
+                    markets,
+                    molecules,
+                    dataCover,
+                    geoCover,
+                    labels,
+                    accessibility: `w`,
+                    isNewVersion: true,
+                    createTime: new Date()
+                },
+                relationships: {
+                    mart: {
+                        data: {
+                            type: "marts",
+                            id: mart.data.id
+                        }
                     }
                 }
             }

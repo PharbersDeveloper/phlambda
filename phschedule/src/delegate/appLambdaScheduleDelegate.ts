@@ -5,14 +5,6 @@ import phLogger from "../logger/phLogger"
 import {OssTask} from "../models/ossTask"
 import AppLambdaDelegate from "./appLambdaDelegate"
 
-/**
- * The summary section should be brief. On a documentation web site,
- * it will be shown on a page that lists summaries for many different
- * API items.  On a detail page for a single item, the summary will be
- * shown followed by the remarks section (if any).
- *
- */
-
 // TODO: 先将原来的代码翻译过来
 export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
 
@@ -39,6 +31,8 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                     await this.AssetDataMart(event.Records[0].body, entryEvent)
                     break
                 case "SandBoxDataSet":
+                    // @ts-ignore
+                    await this.SandBoxDataSet(event.Records[0].body, entryEvent)
                     break
                 default:
                     phLogger.info("is not implementation")
@@ -156,7 +150,6 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         if (asset.data.length === 0) {
             return await this.createDataMart(data, event)
         }
-        phLogger.info("Fuck")
         switch (saveMode) {
             case "append":
                 const martRes = await super.exec(this.genEvent(`GET`, `assets`, `/${asset.data[0].id}/mart`, ``, event))
@@ -165,14 +158,13 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                 const dfs = dobj.dfs.map((item) => {
                     return {type: "data-sets", id: item}
                 }).concat(mart.data.relationships.dfs.data)
-                await super.exec(this.genEvent(`PATCH`, `assets`, `/${asset.data[0].id}`, {
+                await super.exec(this.genEvent(`PATCH`, `marts`, `/${mart.data.id}`, {
                     data: {
-                        type: "assets",
-                        id: `${asset.data[0].id}`,
+                        type: "marts",
+                        id: `${mart.data.id}`,
                         relationships: { dfs: { data: dfs } }
                     }
                 }, event))
-                phLogger.info(dfs)
                 break
             case "overwrite":
                 await super.exec(this.genEvent(`PATCH`, `assets`, `/${asset.data[0].id}`, {
@@ -187,6 +179,36 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
             default:
                 phLogger.info("其他情况")
                 break
+        }
+    }
+
+    private async SandBoxDataSet(data: any, event: Map<string, any>) {
+        const dobj = typeof data === "string" ? JSON.parse(data) : data
+        const jobId = dobj.jobId
+        const colNames = dobj.columnNames
+        const length = dobj.length
+        const url = dobj.url
+        const status = dobj.status
+        const jobRes = await super.exec(this.genEvent(`GET`, `jobs`, `?filter[jobContainerId]=${jobId}`, ``, event))
+        // @ts-ignore
+        const job = JSON.parse(String(jobRes.output[1]))
+        if (job.data !== undefined) {
+            const dsRes = await super.exec(this.genEvent(`GET`, `jobs`, `/${job.data[0].id}/gen`, ``, event))
+            // @ts-ignore
+            const ds = JSON.parse(String(dsRes.output[1]))
+            if (ds.data !== undefined) {
+                await super.exec(this.genEvent(`PATCH`, `data-sets`, `/${ds.data.id}`, {
+                    data: {
+                        type: "data-sets",
+                        id: ds.data.id,
+                        attributes: { colNames, length, url, status }
+                    }
+                }, event))
+            } else {
+                await this.createDs(data, event, job)
+            }
+        } else {
+            await this.createDs(data, event, null)
         }
     }
 
@@ -348,5 +370,55 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                 }
             }
         }, event))
+    }
+
+    private async createDs(data: any, event: Map<string, any>, job: any) {
+        const dobj = typeof data === "string" ? JSON.parse(data) : data
+        const jobId = dobj.jobId
+        const mongoId = dobj.mongoId
+        const colNames = dobj.columnNames
+        const parent = dobj.parentIds
+        const length = dobj.length
+        const tabName = dobj.tabName
+        const description = dobj.description
+        const url = dobj.url
+        const body = {
+            data: {
+                type: "data-sets",
+                attributes: { id: mongoId, parent, colNames, length, tabName, url, description }
+            }
+        }
+        if (job !== null) {
+            // @ts-ignore
+            body.relationships = {
+                job: {
+                    data: {
+                        type: "jobs",
+                        id: job.data.id
+                    }
+                }
+            }
+        } else {
+            const jobRes = await super.exec(this.genEvent(`POST`, `jobs`, ``, {
+                data: {
+                    type: "jobs",
+                    attributes: {
+                        jobContainerId: jobId,
+                        create: new Date()
+                    }
+                }
+            }, event))
+            // @ts-ignore
+            body.data.relationships = {
+                job: {
+                    data: {
+                        type: "jobs",
+                        // @ts-ignore
+                        id: JSON.parse(String(jobRes.output[1])).data.id
+                    }
+                }
+            }
+        }
+        await super.exec(this.genEvent(`POST`, `data-sets`, ``, body, event))
     }
 }

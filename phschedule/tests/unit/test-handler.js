@@ -24,15 +24,14 @@ describe('Tests index', function () {
 	// 	await app.lambdaHandler(event, context)
 	// })
 
-    it ('verify asset data mart successfully', async () => {
-        const event = JSON.parse(fs.readFileSync("../events/event_sqs_assets_data_mart_schedule.json", 'utf8'))
-        await app.lambdaHandler(event, context)
-    })
+    // it ('verify asset data mart successfully', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_sqs_assets_data_mart_schedule.json", 'utf8'))
+    //     await app.lambdaHandler(event, context)
+    // })
 
-	// it('verify post one', async () => {
-	// 	const del = new delegate()
-	// 	await del.prepare()
-	// 	const event = JSON.parse(fs.readFileSync("config/event_create.json", 'utf8'))
-	// 	await del.exec(event)
-	// });
+    // it ('verify sandbox data set successfully', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_sqs_sandbox_data_set_schedule.json", 'utf8'))
+    //     await app.lambdaHandler(event, context)
+    // })
+
 });

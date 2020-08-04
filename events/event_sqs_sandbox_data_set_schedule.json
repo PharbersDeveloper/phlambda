@@ -4,21 +4,15 @@
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
       "body": {
-        "assetName": "test",
-        "saveMode": "overwrite",
-        "dfs": ["5ee0b77127c5b9000185f3b7"],
-        "martName": "test",
-        "martUrl": "mart url",
-        "martDataType": "hive",
-        "assetDescription": "mart",
-        "assetVersion": "0.0.1",
-        "assetDataType": "mart",
-        "providers": "*",
-        "markets": "*",
-        "molecules": "*",
-        "dataCover": "*",
-        "geoCover": "*",
-        "labels": "*"
+        "jobId": "101010101",
+        "length": 100,
+        "columnNames": ["AAA"],
+        "url": "this is url2222",
+        "status": "start",
+        "tabName": "mart",
+        "parentIds": ["5ee8c71b366a0f000162e996"],
+        "description": "test",
+        "mongoId": "VupPN2B19hFL3jwf"
       },
       "attributes": {
         "ApproximateReceiveCount": "1",
@@ -28,7 +22,7 @@
       },
       "messageAttributes": {
         "type": {
-          "stringValue": "AssetDataMart",
+          "stringValue": "SandBoxDataSet",
           "stringListValues": [],
           "binaryListValues": [],
           "dataType": "String"

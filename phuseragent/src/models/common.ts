@@ -43,8 +43,14 @@ const records = {
         updated: Date,
         hbs: String,
         version: String,
-        client: { link: "client", isArray: true, inverse: "clientComponents" }
+        client: { link: "client", isArray: true, inverse: "clientComponents" },
+        histogram: { link: "histogram", inverse: "component" }
     },
+    histogram: {
+        component: { link: "component", inverse: "histogram" },
+        palettes: Array(String),
+
+    }
 }
 
 export default records

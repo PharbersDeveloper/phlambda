@@ -1,0 +1,28 @@
+project: "oauth"
+postgres:
+  algorithm: postgres
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  port: 5432
+  username: "pharbers"
+  pwd: "Abcde196125"
+  dbName: "phcommon"
+mongo:
+  algorithm: mongodb+srv
+  host: ph-db-gp.wqegl.azure.mongodb.net
+  port: 27017
+  username: "pharbers"
+  pwd: "Pharbers.84244216"
+  coll: "pharbers-offweb-test"
+  authSource: "admin"
+  auth: true
+redis:
+  algorithm: redis
+  host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  port: 6379
+  db: 0
+permissions:
+  values:
+    - "R::GET"
+    - "W::POST::PUT::PATCH"
+    - "X::DELETE"
+    - "A::*"

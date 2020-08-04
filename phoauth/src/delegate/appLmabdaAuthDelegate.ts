@@ -48,6 +48,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             await this.authHandler(event, response)
         } else if (endpoint === "token") {
             await this.tokenHandler(event, response)
+        } else if (endpoint === "getUserInfo") {
+            return await this.getUserInfo(event, response)
         }
         return response
     }
@@ -204,8 +206,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             //     errors2response(PhInvalidParameters, response)
             //     return response
             // }
-
-            const accessToken = await this.genAccessToken(clientId)
+            const accessToken = await this.genAccessToken(content.uid, clientId, content.scope)
 
             // @ts-ignore
             response.statusCode = 200
@@ -225,14 +226,57 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
     }
 
-    // TODO: 暂时验证第一个，这个还没做，下周开始
+    protected async getUserInfo(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const token = event.queryStringParameters.token
+        const result = await this.redisStore.find("access", null, { match: { token } })
+        const tokenRecords = result.payload.records
+        if ( tokenRecords.length === 0 ) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
+        const uid = tokenRecords[0].uid
+
+        // @ts-ignore
+        event.resource = "/{type}/{id}"
+        // @ts-ignore
+        event.path = "/oauth/accounts/" + uid
+        // @ts-ignore
+        delete event.queryStringParameters.token
+        // @ts-ignore
+        event.queryStringParameters.type = "accounts"
+        // @ts-ignore
+        event.queryStringParameters.id = uid
+        // @ts-ignore
+        event.requestContext.resourcePath = "/{type}/{id}"
+        // @ts-ignore
+        event.requestContext.path = "/oauth/accounts/" + uid
+
+        const res = await super.exec(event)
+
+        // @ts-ignore
+        const headersOutput = res.output[0].split("\r\n")
+        const objHeader = {}
+        for (const item of headersOutput) {
+            const element = item.split(":")
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
+        }
+        // @ts-ignore
+        response.statusCode = res.statusCode
+        // @ts-ignore
+        response.headers = objHeader
+        // @ts-ignore
+        response.body = JSON.parse(String(res.output[1]))
+        return response
+    }
+
     protected grantScopeAuth(scope: string, policies: string[]) {
-        const policy = policies[0]
-        if (policy === "*") {
+        if (policies.includes("*")) {
             return true
         }
-
-        // TODO: check account scope
+        return policies.includes(scope)
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -248,12 +292,12 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         return code
     }
 
-    protected async genAccessToken(cid: string) {
+    protected async genAccessToken(uid: string, cid: string, scope: string) {
         const time = 1
         const exp = moment(new Date()).add(time, "week").toDate()
         const accessToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
         // const refreshToken = this.hexEncode(this.hash(cid + new Date().toISOString() + Math.random().toString()))
-        const tk = { cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp }
+        const tk = { uid, cid, token: accessToken, refresh: accessToken, create: new Date(), expired: exp, scope }
         const result = await this.redisStore.create("access", tk)
         const seconds = (tk.expired.getTime() - tk.create.getTime()) / 1000
         // tslint:disable-next-line:max-line-length

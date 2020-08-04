@@ -26,26 +26,20 @@ exports.lambdaHandler = async function (event, context) {
             await app.prepare()
         }
         let result
+
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
+
         result = await app.exec(event)
 
-        Object.assign(result.headers, {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        })
-        response = {
-            "statusCode": result.statusCode,
-            "headers": result.headers,
-            "body": JSON.stringify(result.body)
-        }
+        response = result
     } catch (err) {
         phlogger.error(err);
         return err;
     }
     return response
+
 };
 
 exports.cleanUp = async () => {

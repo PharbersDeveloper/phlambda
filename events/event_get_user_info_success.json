@@ -1,15 +1,14 @@
 {
   "body": "",
   "resource": "/{edp}",
-  "path": "/login",
-  "httpMethod": "POST",
+  "path": "/getUserInfo",
+  "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "email":"alfredyang@pharbers.com",
-    "password":"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
+    "token": "a89c4df15f3121b0624108c969ce2a06ff41c2eab8171b2fd14b610493f6fd7a"
   },
   "pathParameters": {
-    "edp": "login"
+    "edp": "getUserInfo"
   },
   "stageVariables": {
     "baz": "qux"
@@ -54,8 +53,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/login",
-    "resourcePath": "/edp",
+    "path": "/getUserInfo",
+    "resourcePath": "/{edp}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

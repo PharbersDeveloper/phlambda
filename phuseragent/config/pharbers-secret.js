@@ -666,9 +666,7 @@
 
 	const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
 	const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
-	const client_id = $('#client_id').val().replace(/\s+/g, "")
-	const callback = $("#redirect_uri").val()
-    $("#secret").remove()
+
 	//解密方法
 	function Decrypt(word) {
 		let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
@@ -718,15 +716,6 @@
 		return hexEncode(CryptoJS.SHA256(value).toString())
 	}
 
-	function tips(type, value) {
-		$('#alert').empty()
-		$('#alert').append(`<div class="alert alert-${type}"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>${type}! </strong>${value}</div>`)
-		setTimeout(function () {
-			$('#alert').empty()
-		}, 5000)
-		return;
-	}
-
 	$('#authSubmit').click(async () => {
 		function isEqRe(key, value) {
 			return value.indexOf(key) !== -1
@@ -734,22 +723,34 @@
 		const isNullRe = /^\s*$/g
 		const account = $('#account').val().replace(/\s+/g, "")
 		const password = $('#password').val()
+		const client_id = $('#client_id').val().replace(/\s+/g, "")
 		// const client_secret = $('#client_secret').val().replace(/\s+/g, "")
 
 		// TODO: || isNullRe.test(client_secret) || isEqRe("{{client_secret}}", client_secret)
 		// TODO: 这边只能验证client_id 和 secret是否为空，具体验证是否合法交由逻辑层
 		if (isNullRe.test(client_id) || isEqRe("{{client_id}}", client_id)) {
-			tips("warning", "client_id illegal input");
+			$('#alert').empty()
+			$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>client_id illegal input</div>')
+			setTimeout(function () {
+				$('#alert').empty()
+			}, 5000)
 			return;
 		}
 		if (isNullRe.test(account) || isNullRe.test(password)) {
-			tips("warning", "Input box is required");
-			return;
+			$('#alert').empty()
+			$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>Input box is required</div>')
+			setTimeout(function () {
+				$('#alert').empty()
+			}, 5000)
 		} else {
-			const result = await login(account, sha256(password), client_id)
+			const result = await login(account, sha256(password), client_id, client_secret)
 			if (result === undefined || result.status !== 200) {
 				const msg = result === undefined ? 'An unknown error' : result.data.message
-				tips("danger", msg);
+				$('#alert').empty()
+				$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>' + msg + '</div>')
+				setTimeout(function () {
+					$('#alert').empty()
+				}, 5000)
 			} else {
 				console.info("Result", result)
 			}
@@ -774,7 +775,8 @@
 		return await axios(request)
 	}
 
-	async function login(accout, password) {
+	async function login(accout, password, client_id, client_secret) {
+		const callback = `${window.location.href}oauth-callback`
 		const client = factory.newClient(sigV4ClientConfig)
 
 		async function oauthLogin(data) {
@@ -807,13 +809,8 @@
 				authorizationParams[obj[0]] = obj[1]
 			}
 			console.log(authorizationParams)
-			const callBackParm = [
-				`client_id=${client_id}`,
-				`code=${authorizationParams.code}`,
-				`redirect_uri=${authorizationParams.redirect_uri}`,
-				`grant_type=authorization_code`,
-				`state=${authorizationParams.state}`].join("&")
-			window.location = `${callback}?${callBackParm}`
+			window.location = `${callback}?client_id=fjjnl2uSalHTdrppHG9u&grant_type=authorization_code&code=${authorizationParams.code}&redirect_uri=${authorizationParams.redirect_uri}`
+			return result
 		}
 
 		const registerFuncs = registerFunc(authorization, registerFunc(oauthLogin, []));

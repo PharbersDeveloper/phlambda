@@ -78,6 +78,8 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         await this.updateDfs(ossTask.assetId, schemaJob, pythonJob, event)
         ossTask.jobId = schemaJobId
 
+        phLogger.info("DAG 扫描调用Success，剩余下差发送Kafka msg")
+
         // TODO: Kafka Proxy topic oss_task_submit
 
     }

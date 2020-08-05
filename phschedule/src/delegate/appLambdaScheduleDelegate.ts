@@ -1,9 +1,12 @@
+import axios from "axios"
 import * as fs from "fs"
 import {JsonConvert} from "json2typescript"
 import { v4 as uuidv4 } from "uuid"
 import phLogger from "../logger/phLogger"
 import {OssTask} from "../models/ossTask"
 import AppLambdaDelegate from "./appLambdaDelegate"
+
+const kafkaRestfulUrl = "http://52.82.8.230:30082/topics"
 
 // TODO: 先将原来的代码翻译过来
 export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
@@ -64,7 +67,7 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         const jsonConvert: JsonConvert = new JsonConvert()
         // tslint:disable-next-line:max-line-length
         const ossTask = typeof data === "string" ? jsonConvert.deserializeObject(JSON.parse(data), OssTask) : jsonConvert.deserializeObject(data, OssTask)
-        const schemaJobId = `schema_job_${uuidv4()}`
+        const schemaJobId = "schema_job_638cffee-f004-4172-873b-2312618669c7" // `schema_job_${uuidv4()}`
         const param = {
             parent: [],
             jobId: schemaJobId,
@@ -78,10 +81,106 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         await this.updateDfs(ossTask.assetId, schemaJob, pythonJob, event)
         ossTask.jobId = schemaJobId
 
-        phLogger.info("DAG 扫描调用Success，剩余下差发送Kafka msg")
+        const jsonObject = jsonConvert.serializeObject(ossTask)
+        const jsonObjectKeys = Object.keys(jsonObject)
+        const json2LowerCaseObject = {}
+        for (const key of jsonObjectKeys) {
+            json2LowerCaseObject[key.replace(/^\S/, (s) => s.toLowerCase())] = jsonObject[key]
+        }
 
-        // TODO: Kafka Proxy topic oss_task_submit
-
+        await axios({
+            method: "POST",
+            url: `${kafkaRestfulUrl}/oss_task_submit`,
+            data: {
+                value_schema: JSON.stringify({
+                    type: "record",
+                    name: "OssTask",
+                    namespace: "com.pharbers.kafka.schema",
+                    fields: [
+                        {
+                            name: "assetId",
+                            type: "string"
+                        },
+                        {
+                            name: "jobId",
+                            type: "string"
+                        },
+                        {
+                            name: "traceId",
+                            type: "string"
+                        },
+                        {
+                            name: "ossKey",
+                            type: "string"
+                        },
+                        {
+                            name: "fileType",
+                            type: "string"
+                        },
+                        {
+                            name: "fileName",
+                            type: "string"
+                        },
+                        {
+                            name: "sheetName",
+                            type: "string"
+                        },
+                        {
+                            name: "owner",
+                            type: "string"
+                        },
+                        {
+                            name: "createTime",
+                            type: "long"
+                        },
+                        {
+                            name: "labels",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        },
+                        {
+                            name: "dataCover",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        },
+                        {
+                            name: "geoCover",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        },
+                        {
+                            name: "markets",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        },
+                        {
+                            name: "molecules",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        },
+                        {
+                            name: "providers",
+                            type: {
+                                items: "string",
+                                type: "array"
+                            }
+                        }
+                    ]
+                }),
+                records: [ { value: json2LowerCaseObject } ]
+            },
+            headers: {"Content-Type": "application/vnd.kafka.avro.v2+json", "Accept": "application/vnd.kafka.v2+json"}
+        })
     }
 
     private async PushDS(data: any, event: Map<string, any>) {
@@ -124,7 +223,7 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
 
         // 调用下一个Job
         const nextJob = jobs[dobj.description]
-        if (nextJob  && nextJob.next !== null ) {
+        if (status === "end"  && nextJob.next !== null ) {
             const dsRes = await super.exec(this.genEvent(`GET`, `data-sets`, `/${dsId}/child`, "", event))
             // @ts-ignore
             const ds = JSON.parse(String(dsRes.output[1]))
@@ -133,8 +232,51 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
             // @ts-ignore
             const next = JSON.parse(String(nextJobRes.output[1]))
             const nextJobId = next.data.attributes["job-container-id"]
-            phLogger.info(nextJobId)
-            // TODO 发送下一个Job开始 参数 nextJobId topic oss_msg
+
+            const metadataPath = `${url.substring(0, url.lastIndexOf("/"))}/metadata`
+
+            await axios({
+                method: "POST",
+                url: `${kafkaRestfulUrl}/oss_msg`,
+                data: {
+                    value_schema: JSON.stringify({
+                        type: "record",
+                        name: "EventMsg",
+                        namespace: "com.pharbers.kafka.schema",
+                        fields: [
+                            {
+                                name: "jobId",
+                                type: "string"
+                            },
+                            {
+                                name: "traceId",
+                                type: "string"
+                            },
+                            {
+                                name: "type",
+                                type: "string"
+                            },
+                            {
+                                name: "data",
+                                type: "string"
+                            }
+                        ]
+                    }),
+                    records: [ { value: {
+                            traceId: " ",
+                            jobId: nextJobId,
+                            type: "Python-FileMetaData",
+                            data: JSON.stringify({
+                                jobId: nextJobId,
+                                noticeTopic: "HiveTaskNone",
+                                metadataPath,
+                                filesPath: url
+                            })
+                        } } ]
+                },
+                headers: {"Content-Type": "application/vnd.kafka.avro.v2+json", "Accept": "application/vnd.kafka.v2+json"}
+            })
+            phLogger.info("Next Job to Python")
         } else {
             return null
         }

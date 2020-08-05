@@ -14,10 +14,10 @@ describe('Tests index', function () {
 	//     await app.lambdaHandler(event, context)
 	// });
 
-	// it('verify push ds successfully', async  () => {
-	// 	const event = JSON.parse(fs.readFileSync("../events/event_sqs_push_ds_schedule.json", 'utf8'))
-	// 	await app.lambdaHandler(event, context)
-	// })
+	it('verify push ds successfully', async  () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_sqs_push_ds_schedule.json", 'utf8'))
+		await app.lambdaHandler(event, context)
+	})
 
 	// it ('verify set asset mart tags successfully', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_sqs_set_assets_mart_tags_schedule.json", 'utf8'))

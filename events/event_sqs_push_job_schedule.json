@@ -4,28 +4,21 @@
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
       "body": {
-        "AssetId": "gVELQZtOa1sApbeC",
-        "JobId": "5ae668af-bf26-419d-9550-66926aa7053c",
-        "TraceId": "d229a830-10a3-4179-a1e1-9ed68b62d6f7",
-        "OssKey": "CHC/Pfizer/[XZBJ项目]-2019年Q3Q4浙江数据交付表.xlsx",
+        "AssetId": "aJV8MqlMW7LJpxKOqb0i",
+        "JobId": "b130be97-c3c2-4092-b7d5-dbbbff4f2180",
+        "TraceId": "124857f7-6ac2-4d42-a049-f9e95d8f64eb",
+        "OssKey": "GYC/BMS/2016年3月中美施贵宝32个通用名8个商品名产品检索.xlsx",
         "FileType": "xlsx",
-        "FileName": "[XZBJ项目]-2019年Q3Q4浙江数据交付表.xlsx",
-        "SheetName": "Sheet 1",
-        "Owner": "test",
-        "CreateTime": 1591698072699,
-        "Labels": [
-          "原始数据"
-        ],
-        "DataCover": [
-          "201906"
-        ],
+        "FileName": "2016年3月中美施贵宝32个通用名8个商品名产品检索.xlsx",
+        "SheetName": "2016年3月中美施贵宝32个通用名8个商品名产品检索",
+        "Owner": "auto robot",
+        "CreateTime": 1591698748147,
+        "Labels": ["原始数据"],
+        "DataCover": ["201603"],
         "GeoCover": [],
         "Markets": [],
-        "Molecules": [
-          "Amgen",
-          "CPA"
-        ],
-        "Providers": []
+        "Molecules": [],
+        "Providers": ["BMS", "GYC"]
       },
       "attributes": {
         "ApproximateReceiveCount": "1",

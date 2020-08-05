@@ -67,7 +67,7 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         const jsonConvert: JsonConvert = new JsonConvert()
         // tslint:disable-next-line:max-line-length
         const ossTask = typeof data === "string" ? jsonConvert.deserializeObject(JSON.parse(data), OssTask) : jsonConvert.deserializeObject(data, OssTask)
-        const schemaJobId = "schema_job_638cffee-f004-4172-873b-2312618669c7" // `schema_job_${uuidv4()}`
+        const schemaJobId = `schema_job_${uuidv4()}`
         const param = {
             parent: [],
             jobId: schemaJobId,

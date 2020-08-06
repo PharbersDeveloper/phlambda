@@ -38,6 +38,8 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                     await this.SandBoxDataSet(event.Records[0].body, entryEvent)
                     break
                 default:
+                    // @ts-ignore
+                    phLogger.info(event.Records[0].messageAttributes.type.stringValue)
                     phLogger.info("is not implementation")
                     break
             }
@@ -336,7 +338,7 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         const jobRes = await super.exec(this.genEvent(`GET`, `jobs`, `?filter[jobContainerId]=${jobId}`, ``, event))
         // @ts-ignore
         const job = JSON.parse(String(jobRes.output[1]))
-        if (job.data !== undefined) {
+        if (job.data !== undefined && job.data.length !== 0) {
             const dsRes = await super.exec(this.genEvent(`GET`, `jobs`, `/${job.data[0].id}/gen`, ``, event))
             // @ts-ignore
             const ds = JSON.parse(String(dsRes.output[1]))

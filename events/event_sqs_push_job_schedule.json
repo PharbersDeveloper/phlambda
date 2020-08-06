@@ -1,0 +1,55 @@
+{
+  "Records": [
+    {
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": {
+        "AssetId": "aJV8MqlMW7LJpxKOqb0i",
+        "JobId": "b130be97-c3c2-4092-b7d5-dbbbff4f2180",
+        "TraceId": "124857f7-6ac2-4d42-a049-f9e95d8f64eb",
+        "OssKey": "GYC/BMS/2016年3月中美施贵宝32个通用名8个商品名产品检索.xlsx",
+        "FileType": "xlsx",
+        "FileName": "2016年3月中美施贵宝32个通用名8个商品名产品检索.xlsx",
+        "SheetName": "2016年3月中美施贵宝32个通用名8个商品名产品检索",
+        "Owner": "auto robot",
+        "CreateTime": 1591698748147,
+        "Labels": ["原始数据"],
+        "DataCover": ["201603"],
+        "GeoCover": [],
+        "Markets": [],
+        "Molecules": [],
+        "Providers": ["BMS", "GYC"]
+      },
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1523232000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1523232000001"
+      },
+      "messageAttributes": {
+        "type": {
+          "stringValue": "PushJob",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "jobId": {
+          "stringValue": "0x001",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "traceId": {
+          "stringValue": "0x001",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        }
+      },
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws-cn:sqs:cn-northwest-1:123456789012:MyQueue",
+      "awsRegion": "cn-northwest-1"
+    }
+  ]
+}

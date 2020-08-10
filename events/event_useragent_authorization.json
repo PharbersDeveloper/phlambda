@@ -6,10 +6,9 @@
     "isBase64Encoded": false,
     "queryStringParameters": {
         "response_type": "code",
-        "client_id": "fjjnl2uSalHTdrppHG9u",
-        "user_id": "APqnkJ2TjdeYG-gsc9n8",
-        "redirect_uri": "www.pharbers.com",
-        "scope": "APP|*|R"
+        "client_id": "V5I67BHIRVR2Z59kq-a-",
+        "user_id": "qtaGDePl1OrSFEgm",
+        "redirect_uri": "www.pharbers.com"
     },
     "pathParameters": {
         "edp": "authorization"

@@ -273,7 +273,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {
-        if (policies.includes("*")) {
+        if (policies.length === 0) { return false }
+        if (policies.length === 1 && policies[0] === "*") {
             return true
         }
         return policies.includes(scope)
@@ -288,7 +289,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const result = await this.redisStore.create("authorization", authCode)
         const seconds = (authCode.expired.getTime() - authCode.create.getTime()) / 1000
         // tslint:disable-next-line:max-line-length
-        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
+        // await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
         return code
     }
 

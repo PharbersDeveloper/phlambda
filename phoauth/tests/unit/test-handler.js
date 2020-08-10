@@ -9,45 +9,45 @@ const fs = require('fs')
 var context;
 
 describe('Tests index', function () {
-	it('verify login successfully', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
-
-	    expect(result).to.be.an('object');
-	    expect(result.statusCode).to.equal(200);
-	    expect(result.body).to.be.an('string');
-
-	    let response = JSON.parse(result.body);
-	    phLogger.info(response)
-	});
-
-	// it('verify authorization successfully', async () => {
-	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
-	// 	const result = await app.lambdaHandler(event, context)
+	// it('verify login successfully', async () => {
+	//     const event = JSON.parse(fs.readFileSync("../events/event_useragent_login_success.json", 'utf8'))
+	//     const result = await app.lambdaHandler(event, context)
 	//
-	// 	expect(result).to.be.an('object');
-	// 	expect(result.statusCode).to.equal(200);
-	// 	expect(result.body).to.be.an('string');
+	//     expect(result).to.be.an('object');
+	//     expect(result.statusCode).to.equal(200);
+	//     expect(result.body).to.be.an('string');
 	//
-	// 	let response = JSON.parse(result.body);
-	// 	phLogger.info(response)
-	//
-	// 	expect(response).to.be.an('string');
+	//     let response = JSON.parse(result.body);
+	//     phLogger.info(response)
 	// });
 
-    it('verify get user info successfully', async () => {
-        const event = JSON.parse(fs.readFileSync("../events/event_get_user_info_success.json", 'utf8'))
-        const result = await app.lambdaHandler(event, context)
+	it('verify authorization successfully', async () => {
+		const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
+		const result = await app.lambdaHandler(event, context)
 
-        expect(result).to.be.an('object');
-        expect(result.statusCode).to.equal(200);
-        expect(result.body).to.be.an('string');
+		expect(result).to.be.an('object');
+		expect(result.statusCode).to.equal(200);
+		expect(result.body).to.be.an('string');
 
-        let response = JSON.parse(result.body);
-        phLogger.info(response)
+		let response = JSON.parse(result.body);
+		phLogger.info(response)
 
-        expect(response).to.be.an('object');
-    });
+		expect(response).to.be.an('string');
+	});
+
+    // it('verify get user info successfully', async () => {
+    //     const event = JSON.parse(fs.readFileSync("../events/event_get_user_info_success.json", 'utf8'))
+    //     const result = await app.lambdaHandler(event, context)
+    //
+    //     expect(result).to.be.an('object');
+    //     expect(result.statusCode).to.equal(200);
+    //     expect(result.body).to.be.an('string');
+    //
+    //     let response = JSON.parse(result.body);
+    //     phLogger.info(response)
+    //
+    //     expect(response).to.be.an('object');
+    // });
 
 	// it('verify token successfully', async () => {
 	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))

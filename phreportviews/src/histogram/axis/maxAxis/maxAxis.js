@@ -55,7 +55,6 @@ export class MaxAxis extends Axis{
         const step = (a-i)/n
         let arr = []
 
-        console.log("?", a, i, step)
         for(let j = 0; i + j * step < a; j++) {
             arr.push(i + j * step)
         }
@@ -124,17 +123,23 @@ export class MaxAxis extends Axis{
 
     renderBackgroundLine(svg, ivp) {
         // ivp {x: 73, y: 8, w: 1136, h: 379}
-        const h = [80,190]
-        const v = [228, 456, 684, 912]
+        const h = [1,2].map(it => {
+            const i = (ivp.h ) / 3
+            return i * it - ivp.y
+        })
+        const v = [1,2,3,4].map(it => { 
+            const i = (ivp.w - 100) / 5
+            return i * it 
+         })
 
         svg.selectAll(".hline")
             .data(h)
             .enter()
             .append("line")
-            .attr("x1", ivp.y + ivp.x)
-            .attr("y1", d => ivp.x + d)
-            .attr("x2", ivp.y + ivp.w)
-            .attr("y2", d => ivp.x + d)
+            .attr("x1", ivp.x)
+            .attr("y1", d => ivp.y + d)
+            .attr("x2", ivp.x + ivp.w)
+            .attr("y2", d => ivp.y + d)
             .attr("stroke", "#EBECF0")
             .attr("stroke-dasharray", "3,3")
 
@@ -143,9 +148,9 @@ export class MaxAxis extends Axis{
             .enter()
             .append("line")
             .attr("x1", d => ivp.x + d)
-            .attr("y1", ivp.x)
+            .attr("y1", ivp.y)
             .attr("x2", d => ivp.x + d)
-            .attr("y2", ivp.h)
+            .attr("y2", ivp.y + ivp.h)
             .attr("stroke", "#EBECF0")
             .attr("stroke-dasharray", "3,3")
     }
@@ -157,7 +162,7 @@ export class MaxAxis extends Axis{
             .append("rect")
             .attr("x", ivp.x)
             .attr("y", ivp.y)
-            .attr("width", 1052)
-            .attr("height", 370);
+            .attr("width", ivp.w)
+            .attr("height", ivp.h - 8);
     }
 }

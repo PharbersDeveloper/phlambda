@@ -11,14 +11,16 @@ describe('Test report index', function () {
 		const exStatic = require("express-static")
 		app.use('/style', exStatic('./style'))
 		app.use('/dist', exStatic('./dist'))
-		const content = fs.readFileSync("/Users/alfredyang/Desktop/code/new-round/phlambda/phreportviews/template/histogram.hbs")
+		const content = fs.readFileSync("/Users/simon/Desktop/pharbersBitBucket/phlambda/phreportviews/template/max/bubble.hbs")
 		const template = Handlebars.compile(content.toString())
 		const histogram = template({
 			histogramId: "test",
 			histogramPieId: "pietest",
-			name:"alfred",
-			width: 500,
-			height: 500
+			name:"simon",
+			width: 1052,
+			height: 360,
+			xTitle: "产品市场份额",
+			yTitle: "市场增长率(%)"
 		})
 
 		app.get('/', function (req, res) {

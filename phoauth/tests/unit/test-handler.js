@@ -21,19 +21,32 @@ describe('Tests index', function () {
 	//     phLogger.info(response)
 	// });
 
-	it('verify authorization successfully', async () => {
-		const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
-		const result = await app.lambdaHandler(event, context)
+	// it('verify authorization successfully', async () => {
+	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_authorization.json", 'utf8'))
+	// 	const result = await app.lambdaHandler(event, context)
+	//
+	// 	expect(result).to.be.an('object');
+	// 	expect(result.statusCode).to.equal(200);
+	// 	expect(result.body).to.be.an('string');
+	//
+	// 	let response = JSON.parse(result.body);
+	// 	phLogger.info(response)
+	//
+	// 	expect(response).to.be.an('string');
+	// });
 
-		expect(result).to.be.an('object');
-		expect(result.statusCode).to.equal(200);
-		expect(result.body).to.be.an('string');
-
-		let response = JSON.parse(result.body);
-		phLogger.info(response)
-
-		expect(response).to.be.an('string');
-	});
+    // it('verify token successfully', async () => {
+    // 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))
+    // 	const result = await app.lambdaHandler(event, context)
+    // 	expect(result).to.be.an('object');
+    // 	expect(result.statusCode).to.equal(200);
+    // 	expect(result.body).to.be.an('string');
+	//
+    // 	let response = JSON.parse(result.body);
+    // 	phLogger.info(response)
+	//
+    // 	expect(response).to.be.an('object');
+    // });
 
     // it('verify get user info successfully', async () => {
     //     const event = JSON.parse(fs.readFileSync("../events/event_get_user_info_success.json", 'utf8'))
@@ -48,19 +61,6 @@ describe('Tests index', function () {
     //
     //     expect(response).to.be.an('object');
     // });
-
-	// it('verify token successfully', async () => {
-	// 	const event = JSON.parse(fs.readFileSync("../events/event_useragent_token.json", 'utf8'))
-	// 	const result = await app.lambdaHandler(event, context)
-	// 	expect(result).to.be.an('object');
-	// 	expect(result.statusCode).to.equal(200);
-	// 	expect(result.body).to.be.an('string');
-	//
-	// 	let response = JSON.parse(result.body);
-	// 	phLogger.info(response)
-	//
-	// 	expect(response).to.be.an('object');
-	// });
 
 	// it('verify redis set successfully', async () => {
 	// 	const authCode = { uid: "uid", cid: "cid", code: "code", scope: "scope", create: new Date(), expired: new Date() }

@@ -145,6 +145,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             return response
         }
 
+        scope = this.mappingPolices(scope, scopeRecord)
+
         // @ts-ignore
         let state = event.queryStringParameters.state
         if (state === null || state === undefined) {
@@ -273,11 +275,30 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {
-        if (policies.length === 0) { return false }
-        if (policies.length === 1 && policies[0] === "*") {
+        if (policies.length === 0) { return false } // 无任何权限
+        if (policies.length === 1 && policies[0] === "*") { // 权限为admin
             return true
         }
-        return policies.includes(scope)
+        const sa = scope.split("|")
+        const plc = policies.map((item) => {
+            const is = item.split("|")
+            return {
+                client: is[0],
+                resource: is[1],
+                permissions: is[2]
+            }
+        })
+
+        // 拥有指定资源或所有资源
+        const contains = plc.find((item) =>
+            sa[0] === item.client && (item.resource.indexOf(sa[1]) !== -1 || item.resource === "*"))
+        if (contains === undefined) {// 申请的资源不再数据库中
+            return false
+        }
+        if (contains.permissions === "A") { return true } // 权限为A，申请任何，放行
+        if ((sa[2] === "R" && contains.permissions !== "R")) { // 权限为W|X，申请为R，放行
+            return true
+        } else { return contains.permissions === sa[2] } // 权限为W|X，申请权限必须预期相等
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -289,7 +310,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         const result = await this.redisStore.create("authorization", authCode)
         const seconds = (authCode.expired.getTime() - authCode.create.getTime()) / 1000
         // tslint:disable-next-line:max-line-length
-        // await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
+        await this.setRedisExpire(`authorization:${result.payload.records[0].id}`, seconds.toFixed(0), JSON.stringify(result.payload.records[0]))
         return code
     }
 
@@ -320,5 +341,27 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
     protected async setRedisExpire(key, expire, value) {
         return await this.redisStore.adapter.redis.set(key, value, "EX", expire)
+    }
+
+    protected mappingPolices(scope: string, policies: string[]) {
+        if (policies.length === 1 && policies[0] === "*") { // 权限为admin
+            return "*"
+        }
+        // @ts-ignore
+        let sp
+        const spa = scope.split("|")
+        const plc = policies.map((item: string) => {
+            const is = item.split("|")
+            return {
+                client: is[0],
+                resource: is[1],
+                permissions: is[2]
+            }
+        })
+
+        const contains = plc.find((item) =>
+            spa[0] === item.client && (item.resource.indexOf(spa[1]) !== -1 || item.resource === "*"))
+        sp = [contains.client, contains.resource , contains.permissions].join("|")
+        return sp
     }
 }

@@ -61,7 +61,11 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             // @ts-ignore
             return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
         }
-        if (this.identify(resourceList, scopes)) {
+        const auth = records[0].scope.split("#").map((item) => {
+            const scope = item.split("|")
+            return this.identify(resourceList, scope)
+        })
+        if (auth.includes(true)) {
             // @ts-ignore
             return this.generatePolicy(records[0].uid, "Allow", event.methodArn)
         } else {

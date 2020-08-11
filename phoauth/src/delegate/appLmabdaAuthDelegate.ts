@@ -279,6 +279,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         if (policies.length === 1 && policies[0] === "*") { // 权限为admin
             return true
         }
+        if (scope === "offwebLogin") { return true } // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
         const sa = scope.split("|")
         const plc = policies.map((item) => {
             const is = item.split("|")
@@ -295,10 +296,10 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         if (contains === undefined) {// 申请的资源不再数据库中
             return false
         }
-        if (contains.permissions === "A") { return true } // 权限为A，申请任何，放行
-        if ((sa[2] === "R" && contains.permissions !== "R")) { // 权限为W|X，申请为R，放行
+        if (contains.permissions === "A") { return true } // 权限为A，scope权限申请，放行
+        if ((sa[2] === "R" && contains.permissions !== "R")) { // 权限为W|X，scope申请为R，放行
             return true
-        } else { return contains.permissions === sa[2] } // 权限为W|X，申请权限必须预期相等
+        } else { return contains.permissions === sa[2] } // 权限为W|X，申请权限必须与预期相等
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -349,7 +350,6 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
         }
         // @ts-ignore
         let sp
-        const spa = scope.split("|")
         const plc = policies.map((item: string) => {
             const is = item.split("|")
             return {
@@ -359,6 +359,9 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             }
         })
 
+        if (scope === "offwebLogin") { return policies.join("#") } // 官网登入，存入账户可使用的权限
+
+        const spa = scope.split("|")
         const contains = plc.find((item) =>
             spa[0] === item.client && (item.resource.indexOf(spa[1]) !== -1 || item.resource === "*"))
         sp = [contains.client, contains.resource , contains.permissions].join("|")

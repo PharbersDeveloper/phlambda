@@ -6,9 +6,10 @@
     "isBase64Encoded": false,
     "queryStringParameters": {
         "response_type": "code",
-        "client_id": "V5I67BHIRVR2Z59kq-a-",
+        "client_id": "fjjnl2uSalHTdrppHG9u",
         "user_id": "qtaGDePl1OrSFEgm",
-        "redirect_uri": "www.pharbers.com"
+        "redirect_uri": "www.pharbers.com",
+        "scope": "offwebLogin"
     },
     "pathParameters": {
         "edp": "authorization"

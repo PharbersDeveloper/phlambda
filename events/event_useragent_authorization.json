@@ -7,9 +7,9 @@
     "queryStringParameters": {
         "response_type": "code",
         "client_id": "fjjnl2uSalHTdrppHG9u",
-        "user_id": "APqnkJ2TjdeYG-gsc9n8",
+        "user_id": "qtaGDePl1OrSFEgm",
         "redirect_uri": "www.pharbers.com",
-        "scope": "APP|*|R"
+        "scope": "offwebLogin"
     },
     "pathParameters": {
         "edp": "authorization"

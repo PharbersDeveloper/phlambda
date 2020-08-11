@@ -145,6 +145,8 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
             return response
         }
 
+        scope = this.mappingPolices(scope, scopeRecord)
+
         // @ts-ignore
         let state = event.queryStringParameters.state
         if (state === null || state === undefined) {
@@ -273,10 +275,31 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
     }
 
     protected grantScopeAuth(scope: string, policies: string[]) {
-        if (policies.includes("*")) {
+        if (policies.length === 0) { return false } // 无任何权限
+        if (policies.length === 1 && policies[0] === "*") { // 权限为admin
             return true
         }
-        return policies.includes(scope)
+        if (scope === "offwebLogin") { return true } // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
+        const sa = scope.split("|")
+        const plc = policies.map((item) => {
+            const is = item.split("|")
+            return {
+                client: is[0],
+                resource: is[1],
+                permissions: is[2]
+            }
+        })
+
+        // 拥有指定资源或所有资源
+        const contains = plc.find((item) =>
+            sa[0] === item.client && (item.resource.indexOf(sa[1]) !== -1 || item.resource === "*"))
+        if (contains === undefined) {// 申请的资源不再数据库中
+            return false
+        }
+        if (contains.permissions === "A") { return true } // 权限为A，scope权限申请，放行
+        if ((sa[2] === "R" && contains.permissions !== "R")) { // 权限为W|X，scope申请为R，放行
+            return true
+        } else { return contains.permissions === sa[2] } // 权限为W|X，申请权限必须与预期相等
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -319,5 +342,29 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
 
     protected async setRedisExpire(key, expire, value) {
         return await this.redisStore.adapter.redis.set(key, value, "EX", expire)
+    }
+
+    protected mappingPolices(scope: string, policies: string[]) {
+        if (policies.length === 1 && policies[0] === "*") { // 权限为admin
+            return "*"
+        }
+        // @ts-ignore
+        let sp
+        const plc = policies.map((item: string) => {
+            const is = item.split("|")
+            return {
+                client: is[0],
+                resource: is[1],
+                permissions: is[2]
+            }
+        })
+
+        if (scope === "offwebLogin") { return policies.join("#") } // 官网登入，存入账户可使用的权限
+
+        const spa = scope.split("|")
+        const contains = plc.find((item) =>
+            spa[0] === item.client && (item.resource.indexOf(spa[1]) !== -1 || item.resource === "*"))
+        sp = [contains.client, contains.resource , contains.permissions].join("|")
+        return sp
     }
 }

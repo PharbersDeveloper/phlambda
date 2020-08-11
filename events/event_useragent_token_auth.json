@@ -1,5 +1,5 @@
 {
   "type": "TOKEN",
-  "authorizationToken": "a89c4df15f3121b0624108c969ce2a06ff41c2eab8171b2fd14b610493f6fd7a",
-  "methodArn": "arn:aws-cn:execute-api:cn-northwest-1:444603803904:2t69b7x032/v0/GET/test/components/OXE67oMY7RuFJ_rmBUzL"
+  "authorizationToken": "864b8f7fc9f709d5f0aba2ecae9875d8786e9dc6cadac1d262d23073f65ee63e",
+  "methodArn": "arn:aws-cn:execute-api:cn-northwest-1:444603803904:2t69b7x032/v0/GET/entry/components/OXE67oMY7RuFJ_rmBUzL"
 }

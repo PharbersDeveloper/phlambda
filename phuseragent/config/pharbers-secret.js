@@ -667,7 +667,9 @@
 	// const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
 	// const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
 	const client_id = $('#client_id').val().replace(/\s+/g, "")
+	const client_secret = $("#client_secret").val()
 	const callback = $("#redirect_uri").val()
+
 	$("#secret").remove()
 
 	const invokeUrl = 'https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0';

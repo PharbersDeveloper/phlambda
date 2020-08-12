@@ -664,17 +664,24 @@
 	const utils = $.PhSigV4ClientUtils();
 	const template = $.PhUriTemplate();
 
-	const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
-	const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
+	// const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
+	// const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
 	const client_id = $('#client_id').val().replace(/\s+/g, "")
 	const callback = $("#redirect_uri").val()
-	const state = CryptoJS.MD5(`${client_id}${new Date().getTime()}`).toString()
 	$("#secret").remove()
+
+	const invokeUrl = 'https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0';
+	const endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
+	const pathComponent = invokeUrl.substring(endpoint.length);
+
 	//解密方法
 	function Decrypt(word) {
 		let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
 		let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-		let decrypt = CryptoJS.AES.decrypt(srcs, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+		let decrypt = CryptoJS.AES.decrypt(srcs,
+			CryptoJS.enc.Utf8.parse("1234123412ABCDEF"),
+			{ iv: CryptoJS.enc.Utf8.parse('ABCDEF1234123412'), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+		);
 		let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
 		return decryptedStr.toString();
 	}
@@ -685,31 +692,6 @@
 	// 	let encrypted = CryptoJS.AES.encrypt(srcs, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 	// 	return encrypted.ciphertext.toString().toUpperCase();
 	// }
-
-	const config = {
-		accessKey: Decrypt('B963100A6E95D5C7EDC8E27DFDD1C7658B4951449C5D91D620EC3604C6F3221A'),
-		secretKey: Decrypt('F0480FDD9E4E8705E1A5E1DDCC716EA6B1B197CE50B7930A009F5C543F2EEEC08A54D72D52567AD613B92FF73135152F'),
-		sessionToken: '',
-		region: 'cn-northwest-1',
-		apiKey: undefined,
-		defaultContentType: 'application/vnd.api+json',
-		defaultAcceptType: 'application/vnd.api+json'
-	};
-
-	const invokeUrl = 'https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0';
-	const endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
-	const pathComponent = invokeUrl.substring(endpoint.length);
-
-	const sigV4ClientConfig = {
-		accessKey: config.accessKey,
-		secretKey: config.secretKey,
-		sessionToken: config.sessionToken,
-		serviceName: 'execute-api',
-		region: config.region,
-		endpoint: endpoint,
-		defaultContentType: config.defaultContentType,
-		defaultAcceptType: config.defaultAcceptType
-	};
 
 	function hexEncode(value) {
 		return value.toString(CryptoJS.enc.Hex)
@@ -775,6 +757,25 @@
 	}
 
 	async function login(accout, password) {
+		const config = {
+			accessKey: Decrypt('B963100A6E95D5C7EDC8E27DFDD1C7658B4951449C5D91D620EC3604C6F3221A'),
+			secretKey: Decrypt('F0480FDD9E4E8705E1A5E1DDCC716EA6B1B197CE50B7930A009F5C543F2EEEC08A54D72D52567AD613B92FF73135152F'),
+			sessionToken: '',
+			region: 'cn-northwest-1',
+			apiKey: undefined,
+			defaultContentType: 'application/vnd.api+json',
+			defaultAcceptType: 'application/vnd.api+json'
+		};
+		const sigV4ClientConfig = {
+			accessKey: config.accessKey,
+			secretKey: config.secretKey,
+			sessionToken: config.sessionToken,
+			serviceName: 'execute-api',
+			region: config.region,
+			endpoint: endpoint,
+			defaultContentType: config.defaultContentType,
+			defaultAcceptType: config.defaultAcceptType
+		};
 		const client = factory.newClient(sigV4ClientConfig)
 
 		async function oauthLogin(data) {
@@ -790,6 +791,7 @@
 		}
 
 		async function authorization(oauthLoginResult) {
+			const state = CryptoJS.MD5(`${client_id}${new Date().getTime()}`).toString()
 			const params = {
 				edp: "authorization",
 				Accept: "application/json",

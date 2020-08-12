@@ -5,8 +5,9 @@
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "client_id": "V5I67BHIRVR2Z59kq-a-",
-    "redirect_uri": "http://www.pharbers.com/oauth-callback"
+    "client_id": "fjjnl2uSalHTdrppHG9u",
+    "redirect_uri": "http://www.pharbers.com/oauth-callback",
+    "client_secret": "2a21aaa08c78eb6f8c7350ac0dbf5f4a823754915c6302cf2ae6b93ac6caa6e2 "
   },
   "pathParameters": {
     "type": "components"

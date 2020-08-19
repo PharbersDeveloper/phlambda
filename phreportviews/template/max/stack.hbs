@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
+    <script src="../dist/app.bundle.js"></script>
+</head>
+
+<body>
+    <!-- 布局小付同学添加吧 -->
+    <div class="histogram-container">
+        <div class="histogram-title">
+            Hello {{name}}
+            {{xTitle}}
+            {{yTitle}}
+        </div>
+        <div class="histogram-legacy">
+
+        </div>
+        <div class="histogram-content" id={{histogramId}} >
+        </div>
+        <div class="histogram-content" id={{histogramPieId}} >
+        </div>
+    </div>
+    <script type="text/javascript" >
+
+        function createATBarAdapter(ds) {
+        	return new ATBarAdapter(ds)
+        }
+
+        class ATBarAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x), d3.max(this.ds.dataset, d => d.y)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x), d3.min(this.ds.dataset, d => d.y)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+
+        function createATRAdapter(ds) {
+            return new ATRAdapter(ds)
+        }
+
+        class ATRAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x),
+                    d3.max(this.ds.dataset, d => d.y),
+                    d3.max(this.ds.dataset, d => d.r)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x),
+                    d3.min(this.ds.dataset, d => d.y),
+                    d3.min(this.ds.dataset, d => d.r)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).x,
+                    this.ds.measure(d).y,
+                    this.ds.measure(d).r]
+            }
+        }
+
+
+
+        function createATStackAdapter(ds) {
+        	return new ATStackAdapter(ds)
+        }
+
+        class ATStackAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            keys() {
+                const arr = Object.keys(this.ds.dataset[0])
+                const i = arr.indexOf("time")
+                arr.splice(i, 1) 
+                return arr
+            }
+
+            max() {
+                const arr = this.ds.dataset
+                const al = arr.length
+                const objKey = Object.keys(arr[0])
+                const sumMax = {}
+                let maxSum = 0
+
+                
+                for (let i = 0; i < al; i++) {
+                    let curObj = arr[i]
+                    let objLength = objKey.length
+                    let tempMax = 0  
+    
+                    for(let j = 0; j < objLength; j++) {
+                        if(objKey[j] !== "time") {
+                            tempMax += curObj[objKey[j]]
+                        }
+                    }
+
+                    maxSum = tempMax > maxSum ? tempMax : maxSum
+                }
+                return maxSum
+            }
+
+            min() {
+                return 0
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+        // 2年数据
+        const data =  [
+				{ "time": "2018-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000 }, 
+				{ "time": "2018-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000 }, 
+				{ "time": "2018-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000 }, 
+				{ "time": "2018-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000 }, 
+				{ "time": "2018-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+				{ "time": "2018-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+                { "time": "2018-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000 }, 
+				{ "time": "2018-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000 }, 
+				{ "time": "2018-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000 }, 
+				{ "time": "2018-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000 }, 
+				{ "time": "2018-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+				{ "time": "2018-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+                { "time": "2019-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000 }, 
+				{ "time": "2019-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000 }, 
+				{ "time": "2019-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000 }, 
+				{ "time": "2019-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000 }, 
+				{ "time": "2019-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+				{ "time": "2019-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+                { "time": "2019-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000 }, 
+				{ "time": "2019-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000 }, 
+				{ "time": "2019-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000 }, 
+				{ "time": "2019-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000 }, 
+				{ "time": "2019-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+				{ "time": "2019-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000 },
+			]
+
+        const hid = {{histogramId}}
+        const piehid = {{histogramPieId}}
+        const w = {{width}}
+        const h = {{height}}
+        const xt = ""
+        const yt = "销售额"
+        const histogram = maxReportFactory.createStackHistogram(hid, data, createATStackAdapter)
+        const stackchart = maxReportFactory.createStackCharts(data, createATStackAdapter)
+
+        histogram.registerCharts(stackchart)
+        histogram.displayHistogram(w, h, xt, yt)
+
+    </script>
+</body>
+</html>

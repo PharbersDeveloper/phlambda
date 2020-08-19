@@ -26,10 +26,10 @@ export class BubblePalette extends Palette {
 
         EIRadia.append("stop")
                 .attr("offset", "23%")
-                .attr("stop-color", "rgba(171,228,27,0.65)")
+                .attr("stop-color", "rgba(245,209,57,0.65)")
         EIRadia.append("stop")
                 .attr("offset", "87%")
-                .attr("stop-color", "rgba(120,160,19,0.65)")
+                .attr("stop-color", "rgba(232,166,6,0.65)")
     }
 }
 

@@ -13,7 +13,7 @@ export class BubbleLabel extends label {
             .text("EI > 100")
 
         svg.append("rect")
-            .attr("fill", "#78A013")
+            .attr("fill", "#f5d139")
             .attr("width", "8")
             .attr("height", "8")
             .attr("transform", `translate(${ivp.w/2 - 8 - 8 + 20}, ${ivp.h + 60 - 8})`)

@@ -23,3 +23,27 @@
     fill: #848996;
     font-size: 12px;
 }
+
+.stack-axis-x path,
+.stack-axis-y path{
+    fill: none;
+    stroke: none;
+} 
+
+
+.stack-axis-x line{
+    fill: none;
+    stroke: #848996;
+    height: 1px;
+}
+
+.stack-axis-y line {
+    fill: none;
+    stroke: none;
+}
+
+.stack-axis-x g text,
+.stack-axis-y g text {
+    fill: #848996;
+    font-size: 12px;
+}

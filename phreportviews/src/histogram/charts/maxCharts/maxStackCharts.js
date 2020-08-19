@@ -121,10 +121,7 @@ export class MaxStackCharts extends BarCharts {
             .enter()
             .append("text")
             .attr("x", function(d, i) { 
-                if (d[1] - d[0] < 10) {
-                    return xScale(new Date(d.data.time)) - 3;
-                }
-                return xScale(new Date(d.data.time)) - 6;
+                return xScale(new Date(d.data.time)) - 16;
             })
             .attr("y", function(d) {
                 return  (yScale(d[0]) + yScale(d[1]))/2; 

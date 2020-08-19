@@ -3,7 +3,7 @@ import {Padding } from "../padding"
 export const defaultPaddingValue = 8
 
 export class StackPadding extends Padding  {
-	constructor(v = [defaultPaddingValue, 32, defaultPaddingValue, 32]) {
+	constructor(v = [defaultPaddingValue, defaultPaddingValue, defaultPaddingValue, defaultPaddingValue]) {
         super()
         
 		this.up = v[0]

@@ -35,9 +35,8 @@ export class MaxBarLineHistogram extends Histogram {
     }
 
     genYAxisScale(ivp) {
-        console.log(d3.max(this.source.max()), this.source.max())
         const y = this.scales["y"]
-        const yMax = d3.max(this.source.max()) * 1.1
+        const yMax = d3.max(this.source.max())
         if (y) {
             const opt = {
                 domain: [0, yMax],
@@ -90,7 +89,7 @@ export class MaxBarLineHistogram extends Histogram {
             
             
         
-        const yMax = d3.max(this.source.max()) * 1.1
+        const yMax = d3.max(this.source.max())
         this.theme.setYAxisTicks(0, yMax, 4)
         this.theme.axisAssist(svg, yAxisScale,ivp)
             
@@ -104,6 +103,7 @@ export class MaxBarLineHistogram extends Histogram {
             this.theme.queryHorAxis().forEach(x => x.render(svg, xAxisScale, ivp))
         }
 
+        // 双y轴处理
         if (yAxisScale || yAxisScaleRight) {
             this.theme.queryVerAxis().forEach(x => {
                 if (x.isRight()) {
@@ -115,14 +115,11 @@ export class MaxBarLineHistogram extends Histogram {
                 }
             })
         }
-        this.showTitle(ivpInfo,svg, {right: rightTitle, left: leftTitle})
+        this.theme.showTitle(ivpInfo, svg, {right: rightTitle, left: leftTitle})
+        
     }
 
     registerCharts(c) {
         this.charts.push(c)
-    }
-
-    showTitle(ivpInfo, svg, titleObject) {
-        this.theme.showTitle(ivpInfo, svg, titleObject)
     }
 }

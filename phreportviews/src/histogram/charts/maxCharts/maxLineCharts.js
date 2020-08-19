@@ -58,13 +58,12 @@ export class MaxLineCharts extends LineCharts {
         const curTheme = this.theme
         const lineDate = this.source.ds.dataset
         const lineA = d3.line()
-                        .x(function(d) { return xScale(new Date(d["time"])) })
-                        .y(function(d) { return yScale(d["市场增长率"]) })
+                        .x(function(d) { return xScale(new Date(d["time"])) + 8 })
+                        .y(function(d) { return yScale(d["市场增长率"])  })
 
         const lineB = d3.line()
-                        .x(function(d) { return xScale(new Date(d["time"])) + 12 })
+                        .x(function(d) { return xScale(new Date(d["time"])) - 6 })
                         .y(function(d) { return yScale(d["产品增长率"]) })
-        console.log("data,", data)
             
         svg.append("path")
             .datum(lineDate)

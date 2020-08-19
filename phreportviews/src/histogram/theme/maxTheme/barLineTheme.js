@@ -4,6 +4,7 @@ import StackPadding from "../property/max/stackPadding"
 import {Position} from "../utils/position"
 import {MaxBarLineAxis, AxisDirections} from "../../axis/maxAxis/maxBarLineAxis"
 import BarLineLabel from "../../label/maxLabel/barLineLabel"
+import { timeWednesday } from "d3"
 
 export class StackTheme {
     constructor(
@@ -55,26 +56,27 @@ export class StackTheme {
             if (it.isUp()) {
                 result.y += it.axisWidth()
             } else if (it.isBottom()) {
-                result.h -= it.axisWidth() + 40
+                result.h -= it.axisWidth()
             } else if (it.isLeft()) {
-                result.x += it.axisWidth() + 40
+                result.x += it.axisWidth() + 60 
             } else if (it.isRight()) {
-                // result.w = 950
-                console.log("axisWidth", it.axisWidth())
-                result.w -= 80
+                result.w -=  it.axisWidth() + 60
             }
         })
 
         if (info) {
            if (info["leftTitle"]) {
                 result.x += 40
-           } else if (info["rightTitle"]) {
+           }
+           if (info["rightTitle"]) {
                 result.w -= 40
-           } else if (info["bottomTitle"]) {
+           }
+           if (info["bottomTitle"]) {
                 result.h -= 40
-           } else if (info["labels"]) {
+           }
+           if (info["labels"]) {
                // labels：有几行图例 
-                result.h -= info["labels"] * 40
+                result.h -= info["labels"] * 24
            }
         }
         
@@ -82,35 +84,32 @@ export class StackTheme {
     }
 
     histogramOuterInfo(pos, info) {
-        const resultLeft = new Position(pos.x, pos.y, pos.w, pos.h)
+        const temp = new Position(pos.x, pos.y, pos.w, pos.h)
+        const resultLeft = new Position(pos.x, pos.y, 0, pos.h)
         const resultRight = new Position(pos.x, pos.y, pos.w, pos.h)
-        const resultBottom = new Position(pos.x, pos.y, pos.w, pos.h)
+        const resultBottom = new Position(pos.x, pos.y, pos.w, 0)
         
         
         if (info) {
             
             // 坐标的处理
             if (info["bottomTitle"]) {
-                resultBottom.h = 40
+                resultBottom.h += 40
             }
             if (info["labels"]) {
-                resultBottom.y += resultBottom.h - info["labels"] * 40
-                
                 // labels：有几行图例 
                 const lh = info["labels"] * 40
-                resultBottom.h = lh
+                resultBottom.y = temp.y + temp.h - lh
+                resultBottom.h += lh
             } 
-            if (!info["bottomTitle"] && !info["labels"]) {
-                resultBottom.h = 0
-            }
             if (info["leftTitle"]) {
                 resultLeft.w = 40
-                resultLeft.h -= resultBottom.h 
+                resultLeft.h = temp.h - resultBottom.h 
             } 
             if (info["rightTitle"]) {
-                resultRight.x += resultRight.w
+                resultRight.x = temp.x + temp.w
                 resultRight.w = 40
-                resultRight.h -= resultBottom.h 
+                resultRight.h = temp.h - resultBottom.h 
             }            
         }
         return {
@@ -146,7 +145,6 @@ export class StackTheme {
 
     showLabel(svg, ivpInfo, data) {
         const colors = this.getUsedColors()
-        console.log("kokodayo2", ivpInfo)
         this.label.renderBarLineLabel(svg, ivpInfo, data, colors)
     }
 
@@ -164,19 +162,11 @@ export class StackTheme {
 
     showTitle(ivpInfo, svg, titleObject) {
         if (titleObject.right) {
-            svg.append("text")
-                .attr("font-size", "12px")
-                .attr("fill", "#848996")
-                .attr("transform", `translate(${ivpInfo.right.x + ivpInfo.right.w / 2 }, ${ivpInfo.right.h / 2}) rotate(270, 10 10)`)
-                .text(titleObject.right)   
+            this.axis[0].showRightTitle(svg, titleObject.right, ivpInfo)
         }
-            
+        
         if (titleObject.left) {
-            svg.append("text")
-            .attr("font-size", "12px")
-            .attr("fill", "#848996")
-            .attr("transform", `translate(${ivpInfo.left.w/2 }, ${ivpInfo.left.h / 2}) rotate(270, 10 10)`)
-            .text(titleObject.left)
+            this.axis[0].showLeftTitle(svg, titleObject.left, ivpInfo)
         }
     }
 }

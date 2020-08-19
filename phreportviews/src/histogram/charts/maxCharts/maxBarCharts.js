@@ -15,7 +15,6 @@ export class MaxBarCharts extends BarCharts {
 
     genXScale(ivp) {
         const x = this.scales["x"]
-        console.log(1)
         if (x) {
             const opt = {
                 domain: [new Date("2018-01"), new Date("2019-12")],
@@ -32,9 +31,8 @@ export class MaxBarCharts extends BarCharts {
     }
 
     genYScale(ivp) {
-        console.log(2, d3.max(this.source.max()), this.source.max())
         const y = this.scales["y"]
-        const yMax = d3.max(this.source.max()) * 1.1
+        const yMax = d3.max(this.source.max()) 
         if (y) {
             const opt = {
                 domain: [ 0, yMax], 
@@ -54,55 +52,39 @@ export class MaxBarCharts extends BarCharts {
         const yScale = this.genYScale(ivp)
         const curTheme = this.theme
         const data = this.source.ds.dataset
-        console.log("data,", data)
              
         svg.selectAll(".rect1") 
             .data(data) 
             .enter()
             .append("rect")
             .attr("x", function(d, i) { 
-                console.log("d", d)
-                  return xScale(new Date(d.time)) - 6;
+                  return xScale(new Date(d.time)) - 12;
             })
             .attr("y", function(d) {
-                return ivp.h - yScale(d["市场规模"]); 
+                return  yScale(d["产品销售量"]) ; 
             })
             .attr("height", function(d) {
-                return yScale(d["市场规模"]);
+                return ivp.h - yScale(d["产品销售量"]);
             })
             .attr("width", 14)
-            .attr("fill", curTheme.colors(0))
+            .attr("fill", curTheme.colors(2))
         
         svg.selectAll(".rect2") 
             .data(data) 
             .enter()
             .append("rect")
             .attr("x", function(d, i) { 
-                console.log("d", d)
-                  return xScale(new Date(d.time)) - 6 + 14;
+                  return xScale(new Date(d.time)) - 12 + 14;
             })
             .attr("y", function(d) {
-                return ivp.h - yScale(d["产品销售量"]); 
+                
+                return yScale(d["市场规模"]); 
             })
             .attr("height", function(d) {
-                return yScale(d["产品销售量"]);
+                return ivp.h - yScale(d["市场规模"]) ;
             })
             .attr("width", 14)
-            .attr("fill", curTheme.colors(2))
-
-        // const lineDate = this.source.ds.dataset
-        // const line = d3.line()
-        //     .x(d => {
-        //         console.log("1",xScale(d["市场增长率"]))
-        //         return xScale(d["市场增长率"])
-        //     })
-        //     .y(d => yScale(d["产品增长率"]))
-    
-        // svg.select(".lineChart")
-        //     .append("path")
-        //     .datum(lineDate)
-        //     .attr("d", line)
-    
+            .attr("fill", curTheme.colors(0))
 
         // if (this.theme.hasLabel()) {
         //     const l = this.theme.queryLabel()

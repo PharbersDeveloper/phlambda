@@ -7,10 +7,8 @@ export class BarLineLabel extends label {
 
     // 为什么方法名为 render 的时候会先去调用label的方法
     renderBarLineLabel(svg, ivpInfo, labelData, colors) {
-        console.log("在这里?", ivpInfo)
-        // labels
         const infogs = svg.append("g")
-            .attr("transform", `translate(${ivpInfo.bottom.x + ivpInfo.bottom.w/4}, 0)`)
+                .attr("transform", `translate(${ivpInfo.bottom.x + ivpInfo.bottom.w/2 - 196}, ${ivpInfo.bottom.y + ivpInfo.bottom.h/2})`)
         
         infogs.selectAll("rect")
             .data(labelData)
@@ -22,12 +20,8 @@ export class BarLineLabel extends label {
                 return colors[i]
             })
             .attr("transform", function(d, i) {
-                const x = (i + 1) * 24 + i * (ivpInfo.bottom.w - 24*4)/8
-                let offset = 0
-                if (labelData.length > 4) {
-                    offset =  (4 - labelData.length ) * x / 2 
-                }
-                return `translate(${ivpInfo.bottom.x + x }, ${ivpInfo.bottom.y  })`
+                const pos = i * (80 + 24)              
+                return `translate(${ivpInfo.left.x + pos }, 0)`
             })
             .attr("rx", "2")
             .attr("ry", "2")
@@ -41,12 +35,8 @@ export class BarLineLabel extends label {
             })
             .attr("fill", "#7A869A")
             .attr("transform", function(d, i) {
-                const x = (i + 1) * 24 + i * (ivpInfo.bottom.w - 24*4)/8
-                let offset = 0
-                if (labelData.length > 4) {
-                    offset =  (4 -labelData.length ) * x / 2 
-                }
-                return `translate(${ivpInfo.bottom.x + x + 20 }, ${ivpInfo.bottom.y + 8})`
+                const pos = i * (80 + 24)              
+                return `translate(${ivpInfo.left.x + pos + 20 }, 8)`
             })
             .attr("font-size", 12)
     }

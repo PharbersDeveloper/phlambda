@@ -3,7 +3,7 @@ import * as d3 from "d3"
 import {LinearScale} from "../scale/linear"
 import { Histogram } from "../histogram";
 
-export class MaxHistogram extends Histogram {
+export class MaxBubbleHistogram extends Histogram {
     constructor(
         hid,
         source,
@@ -21,7 +21,6 @@ export class MaxHistogram extends Histogram {
     }
 
     genXAxisScale(ivp) {
-        console.log("this.source.max()", this.source.max())
         const x = this.scales["x"]
         if (x) {
             const opt = {
@@ -56,20 +55,34 @@ export class MaxHistogram extends Histogram {
      */
     render(width, height, xTitle, yTitle) {
         const vp = this.theme.histogramRect(new Position(0, 0, width, height))
-        const ivp = this.theme.histogramInnerRect(vp)
+        const infoObj = {
+            "leftTitle": xTitle,
+            "rightTitle": undefined,
+            "bottomTitle": yTitle,
+            "labels": 1
+        }
+        const ivp = this.theme.histogramInnerRect(vp, infoObj)
+        const ivpInfo = this.theme.histogramOuterInfo(vp, infoObj)
         const svg = d3.select(this.hid)
             .append("svg")
             .attr("width", width)
             .attr("height", height)
+        
 
         const xAxisScale = this.genXAxisScale(ivp)
         const yAxisScale = this.genYAxisScale(ivp)
 
+        // 辅助虚线   
         this.theme.axisAssist(svg, ivp)
-        this.theme.showLabel(svg, ivp)
+        // 展示图例等信息
+        this.theme.showLabel(svg, ivpInfo)
+        // 设置 x 轴刻度
         this.theme.setXAxisTicks(this.source.min()[0] * 0.9, this.source.max()[0]*1.1, 5)
+        // 设置 y 轴刻度
         this.theme.setYAxisTicks(this.source.min()[1] * 0.9, this.source.max()[1]*1.1, 3)
+        // 创建气泡样式
         this.theme.createColors(svg)
+        // 超过坐标轴的图样进行裁剪
         this.theme.clipBubbleChart(svg, ivp)
 
         this.charts.forEach(x => x.render(svg, ivp))
@@ -81,21 +94,22 @@ export class MaxHistogram extends Histogram {
         // if (yAxisScale) {
         //     this.theme.queryVerAxis().forEach(x => x.render(svg, yAxisScale, ivp))
         // }
-
-        this.showTitle(ivp,svg, xTitle, yTitle)
+        // 坐标轴名称
+        this.showTitle(ivpInfo,svg, xTitle, yTitle)
     }
 
     registerCharts(c) {
         this.charts.push(c)
     }
 
-    showTitle(ivp,svg, xTitle, yTitle) {
+    showTitle(ivpInfo,svg, xTitle, yTitle) {
+        console.log("!!!", ivpInfo)
         if (xTitle) {
-            this.theme.queryHorAxis().forEach(x => x.showXTitle(svg, xTitle, ivp))
+            this.theme.queryHorAxis().forEach(x => x.showXTitle(svg, xTitle, ivpInfo))
         }
 
         if (yTitle) {
-            this.theme.queryVerAxis().forEach(x => x.showYTitle(svg, yTitle, ivp))
+            this.theme.queryVerAxis().forEach(x => x.showYTitle(svg, yTitle, ivpInfo))
         }
     }
 }

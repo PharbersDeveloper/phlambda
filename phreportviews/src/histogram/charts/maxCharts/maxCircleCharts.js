@@ -13,8 +13,6 @@ export class MaxCircleCharts extends CircleCharts {
 		}) {
 
         super(source, theme, scales)
-        
-        console.log("source", source, this.source.max())
     }
     
     genXScale(ivp) {

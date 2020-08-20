@@ -50,7 +50,6 @@ export class MaxBarLineAxis extends Axis{
     }
     
     getAxisTicks(min, max, n) {
-        console.log("5 max ", max)
         const a = max
         const i = min
         const step = (a-i)/n
@@ -120,23 +119,21 @@ export class MaxBarLineAxis extends Axis{
             .attr("height", 1)
     }
 
-    showXTitle(svg, xTitle, ivp) {
-        if (xTitle) {
-            svg.append("text")
-                .attr("font-size", "12px")
-                .attr("fill", "#848996")
-                .attr("transform", `translate(${ivp.w/2}, ${ivp.h + 40})`)
-                .text(xTitle)
-		}
+    showLeftTitle(svg, title, ivpinfo) {
+        svg.append("text")
+            .attr("font-size", "12px")
+            .attr("fill", "#848996")
+            .attr("transform", `translate(${ivpinfo.left.x + ivpinfo.left.w/3}, ${ivpinfo.left.y + ivpinfo.left.h/2 - 18})  rotate(270, 10 10)`)
+            .text(title)
     }
 
-    showYTitle(svg, yTitle, ivp) {
-        if (yTitle) {
-            svg.append("text")
-                .attr("font-size", "12px")
-                .attr("fill", "#848996")
-                .attr("transform", `translate(40, ${ivp.h / 2}) rotate(270, 10 10)`)
-                .text(yTitle)
-		}
+    showRightTitle(svg, title, ivpinfo) {
+        svg.append("text")
+            .attr("font-size", "12px")
+            .attr("fill", "#848996")
+            .attr("transform", `translate(${ivpinfo.right.x}, ${ivpinfo.right.y + ivpinfo.right.h/2 - 18}) rotate(270, 10 10)`)
+            .text(title)
+		
     }
+
 }

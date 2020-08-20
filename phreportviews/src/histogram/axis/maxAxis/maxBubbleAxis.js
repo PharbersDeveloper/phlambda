@@ -10,7 +10,7 @@ export const AxisDirections= {
 
 export const defaultAxisWidth = 25
 
-export class MaxAxis extends Axis{
+export class MaxBubbleAxis extends Axis{
 	constructor(direction = AxisDirections.Bottom, width = defaultAxisWidth) {
         super(direction, width)
 
@@ -65,19 +65,6 @@ export class MaxAxis extends Axis{
 
 	render(svg, s, ivp) {
         this.bubbleRender(svg, s, ivp)
-		// if (this.isBottom()) {
-		// 	const xAxis = d3.axisBottom().scale(s)//.tickValues([0, "b", "c", "d", "e"])
-		// 	svg.append("g")
-		// 		.attr("class", "axis")
-		// 		.attr("transform", "translate(0," + ivp.h + ")")
-		// 		.call(xAxis)
-		// } else if (this.isLeft()) {
-		// 	const yAxis = d3.axisLeft().scale(s)
-		// 	svg.append("g")
-		// 		.attr("class", "axis")
-		// 		.attr("transform", "translate(" + ivp.x + ", 0)")
-		// 		.call(yAxis)
-		// }
     }
 
     bubbleRender(svg, s, ivp) {
@@ -97,28 +84,6 @@ export class MaxAxis extends Axis{
 				.attr("transform", "translate(" + ivp.x + ", 0)")
 				.call(yAxis)
         }
-        
-        
-    }
-
-    showXTitle(svg, xTitle, ivp) {
-        if (xTitle) {
-            svg.append("text")
-                .attr("font-size", "12px")
-                .attr("fill", "#848996")
-                .attr("transform", `translate(${ivp.w/2}, ${ivp.h + 40})`)
-                .text(xTitle)
-		}
-    }
-
-    showYTitle(svg, yTitle, ivp) {
-        if (yTitle) {
-            svg.append("text")
-                .attr("font-size", "12px")
-                .attr("fill", "#848996")
-                .attr("transform", `translate(40, ${ivp.h / 2}) rotate(270, 10 10)`)
-                .text(yTitle)
-		}
     }
 
     renderBackgroundLine(svg, ivp) {
@@ -164,5 +129,25 @@ export class MaxAxis extends Axis{
             .attr("y", ivp.y)
             .attr("width", ivp.w)
             .attr("height", ivp.h - 8);
+    }
+
+    showXTitle(svg, xTitle, ivpInfo) {
+        if (xTitle) {
+            svg.append("text")
+                .attr("font-size", "12px")
+                .attr("fill", "#848996")
+                .attr("transform", `translate(${ivpInfo.bottom.x + ivpInfo.bottom.w/2}, ${ivpInfo.bottom.y + ivpInfo.bottom.h/2})`)
+                .text(xTitle)
+		}
+    }
+
+    showYTitle(svg, yTitle, ivpInfo) {
+        if (yTitle) {
+            svg.append("text")
+                .attr("font-size", "12px")
+                .attr("fill", "#848996")
+                .attr("transform", `translate(${ivpInfo.left.x + ivpInfo.left.w/2}, ${ivpInfo.left.y + ivpInfo.left.h / 2}) rotate(270, 10 10)`)
+                .text(yTitle)
+		}
     }
 }

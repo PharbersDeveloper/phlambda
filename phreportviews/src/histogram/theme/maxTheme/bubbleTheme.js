@@ -3,7 +3,7 @@ import BubblePalette from "../property/max/bubblePalette"
 import defaultPadding from "../property/padding"
 import {Position} from "../utils/position"
 // import {Axis, AxisDirections} from "../../axis/axis"
-import {MaxAxis, AxisDirections} from "../../axis/maxAxis/maxAxis"
+import {MaxBubbleAxis, AxisDirections} from "../../axis/maxAxis/maxBubbleAxis"
 import defaultLabel from "../../label/defaultlabel"
 import BubbleLabel from "../../label/maxLabel/bubbleLabel"
 
@@ -12,8 +12,8 @@ export class BubbleTheme {
         palette= BubblePalette,
         padding = defaultPadding,
         axis = [
-            new MaxAxis(AxisDirections.Left),
-            new MaxAxis(AxisDirections.Bottom)
+            new MaxBubbleAxis(AxisDirections.Left),
+            new MaxBubbleAxis(AxisDirections.Bottom)
         ],
         label =  BubbleLabel) {
 
@@ -59,6 +59,38 @@ export class BubbleTheme {
         return result
     }
 
+    histogramOuterInfo(pos, info) {
+        const temp = new Position(pos.x, pos.y, pos.w, pos.h) // 作为参考标准
+        const resultLeft = new Position(pos.x, pos.y, pos.w, pos.h)
+        const resultBottom = new Position(pos.x, pos.y, pos.w, pos.h)
+        
+        
+        if (info) {
+            resultBottom.y = temp.y + temp.h
+            
+            // 坐标的处理
+            if (info["bottomTitle"]) {
+                resultBottom.h = 40
+                resultBottom.y -= 24
+            }
+            if (info["labels"]) {
+                // labels：有几行图例 
+                resultBottom.y -= info["labels"] * 40
+                const lh = info["labels"] * 40
+                resultBottom.h += lh
+            } 
+            if (info["leftTitle"]) {
+                resultLeft.w = 40
+                resultLeft.h -= resultBottom.h 
+            }          
+        }
+        return {
+            left: resultLeft,
+            bottom: resultBottom
+        }
+
+    }
+
     queryHorAxis() {
         return this.axis.filter(x => x.isX())
     }
@@ -82,8 +114,8 @@ export class BubbleTheme {
         this.axis[0].renderBackgroundLine(svg, ivp)
     }
 
-    showLabel(svg, ivp) {
-        this.label.render(svg, ivp)
+    showLabel(svg, ivpInfo) {
+        this.label.render(svg, ivpInfo)
     }
 
     setXAxisTicks(min, max, n) {

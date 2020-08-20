@@ -12,9 +12,6 @@
     <!-- 布局小付同学添加吧 -->
     <div class="histogram-container">
         <div class="histogram-title">
-            Hello {{name}}
-            {{xTitle}}
-            {{yTitle}}
         </div>
         <div class="histogram-legacy">
 
@@ -177,19 +174,11 @@
         const h = {{height}}
         const xt = "产品市场份额"
         const yt = "市场增长率(%)"
-        const histogram = maxReportFactory.createHistogram(hid, data, createATBarAdapter)
-        // const barchart = maxReportFactory.createBarCharts(data, createATBarAdapter)
-        // const linechart = maxReportFactory.createLineCharts(data, createATLineAdapter)
+        const histogram = maxReportFactory.createBubbleHistogram(hid, data, createATBarAdapter)
         const circlechart = maxReportFactory.createCircleCharts(data, createATRAdapter)
-        // histogram.registerCharts(barchart)
-        // histogram.registerCharts(linechart)
+        
         histogram.registerCharts(circlechart)
         histogram.displayHistogram(w, h, xt, yt)
-
-        // const piehistogram = reportFactory.createHistogramWithOutAxis(piehid, data)
-        // const piechart = reportFactory.createPieCharts(data, createATPieAdapter)
-        // piehistogram.registerCharts(piechart)
-        // piehistogram.displayHistogram(w, h)
     </script>
 </body>
 </html>

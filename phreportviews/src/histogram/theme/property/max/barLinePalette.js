@@ -4,9 +4,9 @@ export class BarLinePalette extends Palette {
     constructor() {
         super()
         this.colorsArr = [
-            "#858D91",
+            "#F9D43F",
             "#3492E5",
-            "#FFCD00",
+            "#858D91",
             "#1C2427"
         ]
     }

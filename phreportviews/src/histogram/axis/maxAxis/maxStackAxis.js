@@ -110,22 +110,22 @@ export class MaxStackAxis extends Axis{
             .attr("height", 1)
     }
 
-    showXTitle(svg, xTitle, ivp) {
+    showXTitle(svg, xTitle, ivpInfo) {
         if (xTitle) {
             svg.append("text")
                 .attr("font-size", "12px")
                 .attr("fill", "#848996")
-                .attr("transform", `translate(${ivp.w/2}, ${ivp.h + 40})`)
+                .attr("transform", `translate(${ivpInfo.bottom.w/2}, ${ivpInfo.bottom.h/2})`)
                 .text(xTitle)
 		}
     }
 
-    showYTitle(svg, yTitle, ivp) {
+    showYTitle(svg, yTitle, ivpInfo) {
         if (yTitle) {
             svg.append("text")
                 .attr("font-size", "12px")
                 .attr("fill", "#848996")
-                .attr("transform", `translate(40, ${ivp.h / 2}) rotate(270, 10 10)`)
+                .attr("transform", `translate(${ivpInfo.left.x + ivpInfo.left.w / 2 }, ${ivpInfo.left.y + ivpInfo.left.h / 2 - 20}) rotate(270, 10 10)`)
                 .text(yTitle)
 		}
     }

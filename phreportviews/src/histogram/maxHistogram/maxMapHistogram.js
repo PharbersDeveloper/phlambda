@@ -3,7 +3,7 @@ import * as d3 from "d3"
 import {LinearScale} from "../scale/linear"
 import { Histogram } from "../histogram";
 
-export class MaxBubbleHistogram extends Histogram {
+export class MaxMapHistogram extends Histogram {
     constructor(
         hid,
         source,
@@ -24,7 +24,7 @@ export class MaxBubbleHistogram extends Histogram {
         const x = this.scales["x"]
         if (x) {
             const opt = {
-                domain: [this.source.min()[0]*0.9, this.source.max()[0]*1.1],
+                domain: [0,1],
                 rangeRound: [ivp.x, ivp.w],
                 paddingInner: 0.05
             }
@@ -36,7 +36,7 @@ export class MaxBubbleHistogram extends Histogram {
         const y = this.scales["y"]
         if (y) {
             const opt = {
-                domain: [this.source.min()[1]*0.9, this.source.max()[1]*1.1],
+                domain: [0,1],
                 rangeRound: [ivp.h, ivp.y]
             }
             return y.genScale(opt)
@@ -58,8 +58,8 @@ export class MaxBubbleHistogram extends Histogram {
         const infoObj = {
             "leftTitle": xTitle,
             "rightTitle": undefined,
-            "bottomTitle": yTitle,
-            "labels": 1
+            "bottomTitle": undefined,
+            "labels": undefined
         }
         const ivp = this.theme.histogramInnerRect(vp, infoObj)
         const ivpInfo = this.theme.histogramOuterInfo(vp, infoObj)
@@ -72,43 +72,14 @@ export class MaxBubbleHistogram extends Histogram {
         const xAxisScale = this.genXAxisScale(ivp)
         const yAxisScale = this.genYAxisScale(ivp)
 
-        // 辅助虚线   
-        this.theme.axisAssist(svg, ivp)
         // 展示图例等信息
-        this.theme.showLabel(svg, ivpInfo)
-        // 设置 x 轴刻度
-        this.theme.setXAxisTicks(this.source.min()[0] * 0.9, this.source.max()[0]*1.1, 5)
-        // 设置 y 轴刻度
-        this.theme.setYAxisTicks(this.source.min()[1] * 0.9, this.source.max()[1]*1.1, 3)
-        // 创建气泡样式
-        this.theme.createColors(svg)
-        // 超过坐标轴的图样进行裁剪
-        this.theme.clipBubbleChart(svg, ivp)
+        this.theme.showLabel(svg, ivpInfo, { min: this.source.min(), max: this.source.max() })
+
 
         this.charts.forEach(x => x.render(svg, ivp))
-
-        if (xAxisScale) {
-            this.theme.queryHorAxis().forEach(x => x.render(svg, xAxisScale, ivp))
-        }
-
-        // if (yAxisScale) {
-        //     this.theme.queryVerAxis().forEach(x => x.render(svg, yAxisScale, ivp))
-        // }
-        // 坐标轴名称
-        this.showTitle(ivpInfo,svg, xTitle, yTitle)
     }
 
     registerCharts(c) {
         this.charts.push(c)
-    }
-
-    showTitle(ivpInfo,svg, xTitle, yTitle) {
-        if (xTitle) {
-            this.theme.queryHorAxis().forEach(x => x.showXTitle(svg, xTitle, ivpInfo))
-        }
-
-        if (yTitle) {
-            this.theme.queryVerAxis().forEach(x => x.showYTitle(svg, yTitle, ivpInfo))
-        }
     }
 }

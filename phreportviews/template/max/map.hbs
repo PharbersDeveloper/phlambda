@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
+    <script src="../dist/app.bundle.js"></script>
+</head>
+
+<body>
+    <!-- 布局小付同学添加吧 -->
+    <div class="histogram-container">
+        <div class="histogram-title">
+        </div>
+        <div class="histogram-legacy">
+
+        </div>
+        <div class="histogram-content" id={{histogramId}} >
+        </div>
+        <div class="histogram-content" id={{histogramPieId}} >
+        </div>
+    </div>
+    <script type="text/javascript" >
+
+        function createATBarAdapter(ds) {
+        	return new ATBarAdapter(ds)
+        }
+
+        class ATBarAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x), d3.max(this.ds.dataset, d => d.y)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x), d3.min(this.ds.dataset, d => d.y)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+
+        function createATRAdapter(ds) {
+            return new ATRAdapter(ds)
+        }
+
+        class ATRAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x),
+                    d3.max(this.ds.dataset, d => d.y),
+                    d3.max(this.ds.dataset, d => d.r)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x),
+                    d3.min(this.ds.dataset, d => d.y),
+                    d3.min(this.ds.dataset, d => d.r)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).x,
+                    this.ds.measure(d).y,
+                    this.ds.measure(d).r]
+            }
+        }
+
+
+
+        function createATMapAdapter(ds) {
+        	return new ATMapAdapter(ds)
+        }
+
+        class ATMapAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            keys() {
+                const arr = Object.keys(this.ds.dataset[0])
+                const i = arr.indexOf("time")
+                arr.splice(i, 1) 
+                return arr
+            }
+
+            max() {
+                const arr = this.ds.dataset
+                const dataArr = arr.map(it => {
+                    return it["market"]
+                })
+
+                return d3.max(dataArr)
+                
+            }
+
+            min() {
+                const arr = this.ds.dataset
+                const dataArr = arr.map(it => {
+                    return it["market"]
+                })
+
+                return d3.min(dataArr)
+            }
+
+            getCurProvinceData(p, m) {
+                const pm = this.ds.dataset.find(it => {
+                    return it.province === p
+                })
+                return pm[m]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+        // 2年数据
+        const data =  [
+				{ "province": "新疆维吾尔自治区",  "market": 1000000,  "EI": 102 },
+				{ "province": "西藏自治区",  "market": 2000000, "EI": 12 },
+				{ "province": "内蒙古自治区",  "market": 3002222, "EI": 12 },
+				{ "province": "青海省",  "market": 4066660, "EI": 12 },
+				{ "province": "四川省",  "market": 4002222, "EI": 32 },
+				{ "province": "黑龙江省",  "market": 9011110, "EI": 32 },
+				{ "province": "甘肃省",  "market": 1033330, "EI": 2 },
+				{ "province": "云南省",  "market": 1111100, "EI": 2 },
+				{ "province": "广西壮族自治区",  "market": 1044440, "EI": 102 },
+				{ "province": "湖南省",  "market": 10444440, "EI": 102 },
+				{ "province": "陕西省",  "market": 10444440, "EI": 2 },
+                { "province": "广东省",  "market": 1333340, "EI": 2 },
+				{ "province": "吉林省",  "market": 1444400, "EI": 2 },
+				{ "province": "河北省",  "market": 1011110, "EI": 32 },
+				{ "province": "湖北省",  "market": 1001111, "EI": 2 },
+				{ "province": "贵州省",  "market": 1044490, "EI": 2 },
+				{ "province": "山东省",  "market": 1888800, "EI": 2 },
+				{ "province": "江西省",  "market": 1088880, "EI": 102 },
+				{ "province": "河南省",  "market": 6666600, "EI": 102 },
+				{ "province": "辽宁省",  "market": 1044440, "EI": 2 },
+				{ "province": "山西省",  "market": 14444400, "EI": 2 },
+				{ "province": "安徽省",  "market": 7774700, "EI": 2 },
+                { "province": "福建省",  "market": 6666600, "EI": 102 },
+				{ "province": "浙江省",  "market": 6666660, "EI": 2 },
+				{ "province": "江苏省",  "market": 3333300, "EI": 2 },
+				{ "province": "重庆市",  "market": 4444400, "EI": 102 },
+				{ "province": "宁夏回族自治区",  "market": 999990, "EI": 102 },
+				{ "province": "海南省",  "market": 6666600, "EI": 2 },
+				{ "province": "台湾省",  "market": 5666600, "EI": 2 },
+				{ "province": "北京市",  "market": 6666600, "EI": 102 },
+				{ "province": "天津市",  "market": 4444400, "EI": 102 },
+				{ "province": "上海市",  "market": 4446600, "EI": 2 },
+				{ "province": "香港特别行政区",  "market": 8888880, "EI": 102 },
+				{ "province": "澳门特别行政区",  "market": 8866660, "EI": 102 },
+			]
+
+        const hid = {{histogramId}}
+        const piehid = {{histogramPieId}}
+        const w = {{width}}
+        const h = {{height}}
+        const xt = ""
+        const yt = "销售额"
+        const histogram = maxReportFactory.createMapHistogram(hid, data, createATMapAdapter)
+        const mapchart = maxReportFactory.createMapCharts(data, createATMapAdapter)
+
+        histogram.registerCharts(mapchart)
+        histogram.displayHistogram(w, h, xt, yt)
+
+    </script>
+</body>
+</html>

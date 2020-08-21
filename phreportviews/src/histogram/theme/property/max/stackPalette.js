@@ -1,4 +1,5 @@
 import { Palette } from "../palette";
+import { color } from "d3";
 
 export class StackPalette extends Palette {
     constructor() {
@@ -21,25 +22,52 @@ export class StackPalette extends Palette {
 
     getColors(idx, stackSericeLength) {
 
-        if (stackSericeLength >= 5) {
-            const i = idx % 12
-            return this.colorsArr[i]
-        } else {
-            return this.colorsArr[idx*3+2]
+        if (stackSericeLength <= 5) {
+            const colorIndex = 3 + 2 * idx
+            return this.colorsArr[colorIndex]
+        }
+
+        if (stackSericeLength === 6) {
+            const colorIndex = 1 + 2 * idx
+            return this.colorsArr[colorIndex]
+        }
+
+        if (stackSericeLength <= 8) {
+            const subColor = this.colorsArr.slice(3, 3 + stackSericeLength)
+            return subColor[idx]
+        }
+
+        if(stackSericeLength <= 12) {
+            const subColor = this.colorsArr.slice(12 - stackSericeLength)
+            return subColor[idx]
         }
 
     }
 
     usedColor(arr) {
-        const a = this.colorsArr
-        if (arr.length >= 5) {
-            return a.splice(0,arr.length)
-        } else {
-            let t = []
-            for(let i = 0; i < arr.length; i++) {
-                t.push(a[i*3+2])
+        const colors = []
+        const len = arr.length
+
+        if (len <= 5) {
+            for(let i = 0; i < len; i++) {
+                colors.push(this.colorsArr[ 3 + 2 * i])
             }
-            return t
+            return colors
+        }
+
+        if (len === 6) {
+            for(let i = 0; i < len; i++) {
+                colors.push(this.colorsArr[ 1 + 2 * i])
+            }
+            return colors
+        }
+
+        if (len <= 8) {
+            return this.colorsArr.slice(3, 3 + len)
+        }
+
+        if (len <= 12) {
+            return this.colorsArr.slice(12 - len)
         }
     }
 }

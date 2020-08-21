@@ -103,7 +103,6 @@ export class MaxBubbleHistogram extends Histogram {
     }
 
     showTitle(ivpInfo,svg, xTitle, yTitle) {
-        console.log("!!!", ivpInfo)
         if (xTitle) {
             this.theme.queryHorAxis().forEach(x => x.showXTitle(svg, xTitle, ivpInfo))
         }

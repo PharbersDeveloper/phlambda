@@ -32,7 +32,7 @@ export class StackPalette extends Palette {
 
     usedColor(arr) {
         const a = this.colorsArr
-        if (arr.stackSericeLength >= 5) {
+        if (arr.length >= 5) {
             return a.splice(0,arr.length)
         } else {
             let t = []

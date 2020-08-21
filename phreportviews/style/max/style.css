@@ -47,3 +47,8 @@
     fill: #848996;
     font-size: 12px;
 }
+
+
+.circle-drop-shadow {
+    filter:drop-shadow(-25px 25px 25px rgba(26,58,70,0.7));
+}

@@ -20,7 +20,9 @@ describe('Tests index', function () {
 
 
     it('init phreports database for max table', async () => {
-
+        const event = JSON.parse(fs.readFileSync("../events/event_reports_find.json", 'utf8'))
+        const result = await app.lambdaHandler(event, context)
+        phLogger.info(JSON.stringify(JSON.parse(result.body)))
     }).timeout(1000 * 30)
 
     after("desconnect db", async () => {

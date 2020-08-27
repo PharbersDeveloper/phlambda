@@ -1,10 +1,14 @@
 {
   "body": "",
-  "resource": "/{type}/{id}",
-  "path": "/reports/sankyos/107104",
+  "resource": "/{type}",
+  "path": "/reports/sankyos",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
+    "filter[year]": 2019,
+    "filter[provinceName]": "四川省",
+    "filter[company]": "Sankyo",
+    "filter[moleName]": "硝苯地平"
   },
   "pathParameters": {
     "type": "sankyos"
@@ -53,7 +57,7 @@
       "user": null
     },
     "resourcePath": "/{type}/{id}",
-    "path": "/common/components/client_id",
+    "path": "/reports/sankyos",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

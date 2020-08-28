@@ -4,7 +4,6 @@ const records = {
         year: Number,
         quarter: Number,
         month: Number,
-        company: String,
         mkt: String,
         moleName: String,
         productName: String,
@@ -26,7 +25,7 @@ const records = {
         prodMoleShare: Number,
         timeProviousValue: Number,
         timeProviousShareValue: Number,
-        marketShareGrowth: Number,
+        marketSalesGrowth: Number,
         salesGrowth: Number,
         ei: Number,
     }

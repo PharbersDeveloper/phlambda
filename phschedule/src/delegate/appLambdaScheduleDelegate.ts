@@ -407,69 +407,69 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         const fileIndex = JSON.parse(String((await super.exec(this.genEvent("GET", "file-indices", `/${historyAsset.data.relationships.fi.data.id}`, "", event))).output[1]))
 
         // 将历史版本设置为不可读的的版本 isNewVersion = False
-        // await super.exec(this.genEvent("PATCH", "assets", `/${assetId}`, {
-        //     data: {
-        //         type: "assets",
-        //         id: assetId,
-        //         attributes: {isNewVersion: false}
-        //     }
-        // }, event))
-        //
+        await super.exec(this.genEvent("PATCH", "assets", `/${assetId}`, {
+            data: {
+                type: "assets",
+                id: assetId,
+                attributes: {isNewVersion: false}
+            }
+        }, event))
+
         // 创建新的File记录
         // tslint:disable-next-line:max-line-length
         const extension = historyFile.data.attributes.extension === "xls" ? "xlsx" : historyFile.data.attributes.extension
         // tslint:disable-next-line:max-line-length
-        // const fileName = historyFile.data.attributes.extension === "xls" ? historyFile.data.attributes["file-name"].replace(".xls", ".xlsx") : historyFile.data.attributes["file-name"]
-        //
-        // const file = JSON.parse(String((await super.exec(this.genEvent("POST", "files", "", {
-        //     data: {
-        //         type: "files",
-        //         attributes: {
-        //             fileName,
-        //             extension,
-        //             size: historyFile.data.attributes.size,
-        //             label: historyFile.data.attributes.label,
-        //             sheetName: historyFile.data.attributes["sheet-name"],
-        //             startRow: historyFile.data.attributes["start-row"],
-        //             url: fileUrl
-        //         }
-        //     }
-        // // @ts-ignore
-        // }, event))).output[1]))
+        const fileName = historyFile.data.attributes.extension === "xls" ? historyFile.data.attributes["file-name"].replace(".xls", ".xlsx") : historyFile.data.attributes["file-name"]
+
+        const file = JSON.parse(String((await super.exec(this.genEvent("POST", "files", "", {
+            data: {
+                type: "files",
+                attributes: {
+                    fileName,
+                    extension,
+                    size: historyFile.data.attributes.size,
+                    label: historyFile.data.attributes.label,
+                    sheetName: historyFile.data.attributes["sheet-name"],
+                    startRow: historyFile.data.attributes["start-row"],
+                    url: fileUrl
+                }
+            }
+        // @ts-ignore
+        }, event))).output[1]))
 
         // 创建新的Asset记录
-        // const asset = JSON.parse(String((await super.exec(this.genEvent("POST", "assets", "", {
-        //     data: {
-        //         type: "assets",
-        //         attributes: {
-        //             name: historyAsset.data.attributes.name,
-        //             owner: historyAsset.data.attributes.owner,
-        //             accessibility: historyAsset.data.attributes.accessibility,
-        //             version: convertVersion(historyAsset.data.attributes.version),
-        //             isNewVersion: true,
-        //             dataType: historyAsset.data.attributes["data-type"],
-        //             providers: historyAsset.data.attributes.providers,
-        //             markets: historyAsset.data.attributes.markets,
-        //             molecules: historyAsset.data.attributes.molecules,
-        //             dataCover: historyAsset.data.attributes["data-cover"],
-        //             geoCover: historyAsset.data.attributes["geo-cover"],
-        //             labels: historyAsset.data.attributes.labels,
-        //             dfs: [],
-        //             description: historyAsset.data.attributes.description,
-        //             createTime: new Date()
-        //         },
-        //         relationships: {
-        //             file: {
-        //                 data: {
-        //                     type: "files",
-        //                     // @ts-ignore
-        //                     id: file.data.id
-        //                 }
-        //             }
-        //         }
-        //     }
-        // // @ts-ignore
-        // }, event))).output[1]))
+        const asset = JSON.parse(String((await super.exec(this.genEvent("POST", "assets", "", {
+            data: {
+                type: "assets",
+                attributes: {
+                    name: historyAsset.data.attributes.name,
+                    owner: historyAsset.data.attributes.owner,
+                    accessibility: historyAsset.data.attributes.accessibility,
+                    version: convertVersion(historyAsset.data.attributes.version),
+                    isNewVersion: true,
+                    dataType: historyAsset.data.attributes["data-type"],
+                    providers: historyAsset.data.attributes.providers,
+                    markets: historyAsset.data.attributes.markets,
+                    molecules: historyAsset.data.attributes.molecules,
+                    dataCover: historyAsset.data.attributes["data-cover"],
+                    geoCover: historyAsset.data.attributes["geo-cover"],
+                    labels: historyAsset.data.attributes.labels,
+                    dfs: [],
+                    description: historyAsset.data.attributes.description,
+                    createTime: new Date()
+                },
+                relationships: {
+                    file: {
+                        data: {
+                            type: "files",
+                            // @ts-ignore
+                            id: file.data.id
+                        }
+                    }
+                }
+            }
+        // @ts-ignore
+        }, event))).output[1]))
 
         // 更新fileIndex关联数据
         await super.exec(this.genEvent("PATCH", "file-indices", `/${fileIndex.data.id}`, {
@@ -484,7 +484,7 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                     assets: {
                         data: fileIndex.data.relationships.assets.data.concat({
                             type: "assets",
-                            id: "ZF-iMnWweSXwLMyIZIdU" // asset.data.id
+                            id: asset.data.id
                         })
                     }
                 }

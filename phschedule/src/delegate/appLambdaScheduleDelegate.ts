@@ -6,7 +6,7 @@ import phLogger from "../logger/phLogger"
 import {OssTask} from "../models/ossTask"
 import AppLambdaDelegate from "./appLambdaDelegate"
 
-const kafkaRestfulUrl = "http://52.82.8.230:30082/topics"
+const kafkaRestfulUrl = "http://192.168.96.159:30082/topics"
 
 // TODO: 先将原来的代码翻译过来
 export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
@@ -36,6 +36,10 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                 case "SandBoxDataSet":
                     // @ts-ignore
                     await this.SandBoxDataSet(event.Records[0].body, entryEvent)
+                    break
+                case "UpdateVersion":
+                    // @ts-ignore
+                    await this.UpdateVersion(event.Records[0].body, entryEvent)
                     break
                 default:
                     // @ts-ignore
@@ -378,6 +382,114 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         }
 
         phLogger.info(data)
+    }
+
+    private async UpdateVersion(data: any, event: Map<string, any>) {
+        function convertVersion(version: string) {
+            const nums = version.split(".")
+            const lastNum = Number(nums.pop()) + 1
+            return nums.concat(lastNum.toString()).join(".")
+        }
+        // 1、查找历史记录 2、将找到记录isNewVersion设置False 3、创建新版本记录 file asset 4、更新关联数据 fileIndex
+        const dobj = typeof data === "string" ? JSON.parse(data) : data
+        const assetId = dobj.assetId
+        const fileUrl = dobj.fileUrl
+
+        // 根据asset id 找到历史版本数据
+        // @ts-ignore
+        // tslint:disable-next-line:max-line-length
+        const historyAsset = JSON.parse(String((await super.exec(this.genEvent("GET", "assets", `/${assetId}`, "", event))).output[1]))
+        // @ts-ignore
+        // tslint:disable-next-line:max-line-length
+        const historyFile = JSON.parse(String((await super.exec(this.genEvent("GET", "assets", `/${assetId}/file`, "", event))).output[1]))
+        // @ts-ignore
+        // tslint:disable-next-line:max-line-length
+        const fileIndex = JSON.parse(String((await super.exec(this.genEvent("GET", "file-indices", `/${historyAsset.data.relationships.fi.data.id}`, "", event))).output[1]))
+
+        // 将历史版本设置为不可读的的版本 isNewVersion = False
+        await super.exec(this.genEvent("PATCH", "assets", `/${assetId}`, {
+            data: {
+                type: "assets",
+                id: assetId,
+                attributes: {isNewVersion: false}
+            }
+        }, event))
+
+        // 创建新的File记录
+        // tslint:disable-next-line:max-line-length
+        const extension = historyFile.data.attributes.extension === "xls" ? "xlsx" : historyFile.data.attributes.extension
+        // tslint:disable-next-line:max-line-length
+        const fileName = historyFile.data.attributes.extension === "xls" ? historyFile.data.attributes["file-name"].replace(".xls", ".xlsx") : historyFile.data.attributes["file-name"]
+
+        const file = JSON.parse(String((await super.exec(this.genEvent("POST", "files", "", {
+            data: {
+                type: "files",
+                attributes: {
+                    fileName,
+                    extension,
+                    size: historyFile.data.attributes.size,
+                    label: historyFile.data.attributes.label,
+                    sheetName: historyFile.data.attributes["sheet-name"],
+                    startRow: historyFile.data.attributes["start-row"],
+                    url: fileUrl
+                }
+            }
+        // @ts-ignore
+        }, event))).output[1]))
+
+        // 创建新的Asset记录
+        const asset = JSON.parse(String((await super.exec(this.genEvent("POST", "assets", "", {
+            data: {
+                type: "assets",
+                attributes: {
+                    name: historyAsset.data.attributes.name,
+                    owner: historyAsset.data.attributes.owner,
+                    accessibility: historyAsset.data.attributes.accessibility,
+                    version: convertVersion(historyAsset.data.attributes.version),
+                    isNewVersion: true,
+                    dataType: historyAsset.data.attributes["data-type"],
+                    providers: historyAsset.data.attributes.providers,
+                    markets: historyAsset.data.attributes.markets,
+                    molecules: historyAsset.data.attributes.molecules,
+                    dataCover: historyAsset.data.attributes["data-cover"],
+                    geoCover: historyAsset.data.attributes["geo-cover"],
+                    labels: historyAsset.data.attributes.labels,
+                    dfs: [],
+                    description: historyAsset.data.attributes.description,
+                    createTime: new Date()
+                },
+                relationships: {
+                    file: {
+                        data: {
+                            type: "files",
+                            // @ts-ignore
+                            id: file.data.id
+                        }
+                    }
+                }
+            }
+        // @ts-ignore
+        }, event))).output[1]))
+
+        // 更新fileIndex关联数据
+        await super.exec(this.genEvent("PATCH", "file-indices", `/${fileIndex.data.id}`, {
+            data: {
+                type: "file-indices",
+                id: fileIndex.data.id,
+                attributes: {
+                    url: fileUrl,
+                    extension
+                },
+                relationships: {
+                    assets: {
+                        data: fileIndex.data.relationships.assets.data.concat({
+                            type: "assets",
+                            id: asset.data.id
+                        })
+                    }
+                }
+            }
+        }, event))
     }
 
     private async InitJob(data: any, event: Map<string, any>) {

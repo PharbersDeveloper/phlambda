@@ -669,6 +669,8 @@
 	const client_id = $('#client_id').val().replace(/\s+/g, "")
 	const client_secret = $("#client_secret").val()
 	const callback = $("#redirect_uri").val()
+	const accessKey = "10EC20D06323077893326D4388B18ED12D08F45BEB066308279D890FDFEB872F"
+	const secretKey = "7A2A70C890EB8D3BFDE11F0C2FEBCB856A9151002A9D21AF3D5525B04F81C3F65340A646C74E5BFF6E672FC4740D96B0"
 
 	$("#secret").remove()
 
@@ -691,7 +693,9 @@
 	//加密方法
 	// function Encrypt(word) {
 	// 	let srcs = CryptoJS.enc.Utf8.parse(word);
-	// 	let encrypted = CryptoJS.AES.encrypt(srcs, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+	// 	let encrypted = CryptoJS.AES.encrypt(srcs,
+	// 		CryptoJS.enc.Utf8.parse("1234123412ABCDEF"),
+	// 		{ iv: CryptoJS.enc.Utf8.parse('ABCDEF1234123412'), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 	// 	return encrypted.ciphertext.toString().toUpperCase();
 	// }
 
@@ -760,8 +764,8 @@
 
 	async function login(accout, password) {
 		const config = {
-			accessKey: Decrypt('B963100A6E95D5C7EDC8E27DFDD1C7658B4951449C5D91D620EC3604C6F3221A'),
-			secretKey: Decrypt('F0480FDD9E4E8705E1A5E1DDCC716EA6B1B197CE50B7930A009F5C543F2EEEC08A54D72D52567AD613B92FF73135152F'),
+			accessKey: Decrypt(accessKey),
+			secretKey: Decrypt(secretKey),
 			sessionToken: '',
 			region: 'cn-northwest-1',
 			apiKey: undefined,

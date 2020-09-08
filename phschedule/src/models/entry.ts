@@ -4,7 +4,7 @@ const records = {
     // TODO: will gen another bug for the new version & is new version
     fileIndex: {
         fileName: String,
-        owner: Array(String),
+        owner: String,
         martTags: Array(String),
         providers: Array(String),
         markets: Array(String),
@@ -12,6 +12,10 @@ const records = {
         dataCover: Array(String),
         geoCover: Array(String),
         labels: Array(String),
+        url: String,
+        createdTime: Date,
+        size: Number,
+        extension: String,
         assets: { link: "asset", isArray: true, inverse: "fi" }
     },
     file: {

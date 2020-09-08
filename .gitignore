@@ -144,3 +144,5 @@ $RECYCLE.BIN/
 phoauth/package-lock.json
 
 phjsonapirdsorm/package-lock.json
+
+phjsonapirdsorm/.ph-lambda-deploy.yaml

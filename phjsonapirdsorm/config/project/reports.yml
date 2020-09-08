@@ -1,4 +1,4 @@
-project: "max"
+project: "reports"
 postgres:
   algorithm: postgres
   host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn

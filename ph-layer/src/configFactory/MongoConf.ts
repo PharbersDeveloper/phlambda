@@ -1,24 +1,9 @@
 "use strict"
 import {JsonObject, JsonProperty} from "json2typescript"
-import {DBConf} from "./dbConf"
+import {DBConf} from "./DBConf"
 
 @JsonObject("MongoConf")
 export class MongoConf extends DBConf {
-
-    @JsonProperty("algorithm", String)
-    public algorithm: string = undefined
-
-    @JsonProperty("host", String)
-    public host: string = undefined
-
-    @JsonProperty("port", Number)
-    public port: number = undefined
-
-    @JsonProperty("username", String)
-    public username: string = undefined
-
-    @JsonProperty("pwd", String)
-    public pwd: string = undefined
 
     @JsonProperty("coll", String)
     public coll: string = undefined

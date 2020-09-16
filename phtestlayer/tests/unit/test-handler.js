@@ -5,8 +5,6 @@ const app = require('../../app.js')
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
-var context;
-var del;
 
 describe('Tests index', function () {
 

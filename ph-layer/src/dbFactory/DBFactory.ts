@@ -3,9 +3,7 @@
 import fortune from "fortune"
 import { Adapter } from "../common/Adapter"
 import { InitServerConf } from "../common/InitServerConf"
-import { StoreEnum } from "../common/StoreEnum"
 import { ServerConf } from "../configFactory/ServerConf"
-import phLogger from "../logger/phLogger"
 
 export default class DBFactory {
 
@@ -23,14 +21,6 @@ export default class DBFactory {
         }
         return DBFactory.instance
     }
-
-    // public register(se: StoreEnum, entry: string) {
-    //     const ad = Adapter.init.getAdapter(se)
-    //     const url = this.serverConf[se].getUrl()
-    //     const filename = `${process.cwd()}/dist/models/${entry}.js`
-    //     const record = require(filename).default
-    //     this.typeAnalyzerMapping.set(se, fortune(record, {adapter: [ ad, {url}] }))
-    // }
 
     public getStore(name?: string): any {
         if (name === undefined || name === null || name.length === 0) {

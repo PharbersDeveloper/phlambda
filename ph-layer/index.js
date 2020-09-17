@@ -4,6 +4,7 @@ const logger = require('./dist/logger/phLogger').default
 module.exports.phLogger = logger
 module.exports.StoreEnum = se
 module.exports.DBFactory = require("./dist/dbFactory/DBFactory").default
+module.exports.Redis = require("./dist/strategies/store/RedisStore").default
 
 module.exports.Main = async function (event, store = se.Postgres) {
     logger.debug("进入初始化")
@@ -14,7 +15,7 @@ module.exports.Main = async function (event, store = se.Postgres) {
     if (del.isFirstInit) {
         logger.debug("开始连接数据库")
         await del.prepare(store)
-        logger.debug("连接数据库结束")
+        logger.debug("连接数据库成功")
     }
     if (event != null) {
         logger.debug("开始执行请求")

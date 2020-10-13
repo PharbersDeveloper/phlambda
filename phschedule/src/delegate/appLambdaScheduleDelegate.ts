@@ -1,4 +1,5 @@
 import axios from "axios"
+import fortune from "fortune"
 import * as fs from "fs"
 import {JsonConvert} from "json2typescript"
 import { v4 as uuidv4 } from "uuid"
@@ -7,9 +8,12 @@ import {OssTask} from "../models/ossTask"
 import AppLambdaDelegate from "./appLambdaDelegate"
 
 const kafkaRestfulUrl = "http://192.168.96.159:30082/topics"
+const callAirFlow = "http://192.168.62.76:30086/api/experimental/dags/create_hive_table/dag_runs"
 
 // TODO: 先将原来的代码翻译过来
 export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
+
+    public redisStore: any
 
     public async exec(event: Map<string, any>) {
         const entryEvent =  JSON.parse(String(fs.readFileSync("config/event_entry.json", "utf8")))
@@ -50,6 +54,19 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
         }
 
         return null
+    }
+
+    public async prepare() {
+        await super.prepare()
+        const record = this.genTokenRecord()
+        const adapter = this.genRedisAdapter()
+        this.redisStore = fortune(record, {adapter})
+        await this.redisStore.connect()
+    }
+
+    protected genTokenRecord() {
+        const filename = "../models/redis.js"
+        return require(filename).default
     }
 
     protected genEvent(method: string, type: string, path: string, body: any, event: Map<string, any>) {
@@ -283,6 +300,45 @@ export default class AppLambdaScheduleDelegate extends AppLambdaDelegate {
                 headers: {"Content-Type": "application/vnd.kafka.avro.v2+json", "Accept": "application/vnd.kafka.v2+json"}
             })
             phLogger.info("Next Job to Python")
+        } else if (status === "end"  && nextJob.next == null ) { // TODO：不改变原有逻辑（怕改错后花费时间会更多），直接开辟新的逻辑，后续重构
+            phLogger.info("调用生成HIVE表")
+            const tabNames = {
+                "CPA&GYC": "cpa",
+                "CPA&PTI&DDD&HH": "cpa",
+                "GYC&CPA": "cpa",
+                "GYC": "cpa",
+                "CPA": "cpa",
+                "CHC": "chc",
+                "RESULT": "result",
+                "product": "prod",
+                "universe": "universe"
+            }
+            const assetRes = await super.exec(this.genEvent(`GET`, `data-sets`, `/${dsId}/asset-ds`, "", event))
+            // @ts-ignore
+            const asset = JSON.parse(String(assetRes.output[1]))
+            const tbName = tabNames[asset.data.attributes.providers.pop()]
+            const redisRes = await this.redisStore.adapter.redis.get(asset.data.id)
+            const parm = JSON.parse(redisRes)
+            const outPutPath = parm.output_path
+            const outPutType = parm.output_type
+            const saveMode = parm.save_mode
+            const version = parm.version
+            const conf = {
+                input_file_format: "json",
+                input_path: url,
+                output_file_format: outPutType,
+                output_path: `${outPutPath}/${tbName}/${version}`,
+                save_mode: saveMode,
+                table_name: tbName
+            }
+
+            await axios({
+                method: "POST",
+                url: callAirFlow,
+                data: {conf: JSON.stringify(conf)},
+                headers: {"Content-Type": "application/vnd.kafka.avro.v2+json", "Accept": "application/vnd.kafka.v2+json"}
+            })
+            await this.redisStore.disconnect()
         } else {
             return null
         }

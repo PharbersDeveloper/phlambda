@@ -2,6 +2,7 @@ import fortune from "fortune"
 // import mongoAdapter from "fortune-mongodb"
 // import MySQLAdapter from "fortune-mysql"
 import postgresAdapter from "fortune-postgres"
+import redisAdapter from "fortune-redis"
 import * as fs from "fs"
 import http, {ServerResponse} from "http"
 import * as yaml from "js-yaml"
@@ -98,6 +99,17 @@ export default class AppLambdaDelegate {
         const url = prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + dbName
         // const url = "postgres://postgres:196125@localhost:5432/phoffweb"
         return [postgresAdapter , {
+            url
+        }]
+    }
+
+    protected genRedisAdapter() {
+        const prefix = this.conf.redis.algorithm
+        const host = this.conf.redis.host
+        const port = this.conf.redis.port
+        const db = this.conf.redis.db
+        const url = `${prefix}://${host}:${port}/${db}`
+        return [redisAdapter , {
             url
         }]
     }

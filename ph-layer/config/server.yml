@@ -6,21 +6,27 @@ postgres:
   username: "postgres"
   pwd: "faiz"
   dbName: "phtest"
-mongo:
-  algorithm: mongodb+srv
-  host: ph-db-gp.wqegl.azure.mongodb.net
-  port: 27017
-  username: "pharbers"
-  pwd: "Pharbers.84244216"
-  coll: "phtest"
-  authSource: "admin"
-  other: "?retryWrites=true&w=majority"
-  auth: true
-mysql:
-  algorithm: mysql
+#mongo:
+#  algorithm: mongodb+srv
+#  host: ph-db-gp.wqegl.azure.mongodb.net
+#  port: 27017
+#  username: "pharbers"
+#  pwd: "Pharbers.84244216"
+#  coll: "phtest"
+#  authSource: "admin"
+#  other: "?retryWrites=true&w=majority"
+#  auth: true
+#mysql:
+#  algorithm: mysql
+#  host: 127.0.0.1
+#  port: 3306
+#  username: "root"
+#  pwd: "pharbers"
+#  dbName: "phtest"
+redis:
+  dao: "test2"
+  algorithm: redis
+#  host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
   host: 127.0.0.1
-  port: 3306
-  username: "root"
-  pwd: "pharbers"
-  dbName: "phtest"
-
+  port: 6379
+  db: 0

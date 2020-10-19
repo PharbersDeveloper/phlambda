@@ -5,7 +5,7 @@ postgres:
   port: 5432
   username: "pharbers"
   pwd: "Abcde196125"
-  dbName: "phentry"
+  dbName: "phstresstest"
 mongo:
   algorithm: mongodb+srv
   host: ph-db-gp.wqegl.azure.mongodb.net
@@ -15,3 +15,9 @@ mongo:
   coll: "pharbers-offweb-test"
   authSource: "admin"
   auth: true
+redis:
+  algorithm: redis
+  #host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  host: 192.168.100.116
+  port: 6379
+  db: 0

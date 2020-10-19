@@ -1,10 +1,11 @@
 import { ServerResponse } from "http"
 import fortuneHTTP from "../../lib/fortune-http"
 import jsonApiSerializer from "../../lib/fortune-json-api"
-import { StoreEnum } from "../common/StoreEnum"
-import { ServerConf } from "../configFactory/serverConf"
-import { SingletonInitConf } from "../configFactory/singletonConf"
-import { StoreFactory } from "../dbFactory/StoreFactory"
+import { Adapter } from "../common/Adapter"
+import { InitServerConf } from "../common/InitServerConf"
+// import { StoreEnum } from "../common/StoreEnum"
+import { ServerConf } from "../configFactory/ServerConf"
+import DBFactory from "../dbFactory/DBFactory"
 import AWSReq from "../strategies/awsRequest"
 
 /**
@@ -18,10 +19,12 @@ export default class AppLambdaDelegate {
     public store: any
     public listener: any
     public isFirstInit = true
-    private conf: ServerConf = new SingletonInitConf().getConf()
+    private conf: ServerConf = InitServerConf.getConf
 
-    public async prepare(se: StoreEnum) {
-        this.store = StoreFactory.instance.getStore(se)
+    public async prepare(name?: string) {
+        // tslint:disable-next-line:no-unused-expression
+        Adapter.init
+        this.store = DBFactory.getInstance.getStore(name)
         await this.store.connect()
         this.isFirstInit = false
         this.listener = fortuneHTTP(this.store, {

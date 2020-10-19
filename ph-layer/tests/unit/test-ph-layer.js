@@ -14,6 +14,10 @@ describe('Tests index', function () {
         if (del.isFirstInit) {
             const se = require("../../dist/common/StoreEnum")
             await del.prepare(se.StoreEnum.Postgres)
+            const dbf  = require("../../dist/dbFactory/DBFactory").default
+            // dbf.getInstance.register(se.StoreEnum.Redis, "test")
+            const t = dbf.getInstance.getStore(se.StoreEnum.Redis)
+            console.info(t)
         }
     })
 

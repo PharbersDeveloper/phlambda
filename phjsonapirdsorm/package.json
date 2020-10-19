@@ -51,6 +51,7 @@
     "form-data": "^2.5.1",
     "fortune": "^5.5.17",
     "lorem-ipsum": "^2.0.3",
-    "tapdance": "^5.1.1"
+    "tapdance": "^5.1.1",
+    "phlayer": "*"
   }
 }

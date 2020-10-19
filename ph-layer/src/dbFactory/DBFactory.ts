@@ -52,8 +52,10 @@ export default class DBFactory {
             } else {
                 filename = `${path}/${conf.project}.js`
             }
-            const record = require(filename).default
-            this.typeAnalyzerMapping.set(key, fortune(record, {adapter: [ ad, {url}] }))
+            const metaClass = require(filename).default
+            const record = new metaClass()
+            const options = Object.assign({adapter: [ ad, {url}]}, record.operations)
+            this.typeAnalyzerMapping.set(key, fortune(record.model, options))
         }
     }
 

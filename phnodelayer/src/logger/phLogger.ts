@@ -1,10 +1,15 @@
 "use strict"
 
+import fs from "fs"
 import { configure, connectLogger, getLogger } from "log4js"
 
 class PhLogger {
     constructor() {
-        configure("config/log4js.json")
+        let path = `${process.cwd()}/config/log4js.json`
+        if (!fs.existsSync(path)) {
+            path = `${__filename.substring(0, __filename.indexOf("dist"))}config/log4js.json`
+        }
+        configure(path)
     }
 
     public startConnectLog(app: { use: (arg0: any) => void; }) {

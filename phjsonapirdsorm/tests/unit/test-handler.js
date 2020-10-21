@@ -2,46 +2,44 @@
 
 const app = require('../../app.js')
 const delegate = require("../../dist/delegate/appLambdaDelegate").default
-const phLogger = require("../../dist/logger/phLogger").default
+const phLogger = require("phnodelayer").phLogger
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
-var context;
-// const mongoose = require("mongoose")
 
 describe('Tests index', function () {
 
-	it('verify post one', async () => {
-	    const event = JSON.parse(fs.readFileSync("../events/event_success_apply_post_one.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
-
-	    expect(result).to.be.an('object');
-	    expect(result.statusCode).to.equal(201);
-	    expect(result.body).to.be.an('string');
-
-	    let response = JSON.parse(result.body);
-
-	    expect(response).to.be.an('object');
-	    expect(response.data.type).to.be.equal("applies");
-
-	});
-	
-	// it('verify find one successfully', async () => {
-	//     const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
+	// it('verify post one', async () => {
+	//     const event = JSON.parse(fs.readFileSync("../events/event_success_apply_post_one.json", 'utf8'))
 	//     const result = await app.lambdaHandler(event, context)
 	//
 	//     expect(result).to.be.an('object');
-	//     expect(result.statusCode).to.equal(200);
+	//     expect(result.statusCode).to.equal(201);
 	//     expect(result.body).to.be.an('string');
 	//
 	//     let response = JSON.parse(result.body);
-	//     phLogger.info(response)
 	//
 	//     expect(response).to.be.an('object');
-	//     expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
-	//     expect(response.data.type).to.be.equal("images");
-	//     // expect(response.location).to.be.an("string");
+	//     expect(response.data.type).to.be.equal("applies");
+	//
 	// });
+	
+	it('verify find one successfully', async () => {
+	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
+	    const result = await app.lambdaHandler(event, context)
+		phLogger.info(result)
+	    // expect(result).to.be.an('object');
+	    // expect(result.statusCode).to.equal(200);
+	    // expect(result.body).to.be.an('string');
+		//
+	    // let response = JSON.parse(result.body);
+	    // phLogger.info(response)
+		//
+	    // expect(response).to.be.an('object');
+	    // expect(response.data.id).to.be.equal("n5DzBBvCCuVANODXHbfm");
+	    // expect(response.data.type).to.be.equal("images");
+	    // expect(response.location).to.be.an("string");
+	});
 
 	// it('verify find one error', async () => {
 	//     const event = JSON.parse(fs.readFileSync("../events/event_error_find_one.json", 'utf8'))
@@ -184,9 +182,4 @@ describe('Tests index', function () {
 	//     expect(response.data.attributes.describe).to.be.equal("《修改-广阔市场用药分析及展望》")
 	//     // expect(response.location).to.be.an("string");
 	// });
-
-	after("desconnect db", async () => {
-		// await mongoose.disconnect()
-		await app.cleanUp()
-	});
 });

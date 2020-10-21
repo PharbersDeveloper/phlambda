@@ -12,7 +12,7 @@ export class InitServerConf {
     private static init() {
         let path = `${process.cwd()}/config/server.yml`
         if (!fs.existsSync(path)) {
-            path = `config/server.yml`
+            path = `${__filename.substring(0, __filename.indexOf("dist"))}config/server.yml`
         }
         phLogger.debug("加载配置文件地址", path)
         const jsonConvert = new JsonConvert()

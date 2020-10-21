@@ -91,7 +91,9 @@ class Entry {
         switch (method) {
             case "create":
                 const date = new Date()
-                record.created = date
+                if (!record.created) {
+                    record.created = date
+                }
                 record.modified = date
                 return record
             case "update":

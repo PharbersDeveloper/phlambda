@@ -1,13 +1,9 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
 let response;
 
-const phlogger = require("./dist/logger/phLogger").default
+const phLogger = require("phnodelayer").phLogger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
-
-let tmp = 0
 
 /**
  *
@@ -23,11 +19,7 @@ let tmp = 0
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phlogger.info(event)
-        if (app.isFirstInit) {
-            await app.prepare()
-        }
-        // const result = await app.exec(event)
+        phLogger.info(event)
         let result
 
         if (context && context.callbackWaitsForEmptyEventLoop) {
@@ -35,7 +27,6 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         result = await app.exec(event)
-        tmp = 0
         response = {
             'statusCode': result.statusCode,
             'headers': result.output[0],
@@ -59,19 +50,10 @@ exports.lambdaHandler = async function (event, context) {
         Object.assign(objHeader, corsHeader)
         response.headers = objHeader
 
-        // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
-        //         phlogger.info("retry connect mongodb for another round.");
-        //         tmp = 1
-        //         return runLambda(event, context)
-        // }
     } catch (err) {
-        phlogger.error(err);
+        phLogger.error(err);
         return err;
     }
 
     return response
-};
-
-exports.cleanUp = async () => {
-    await app.cleanUp()
 };

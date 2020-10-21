@@ -1,11 +1,11 @@
 {
-  "name": "phlayer",
-  "version": "0.0.1",
-  "description": "phjsonapi typescript for NodeJS",
+  "name": "phnodelayer",
+  "version": "0.0.4",
+  "description": "AWS Lambda Nodejs Layer",
   "main": "index.js",
   "author": "Alfred",
   "maintainer": "Alex",
-  "license": "MIT",
+  "license": "GPL3.0",
   "scripts": {
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
@@ -17,6 +17,12 @@
     "test": "mocha tests/unit/",
     "importTest": "mocha tests/unit --timeout 50000"
   },
+  "files": [
+    "dist/**/*",
+    "index.js",
+    "lib",
+    "config"
+  ],
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/js-yaml": "^3.12.1",
@@ -36,7 +42,6 @@
     "json2typescript": "^1.4.1",
     "log4js": "^4.5.1",
     "negotiator": "^0.6.2",
-    "npm": "^6.14.8",
     "pluralize": "0.0.11",
     "simulacra": "^2.2.0"
   },
@@ -54,9 +59,6 @@
     "chalk": "^2.4.2",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",
-    "form-data": "^2.5.1",
-    "fortune": "^5.5.17",
-    "lorem-ipsum": "^2.0.3",
     "tapdance": "^5.1.1"
   }
 }

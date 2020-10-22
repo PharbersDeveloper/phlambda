@@ -156,7 +156,6 @@ exports.lambdaHandler = async function (event, context) {
         response.headers = objHeader
 
     } catch (err) {
-        phLogger.error(err);
         return err;
     }
 
@@ -168,12 +167,12 @@ exports.lambdaHandler = async function (event, context) {
 
 ## Log 管理
 ```ts
-import {  phLogger} from "phnodelayer"
+import { logger } from "phnodelayer"
 
-phLogger.trace("<what ever you want>")
-phLogger.debug("<what ever you want>")
-phLogger.info("<what ever you want>")
-phLogger.warn("<what ever you want>")
-phLogger.error("<what ever you want>")
-phLogger.fatal("<what ever you want>")
+logger.trace("<what ever you want>")
+logger.debug("<what ever you want>")
+logger.info("<what ever you want>")
+logger.warn("<what ever you want>")
+logger.error("<what ever you want>")
+logger.fatal("<what ever you want>")
 ```

@@ -2,7 +2,7 @@
 
 const app = require('../../app.js')
 const delegate = require("../../dist/delegate/appLambdaDelegate").default
-const phLogger = require("phnodelayer").phLogger
+const phLogger = require("phnodelayer").logger
 const chai = require('chai')
 const expect = chai.expect
 const fs = require('fs')
@@ -23,11 +23,20 @@ describe('Tests index', function () {
 	//     expect(response.data.type).to.be.equal("applies");
 	//
 	// });
-	
+	async function sleep(ms) {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve('')
+			}, ms)
+		})
+	}
 	it('verify find one successfully', async () => {
 	    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
-	    const result = await app.lambdaHandler(event, context)
-		phLogger.info(result)
+		for (const item of [1,2,3,4,5,6,7,8,9,10]) {
+			const result = await app.lambdaHandler(event, context)
+			phLogger.info(JSON.stringify(JSON.parse(result.body)))
+		}
+		await sleep(1000 * 60)
 	    // expect(result).to.be.an('object');
 	    // expect(result.statusCode).to.equal(200);
 	    // expect(result.body).to.be.an('string');

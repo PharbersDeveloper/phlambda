@@ -1,4 +1,4 @@
-import { Main } from "../index"
+import { Main, logger } from "../index"
 import * as fs from "fs"
 
 test("Test DB Connect", async () => {
@@ -12,7 +12,7 @@ test("Test DB Connect", async () => {
     }
 
     const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
-    await Main(event)
-
+    const result = await Main(event)
+    logger.info(JSON.parse(result["output"][1]))
     await sleep(1000 * 60)
 })

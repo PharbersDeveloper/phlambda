@@ -1,6 +1,6 @@
 let response;
 
-const phLogger = require("phnodelayer").phLogger
+const phLogger = require("phnodelayer").logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
@@ -19,7 +19,7 @@ const app = new delegate()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phLogger.info(event)
+        // phLogger.info(event)
         let result
 
         if (context && context.callbackWaitsForEmptyEventLoop) {

@@ -17,12 +17,12 @@
     "importTest": "mocha tests/unit --timeout 50000"
   },
   "dependencies": {
-    "typescript": "^3.3.1",
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "^2.686.0",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
-    "phnodelayer": "0.0.4"
+    "phnodelayer": "0.0.5",
+    "typescript": "^3.3.1"
   },
   "devDependencies": {
     "@types/chai": "^3.2.0",

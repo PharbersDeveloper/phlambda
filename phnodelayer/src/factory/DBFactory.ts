@@ -49,7 +49,8 @@ export default class DBFactory {
 
 		for (const key of keys) {
 			const ad = Adapter.init.getAdapter(key)
-			const url = conf[key].getUrl()
+			// const url = conf[key].getUrl()
+            const connect = conf[key].getConnect()
 			const path = `${process.cwd()}/dist/models`
 			if (conf[key].dao !== undefined) {
 				filename = `${path}/${conf[key].dao}.js`
@@ -58,7 +59,9 @@ export default class DBFactory {
 			}
 			const metaClass = require(filename).default
 			const record = new metaClass()
-			const options = Object.assign({ adapter: [ad, { url }] }, record.operations)
+			const options = Object.assign({
+				adapter: [ad, { connection: connect }],
+			}, record.operations)
 			this.typeAnalyzerMapping.set(key, fortune(record.model, options))
 		}
 	}

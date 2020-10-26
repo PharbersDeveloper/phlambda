@@ -18,6 +18,7 @@ export default class AppLambdaDelegate {
 	public isFirstInit = true
 
 	public async prepare(name?: string) {
+		// tslint:disable-next-line:no-unused-expression
 		Adapter.init
 		this.store = DBFactory.getInstance.getStore(name)
 		await this.store.connect()

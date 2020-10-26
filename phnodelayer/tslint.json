@@ -10,7 +10,8 @@
         "no-bitwise": false,
         "semicolon": { "options": ["never"] },
         "prefer-const": false,
-        "object-literal-sort-keys": false
+        "object-literal-sort-keys": false,
+        "no-string-literal": false
     },
     "rulesDirectory": []
 }

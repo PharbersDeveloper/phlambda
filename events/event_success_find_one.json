@@ -1,14 +1,14 @@
 {
   "body": "",
-  "resource": "/offweb/{type}/{id}",
-  "path": "/offweb/images/n5DzBBvCCuVANODXHbfm",
+  "resource": "/entry/{type}/{id}",
+  "path": "/entry/assets/JEp0ySTR-CvVdKC5V1gc",
   "httpMethod": "GET",
   "isBase64Encoded": true,
   "queryStringParameters": {},
   "multiValueQueryStringParameters": {},
   "pathParameters": {
-    "type": "images",
-    "id": "n5DzBBvCCuVANODXHbfm"
+    "type": "assets",
+    "id": "JEp0ySTR-CvVdKC5V1gc"
   },
   "stageVariables": {
     "baz": "qux"
@@ -109,8 +109,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/offweb/images/n5DzBBvCCuVANODXHbfm",
-    "resourcePath": "/offweb/{type}/{id}",
+    "path": "/entry/assets/JEp0ySTR-CvVdKC5V1gc",
+    "resourcePath": "/entry/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

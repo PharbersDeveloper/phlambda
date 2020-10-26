@@ -1,11 +1,11 @@
-project: "entry"
+project: "TestTable"
 postgres:
   algorithm: postgres
-  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  host: 127.0.0.1
   port: 5432
-  username: "pharbers"
-  pwd: "Abcde196125"
-  dbName: "phentry"
+  username: "postgres"
+  pwd: "faiz"
+  dbName: "phtest"
 #mongo:
 #  algorithm: mongodb+srv
 #  host: ph-db-gp.wqegl.azure.mongodb.net
@@ -23,10 +23,9 @@ postgres:
 #  username: "root"
 #  pwd: "pharbers"
 #  dbName: "phtest"
-#redis:
-#  dao: "test"
-#  algorithm: redis
-#  # host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
-#  host: 127.0.0.1
-#  port: 6379
-#  db: 0
+# redis:
+#   dao: "test2"
+#   algorithm: redis
+#   host: 127.0.0.1
+#   port: 6379
+#   db: 0

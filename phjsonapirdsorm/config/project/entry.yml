@@ -1,48 +1,32 @@
 project: "entry"
-models:
-  - file: SandboxIndex
-    reg: sandbox-indices
-  - file: FileVersion
-    reg: file-versions
-  - file: FileDetail
-    reg: file-details
-  - file: Component
-    reg: assets
-  - file: DataSet
-    reg: data-sets
-  - file: Job
-    reg: jobs
-  - file: DbSource
-    reg: db-sources
-  - file: File
-    reg: files
-  - file: Mart
-    reg: marts
-mongo:
-  algorithm: mongodb
-  host: pharbers.com
-  port: 5555
-  username: ""
-  pwd: ""
-  coll: "pharbers-sandbox-merge"
-  authSource: ""
-  auth: false
-env:
-  oauthHost: oauth.pharbers.com
-  oauthPort: ""
-  oauthApiNamespace: "v0"
-  kafkaBrokerList: "59.110.31.50:9092"
-  kafkaTopic: "test"
-  kafkaSecretsDir: "/Users/sunchenghao/secrets/"
-  kafkaPassword: "pharbers"
-  schemaRegisterHost: "59.110.31.50:8081"
-  httpCallUrl: "http://59.110.31.50:28888/spark/job/run"
-  httpCallRUrl: "http://59.110.31.50:9213/v1.0/job_reg"
-oss:
-  region: oss-cn-beijing
-  accessKeyId: LTAI4Fuc5oo46peAcc3LmHb3
-  accessKeySecret: aJRr3DP4nXCFDR3KGRICpIhq5bHfTm
-  bucket: pharbers-PhSandBox
-kfk:
-  kafkaBrokerList: "http://broker-svc.message:8082"
-  kafkaTopic: "alfredtest"
+postgres:
+  algorithm: postgres
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  port: 5432
+  username: "pharbers"
+  pwd: "Abcde196125"
+  dbName: "phentry"
+#mongo:
+#  algorithm: mongodb+srv
+#  host: ph-db-gp.wqegl.azure.mongodb.net
+#  port: 27017
+#  username: "pharbers"
+#  pwd: "Pharbers.84244216"
+#  coll: "phtest"
+#  authSource: "admin"
+#  other: "?retryWrites=true&w=majority"
+#  auth: true
+#mysql:
+#  algorithm: mysql
+#  host: 127.0.0.1
+#  port: 3306
+#  username: "root"
+#  pwd: "pharbers"
+#  dbName: "phtest"
+#redis:
+#  dao: "test"
+#  algorithm: redis
+#  # host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+#  host: 127.0.0.1
+#  port: 6379
+#  db: 0

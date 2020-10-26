@@ -1,0 +1,16 @@
+{
+	"defaultSeverity": "error",
+  	"extends": [
+    	"tslint:recommended",
+    	"tslint-config-prettier"
+	],
+	"jsRules": {},
+    "rules": {
+        "trailing-comma": [ false ],
+        "no-bitwise": false,
+        "semicolon": { "options": ["never"] },
+        "prefer-const": false,
+        "object-literal-sort-keys": false
+    },
+    "rulesDirectory": []
+}

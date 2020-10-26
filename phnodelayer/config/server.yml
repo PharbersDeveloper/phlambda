@@ -6,6 +6,9 @@ postgres:
   username: "postgres"
   pwd: "faiz"
   dbName: "phtest"
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000
 #mongo:
 #  algorithm: mongodb+srv
 #  host: ph-db-gp.wqegl.azure.mongodb.net

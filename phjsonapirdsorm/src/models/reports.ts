@@ -1,4 +1,3 @@
-
 const fields = {
     year: Number,
     quarter: Number,
@@ -28,26 +27,27 @@ const fields = {
     salesGrowth: Number,
     ei: Number,
 }
-
-const records = {
-    aohong: fields,
-    astellas: fields,
-    az: fields,
-    beite: fields,
-    gilead: fields,
-    haikun: fields,
-    huiyu: fields,
-    jingxin: fields,
-    kangzhe: fields,
-    mylan: fields,
-    nhwa: fields,
-    pfizer: fields,
-    qilu: fields,
-    sankyo: fields,
-    sanofi: fields,
-    servier: fields,
-    tide: fields,
-    xlt: fields
+class Reports {
+    public model: any = {
+        aohong: fields,
+        astellas: fields,
+        az: fields,
+        beite: fields,
+        gilead: fields,
+        haikun: fields,
+        huiyu: fields,
+        jingxin: fields,
+        kangzhe: fields,
+        mylan: fields,
+        nhwa: fields,
+        pfizer: fields,
+        qilu: fields,
+        sankyo: fields,
+        sanofi: fields,
+        servier: fields,
+        tide: fields,
+        xlt: fields
+    }
 }
 
-export default records
+export default Reports

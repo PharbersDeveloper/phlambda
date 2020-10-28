@@ -27,13 +27,13 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         result = await app.exec(event)
+
         response = {
             'statusCode': result.statusCode,
             'headers': result.output[0],
             'body': String(result.output[1])
         }
 
-        const resultOutput = result.output[0].split("\r\n")
         const corsHeader =   {
             "Access-Control-Allow-Headers" : "Content-Type",
             "Access-Control-Allow-Origin": "*",
@@ -41,12 +41,18 @@ exports.lambdaHandler = async function (event, context) {
         }
         let objHeader = {}
 
-        for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(":");
-            if (element.length === 2) {
-                objHeader[element[0]] = element[1]
+        if (typeof result.output[0] === "string") {
+            const resultOutput = result.output[0].split("\r\n")
+            for (let index = 0; index < resultOutput.length; index++) {
+                const element = resultOutput[index].split(":");
+                if (element.length === 2) {
+                    objHeader[element[0]] = element[1]
+                }
             }
+        } else {
+            objHeader = result.output[0]
         }
+
         Object.assign(objHeader, corsHeader)
         response.headers = objHeader
 

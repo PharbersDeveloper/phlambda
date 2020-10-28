@@ -6,36 +6,26 @@
   "author": "Alfred",
   "license": "MIT",
   "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
+    "test": "jest --config jestconfig.json",
     "build": "tsc",
-    "prestart": "npm run build",
-    "start": "node .",
-    "pretest": "tsc",
-    "watch": "mocha-typescript-watch",
-    "prepare": "tsc",
-    "test": "mocha tests/unit/",
-    "importTest": "mocha tests/unit --timeout 50000"
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "^2.686.0",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "axios": "^0.21.0",
     "phnodelayer": "0.0.5",
     "typescript": "^3.3.1"
   },
   "devDependencies": {
-    "@types/chai": "^3.2.0",
-    "@types/mocha": "^5.2.7",
     "@types/node": "~10.17.24",
-    "chai": "^4.2.0",
-    "chalk": "^2.4.2",
+    "jest": "^26.6.0",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.1",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",
-    "mocha": "^6.1.4",
-    "mocha-typescript": "^1.1.17",
     "source-map-support": "^0.5.13",
-    "tapdance": "^5.1.1",
     "tslint": "^5.18.0",
     "typedoc": "^0.14.2",
     "typescript": "^3.3.1"

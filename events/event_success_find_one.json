@@ -1,14 +1,14 @@
 {
   "body": "",
-  "resource": "/entry/{type}/{id}",
-  "path": "/entry/assets/JEp0ySTR-CvVdKC5V1gc",
+  "resource": "/reports/{type}/{id}",
+  "path": "/reports/template/fVxL1xByKMkIAW1ct_su",
   "httpMethod": "GET",
   "isBase64Encoded": true,
   "queryStringParameters": {},
   "multiValueQueryStringParameters": {},
   "pathParameters": {
-    "type": "assets",
-    "id": "JEp0ySTR-CvVdKC5V1gc"
+    "type": "template",
+    "id": "fVxL1xByKMkIAW1ct_su"
   },
   "stageVariables": {
     "baz": "qux"
@@ -109,8 +109,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/entry/assets/JEp0ySTR-CvVdKC5V1gc",
-    "resourcePath": "/entry/{type}/{id}",
+    "path": "/reports/xlts/",
+    "resourcePath": "/reports/{type}/{id}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

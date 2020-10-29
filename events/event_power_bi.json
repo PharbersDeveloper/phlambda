@@ -1,14 +1,16 @@
 {
   "body": "",
-  "resource": "/reports/{type}/{id}",
-  "path": "/reports/xlts/207961",
+  "resource": "/pbi/{type}",
+  "path": "/pbi/token",
   "httpMethod": "GET",
   "isBase64Encoded": true,
-  "queryStringParameters": {},
+  "queryStringParameters": {
+    "rid": "acb82748-99ef-4ede-9b1b-5f45f1290638",
+    "gid": "1297dd91-22b4-4e4c-bcf0-77b555c7e0f6"
+  },
   "multiValueQueryStringParameters": {},
   "pathParameters": {
-    "type": "xlts",
-    "id": "207961"
+    "type": "token"
   },
   "stageVariables": {
     "baz": "qux"
@@ -109,8 +111,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/reports/xlts/",
-    "resourcePath": "/reports/{type}/{id}",
+    "path": "/pbi/token/",
+    "resourcePath": "/pbi/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

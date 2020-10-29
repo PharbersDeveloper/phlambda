@@ -94,8 +94,8 @@ class Reports {
                 record.modified = date
                 return record
             case "update":
-                record.modified = new Date()
-                return record
+                update.replace.modified = new Date()
+                return update
         }
     }
 }

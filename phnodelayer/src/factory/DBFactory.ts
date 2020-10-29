@@ -4,7 +4,7 @@ import fortune from 'fortune'
 import { Adapter } from '../common/Adapter'
 import { InitServerConf } from '../common/InitServerConf'
 import { ServerConf } from '../configFactory/ServerConf'
-import phLogger from '../logger/PhLogger'
+import { StoreEnum } from "../common/StoreEnum"
 
 export default class DBFactory {
 	private static instance: DBFactory = null
@@ -49,8 +49,7 @@ export default class DBFactory {
 
 		for (const key of keys) {
 			const ad = Adapter.init.getAdapter(key)
-			// const url = conf[key].getUrl()
-            const connect = conf[key].getConnect()
+			const url = conf[key].getUrl()
 			const path = `${process.cwd()}/dist/models`
 			if (conf[key].dao !== undefined) {
 				filename = `${path}/${conf[key].dao}.js`
@@ -59,9 +58,15 @@ export default class DBFactory {
 			}
 			const metaClass = require(filename).default
 			const record = new metaClass()
-			const options = Object.assign({
-				adapter: [ad, { connection: connect }],
+			let options = Object.assign({
+				adapter: [ad, { url }],
 			}, record.operations)
+			if (key !== StoreEnum.Redis) {
+				const connect = conf[key].getConnect()
+				options = Object.assign({
+					adapter: [ad, { connection: connect }],
+				}, record.operations)
+			}
 			this.typeAnalyzerMapping.set(key, fortune(record.model, options))
 		}
 	}

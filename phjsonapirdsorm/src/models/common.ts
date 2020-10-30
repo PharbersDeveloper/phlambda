@@ -10,7 +10,8 @@ class Common {
 
     public model: any = {
         account: {
-            name: String,
+            firstName: String,
+            lastName: String,
             email: String,
             password: String,
             phoneNumber: String,
@@ -77,8 +78,8 @@ class Common {
     }
 
     protected input(context, record, update) {
-        const { message, errors: { BadRequestError } } = fortune
-        const { request: { method, meta: { language } } } = context
+        const { errors: { BadRequestError } } = fortune
+        const { request: { method } } = context
         switch (method) {
             case "create":
                 const date = new Date()

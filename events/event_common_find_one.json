@@ -1,8 +1,8 @@
 {
-    "body": "{\"data\": {  \"type\": \"accounts\", \"id\": \"qtaGDePl1OrSFEgm\", \"attributes\": { \"firstName\": \"F\", \"lastName\": \"B\" }} }",
+    "body": "",
     "resource": "/phcommon/{type}/{id}",
     "path": "/phcommon/accounts/qtaGDePl1OrSFEgm",
-    "httpMethod": "PATCH",
+    "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
     },

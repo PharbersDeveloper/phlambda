@@ -1,6 +1,5 @@
 let response;
 
-const phLogger = require("phnodelayer").logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
@@ -40,19 +39,23 @@ exports.lambdaHandler = async function (event, context) {
         }
         let objHeader = {}
 
-        const resultOutput = result.output[0].split("\r\n")
-        for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(":");
-            if (element.length === 2) {
-                objHeader[element[0]] = element[1]
+        if (typeof result.output[0] === "string") {
+            const resultOutput = result.output[0].split("\r\n")
+            for (let index = 0; index < resultOutput.length; index++) {
+                const element = resultOutput[index].split(":");
+                if (element.length === 2) {
+                    objHeader[element[0]] = element[1]
+                }
             }
+        } else {
+            objHeader = result.output[0]
         }
 
         Object.assign(objHeader, corsHeader)
         response.headers = objHeader
 
     } catch (err) {
-        phLogger.error(err);
+        console.error(err);
         return err;
     }
 

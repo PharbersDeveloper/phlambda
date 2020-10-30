@@ -220,6 +220,7 @@ export default class AppLambdaAuthDelegate extends AppLambdaDelegate {
                 token_type: "bearer",
                 expires_in: 64800,
                 refresh_token: accessToken.refresh,
+                uid: accessToken.uid
             }
             return response
         } else {

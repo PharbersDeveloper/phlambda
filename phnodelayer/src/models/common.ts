@@ -1,7 +1,6 @@
 import * as fortune from "fortune"
 
 class Common {
-
     private static verifyPassword(current: string, input: any): boolean {
         const spwd = input.replace.password.split("#")
         input.replace.password = spwd[1]
@@ -18,7 +17,7 @@ class Common {
             created: Date,
             modified: Date,
             defaultRole: { link: "role", inverse: "accountRole" },
-            employer: { link: "partner", inverse: "employee" }
+            employer: { link: "partner", inverse: "employee" },
         },
         role: {
             name: String,
@@ -34,7 +33,7 @@ class Common {
             scopePolicy: String,
             created: Date,
             modified: Date,
-            owner: { link: "role", isArray: true, inverse: "scope" }
+            owner: { link: "role", isArray: true, inverse: "scope" },
         },
         partner: {
             name: String,
@@ -43,7 +42,7 @@ class Common {
             web: String,
             created: Date,
             modified: Date,
-            employee: { link: "account", isArray: true, inverse: "employer" }
+            employee: { link: "account", isArray: true, inverse: "employer" },
         },
         client: {
             name: String,
@@ -51,7 +50,7 @@ class Common {
             secret: String,
             created: Date,
             modified: Date,
-            clientComponents: { link: "component", isArray: true, inverse: "client" }
+            clientComponents: { link: "component", isArray: true, inverse: "client" },
         },
         component: {
             name: String,
@@ -62,23 +61,27 @@ class Common {
             hbs: String,
             version: String,
             client: { link: "client", isArray: true, inverse: "clientComponents" },
-        }
+        },
     }
 
     public operations = {
         hooks: {
-            account: [ this.input, this.output],
-            role: [ this.input ],
-            scope: [ this.input ],
-            partner: [ this.input ],
-            client: [ this.input ],
-            component: [ this.input ]
-        }
+            account: [this.input, this.output],
+            role: [this.input],
+            scope: [this.input],
+            partner: [this.input],
+            client: [this.input],
+            component: [this.input],
+        },
     }
 
     protected input(context: any, record: any, update: any) {
-        const { errors: { BadRequestError } } = fortune
-        const { request: { method } } = context
+        const {
+            errors: { BadRequestError },
+        } = fortune
+        const {
+            request: { method },
+        } = context
         switch (method) {
             case "create":
                 const date = new Date()

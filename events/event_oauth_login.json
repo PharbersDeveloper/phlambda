@@ -5,8 +5,8 @@
   "httpMethod": "POST",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "email":"alfredyang@pharbers.com",
-    "password":"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
+    "email": "alfredyang@pharbers.com",
+    "password": "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
   },
   "pathParameters": {
     "edp": "login"

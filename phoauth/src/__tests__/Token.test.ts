@@ -31,7 +31,7 @@ test(
 
 test("OAuth Token", async () => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "a1748c283c2a0a30ce5d1e83b6008e534558a38ecd0332e3872655b90178e49b"
+    event.queryStringParameters.code = "346f59c16830c0ab6e7742475f9ce3610922a8b4c0905f7604824988aeb3a15f"
     const app = require("../../app.js")
     const res = await app.lambdaHandler(event, undefined)
     expect(res.statusCode).toBe(200)

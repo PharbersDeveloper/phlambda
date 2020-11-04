@@ -1,5 +1,4 @@
 import * as fs from "fs"
-import moment from "moment"
 
 test(
     "OAuth Login",

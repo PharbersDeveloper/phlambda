@@ -36,19 +36,19 @@ export default class RedisStore implements IRedisStore {
        return await this.store.adapter.redis.set(key, value, "EX", expire)
     }
 
-    public async create(type: string, records: any) {
-        return await this.store.create(type, records)
+    public async create(type: string, records: any, include: any, meta: any) {
+        return await this.store.create(type, records, include, meta)
     }
-    public async find(type: string, ids: any) {
-        return await this.store.find(type, ids)
-    }
-
-    public async update(type: string, updates: any) {
-        return await this.store.update(type, updates)
+    public async find(type: string, ids: any, options: any, include: any, meta: any) {
+        return await this.store.find(type, ids, options, include, meta)
     }
 
-    public async delete(type: string, ids: any) {
-        return await this.store.delete(type, ids)
+    public async update(type: string, updates: any, include: any, meta: any) {
+        return await this.store.update(type, updates, include, meta)
+    }
+
+    public async delete(type: string, ids: any, include: any, meta: any) {
+        return await this.store.delete(type, ids, include, meta)
     }
 
     public async open() {

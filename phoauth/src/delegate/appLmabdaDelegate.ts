@@ -112,13 +112,18 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         let scope = event.queryStringParameters.scope // 不同前端项目对应不同的client和scope
         if (scope === undefined) {
-            scope = ["APP", clientName, "R"].join("|")
+            scope = ["APP", `${clientName}:*:*:R`, "R"].join("|")
         }
 
         // @ts-ignore
         const userId = event.queryStringParameters.user_id
         const account = await this.dbIns.find("account", userId, null, ["defaultRole", "scope"])
-        const scopeRecord = account.payload.include.scope.map((x) => x.scopePolicy)
+        const employerId = account.payload.records[0].employer
+        const scopeRecord = account.payload.include.scope.map((x) =>
+            x.name.toLowerCase() === "default" ?
+                {name: x.name, value: x.scopePolicy.replace("{uid}", userId).replace("{pid}", employerId)} :
+                {name: x.name, value: x.scopePolicy}
+        )
         if (!this.grantScopeAuth(scope, scopeRecord)) {
             errors2response(PhInvalidAuthGrant, response)
             return response
@@ -212,44 +217,32 @@ export default class AppLambdaDelegate {
         }
     }
 
-    protected grantScopeAuth(scope: string, policies: string[]) {
-        if (policies.length === 0) {
+    protected grantScopeAuth(scope: string, policies: any[]) {
+        if (policies.length === 0) { // 无任何权限
             return false
-        } // 无任何权限
-        if (policies.length === 1 && policies[0] === "*") {
-            // 权限为admin
+        }
+        // @ts-ignore
+        if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return true
         }
-        if (scope === "offwebLogin") {
+        if (scope === "SSO") { // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
             return true
-        } // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
+        }
         const sa = scope.split("|")
-        const plc = policies.map((item) => {
-            const is = item.split("|")
-            return {
-                client: is[0],
-                resource: is[1],
-                permissions: is[2],
-            }
-        })
 
         // 拥有指定资源或所有资源
-        const contains = plc.find(
-            (item) => sa[0] === item.client && (item.resource.indexOf(sa[1]) !== -1 || item.resource === "*"),
-        )
-        if (contains === undefined) {
-            // 申请的资源不再数据库中
+        const contains = this.getAccessScope(scope, policies)
+        if (contains === undefined) { // 申请的资源不再数据库中
             return false
         }
-        if (contains.permissions === "A") {
+        if (contains.permissions === "A") { // 权限为A，scope权限申请，放行
             return true
-        } // 权限为A，scope权限申请，放行
-        if (sa[2] === "R" && contains.permissions !== "R") {
-            // 权限为W|X，scope申请为R，放行
+        }
+        if (sa[2] === "R" && contains.permissions !== "R") { // 权限为W|X，scope申请为R，放行
             return true
-        } else {
+        } else { // 权限为W|X，申请权限必须与预期相等
             return contains.permissions === sa[2]
-        } // 权限为W|X，申请权限必须与预期相等
+        }
     }
 
     protected async genAuthCode(uid: string, cid: string, scope: string) {
@@ -291,39 +284,55 @@ export default class AppLambdaDelegate {
         return value.toString(CryptoJS.enc.Hex)
     }
 
-    protected hmac(secret, value) {
-        return CryptoJS.HmacSHA256(value, secret, { asBytes: true })
-    }
+    // protected hmac(secret, value) {
+    //     return CryptoJS.HmacSHA256(value, secret, { asBytes: true })
+    // }
 
     protected hash(value) {
         return CryptoJS.SHA256(value)
     }
 
-    protected mappingPolices(scope: string, policies: string[]) {
-        if (policies.length === 1 && policies[0] === "*") {
-            // 权限为admin
+    protected mappingPolices(scope: string, policies: any[]) {
+        // @ts-ignore
+        if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return "*"
         }
-        // @ts-ignore
         let sp
-        const plc = policies.map((item: string) => {
-            const is = item.split("|")
+        if (scope === "SSO") { // 官网登入，存入账户可使用的权限
+            // @ts-ignore
+            return policies.map((item: any) => item.value).join("#")
+        }
+
+        const contains = this.getAccessScope(scope, policies)
+        sp = [
+            [contains.client, contains.resource, contains.permissions].join("|"),
+            policies.find((item: any) => item.name.toLowerCase() === "default").value
+        ].filter((item: string) => item !== undefined).join("#")
+        return sp
+    }
+
+    /**
+     * 获取用户申请访问权限区间
+     * @param scope
+     * @param policies
+     */
+    private getAccessScope(scope: string, policies: any[]): any {
+        const plc = policies.map((item: any) => {
+            // @ts-ignore
+            const is = item.value.split("|")
             return {
                 client: is[0],
                 resource: is[1],
                 permissions: is[2],
             }
         })
-
-        if (scope === "offwebLogin") {
-            return policies.join("#")
-        } // 官网登入，存入账户可使用的权限
-
-        const spa = scope.split("|")
-        const contains = plc.find(
-            (item) => spa[0] === item.client && (item.resource.indexOf(spa[1]) !== -1 || item.resource === "*"),
-        )
-        sp = [contains.client, contains.resource, contains.permissions].join("|")
-        return sp
+        // TODO: 后续暴露API接入三方，这边的查找范围是有问题的，应从匹配单个 => 匹配多个Scope，先满足现有后续再改吧
+        const sa = scope.split("|")
+        return plc.find((item) => {
+            const resourceTypes = Array.from(new Set(item.resource.split(",").map((resource) => {
+                return resource.split(":")[0]
+            })))
+            return sa[0] === item.client && (resourceTypes.includes(sa[1].split(":")[0]) || item.resource === "*")
+        })
     }
 }

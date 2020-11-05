@@ -5,7 +5,8 @@
   "collectCoverage": true,
   "testEnvironment": "node",
   "coveragePathIgnorePatterns": [
-    "<rootDir>/node_modules/"
+    "<rootDir>/node_modules/",
+    "<rootDir>/app.js"
   ],
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]

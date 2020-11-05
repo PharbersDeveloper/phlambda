@@ -3,7 +3,7 @@ import * as fs from "fs"
 const GETAllow = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token_auth.json", "utf8"))
     event.type = "TOKEN"
-    event.authorizationToken = "30d0c986b5095879a720cd26b60182a485eb1314e1bd0d76c868a238299968c6"
+    event.authorizationToken = "0e87094a8cce2dab834e6145d9035e199774d39a590a0754809cff141b864f74"
     event.methodArn = event.methodArn + "/v0/GET/entry/assets/xxxx"
     return event
 })
@@ -11,7 +11,7 @@ const GETAllow = jest.fn(() => {
 const POSTAllow = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token_auth.json", "utf8"))
     event.type = "TOKEN"
-    event.authorizationToken = "30d0c986b5095879a720cd26b60182a485eb1314e1bd0d76c868a238299968c6"
+    event.authorizationToken = "0e87094a8cce2dab834e6145d9035e199774d39a590a0754809cff141b864f74"
     event.methodArn = event.methodArn + "/v0/POST/entry/assets/xxxx"
     return event
 })
@@ -19,7 +19,7 @@ const POSTAllow = jest.fn(() => {
 const PATCHAllow = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token_auth.json", "utf8"))
     event.type = "TOKEN"
-    event.authorizationToken = "30d0c986b5095879a720cd26b60182a485eb1314e1bd0d76c868a238299968c6"
+    event.authorizationToken = "0e87094a8cce2dab834e6145d9035e199774d39a590a0754809cff141b864f74"
     event.methodArn = event.methodArn + "/v0/PATCH/entry/assets/xxxx"
     return event
 })
@@ -27,7 +27,7 @@ const PATCHAllow = jest.fn(() => {
 const DELETEDeny = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token_auth.json", "utf8"))
     event.type = "TOKEN"
-    event.authorizationToken = "30d0c986b5095879a720cd26b60182a485eb1314e1bd0d76c868a238299968c6"
+    event.authorizationToken = "0e87094a8cce2dab834e6145d9035e199774d39a590a0754809cff141b864f74"
     event.methodArn = event.methodArn + "/v0/DELETE/entry/assets/xxxx"
     return event
 })

@@ -6,7 +6,8 @@
   "author": "Alfred",
   "license": "GPL3.0",
   "scripts": {
-    "test": "jest --config jestconfig.json",
+    "coverage": "open ./coverage/lcov-report/index.html",
+    "test": "jest --config jestconfig.json --coverage",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"

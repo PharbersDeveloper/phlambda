@@ -1,5 +1,5 @@
 {
-  "name": "OAuthCore",
+  "name": "oauthcore",
   "version": "0.1.0",
   "description": "OAuth Core",
   "main": "app.js",

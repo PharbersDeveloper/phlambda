@@ -103,6 +103,10 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         const client = await this.dbIns.find("client", clientId)
         const clientRecord = client.payload.records[0]
+        if (client.payload.records.length === 0) {
+            errors2response(PhInvalidClient, response)
+            return response
+        }
         if (clientRecord.expired !== null && clientRecord.expired < new Date()) {
             errors2response(PhInvalidClient, response)
             return response
@@ -118,6 +122,10 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         const userId = event.queryStringParameters.user_id
         const account = await this.dbIns.find("account", userId, null, ["defaultRole", "scope"])
+        if (account.payload.records.length === 0) {
+            errors2response(PhNotFoundError, response)
+            return response
+        }
         const employerId = account.payload.records[0].employer
         const scopeRecord = account.payload.include.scope.map((x) =>
             x.name.toLowerCase() === "default" ?
@@ -181,6 +189,12 @@ export default class AppLambdaDelegate {
         const code = event.queryStringParameters.code
         // @ts-ignore
         const grantType = event.queryStringParameters.grant_type
+
+        const client = await this.dbIns.find("client", clientId)
+        if (client.payload.records.length === 0) {
+            errors2response(PhNotFoundError, response)
+            return response
+        }
 
         if (grantType !== "authorization_code") {
             errors2response(PhInvalidGrantType, response)

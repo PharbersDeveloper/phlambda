@@ -311,18 +311,20 @@ export default class AppLambdaDelegate {
         if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return "*"
         }
-        let sp
         if (scope === "SSO") { // 官网登入，存入账户可使用的权限
             // @ts-ignore
             return policies.map((item: any) => item.value).join("#")
         }
 
-        const contains = this.getAccessScope(scope, policies)
-        sp = [
-            [contains.client, contains.resource, contains.permissions].join("|"),
-            policies.find((item: any) => item.name.toLowerCase() === "default").value
-        ].filter((item: string) => item !== undefined).join("#")
-        return sp
+        // TODO: 现在一个系统会调用另一个系统不能给最小权限不然后续验证时不会放行其他请求，这个还需要重新思考，暂时给数据库绑定的权限
+        // let sp
+        // const contains = this.getAccessScope(scope, policies)
+        // sp = [
+        //     [contains.client, contains.resource, contains.permissions].join("|"),
+        //     policies.find((item: any) => item.name.toLowerCase() === "default").value
+        // ].filter((item: string) => item !== undefined).join("#")
+        // return sp
+        return policies.map((item: any) => item.value).join("#")
     }
 
     /**

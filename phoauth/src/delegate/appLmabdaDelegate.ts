@@ -202,33 +202,32 @@ export default class AppLambdaDelegate {
         }
 
         const codeRecord = await this.rds.find("authorization", null, { match: { code } })
-        const content = codeRecord.payload.records[0]
-        if (content) {
-            // TODO: Check register redirect URI
-            // if (content.redirectUri !== redirectUri ||
-            //     content.clientId !== clientId) {
-            //     errors2response(PhInvalidParameters, response)
-            //     return response
-            // }
-            const accessToken = await this.genAccessToken(content.uid, clientId, content.scope)
-
-            // @ts-ignore
-            response.statusCode = 200
-            // @ts-ignore
-            response.headers = { "Content-Type": "application/json" }
-            // @ts-ignore
-            response.body = {
-                access_token: accessToken.token,
-                token_type: "bearer",
-                expires_in: 64800,
-                refresh_token: accessToken.refresh,
-                uid: accessToken.uid,
-            }
-            return response
-        } else {
+        if (codeRecord.payload.records.length === 0) {
             errors2response(PhInvalidParameters, response)
             return response
         }
+        const content = codeRecord.payload.records[0]
+        // TODO: Check register redirect URI
+        // if (content.redirectUri !== redirectUri ||
+        //     content.clientId !== clientId) {
+        //     errors2response(PhInvalidParameters, response)
+        //     return response
+        // }
+        const accessToken = await this.genAccessToken(content.uid, clientId, content.scope)
+
+        // @ts-ignore
+        response.statusCode = 200
+        // @ts-ignore
+        response.headers = { "Content-Type": "application/json" }
+        // @ts-ignore
+        response.body = {
+            access_token: accessToken.token,
+            token_type: "bearer",
+            expires_in: 64800,
+            refresh_token: accessToken.refresh,
+            uid: accessToken.uid,
+        }
+        return response
     }
 
     protected grantScopeAuth(scope: string, policies: any[]) {

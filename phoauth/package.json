@@ -17,8 +17,9 @@
     "aws-sdk": "^2.686.0",
     "axios": "^0.19.2",
     "crypto-js": "^4.0.0",
-    "typescript": "^3.3.1",
-    "moment": "^2.27.0"
+    "moment": "^2.27.0",
+    "phnodelayer": "0.0.8",
+    "typescript": "^3.3.1"
   },
   "devDependencies": {
     "@types/node": "~10.17.24",

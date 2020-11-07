@@ -1,11 +1,11 @@
-project: "common"
+project: "entry"
 postgres:
   algorithm: postgres
   host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
   port: 5432
   username: "pharbers"
   pwd: "Abcde196125"
-  dbName: "phcommon"
+  dbName: "phentry"
   poolMax: 1
   idleTimeoutMillis: 1000
   connectionTimeoutMillis: 1000

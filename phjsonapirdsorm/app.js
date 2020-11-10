@@ -19,13 +19,11 @@ const app = new delegate()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        let result
-
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
 
-        result = await app.exec(event)
+        const result = await app.exec(event)
 
         response = {
             'statusCode': result.statusCode,

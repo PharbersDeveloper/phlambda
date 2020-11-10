@@ -10,6 +10,7 @@ import {
     PhInvalidParameters,
     PhInvalidPassword,
     PhNotFoundError,
+    PhStatusError,
 } from "../errors/pherrors"
 
 export default class AppLambdaDelegate {
@@ -52,22 +53,23 @@ export default class AppLambdaDelegate {
         if (result.payload.records.length === 0) {
             errors2response(PhNotFoundError, response)
             return response
-        } else if (result.payload.records.length === 1) {
-            const account = result.payload.records[0]
+        }
+        const records = result.payload.records
+        if (records.length === 1 && (records.password !== "" || records.password !== null)) {
+            const account = records[0]
             // @ts-ignore
             if (account.password === event.queryStringParameters.password) {
                 // @ts-ignore
                 response.statusCode = 200
                 // @ts-ignore
                 response.headers = { "Content-Type": "application/json", "Accept": "application/json" }
-                const record = result.payload.records[0]
                 // @ts-ignore
-                response.body = { message: "login success", uid: record.id }
+                response.body = { message: "login success", uid: account.id }
             } else {
                 errors2response(PhInvalidPassword, response)
             }
         } else {
-            errors2response(PhNotFoundError, response)
+            errors2response(PhStatusError, response)
         }
 
         return response

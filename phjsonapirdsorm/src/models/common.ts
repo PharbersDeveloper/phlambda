@@ -10,6 +10,7 @@ class Common {
 
     public model: any = {
         account: {
+            name: String,
             firstName: String,
             lastName: String,
             email: String,
@@ -87,6 +88,9 @@ class Common {
                     record.created = date
                 }
                 record.modified = date
+                if (record.name === null || record.name === "") {
+                    record.name = record.email.split("@")[0]
+                }
                 return record
             case "update":
                 update.replace.modified = new Date()

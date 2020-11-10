@@ -37,16 +37,23 @@ export const PhInvalidAuthGrant: IPhErrors = {
 
 export const PhInvalidClient: IPhErrors = {
     status: 403,
-    code: -4,
+    code: -5,
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
     message: { message: "Invalid Client, Please Contact Pharbers" },
 }
 
 export const PhInvalidGrantType: IPhErrors = {
     status: 403,
-    code: -5,
+    code: -6,
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
     message: { message: "Invalid Grant Type" },
+}
+
+export const PhStatusError: IPhErrors = {
+    status: 206,
+    code: -7,
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    message: { message: "Record Info Status Error" },
 }
 
 export function errors2response(err: IPhErrors, response: ServerResponse) {

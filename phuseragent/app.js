@@ -1,9 +1,9 @@
 let response;
 
-const phLogger = require("./dist/logger/phLogger").default
-const delegate = require("./dist/delegate/appLambdaViewAgentDelegate").default
+const phLogger = require("phnodelayer").logger;
+const delegate = require("./dist/delegate/appLambdaDelegate").default;
 
-const app = new delegate()
+const app = new delegate();
 
 /**
  *
@@ -19,45 +19,25 @@ const app = new delegate()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phLogger.info(event)
-        if (app.isFirstInit) {
-            await app.prepare()
-        }
-        let result
-
+        let result;
         if (context && context.callbackWaitsForEmptyEventLoop) {
-            context.callbackWaitsForEmptyEventLoop = false
+            context.callbackWaitsForEmptyEventLoop = false;
         }
+        result = await app.exec(event);
 
-        result = await app.exec(event)
-
-        const resultOutput = result.output[0].split("\r\n")
-        const corsHeader =   {
-            "Access-Control-Allow-Headers" : "Content-Type",
+        Object.assign(result.headers, {
+            "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST,GET"
-        }
-        let objHeader = {}
-        for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(":");
-            if (element.length === 2) {
-                objHeader[element[0]] = element[1]
-            }
-        }
-        Object.assign(objHeader, corsHeader)
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        });
         response = {
-            'statusCode': result.statusCode,
-            'headers': objHeader,
-            'body': String(result.output[1])
-        }
+            statusCode: result.statusCode,
+            headers: result.headers,
+            body: JSON.stringify(result.body),
+        };
     } catch (err) {
         phLogger.error(err);
         return err;
     }
-
-    return response
-};
-
-exports.cleanUp = async () => {
-    await app.cleanUp()
+    return response;
 };

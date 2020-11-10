@@ -49,11 +49,11 @@ export const PhInvalidGrantType: IPhErrors = {
     message: { message: "Invalid Grant Type" },
 }
 
-export const PhStatusError: IPhErrors = {
+export const PhRecordLoss: IPhErrors = {
     status: 206,
     code: -7,
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    message: { message: "Record Info Status Error" },
+    message: { message: "Record Info Loss" },
 }
 
 export function errors2response(err: IPhErrors, response: ServerResponse) {

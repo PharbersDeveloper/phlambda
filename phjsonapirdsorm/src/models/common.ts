@@ -3,6 +3,9 @@ import * as fortune from "fortune"
 class Common {
 
     private static verifyPassword(current: string, input: any): boolean {
+        if (!input.replace.password) {
+            return false
+        }
         const spwd = input.replace.password.split("#")
         input.replace.password = spwd[1]
         return current === spwd[0]
@@ -88,8 +91,11 @@ class Common {
                     record.created = date
                 }
                 record.modified = date
-                if (record.name === null || record.name === "") {
+                if (!record.name) {
                     record.name = record.email.split("@")[0]
+                }
+                if (!record.firstName || !record.lastName) {
+                    throw new BadRequestError("FirstName Or LastName Can Not Be Empty")
                 }
                 return record
             case "update":

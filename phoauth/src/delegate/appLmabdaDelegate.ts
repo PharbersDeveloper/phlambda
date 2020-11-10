@@ -10,7 +10,7 @@ import {
     PhInvalidParameters,
     PhInvalidPassword,
     PhNotFoundError,
-    PhStatusError,
+    PhRecordLoss,
 } from "../errors/pherrors"
 
 export default class AppLambdaDelegate {
@@ -44,7 +44,7 @@ export default class AppLambdaDelegate {
             await this.rds.close()
         }
     }
-
+    // 兼容产品的登入注册前端页面走向逻辑
     protected async loginHandler(event: Map<string, any>, response: ServerResponse) {
         // @ts-ignore
         const email = event.queryStringParameters.email
@@ -69,7 +69,7 @@ export default class AppLambdaDelegate {
                 errors2response(PhInvalidPassword, response)
             }
         } else {
-            errors2response(PhStatusError, response)
+            errors2response(PhRecordLoss, response)
         }
 
         return response

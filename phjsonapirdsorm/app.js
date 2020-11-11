@@ -7,7 +7,7 @@ const corsHeader =   {
     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
 }
 const phLogger = require("phnodelayer").logger
-const delegate = require("./dist/delegate/appLambdaDelegate").default
+const delegate = require("./dist/delegate/appLambdaCommonDelegate").default
 
 const app = new delegate()
 
@@ -48,7 +48,9 @@ exports.lambdaHandler = async function (event, context) {
         }
 
         const result = await app.exec(event)
-        formatResponse(result)
+        if (result) {
+            formatResponse(result)
+        }
 
     } catch (err) {
         if ("meta" in err) {

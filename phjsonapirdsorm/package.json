@@ -15,7 +15,8 @@
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "^2.686.0",
     "axios": "^0.21.0",
-    "phnodelayer": "0.0.7",
+    "phnodelayer": "0.0.8",
+    "moment": "^2.27.0",
     "typescript": "^3.3.1"
   },
   "devDependencies": {

@@ -23,3 +23,17 @@ test("Verify Code", async () => {
     const res = await app.lambdaHandler(event, undefined)
     logger.info(res)
 }, 1000 * 60 * 2)
+
+test("Verify Email", async () => {
+    const event = JSON.parse(fs.readFileSync("../events/event_act_verify_email.json", "utf8"))
+    const app = require("../../app.js")
+    const res = await app.lambdaHandler(event, undefined)
+    logger.info(res)
+}, 1000 * 60 * 2)
+
+test("Forgot Password", async () => {
+    const event = JSON.parse(fs.readFileSync("../events/event_act_forgotPassword.json", "utf8"))
+    const app = require("../../app.js")
+    const res = await app.lambdaHandler(event, undefined)
+    logger.info(res)
+}, 1000 * 60 * 2)

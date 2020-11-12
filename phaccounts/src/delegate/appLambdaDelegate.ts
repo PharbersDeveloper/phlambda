@@ -1,12 +1,11 @@
-import lambda from "aws-sdk/clients/lambda"
 import moment from "moment"
-import { logger, redis } from "phnodelayer"
+import { dbFactory, logger, redis, store } from "phnodelayer"
 import EmailFacade from "../facade/emailFacade"
-import SQSFacade from "../facade/sqsFacade"
 import RandomCode from "../utils/randomCode"
 
-export default class AppLambdaDelegate  {
+export default class AppLambdaDelegate {
     private rds: any = redis.getInstance
+    private header = "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n"
     // @ts-ignore
     public async exec(event: Map<string, any>) {
         // @ts-ignore
@@ -15,6 +14,12 @@ export default class AppLambdaDelegate  {
             // @ts-ignore
         } else if (event.pathParameters.type === "verifyCode") {
             return await this.verifyCode(event)
+            // @ts-ignore
+        } else if (event.pathParameters.type === "verifyEmail") {
+            return await this.verifyEmail(event)
+            // @ts-ignore
+        } else if (event.pathParameters.type === "forgotPassword") {
+            return await this.forgotPassword(event)
         }
     }
 
@@ -46,18 +51,12 @@ export default class AppLambdaDelegate  {
             // @ts-ignore
             response.statusCode = 200
             // @ts-ignore
-            response.output = [
-                "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n",
-                "success"
-            ]
+            response.output = [ this.header, "success" ]
         } catch (e) {
             // @ts-ignore
             response.statusCode = 500
             // @ts-ignore
-            response.output = [
-                "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n",
-                "error"
-            ]
+            response.output = [ this.header, "error" ]
             throw e
         } finally {
             await this.rds.close()
@@ -77,24 +76,78 @@ export default class AppLambdaDelegate  {
                 // @ts-ignore
                 response.statusCode = 200
                 // @ts-ignore
-                response.output = [
-                    "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n",
-                    "success"
-                ]
+                response.output = [ this.header, "success" ]
             } else {
                 // @ts-ignore
                 response.statusCode = 404
                 // @ts-ignore
-                response.output = [
-                    "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n",
-                    "error"
-                ]
+                response.output = [ this.header, "error" ]
             }
             return response
         } catch (e) {
             throw e
         } finally {
             await this.rds.close()
+        }
+    }
+
+    private async forgotPassword(event: Map<string, string>) {
+        const response = {}
+        const dbIns = dbFactory.getInstance.getStore(store.Postgres)
+        try {
+            // @ts-ignore
+            const email = JSON.parse(event.body).email
+            const result = await dbIns.find("account", null, { match: { email } })
+            if (result.payload.records.length === 0) {
+                // @ts-ignore
+                response.statusCode = 404
+                // @ts-ignore
+                response.output = [ this.header, "error" ]
+            } else {
+                const account = [
+                    {
+                        id: result.payload.records[0].id,
+                        // @ts-ignore
+                        replace: { password: JSON.parse(event.body).password }
+                    }
+                ]
+                await dbIns.update("account", account)
+                // @ts-ignore
+                response.statusCode = 200
+                // @ts-ignore
+                response.output = [ this.header, "success" ]
+            }
+            return response
+        } catch (e) {
+            throw e
+        } finally {
+            await dbIns.disconnect()
+        }
+    }
+
+    private async verifyEmail(event: Map<string, string>) {
+        const response = {}
+        const dbIns = dbFactory.getInstance.getStore(store.Postgres)
+        try {
+            // @ts-ignore
+            const email = event.queryStringParameters.email
+            const result = await dbIns.find("account", null, { match: { email } })
+            if (result.payload.records.length === 0) {
+                // @ts-ignore
+                response.statusCode = 404
+                // @ts-ignore
+                response.output = [ this.header, "error" ]
+            } else {
+                // @ts-ignore
+                response.statusCode = 200
+                // @ts-ignore
+                response.output = [ this.header, "success" ]
+            }
+            return response
+        } catch (e) {
+            throw e
+        } finally {
+            await dbIns.disconnect()
         }
     }
 }

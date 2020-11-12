@@ -1,4 +1,4 @@
-project: "act"
+project: "common"
 postgres:
   algorithm: postgres
   host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
@@ -12,8 +12,8 @@ postgres:
 redis:
   dao: act
   algorithm: redis
-  #host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
-  host: 127.0.0.1
+  host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  # host: 127.0.0.1
   port: 6379
   dbName: "0"
   poolMax: 1

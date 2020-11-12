@@ -1,12 +1,12 @@
 {
     "body": "",
-    "resource": "/phcommon/{type}",
-    "path": "/phcommon/verifyCode",
+    "resource": "/act/{type}",
+    "path": "/act/verifyCode",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
       "key": "pqian@pharbers.com",
-      "code": "054793"
+      "code": "169324"
     },
     "pathParameters": {
       "type": "verifyCode"
@@ -54,8 +54,8 @@
         "userAgent": "Custom User Agent String",
         "user": null
       },
-      "path": "/phcommon/verifyCode",
-      "resourcePath": "/phcommon/{type}",
+      "path": "/act/verifyCode",
+      "resourcePath": "/act/{type}",
       "httpMethod": "GET",
       "apiId": "1234567890",
       "protocol": "HTTP/1.1"

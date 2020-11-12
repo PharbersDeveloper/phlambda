@@ -5,7 +5,7 @@ import RandomCode from "../utils/randomCode"
 
 export default class AppLambdaDelegate {
     private rds: any = redis.getInstance
-    private header = "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n"
+
     // @ts-ignore
     public async exec(event: Map<string, any>) {
         // @ts-ignore
@@ -23,8 +23,15 @@ export default class AppLambdaDelegate {
         }
     }
 
+    private response(code: number, message: string) {
+        const header = "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.api+json\r\nETag: W/9bc30459\r\nDate: Wed, 11 Nov 2020 08:56:07 GMT\r\nConnection: keep-alive\r\n\r\n"
+        return {
+            statusCode: code,
+            output: [ header, JSON.stringify({status: message}) ]
+        }
+    }
+
     private async sendEmailCode(event: Map<string, string>) {
-        const response = {}
         try {
             const time = 10
             const now = new Date()
@@ -48,61 +55,43 @@ export default class AppLambdaDelegate {
             const email = new EmailFacade()
             // @ts-ignore
             await email.sendEmail(event.queryStringParameters.to, "", "text/plain", r)
-            // @ts-ignore
-            response.statusCode = 200
-            // @ts-ignore
-            response.output = [ this.header, "success" ]
+            return this.response(200, "success")
         } catch (e) {
-            // @ts-ignore
-            response.statusCode = 500
-            // @ts-ignore
-            response.output = [ this.header, "error" ]
-            throw e
+            logger.error(e)
+            return this.response(500, "error")
         } finally {
             await this.rds.close()
         }
-        return response
     }
 
     private async verifyCode(event: Map<string, string>) {
         try {
             await this.rds.open()
-            const response = {}
             // @ts-ignore
             const codeExist = await this.rds.find("code", null, {match: {key: event.queryStringParameters.key}})
             if (codeExist.payload.records.length > 0 &&
                 // @ts-ignore
                 event.queryStringParameters.code === codeExist.payload.records[0].value) {
-                // @ts-ignore
-                response.statusCode = 200
-                // @ts-ignore
-                response.output = [ this.header, "success" ]
+                return this.response(200, "success")
             } else {
-                // @ts-ignore
-                response.statusCode = 404
-                // @ts-ignore
-                response.output = [ this.header, "error" ]
+                return this.response(404, "error")
             }
-            return response
         } catch (e) {
-            throw e
+            logger.error(e)
+            return this.response(500, "error")
         } finally {
             await this.rds.close()
         }
     }
 
     private async forgotPassword(event: Map<string, string>) {
-        const response = {}
         const dbIns = dbFactory.getInstance.getStore(store.Postgres)
         try {
             // @ts-ignore
             const email = JSON.parse(event.body).email
             const result = await dbIns.find("account", null, { match: { email } })
             if (result.payload.records.length === 0) {
-                // @ts-ignore
-                response.statusCode = 404
-                // @ts-ignore
-                response.output = [ this.header, "error" ]
+                return this.response(404, "error")
             } else {
                 const account = [
                     {
@@ -112,40 +101,29 @@ export default class AppLambdaDelegate {
                     }
                 ]
                 await dbIns.update("account", account)
-                // @ts-ignore
-                response.statusCode = 200
-                // @ts-ignore
-                response.output = [ this.header, "success" ]
+                return this.response(200, "success")
             }
-            return response
         } catch (e) {
-            throw e
+            logger.error(e)
+            return this.response(500, "error")
         } finally {
             await dbIns.disconnect()
         }
     }
 
     private async verifyEmail(event: Map<string, string>) {
-        const response = {}
         const dbIns = dbFactory.getInstance.getStore(store.Postgres)
         try {
             // @ts-ignore
             const email = event.queryStringParameters.email
             const result = await dbIns.find("account", null, { match: { email } })
             if (result.payload.records.length === 0) {
-                // @ts-ignore
-                response.statusCode = 404
-                // @ts-ignore
-                response.output = [ this.header, "error" ]
-            } else {
-                // @ts-ignore
-                response.statusCode = 200
-                // @ts-ignore
-                response.output = [ this.header, "success" ]
+                return this.response(404, "error")
             }
-            return response
+            return this.response(200, "success")
         } catch (e) {
-            throw e
+            logger.error(e)
+            return this.response(500, "error")
         } finally {
             await dbIns.disconnect()
         }

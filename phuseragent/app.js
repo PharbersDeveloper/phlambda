@@ -19,11 +19,13 @@ const app = new delegate();
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        let result;
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false;
         }
-        result = await app.exec(event);
+        if ( !event.body ) {
+            event.body = ""
+        }
+        const result = await app.exec(event);
 
         Object.assign(result.headers, {
             "Access-Control-Allow-Headers": "Content-Type",
@@ -33,7 +35,7 @@ exports.lambdaHandler = async function (event, context) {
         response = {
             statusCode: result.statusCode,
             headers: result.headers,
-            body: JSON.stringify(result.body),
+            body: result.body,
         };
     } catch (err) {
         phLogger.error(err);

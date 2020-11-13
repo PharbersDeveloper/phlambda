@@ -12,8 +12,8 @@ postgres:
 redis:
   dao: token
   algorithm: redis
-  # host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
-  host: 127.0.0.1
+  host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  #host: 127.0.0.1
   port: 6379
   dbName: "0"
   poolMax: 1

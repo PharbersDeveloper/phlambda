@@ -46,7 +46,9 @@ exports.lambdaHandler = async function (event, context) {
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
+        if ( !event.body ) {
+            event.body = ""
+        }
         const result = await app.exec(event)
         if (result) {
             formatResponse(result)

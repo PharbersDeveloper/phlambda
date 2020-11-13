@@ -240,7 +240,7 @@ export default class AppLambdaDelegate {
         if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return true
         }
-        if (scope === "SSO") { // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
+        if (scope.toLowerCase() === "sso") { // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
             return true
         }
         const sa = scope.split("|")
@@ -312,7 +312,7 @@ export default class AppLambdaDelegate {
         if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return "*"
         }
-        if (scope === "SSO") { // 官网登入，存入账户可使用的权限
+        if (scope.toLowerCase() === "sso") { // 官网登入，存入账户可使用的权限
             // @ts-ignore
             return policies.map((item: any) => item.value).join("#")
         }

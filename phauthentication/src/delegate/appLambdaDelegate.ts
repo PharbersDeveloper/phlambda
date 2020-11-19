@@ -82,7 +82,7 @@ export default class AppLambdaDelegate {
                     temp = arnRes[5] === resource[2]
                 }
                 return arnRes[3] === resource[0] &&
-                    arnRes[4] === resource[1] && temp && permissionFlag(resource[resource.length - 1])
+                    resource[1].includes(arnRes[4]) && temp && permissionFlag(resource[resource.length - 1])
             })
         }
         return resourceFlag()

@@ -1,4 +1,8 @@
+import * as fortune from "fortune"
+import {  logger, redis} from "phnodelayer"
+
 class Entry {
+    public isIns = false
     public model: any = {
         asset: {
             name: String,
@@ -11,6 +15,8 @@ class Entry {
             accessibility: String,
             version: String,
             isNewVersion: Boolean,
+            shared: String, // null => 未公开, Access => 公开成功, Applying => 审核正在公开中
+            parthers: String, // 对应公司ID
             providers: Array(String),
             markets: Array(String),
             molecules: Array(String),
@@ -79,7 +85,7 @@ class Entry {
 
     public operations = {
         hooks: {
-            asset: [ this.hooksDate ],
+            asset: [ this.hooksDate, this.output ],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
             job: [ this.hooksDate ]
@@ -100,6 +106,53 @@ class Entry {
                 update.replace.modified = new Date()
                 return update
         }
+    }
+
+    protected async output(context, record) {
+        const { errors: { BadRequestError } } = fortune
+        // TODO：企业公开数据权限验证不是正解，
+        // 这样写的原因是API Gateway的授权选择TOKEN类型捕捉不到后续过滤参数，
+        // 经查询AWS文档应改为REQUEST类型，并将所有Lambda的验证授权改为此，此问题将记录jira
+        try {
+            if (!this.isIns) {
+                const rds: any = redis.getInstance
+                this.isIns = true
+                await rds.open()
+                // tslint:disable-next-line:max-line-length
+                const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.authorization}})
+                if (res.payload.records.length === 0) {
+                    throw new BadRequestError("token is null")
+                }
+                const scope = "APP|entry:assets:*:W|W#APP|phcommon:accounts:aaa:W,phcommon:parthers:bbb:R|W"
+                // res.payload.records[0].scope
+                // tslint:disable-next-line:max-line-length
+                // "APP|entry:assets&filter[parthers]=1:*:R,entry:assets&filter[owner]=222:*:W|W#APP|phcommon:accounts:aaa:W,phcommon:parthers:bbb:R|W"
+                const oauthScope = scope.split("#").find((item) => item.includes("entry"))
+                const entryScope = oauthScope.split("|")[1].split(",")
+                if (entryScope.length === 1 && entryScope[0] === "*") {
+                    await rds.close()
+                    return
+                }
+                const resourceType = context.request.uriObject.type
+                const queryStr = context.request.meta.request.queryStr.split("&").
+                map((item) => `${resourceType}&${item}`)
+                const flags = entryScope.map((item) => {
+                    if (item.split(":")[1].includes("&")) {
+                        return queryStr.includes(item.split(":")[1])
+                    } else {
+                        return true
+                    }
+                })
+                logger.info(flags)
+                if (!flags.includes(true)) {
+                    await rds.close()
+                    throw new BadRequestError("unauthorized")
+                } else { await rds.close() }
+            }
+        } catch (e) {
+            throw e
+        }
+        return record
     }
 }
 

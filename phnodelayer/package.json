@@ -42,7 +42,7 @@
 		"fortune": "^5.5.17",
 		"fortune-mongodb": "^1.3.2",
 		"fortune-mysql": "^1.6.4",
-		"fortune-postgres": "^1.6.10",
+		"fortune-postgres": "https://github.com/fortunejs/fortune-postgres",
 		"fortune-redis": "^2.1.0",
 		"i": "^0.3.6",
 		"inflection": "^1.12.0",

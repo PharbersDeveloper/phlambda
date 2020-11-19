@@ -1,11 +1,21 @@
-project: "common"
+project: "entry"
 postgres:
   algorithm: postgres
-  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  host: 127.0.0.1
   port: 5432
-  username: "pharbers"
-  pwd: "Abcde196125"
-  dbName: "phcommon"
+  username: "postgres"
+  pwd: "faiz"
+  dbName: "phentry"
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000
+redis:
+  dao: token
+  algorithm: redis
+  #host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  host: 127.0.0.1
+  port: 6379
+  dbName: "0"
   poolMax: 1
   idleTimeoutMillis: 1000
   connectionTimeoutMillis: 1000

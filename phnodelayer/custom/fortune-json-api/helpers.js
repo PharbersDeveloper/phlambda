@@ -43,13 +43,13 @@ function initializeContext (contextRequest, request, response) {
   // header, it should be included at least once without any media type
   // parameters.
   if (request.headers['accept'] &&
-    ~request.headers['accept'].indexOf(mediaType)) {
+      ~request.headers['accept'].indexOf(mediaType)) {
     const escapedMediaType = mediaType.replace(/[\+\.]/g, '\\$&')
     const mediaTypeRegex = new RegExp(`${escapedMediaType}(?!;)`, 'g')
     if (!request.headers['accept'].match(mediaTypeRegex))
       throw new NotAcceptableError('The "Accept" header should contain ' +
-        'at least one instance of the JSON media type without any ' +
-        'media type parameters.')
+          'at least one instance of the JSON media type without any ' +
+          'media type parameters.')
   }
 
   request.meta = {}
@@ -57,7 +57,7 @@ function initializeContext (contextRequest, request, response) {
   const meta = contextRequest.meta
 
   const method = contextRequest.method = request.meta.method =
-    methodMap[request.method]
+      methodMap[request.method]
 
   // URL rewriting for prefix parameter.
   if ((prefix || '').charAt(0) === '/' && request.url.indexOf(prefix) === 0)
@@ -65,17 +65,17 @@ function initializeContext (contextRequest, request, response) {
 
   // Decode URI Component only for the query string.
   const uriObject = contextRequest.uriObject = request.meta.uriObject =
-    uriTemplate.fromUri(request.url)
+      uriTemplate.fromUri(request.url)
 
   if (!Object.keys(uriObject).length && request.url.length > 1)
     throw new NotFoundError('Invalid URI.')
 
   const type = contextRequest.type = request.meta.type =
-    uriObject.type ? inflectType[uriObject.type] ?
-      checkLowerCase(
-        inflection.transform(underscore(uriObject.type), typeInflections[0]),
-        recordTypes
-      ) : uriObject.type : null
+      uriObject.type ? inflectType[uriObject.type] ?
+          checkLowerCase(
+              inflection.transform(underscore(uriObject.type), typeInflections[0]),
+              recordTypes
+          ) : uriObject.type : null
 
   // Show allow options.
   if (request.method === 'OPTIONS' && (!type || type in recordTypes)) {
@@ -88,7 +88,7 @@ function initializeContext (contextRequest, request, response) {
     output.meta = {
       headers: {
         'Allow': allowLevel[Object.keys(uriObject)
-          .filter(key => uriObject[key]).length].join(', ')
+            .filter(key => uriObject[key]).length].join(', ')
       }
     }
 
@@ -97,13 +97,9 @@ function initializeContext (contextRequest, request, response) {
     throw output
   }
 
-  let ids = contextRequest.ids = request.meta.ids =
-    uriObject.ids ? (Array.isArray(uriObject.ids) ?
-      uriObject.ids : [ uriObject.ids ]).map(castId.bind(this)) : null
-
-  if (ids === null && request.ids.length > 0) {
-    ids = contextRequest.ids = request.meta.ids = request.ids
-  }
+  const ids = contextRequest.ids = request.meta.ids =
+      uriObject.ids ? (Array.isArray(uriObject.ids) ?
+          uriObject.ids : [ uriObject.ids ]).map(castId.bind(this)) : null
 
   const fields = recordTypes[type]
 
@@ -131,42 +127,42 @@ function initializeContext (contextRequest, request, response) {
     relatedField = inflection.camelize(underscore(relatedField), true)
 
   if (relatedField && (!(relatedField in fields) ||
-    !(keys.link in fields[relatedField]) ||
-    fields[relatedField][keys.denormalizedInverse]))
+      !(keys.link in fields[relatedField]) ||
+      fields[relatedField][keys.denormalizedInverse]))
     throw new NotFoundError(`The field "${relatedField}" is ` +
-      `not a link on the type "${type}".`)
+        `not a link on the type "${type}".`)
 
   return relatedField ? adapter.find(type, ids, {
     // We only care about getting the related field.
     fields: { [relatedField]: true }
   }, meta)
-  .then(records => {
-    // Reduce the related IDs from all of the records into an array of
-    // unique IDs.
-    const relatedIds = Array.from((records || []).reduce((ids, record) => {
-      const value = record[relatedField]
+      .then(records => {
+        // Reduce the related IDs from all of the records into an array of
+        // unique IDs.
+        const relatedIds = Array.from((records || []).reduce((ids, record) => {
+          const value = record[relatedField]
 
-      if (Array.isArray(value)) for (const id of value) ids.add(id)
-      else ids.add(value)
+          if (Array.isArray(value)) for (const id of value) ids.add(id)
+          else ids.add(value)
 
-      return ids
-    }, new Set()))
+          return ids
+        }, new Set()))
 
-    const relatedType = fields[relatedField][keys.link]
+        const relatedType = fields[relatedField][keys.link]
 
-    // Copy the original type and IDs to temporary keys.
-    contextRequest.relatedField = request.meta.relatedField = relatedField
-    contextRequest.relationship = request.meta.relationship = relationship
-    contextRequest.originalType = request.meta.originalType = type
-    contextRequest.originalIds = request.meta.originalIds = ids
+        // Copy the original type and IDs to temporary keys.
+        contextRequest.relatedField = request.meta.relatedField = relatedField
+        contextRequest.relationship = request.meta.relationship = relationship
+        contextRequest.originalType = request.meta.originalType = type
+        contextRequest.originalIds = request.meta.originalIds = ids
 
-    // Write the related info to the request, which should take
-    // precedence over the original type and IDs.
-    contextRequest.type = request.meta.type = relatedType
-    contextRequest.ids = request.meta.ids = relatedIds
+        // Write the related info to the request, which should take
+        // precedence over the original type and IDs.
+        contextRequest.type = request.meta.type = relatedType
+        contextRequest.ids = request.meta.ids = relatedIds
 
-    return contextRequest
-  }) : contextRequest
+        return contextRequest
+      }) : contextRequest
 }
 
 
@@ -189,7 +185,7 @@ function mapRecord (type, record) {
   const id = record[keys.primary]
 
   clone[reservedKeys.type] = inflectType[type] ?
-    inflection.transform(type, typeInflections[1]) : type
+      inflection.transform(type, typeInflections[1]) : type
   clone[reservedKeys.id] = id.toString()
   clone[reservedKeys.meta] = {}
   clone[reservedKeys.attributes] = {}
@@ -197,7 +193,7 @@ function mapRecord (type, record) {
   clone[reservedKeys.links] = {
     [reservedKeys.self]: prefix + uriTemplate.fillFromObject({
       type: inflectType[type] ?
-        inflection.transform(type, typeInflections[1]) : type,
+          inflection.transform(type, typeInflections[1]) : type,
       ids: id
     })
   }
@@ -219,7 +215,7 @@ function mapRecord (type, record) {
     // Per the recommendation, dasherize keys.
     if (inflectKeys)
       field = inflection.transform(field,
-        [ 'underscore', 'dasherize' ])
+          [ 'underscore', 'dasherize' ])
 
     // Handle meta/attributes.
     if (!fieldDefinition || fieldDefinition[keys.type]) {
@@ -235,34 +231,34 @@ function mapRecord (type, record) {
     const ids = record[originalField]
 
     const linkedType = inflectType[fieldDefinition[keys.link]] ?
-      inflection.transform(fieldDefinition[keys.link], typeInflections[1]) :
-      fieldDefinition[keys.link]
+        inflection.transform(fieldDefinition[keys.link], typeInflections[1]) :
+        fieldDefinition[keys.link]
 
     clone[reservedKeys.relationships][field] = {
       [reservedKeys.links]: {
         [reservedKeys.self]: prefix + uriTemplate.fillFromObject({
           type: inflectType[type] ?
-            inflection.transform(type, typeInflections[1]) : type,
+              inflection.transform(type, typeInflections[1]) : type,
           ids: id,
           relatedField: reservedKeys.relationships,
           relationship: inflectKeys ? inflection.transform(field,
-            [ 'underscore', 'dasherize' ]) : field
+              [ 'underscore', 'dasherize' ]) : field
         }),
         [reservedKeys.related]: prefix + uriTemplate.fillFromObject({
           type: inflectType[type] ?
-            inflection.transform(type, typeInflections[1]) : type,
+              inflection.transform(type, typeInflections[1]) : type,
           ids: id,
           relatedField: inflectKeys ? inflection.transform(field,
-            [ 'underscore', 'dasherize' ]) : field
+              [ 'underscore', 'dasherize' ]) : field
         })
       }
     }
 
     if (hasField)
       clone[reservedKeys.relationships][field][reservedKeys.primary] =
-        fieldDefinition[keys.isArray] ?
-          ids.map(toIdentifier.bind(null, linkedType)) :
-          (ids ? toIdentifier(linkedType, ids) : null)
+          fieldDefinition[keys.isArray] ?
+              ids.map(toIdentifier.bind(null, linkedType)) :
+              (ids ? toIdentifier(linkedType, ids) : null)
   }
 
   if (!Object.keys(clone[reservedKeys.attributes]).length)
@@ -309,18 +305,18 @@ function attachQueries (request) {
   request.options = {}
 
   // Iterate over dynamic query strings.
-  for (const parameter of Object.keys(query)) {
-    // Attach fields option.
+  for (const parameter of Object.keys(query))
+      // Attach fields option.
     if (parameter.match(isField)) {
       const sparseField = Array.isArray(query[parameter]) ?
-        query[parameter] : query[parameter].split(',')
+          query[parameter] : query[parameter].split(',')
       const fields = sparseField.reduce(reduceFields, {})
       let sparseType = (parameter.match(inBrackets) || [])[1]
 
       if (inflectType[type])
         sparseType = checkLowerCase(
-          inflection.transform(sparseType, typeInflections[0]),
-          recordTypes
+            inflection.transform(sparseType, typeInflections[0]),
+            recordTypes
         )
 
       if (sparseType === type)
@@ -328,22 +324,41 @@ function attachQueries (request) {
     }
 
     // Attach match option.
-    if (parameter.match(isFilter)) {
-      const matches = parameter.match(inBrackets) || []
+    else if (parameter.match(isFilter)) {
+      const matches = parameter.match(inBrackets)
+      if (!matches) continue
       const field = inflect(matches[1])
       const filterType = matches[2]
 
-      if (!(field in fields)) throw new BadRequestError(
-        `The field "${field}" is non-existent.`)
+      if (isRelationFilter(field)) {
+        const relationPath = field
+        if (filterType !== 'fuzzy-match')
+          throw new BadRequestError(
+              `Filtering relationship only
+            supported on fuzzy-match for now
+          `)
 
-      const fieldType = fields[field][keys.type]
+        const isValidPath =
+            isValidRelationPath( recordTypes,
+                fields,
+                getRelationFilterSegments(field) )
+        if (! isValidPath )
+          throw new BadRequestError(`Path ${relationPath} is not valid`)
+      }
+
+      else if (!(field in fields))
+        throw new BadRequestError(`The field "${field}" is non-existent.`)
+
+      const filterSegments = getRelationFilterSegments(field)
+      const fieldType = getLastTypeInPath( recordTypes,
+          fields, filterSegments )[keys.type]
 
       if (filterType === void 0) {
         if (!('match' in request.options)) request.options.match = {}
         const value = Array.isArray(query[parameter]) ?
-          query[parameter] : query[parameter].split(',')
+            query[parameter] : query[parameter].split(',')
         request.options.match[field] =
-          value.map(castMap.bind(null, fieldType, options))
+            value.map(castMap.bind(null, fieldType, options))
       }
       else if (filterType === 'exists') {
         if (!('exists' in request.options)) request.options.exists = {}
@@ -355,19 +370,40 @@ function attachQueries (request) {
           request.options.range[field] = [null, null]
         const index = filterType === 'min' ? 0 : 1
         request.options.range[field][index] =
-          castValue(query[parameter], fieldType, options)
+            castValue(query[parameter], fieldType, options)
+      }
+      else if (filterType === 'fuzzy-match') {
+        const lastTypeInPath =
+            getLastTypeInPath( recordTypes,
+                fields,
+                getRelationFilterSegments(field) )
+        if ( ! lastTypeInPath[keys.type] )
+          throw new BadRequestError(
+              `fuzzy-match only allowed on attributes. For ${field}` )
+
+
+        if ( lastTypeInPath[keys.type].name !== 'String')
+          throw new BadRequestError(
+              `fuzzy-match only allowed on String types.
+             ${field} is of type ${lastTypeInPath[keys.type].name}
+          ` )
+
+
+        if (!('fuzzyMatch' in request.options))
+          request.options['fuzzyMatch'] = {}
+        request.options.fuzzyMatch[field] = query[parameter]
       }
       else throw new BadRequestError(
-        `The filter "${filterType}" is not valid.`)
+            `The filter "${filterType}" is not valid.`)
     }
-  }
+
 
   // Attach include option.
   if (reservedKeys.include in query) {
     request.include = (Array.isArray(query[reservedKeys.include]) ?
-      query[reservedKeys.include] :
-      query[reservedKeys.include].split(','))
-      .map(i => i.split('.').map(x => inflect(x)).slice(0, includeLimit))
+        query[reservedKeys.include] :
+        query[reservedKeys.include].split(','))
+        .map(i => i.split('.').map(x => inflect(x)).slice(0, includeLimit))
 
     // Manually expand nested includes.
     for (const path of request.include)
@@ -381,12 +417,12 @@ function attachQueries (request) {
   // Attach sort option.
   if (reservedKeys.sort in query)
     request.options.sort = (Array.isArray(query.sort) ?
-      query.sort : query.sort.split(','))
-      .reduce((sort, field) => {
-        if (field.charAt(0) === '-') sort[inflect(field.slice(1))] = false
-        else sort[inflect(field)] = true
-        return sort
-      }, {})
+        query.sort : query.sort.split(','))
+        .reduce((sort, field) => {
+          if (field.charAt(0) === '-') sort[inflect(field.slice(1))] = false
+          else sort[inflect(field)] = true
+          return sort
+        }, {})
 
   // Attach offset option.
   if (pageOffset in query)
@@ -412,8 +448,8 @@ function mapId (relatedType, link) {
 
   if (link[reservedKeys.type] !== relatedType)
     throw new ConflictError('Data object field ' +
-      `"${reservedKeys.type}" is invalid, it must be ` +
-      `"${relatedType}", not "${link[reservedKeys.type]}".`)
+        `"${reservedKeys.type}" is invalid, it must be ` +
+        `"${relatedType}", not "${link[reservedKeys.type]}".`)
 
   return castId.call(this, link[reservedKeys.id])
 }
@@ -518,4 +554,59 @@ function setInflectType (inflect, types) {
   }
 
   return out
+}
+
+function isValidRelationPath ( recordTypes,
+                               fieldsCurrentType,
+                               remainingPathSegments ) {
+  if ( !remainingPathSegments.length )
+    return false
+
+  const pathSegment = remainingPathSegments[0]
+
+  if ( !fieldsCurrentType[pathSegment] )
+    return false
+
+  if ( fieldsCurrentType[pathSegment].type
+      && remainingPathSegments.length === 1 )
+    return true
+
+
+  const nextTypeToCompare = fieldsCurrentType[pathSegment].link
+  if ( nextTypeToCompare )
+    return isValidRelationPath( recordTypes,
+        recordTypes[nextTypeToCompare],
+        remainingPathSegments.slice(1) )
+
+  return false
+}
+
+function getLastTypeInPath ( recordTypes,
+                             fieldsCurrentType,
+                             remainingPathSegments ) {
+  if ( !remainingPathSegments.length )
+    return fieldsCurrentType
+
+
+  const pathSegment = remainingPathSegments[0]
+
+  if ( !fieldsCurrentType[pathSegment] )
+    return {}
+
+
+  const nextType = fieldsCurrentType[pathSegment].link
+  if ( nextType )
+    return getLastTypeInPath( recordTypes,
+        recordTypes[nextType],
+        remainingPathSegments.slice(1) )
+
+  return fieldsCurrentType[pathSegment]
+}
+
+function isRelationFilter ( field ) {
+  return field.split(':').length > 1
+}
+
+function getRelationFilterSegments ( field ) {
+  return field.split(':')
 }

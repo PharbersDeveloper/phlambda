@@ -1,10 +1,10 @@
 project: "entry"
 postgres:
   algorithm: postgres
-  host: 127.0.0.1
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
   port: 5432
-  username: "postgres"
-  pwd: "faiz"
+  username: "pharbers"
+  pwd: "Abcde196125"
   dbName: "phentry"
   poolMax: 1
   idleTimeoutMillis: 1000

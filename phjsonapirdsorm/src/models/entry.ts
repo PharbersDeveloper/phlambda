@@ -2,7 +2,6 @@ import * as fortune from "fortune"
 import {  logger, redis} from "phnodelayer"
 
 class Entry {
-    public isIns = false
     public model: any = {
         asset: {
             name: String,
@@ -109,19 +108,20 @@ class Entry {
     }
 
     protected async output(context, record) {
+        const { request: { method, meta: { language } } } = context
         const { errors: { BadRequestError } } = fortune
-        // TODO：企业公开数据权限验证不是正解，
-        // 这样写的原因是API Gateway的授权选择TOKEN类型捕捉不到后续过滤参数，
-        // 经查询AWS文档应改为REQUEST类型，并将所有Lambda的验证授权改为此，此问题将记录jira
-        try {
-            if (!this.isIns) {
-                const rds: any = redis.getInstance
-                this.isIns = true
-                await rds.open()
+        if (method === "find") {
+            // TODO：企业公开数据权限验证不是正解，
+            // 这样写的原因是API Gateway的授权选择TOKEN类型捕捉不到后续过滤参数，
+            // 经查询AWS文档应改为REQUEST类型，并将所有Lambda的验证授权改为此，此问题将记录jira
+            const rds: any = redis.getInstance
+            try {
+                if (rds.store.connectionStatus === 0) {
+                    await rds.open()
+                }
                 // tslint:disable-next-line:max-line-length
                 const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.Authorization}})
                 if (res.payload.records.length === 0) {
-                    this.isIns = false
                     throw new BadRequestError("token is null")
                 }
                 const scope = res.payload.records[0].scope
@@ -133,7 +133,6 @@ class Entry {
                 const oauthScope = scope.split("#").find((item) => item.includes("entry"))
                 const entryScope = oauthScope.split("|")[1].split(",")
                 if (entryScope.length === 1 && entryScope[0] === "*") {
-                    await rds.close()
                     return
                 }
                 const resourceType = context.request.uriObject.type
@@ -146,15 +145,12 @@ class Entry {
                         return true
                     }
                 })
-                logger.info(flags)
                 if (!flags.includes(true)) {
-                    this.isIns = false
-                    await rds.close()
                     throw new BadRequestError("unauthorized")
-                } else { await rds.close() }
+                }
+            } catch (e) {
+                throw e
             }
-        } catch (e) {
-            throw e
         }
         return record
     }

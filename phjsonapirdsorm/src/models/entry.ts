@@ -119,14 +119,17 @@ class Entry {
                 this.isIns = true
                 await rds.open()
                 // tslint:disable-next-line:max-line-length
-                const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.authorization}})
+                const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.Authorization}})
                 if (res.payload.records.length === 0) {
+                    this.isIns = false
                     throw new BadRequestError("token is null")
                 }
-                const scope = "APP|entry:assets:*:W|W#APP|phcommon:accounts:aaa:W,phcommon:parthers:bbb:R|W"
-                // res.payload.records[0].scope
+                const scope = res.payload.records[0].scope
                 // tslint:disable-next-line:max-line-length
                 // "APP|entry:assets&filter[parthers]=1:*:R,entry:assets&filter[owner]=222:*:W|W#APP|phcommon:accounts:aaa:W,phcommon:parthers:bbb:R|W"
+                if (scope === "*") {
+                    return
+                }
                 const oauthScope = scope.split("#").find((item) => item.includes("entry"))
                 const entryScope = oauthScope.split("|")[1].split(",")
                 if (entryScope.length === 1 && entryScope[0] === "*") {
@@ -145,6 +148,7 @@ class Entry {
                 })
                 logger.info(flags)
                 if (!flags.includes(true)) {
+                    this.isIns = false
                     await rds.close()
                     throw new BadRequestError("unauthorized")
                 } else { await rds.close() }

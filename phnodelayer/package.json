@@ -33,6 +33,7 @@
 	"dependencies": {
 		"@types/aws-sdk": "^2.7.0",
 		"@types/js-yaml": "^3.12.1",
+		"@types/node": "^14.14.9",
 		"aws-sdk": "^2.686.0",
 		"busboy": "^0.3.1",
 		"clean-css": "^4.2.1",

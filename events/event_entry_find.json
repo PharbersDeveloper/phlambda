@@ -1,8 +1,8 @@
 {
-  "body": "{\"data\":{\"attributes\":{\"name\":\"AWS架构师培训\",\"extension\":\"txt\",\"size\":1260,\"source\":\"user/qtaGDePl1OrSFEgm/7a7a3-2278-4e5c-ae2c-6a07f/AWS架构师培训.txt\",\"owner\":\"qtaGDePl1OrSFEgm\",\"accessibility\":\"\",\"version\":\"\",\"is-new-version\":true,\"type\":\"file\",\"providers\":[],\"markets\":[],\"molecules\":[],\"date-cover\":[],\"geo-cover\":[],\"labels\":[\"test\"],\"description\":\"\",\"created\":\"2020-11-20T03:40:30.709Z\",\"modified\":\"2020-11-20T03:40:30.709Z\"},\"type\":\"assets\"}}",
+  "body": "",
   "resource": "/entry/{type}",
   "path": "/entry/assets",
-  "httpMethod": "POST",
+  "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
 

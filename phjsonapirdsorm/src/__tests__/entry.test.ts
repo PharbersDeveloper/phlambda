@@ -7,8 +7,12 @@ const HookContext = jest.fn(() => {
 })
 
 test("Hook Context", async () => {
-    const app = require("../../app.js")
-    const res = await app.lambdaHandler(new HookContext(), undefined)
-    // tslint:disable-next-line:no-console
-    console.info(JSON.stringify(JSON.parse(res.body)))
+
+    for (const a of [1, 2, 3]) {
+        const app = require("../../app.js")
+        const res = await app.lambdaHandler(new HookContext(), undefined)
+        // tslint:disable-next-line:no-console
+        console.info(JSON.stringify(JSON.parse(res.body)))
+    }
+
 }, 1000 * 60 * 2)

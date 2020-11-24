@@ -6,7 +6,7 @@ const corsHeader =   {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
 }
-const phLogger = require("phnodelayer").logger
+const phLogger = require("phnodelayer").Logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()

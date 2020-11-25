@@ -1,62 +1,31 @@
 # Pharbers AWS Lambda Layer
 
-简化前端逻辑层的使用方式，屏蔽底层接口与逻辑，只需要配置model与yaml即可实现接口协议为JSONAPI功能
+*简化前端逻辑层的使用方式，屏蔽底层接口与逻辑，只需要配置MODEL即可实现接口协议为JSONAPI功能*
+
+> **本库目前支持POSTGRESQL、REDIS，后续会增加MYSQL、MONGODB**
 
 ## 安装说明
 1. npm install phnodelayer or yarn add phnodelayer
 2. 安装完成后运行 npm run build or yarn run build
-3. 在项目中的config目录中添加yml与log4js的配置文件
-4. 在项目中的src目录中添加model
-5. npm run build 编译 
+3. 在项目中的src目录中添加model
+4. npm run build 编译
 
 ## 具体使用
-``src/config/server.yml``
-```yaml
-project: "test"
-postgres:
-  algorithm: postgres
-  host: 127.0.0.1
-  port: 5432
-  username: "postgres"
-  pwd: "faiz"
-  dbName: "phtest"
-#mongo:
-#  algorithm: mongodb+srv
-#  host: 127.0.0.1
-#  port: 27017
-#  username: "pharbers"
-#  pwd: "Pharbers.84244216"
-#  coll: "phtest"
-#  authSource: "admin"
-#  other: "?retryWrites=true&w=majority"
-#  auth: true
-#mysql:
-#  algorithm: mysql
-#  host: 127.0.0.1
-#  port: 3306
-#  username: "root"
-#  pwd: "pharbers"
-#  dbName: "phtest"
-#redis:
-#  dao: "test"
-#  algorithm: redis
-#  host: 127.0.0.1
-#  port: 6379
-#  db: 0
-```
 
-``src/delegate/appLambdaDelegate.ts``
+`src/delegate/appLambdaDelegate.ts`
 ```ts
-import { Main } from "phnodelayer"
+import { ConfigRegistered, Main, PostgresConfig } from "phnodelayer"
 
 export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
-        return await Main(event)
-    }
+            const pg = new PostgresConfig("Test", "postgres", "faiz", "127.0.0.1", 5432, "phtest")
+            ConfigRegistered.getInstance.registered(pg)
+            return await Main(event)
+        }
 }
 ```
 
-``src/models/test.ts``
+`src/models/test.ts`
 ```ts
 class Test {
     public model: any = {
@@ -103,14 +72,39 @@ class Test {
 export default Test
 ```
 
-``src/app.js``
+`src/app.js`
 ```js
-let response;
 
+let response = {}
+
+const corsHeader =   {
+    "Access-Control-Allow-Headers" : "Content-Type",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+}
+const phLogger = require("phnodelayer").Logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
 
+
+const formatResponse = (content) => {
+    let objHeader = {}
+    response.statusCode = content.statusCode
+    response.headers = content.output[0]
+    response.body = String(content.output[1])
+
+    const resultOutput = content.output[0].split("\r\n")
+    for (let index = 0; index < resultOutput.length; index++) {
+        const element = resultOutput[index].split(":");
+        if (element.length === 2) {
+            objHeader[element[0]] = element[1]
+        }
+    }
+
+    Object.assign(objHeader, corsHeader)
+    response.headers = objHeader
+}
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -125,38 +119,24 @@ const app = new delegate()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        let result
-
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
-        result = await app.exec(event)
-        response = {
-            'statusCode': result.statusCode,
-            'headers': result.output[0],
-            'body': String(result.output[1])
+        if ( !event.body ) {
+            event.body = ""
         }
-
-        const resultOutput = result.output[0].split("\r\n")
-        const corsHeader =   {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+        const result = await app.exec(event)
+        if (result) {
+            formatResponse(result)
         }
-        let objHeader = {}
-
-        for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(":");
-            if (element.length === 2) {
-                objHeader[element[0]] = element[1]
-            }
-        }
-        Object.assign(objHeader, corsHeader)
-        response.headers = objHeader
 
     } catch (err) {
-        return err;
+        if ("meta" in err) {
+            formatResponse(err.meta.response)
+        } else {
+            phLogger.error(err);
+            return err;
+        }
     }
 
     return response
@@ -164,15 +144,57 @@ exports.lambdaHandler = async function (event, context) {
 
 ```
 
+## 暴露出的Config接口
+```ts
+import { ConfigRegistered, PostgresConfig, RedisConfig } from "phnodelayer"
+```
+### Interface ConfigRegistered
+> 该接口只负责注册配置项并形成单例
+
+#### 使用方法
+```ts
+// config参数为 暴露出的Config接口
+import { ConfigRegistered } from "phnodelayer"
+ConfigRegistered.getInstance.registered(config)
+
+```
+### Interface PostgresConfig
+> 该接口只负责初始化Postgresql的链接参数
+
+#### 使用方法
+```ts
+import { PostgresConfig } from "phnodelayer"
+const pg = new PostgresConfig("entry", "userName", "password", "host", port , "dbName")
+```
+
+### Interface RedisConfig
+> 该接口只负责初始化Redis的链接参数
+
+#### 使用方法
+```ts
+import { RedisConfig } from "phnodelayer"
+const redis = new RedisConfig("entry", "userName", "password", "host", port, "dbName")
+```
+### Interface SF
+> 该接口负责暴露已存在的Store初始化实例
+
+#### 使用方法
+```ts
+import {  SF, Store } from "phnodelayer"
+// 如需要获取Redis实例
+const rds: any = SF.getInstance.get(Store.Redis)
+rds.open()
+rds.close()
+```
 
 ## Log 管理
 ```ts
-import { logger } from "phnodelayer"
+import { Logger } from "phnodelayer"
 
-logger.trace("<what ever you want>")
-logger.debug("<what ever you want>")
-logger.info("<what ever you want>")
-logger.warn("<what ever you want>")
-logger.error("<what ever you want>")
-logger.fatal("<what ever you want>")
+Logger.trace("<what ever you want>")
+Logger.debug("<what ever you want>")
+Logger.info("<what ever you want>")
+Logger.warn("<what ever you want>")
+Logger.error("<what ever you want>")
+Logger.fatal("<what ever you want>")
 ```

@@ -1,20 +1,32 @@
 "use strict"
 
-import ServerConf from "../../config/ServerConf"
 import PostgresStore from "./PostgresStore"
 import RedisStore from "./RedisStore"
+import { StoreEnum } from "../../common/StoreEnum"
+import ConfRegistered from "../../config/ConfRegistered"
 
 export default class StoreFactory {
     private static instance: StoreFactory = null
     private typeAnalyzerMapping: Map<string, any> = new Map()
 
-    private constructor(serverConf: ServerConf) {
-        this.buildStore(serverConf)
+    private constructor() {
+        for (const item in StoreEnum ) {
+            if (StoreEnum.hasOwnProperty(item) && ConfRegistered.getInstance.getConf(`${item}Conf`)) {
+                switch (item.toLowerCase()) {
+                    case StoreEnum.Postgres:
+                        this.typeAnalyzerMapping.set(StoreEnum.Postgres, new PostgresStore())
+                        break
+                    case StoreEnum.Redis:
+                        this.typeAnalyzerMapping.set(StoreEnum.Redis, new RedisStore())
+                        break
+                }
+            }
+        }
     }
 
-    public static getInstance(serverConf?: ServerConf) {
+    public static get getInstance() {
         if (StoreFactory.instance == null) {
-            StoreFactory.instance = new StoreFactory(serverConf)
+            StoreFactory.instance = new StoreFactory()
         }
         return StoreFactory.instance
     }
@@ -32,24 +44,5 @@ export default class StoreFactory {
             }
         }
         return this.typeAnalyzerMapping.get(name)
-    }
-
-    private buildStore(conf: ServerConf) {
-        const storeTargets = Object.getOwnPropertyNames(conf)
-            .map((name: string) => {
-                const ins = conf[name]
-                if (ins !== undefined && ins !== null && name !== "project") {
-                    return name
-                }
-            })
-            .filter((item) => item !== undefined && item !== null)
-
-        for (const target of storeTargets) {
-            if (target === "postgres" && !this.typeAnalyzerMapping.has(target)) {
-                this.typeAnalyzerMapping.set(target, new PostgresStore(conf))
-            } else if (target === "redis" && !this.typeAnalyzerMapping.has(target)) {
-                this.typeAnalyzerMapping.set(target, new RedisStore(conf))
-            }
-        }
     }
 }

@@ -3,21 +3,19 @@ import App from "./delegate/appLambdaDelegate"
 import { StoreEnum } from "./common/StoreEnum"
 import StoreFactory from "./strategies/store/StoreFactory"
 import AWSReq from "./strategies/AwsRequest"
-import ServerConf from "./config/ServerConf"
 import PostgresConf from "./config/PostgresConf"
-import MysqlConf from "./config/MysqlConf"
 import RedisConf from "./config/RedisConf"
+import ConfRegistered from "./config/ConfRegistered"
 
 export const Logger = phLogger
 export const Store = StoreEnum
 export const SF = StoreFactory
 export const AWSRequest = AWSReq
-export const ServerConfig = ServerConf
+export const ConfigRegistered = ConfRegistered
 export const PostgresConfig = PostgresConf
-export const MysqlConfig = MysqlConf
 export const RedisConfig = RedisConf
 
-export const Main = async (event: Map<string, any>, serverConf: ServerConf, db: any = Store.Postgres) => {
+export const Main = async (event: Map<string, any>, db: any = Store.Postgres) => {
     let result = null
     let del = null
     try {
@@ -25,7 +23,7 @@ export const Main = async (event: Map<string, any>, serverConf: ServerConf, db: 
         del = new App()
         if (del.isFirstInit) {
             Logger.debug("准备初始化数据开始")
-            del.prepare(serverConf, db)
+            del.prepare(db)
             Logger.debug("准备初始化数据结束")
             Logger.debug("开始连接数据库")
             await del.store.open()

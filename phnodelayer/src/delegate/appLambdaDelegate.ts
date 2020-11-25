@@ -1,7 +1,7 @@
 import { ServerResponse } from "http"
-import ServerConf from "../config/ServerConf"
 import StoreFactory from "../strategies/store/StoreFactory"
 import AWSReq from "../strategies/AwsRequest"
+import ConfRegistered from "../config/ConfRegistered"
 
 export default class AppLambdaDelegate {
     /**
@@ -9,17 +9,15 @@ export default class AppLambdaDelegate {
      */
     private fortuneHTTP = require("../../custom/fortune-http")
     private jsonApiSerializer = require("../../custom/fortune-json-api")
-    private conf: ServerConf = null
     private key: string = ""
 
     public store: any
     public listener: any
     public isFirstInit = true
 
-    public prepare(conf: ServerConf, name: string) {
+    public prepare(name: string) {
         this.key = name
-        this.conf = conf
-        const ins = StoreFactory.getInstance(conf).get(name)
+        const ins = StoreFactory.getInstance.get(name)
         this.store = ins
         this.isFirstInit = false
         this.listener = this.fortuneHTTP(ins.store, {
@@ -31,7 +29,9 @@ export default class AppLambdaDelegate {
         if (!event["body"]) {
             event["body"] = ""
         }
-        const req = new AWSReq(event, this.conf[this.key]["entry"])
+        const conf = ConfRegistered.getInstance.getConf(`${this.key}Conf`)
+        if (!conf) {throw new Error("Config Is Null")}
+        const req = new AWSReq(event, conf.entry)
         const response = new ServerResponse(req)
         const buffer = Buffer.from(event["body"])
         // @ts-ignore

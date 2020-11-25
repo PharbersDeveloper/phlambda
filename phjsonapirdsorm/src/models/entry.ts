@@ -115,7 +115,7 @@ class Entry {
             // 这样写的原因是API Gateway的授权选择TOKEN类型捕捉不到后续过滤参数，
             // 经查询AWS文档应改为REQUEST类型，并将所有Lambda的验证授权改为此，此问题将记录jira
 
-            const rds: any = SF.getInstance().get(Store.Redis)
+            const rds: any = SF.getInstance.get(Store.Redis)
             try {
                 if (rds.store.connectionStatus === 0) {
                     await rds.open()

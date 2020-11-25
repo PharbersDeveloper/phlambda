@@ -8,7 +8,7 @@ const HookContext = jest.fn(() => {
 
 test("Hook Context", async () => {
 
-    for (const a of [1, 2, 3]) {
+    for (const a of [1]) {
         const app = require("../../app.js")
         const res = await app.lambdaHandler(new HookContext(), undefined)
         // tslint:disable-next-line:no-console

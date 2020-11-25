@@ -1,30 +1,38 @@
 "use strict"
 
-import ServerConf from "../../config/ServerConf"
 import { Store, IStore } from "./Store"
 import RedisAdapter from "fortune-redis"
 import fortune from "fortune"
+import ConfRegistered from "../../config/ConfRegistered"
 
 export interface IRedisStore extends IStore {
     setExpire(key: string, value: any, expire: number): Promise<any>
 }
 
 export default class RedisStore extends Store implements IRedisStore {
-    constructor(conf: ServerConf) {
+    constructor() {
         super()
-        if (conf.redis) {
-            const record = new (this.getRecord(conf.redis.entry))()
-            const option = Object.assign(
-                {
-                    adapter: [RedisAdapter, { url: conf.redis.getUrl() }],
-                },
-                record.operations,
-            )
-            this.store = fortune(record.model, option)
-
-        } else {
-            throw new Error("Server Config Redis Is Null")
-        }
+        const conf = ConfRegistered.getInstance.getConf("RedisConf")
+        if (!conf) { throw new Error("RedisConf Is Null")}
+        const record = new (this.getRecord(conf.entry))()
+        const option = Object.assign(
+            {adapter: [RedisAdapter, {url: conf.getUrl()}]},
+            record.operations,
+        )
+        this.store = fortune(record.model, option)
+        // if (conf.redis) {
+        //     const record = new (this.getRecord(conf.redis.entry))()
+        //     const option = Object.assign(
+        //         {
+        //             adapter: [RedisAdapter, { url: conf.redis.getUrl() }],
+        //         },
+        //         record.operations,
+        //     )
+        //     this.store = fortune(record.model, option)
+        //
+        // } else {
+        //     throw new Error("Server Config Redis Is Null")
+        // }
     }
 
     async setExpire(key: string, value: any, expire: number): Promise<any> {

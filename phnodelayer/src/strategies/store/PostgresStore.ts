@@ -1,26 +1,35 @@
 "use strict"
 
 import { Store, IStore } from "./Store"
-import ServerConf from "../../config/ServerConf"
 import PostgresAdapter from "fortune-postgres"
 import fortune from "fortune"
+import ConfRegistered from "../../config/ConfRegistered"
 
 export default class PostgresStore extends Store implements IStore {
-    constructor(conf: ServerConf) {
+    constructor() {
         super()
-        if (conf.postgres) {
-            const record = new (this.getRecord(conf.postgres.entry))()
-            const option = Object.assign(
-                {
-                    adapter: [PostgresAdapter, { connection: conf.postgres.getConnect() }],
-                },
-                record.operations,
-            )
-            this.store = fortune(record.model, option)
 
-        } else {
-            throw new Error("Server Config Postgres Is Null")
-        }
+        const conf = ConfRegistered.getInstance.getConf("PostgresConf")
+        if (!conf) { throw new Error("PostgresConf Is Null")}
+        const record = new (this.getRecord(conf.entry))()
+        const option = Object.assign(
+            {adapter: [PostgresAdapter, {connection: conf.getConnect()}]},
+            record.operations,
+        )
+        this.store = fortune(record.model, option)
+        // if (conf.postgres) {
+        //     const record = new (this.getRecord(conf.postgres.entry))()
+        //     const option = Object.assign(
+        //         {
+        //             adapter: [PostgresAdapter, { connection: conf.postgres.getConnect() }],
+        //         },
+        //         record.operations,
+        //     )
+        //     this.store = fortune(record.model, option)
+        //
+        // } else {
+        //     throw new Error("Server Config Postgres Is Null")
+        // }
 
     }
 

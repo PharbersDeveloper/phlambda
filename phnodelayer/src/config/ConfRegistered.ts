@@ -1,7 +1,7 @@
 "use strict"
 
 import { DBConf } from "./DBConf"
-import Logger from "../logger/phLogger"
+import PhLogger from "../logger/phLogger"
 
 export default class ConfRegistered {
     private static instance: ConfRegistered = null
@@ -11,7 +11,7 @@ export default class ConfRegistered {
 
 
     registered(conf: DBConf): ConfRegistered {
-        Logger.debug(`配置文件 ${conf.constructor.name} 已注册`)
+        PhLogger.debug(`配置文件 ${conf.constructor.name} 已注册`)
         this.confMap.set(conf.constructor.name.toLowerCase(), conf)
         return this
     }

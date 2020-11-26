@@ -1,7 +1,6 @@
 "use strict"
 
 import * as fs from "fs"
-import phLogger from "../../logger/phLogger"
 
 export class Store {
     store: any

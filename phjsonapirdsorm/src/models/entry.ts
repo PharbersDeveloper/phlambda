@@ -1,5 +1,5 @@
 import * as fortune from "fortune"
-import {  Logger, SF, Store } from "phnodelayer"
+import { SF, Store } from "phnodelayer"
 
 class Entry {
     public model: any = {
@@ -120,7 +120,7 @@ class Entry {
                 if (rds.store.connectionStatus === 0) {
                     await rds.open()
                 }
-                // tslint:disable-next-line:max-line-length
+                //  tslint:disable-next-line:max-line-length
                 const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.Authorization}})
                 if (res.payload.records.length === 0) {
                     throw new BadRequestError("token is null")

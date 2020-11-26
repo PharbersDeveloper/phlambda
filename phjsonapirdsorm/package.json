@@ -1,6 +1,6 @@
 {
   "name": "phjsonapi",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
   "author": "Alfred",
@@ -15,7 +15,7 @@
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "^2.686.0",
     "axios": "^0.21.0",
-    "phnodelayer": "0.0.9",
+    "phnodelayer": "1.0.2",
     "typescript": "^3.3.1"
   },
   "devDependencies": {

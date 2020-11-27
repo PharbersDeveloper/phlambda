@@ -667,7 +667,7 @@
 	// const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
 	// const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
 	const client_id = $('#client_id').val().replace(/\s+/g, "")
-	const client_secret = $("#client_secret").val()
+	const client_secret = $("#client_secret").val() // 暂时没用到，但是要留着
 	const callback = $("#redirect_uri").val()
 	const accessKey = "10EC20D06323077893326D4388B18ED12D08F45BEB066308279D890FDFEB872F"
 	const secretKey = "7A2A70C890EB8D3BFDE11F0C2FEBCB856A9151002A9D21AF3D5525B04F81C3F65340A646C74E5BFF6E672FC4740D96B0"

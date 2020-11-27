@@ -6,12 +6,12 @@ test("Test DB Connect", async () => {
     async function sleep(ms: number) {
         return new Promise((resolve) => {
             setTimeout(() => {
-                resolve('')
+                resolve("")
             }, ms)
         })
     }
 
-    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", 'utf8'))
+    const event = JSON.parse(fs.readFileSync("../events/event_success_find_one.json", "utf8"))
     const result = await Main(event)
     logger.info(JSON.parse(result["output"][1]))
     await sleep(1000 * 60)

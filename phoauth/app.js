@@ -1,11 +1,9 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
 let response;
 
-const phlogger = require("./dist/logger/phLogger").default
-const delegate = require("./dist/delegate/appLmabdaAuthDelegate").default
+const phLogger = require("phnodelayer").logger;
+const delegate = require("./dist/delegate/appLmabdaDelegate").default;
 
-const app = new delegate()
+const app = new delegate();
 
 /**
  *
@@ -20,34 +18,28 @@ const app = new delegate()
  *
  */
 exports.lambdaHandler = async function (event, context) {
-    try {
-        phlogger.info(event)
-        if (app.isFirstInit) {
-            await app.prepare()
-        }
-        let result
-        if (context && context.callbackWaitsForEmptyEventLoop) {
-            context.callbackWaitsForEmptyEventLoop = false
-        }
-        result = await app.exec(event)
-
-        Object.assign(result.headers, {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        })
-        response = {
-            "statusCode": result.statusCode,
-            "headers": result.headers,
-            "body": JSON.stringify(result.body)
-        }
-    } catch (err) {
-        phlogger.error(err);
-        return err;
+  try {
+    if (context && context.callbackWaitsForEmptyEventLoop) {
+      context.callbackWaitsForEmptyEventLoop = false;
     }
-    return response
-};
+    if ( !event.body ) {
+      event.body = ""
+    }
+    const result = await app.exec(event);
 
-exports.cleanUp = async () => {
-    await app.cleanUp()
+    Object.assign(result.headers, {
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+    });
+    response = {
+      statusCode: result.statusCode,
+      headers: result.headers,
+      body: JSON.stringify(result.body),
+    };
+  } catch (err) {
+    phLogger.error(err);
+    return err;
+  }
+  return response;
 };

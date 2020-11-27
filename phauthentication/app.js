@@ -1,9 +1,7 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
+let response
 
-const phlogger = require("./dist/logger/phLogger").default
-const delegate = require("./dist/delegate/appLmabdaAuthDelegate").default
+const logger = require("phnodelayer").logger
+const delegate = require("./dist/delegate/appLambdaDelegate").default
 
 const app = new delegate()
 
@@ -21,27 +19,15 @@ const app = new delegate()
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phlogger.info(event)
-        if (app.isFirstInit) {
-            await app.prepare()
-        }
         let result
-
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
         result = await app.exec(event)
-
         response = result
     } catch (err) {
-        phlogger.error(err);
-        return err;
+        logger.error(err)
+        return err
     }
     return response
-
-};
-
-exports.cleanUp = async () => {
-    await app.cleanUp()
-};
+}

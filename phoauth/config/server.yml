@@ -6,17 +6,16 @@ postgres:
   username: "pharbers"
   pwd: "Abcde196125"
   dbName: "phcommon"
-mongo:
-  algorithm: mongodb+srv
-  host: ph-db-gp.wqegl.azure.mongodb.net
-  port: 27017
-  username: "pharbers"
-  pwd: "Pharbers.84244216"
-  coll: "pharbers-offweb-test"
-  authSource: "admin"
-  auth: true
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000
 redis:
+  dao: token
   algorithm: redis
   host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+  #host: 127.0.0.1
   port: 6379
-  db: 0
+  dbName: "0"
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000

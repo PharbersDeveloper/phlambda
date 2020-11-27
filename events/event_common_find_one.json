@@ -55,7 +55,7 @@
       },
       "path": "/phcommon/accounts/qtaGDePl1OrSFEgm",
       "resourcePath": "/phcommon/{type}/{id}",
-      "httpMethod": "PATCH",
+      "httpMethod": "GET",
       "apiId": "1234567890",
       "protocol": "HTTP/1.1"
     }

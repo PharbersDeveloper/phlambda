@@ -97,9 +97,13 @@ function initializeContext (contextRequest, request, response) {
     throw output
   }
 
-  const ids = contextRequest.ids = request.meta.ids =
+  let ids = contextRequest.ids = request.meta.ids =
       uriObject.ids ? (Array.isArray(uriObject.ids) ?
           uriObject.ids : [ uriObject.ids ]).map(castId.bind(this)) : null
+
+  if (ids === null && request.ids.length > 0) {
+    ids = contextRequest.ids = request.meta.ids = request.ids
+  }
 
   const fields = recordTypes[type]
 

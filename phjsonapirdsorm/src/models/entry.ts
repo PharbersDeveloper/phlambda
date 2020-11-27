@@ -1,5 +1,5 @@
 import * as fortune from "fortune"
-import {  logger, redis} from "phnodelayer"
+import { SF, Store } from "phnodelayer"
 
 class Entry {
     public model: any = {
@@ -114,12 +114,13 @@ class Entry {
             // TODO：企业公开数据权限验证不是正解，
             // 这样写的原因是API Gateway的授权选择TOKEN类型捕捉不到后续过滤参数，
             // 经查询AWS文档应改为REQUEST类型，并将所有Lambda的验证授权改为此，此问题将记录jira
-            const rds: any = redis.getInstance
+
+            const rds: any = SF.getInstance.get(Store.Redis)
             try {
                 if (rds.store.connectionStatus === 0) {
                     await rds.open()
                 }
-                // tslint:disable-next-line:max-line-length
+                //  tslint:disable-next-line:max-line-length
                 const res = await rds.find("access", null, {match: {token: context.request.meta.request.rawHeaders.Authorization}})
                 if (res.payload.records.length === 0) {
                     throw new BadRequestError("token is null")

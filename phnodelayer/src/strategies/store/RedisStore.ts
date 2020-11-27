@@ -1,61 +1,67 @@
 "use strict"
 
-import { StoreEnum } from "../../common/StoreEnum"
-import DBFactory from "../../factory/DBFactory"
-
-// TODO 暂时先做一个，调试成功后吧所有存储操对接口变成
-export interface IStore {
-    // store: any
-    open(): void
-    close(): void
-}
+import { Store, IStore } from "./Store"
+import RedisAdapter from "fortune-redis"
+import fortune from "fortune"
+import ConfRegistered from "../../config/ConfRegistered"
 
 export interface IRedisStore extends IStore {
-    setExpire(key: string, value: any, expire: number): any
+    setExpire(key: string, value: any, expire: number): Promise<any>
 }
 
-export default class RedisStore implements IRedisStore {
-    private static instance: RedisStore = null
-    private readonly store: any
-
+export default class RedisStore extends Store implements IRedisStore {
     constructor() {
-        this.store = DBFactory.getInstance.getStore(StoreEnum.Redis)
+        super()
+        const conf = ConfRegistered.getInstance.getConf("RedisConf")
+        if (!conf) { throw new Error("RedisConf Is Null")}
+        const record = new (this.getRecord(conf.entry))()
+        const option = Object.assign(
+            {adapter: [RedisAdapter, {url: conf.getUrl()}]},
+            record.operations,
+        )
+        this.store = fortune(record.model, option)
+        // if (conf.redis) {
+        //     const record = new (this.getRecord(conf.redis.entry))()
+        //     const option = Object.assign(
+        //         {
+        //             adapter: [RedisAdapter, { url: conf.redis.getUrl() }],
+        //         },
+        //         record.operations,
+        //     )
+        //     this.store = fortune(record.model, option)
+        //
+        // } else {
+        //     throw new Error("Server Config Redis Is Null")
+        // }
     }
 
-    public static get getInstance() {
-        if (RedisStore.instance == null) {
-            RedisStore.instance = new RedisStore()
-        }
-        return RedisStore.instance
-    }
-
-    public async setExpire(key: string, value: any, expire: number) {
-        if (this.store === undefined) {
+    async setExpire(key: string, value: any, expire: number): Promise<any> {
+        if (!this.store) {
             throw new Error("Redis Store未实例化，请检查配置")
         }
        return await this.store.adapter.redis.set(key, value, "EX", expire)
     }
 
-    public async create(type: string, records: any, include: any, meta: any) {
+    async create(type: string, records: any, include: any, meta: any): Promise<any> {
         return await this.store.create(type, records, include, meta)
     }
-    public async find(type: string, ids: any, options: any, include: any, meta: any) {
+    async find(type: string, ids: any, options: any, include: any, meta: any): Promise<any> {
         return await this.store.find(type, ids, options, include, meta)
     }
 
-    public async update(type: string, updates: any, include: any, meta: any) {
+    async update(type: string, updates: any, include: any, meta: any): Promise<any> {
         return await this.store.update(type, updates, include, meta)
     }
 
-    public async delete(type: string, ids: any, include: any, meta: any) {
+    async delete(type: string, ids: any, include: any, meta: any): Promise<any> {
         return await this.store.delete(type, ids, include, meta)
     }
 
-    public async open() {
-        await this.store.connect()
+    async open() {
+        return await this.store.connect()
     }
 
-    public async close() {
-        await this.store.disconnect()
+    async close() {
+        return await this.store.disconnect()
     }
 }

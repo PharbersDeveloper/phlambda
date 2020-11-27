@@ -1,9 +1,7 @@
 import { ServerResponse } from "http"
-import { Adapter } from "../common/Adapter"
-import { InitServerConf } from "../common/InitServerConf"
-import { ServerConf } from "../configFactory/ServerConf"
-import DBFactory from "../factory/DBFactory"
+import StoreFactory from "../strategies/store/StoreFactory"
 import AWSReq from "../strategies/AwsRequest"
+import ConfRegistered from "../config/ConfRegistered"
 
 export default class AppLambdaDelegate {
     /**
@@ -11,32 +9,29 @@ export default class AppLambdaDelegate {
      */
     private fortuneHTTP = require("../../custom/fortune-http")
     private jsonApiSerializer = require("../../custom/fortune-json-api")
-    private conf: ServerConf = InitServerConf.getConf
+    private key: string = ""
 
     public store: any
     public listener: any
     public isFirstInit = true
 
-    public async prepare(name?: string) {
-        // tslint:disable-next-line:no-unused-expression
-        Adapter.init
-        this.store = DBFactory.getInstance.getStore(name)
-        await this.store.connect()
+    public prepare(name: string) {
+        this.key = name
+        const ins = StoreFactory.getInstance.get(name)
+        this.store = ins
         this.isFirstInit = false
-        this.listener = this.fortuneHTTP(this.store, {
+        this.listener = this.fortuneHTTP(ins.store, {
             serializers: [[this.jsonApiSerializer]],
         })
-    }
-
-    public async cleanUp() {
-        await this.store.disconnect()
     }
 
     public async exec(event: Map<string, any>) {
         if (!event["body"]) {
             event["body"] = ""
         }
-        const req = new AWSReq(event, this.conf.project)
+        const conf = ConfRegistered.getInstance.getConf(`${this.key}Conf`)
+        if (!conf) {throw new Error("Config Is Null")}
+        const req = new AWSReq(event, conf.entry)
         const response = new ServerResponse(req)
         const buffer = Buffer.from(event["body"])
         // @ts-ignore

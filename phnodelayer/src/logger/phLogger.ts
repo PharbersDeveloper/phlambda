@@ -13,7 +13,6 @@ class PhLogger {
     }
 
     public startConnectLog(app: { use: (arg0: any) => void }) {
-        // tslint:disable-next-line: max-line-length
         app.use(
             connectLogger(getLogger("http"), {
                 level: "auto",

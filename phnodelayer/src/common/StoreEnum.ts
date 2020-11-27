@@ -2,7 +2,7 @@
 
 export enum StoreEnum {
     Postgres = "postgres",
-    MongoDB = "mongo",
-    Mysql = "mysql",
+    // MongoDB = "mongo",
+    // Mysql = "mysql",
     Redis = "redis",
 }

@@ -1,42 +1,48 @@
 import phLogger from "./logger/PhLogger"
 import App from "./delegate/appLambdaDelegate"
 import { StoreEnum } from "./common/StoreEnum"
-import DBFactory from "./factory/DBFactory"
-import RedisStore from "./strategies/store/RedisStore"
+import StoreFactory from "./strategies/store/StoreFactory"
 import AWSReq from "./strategies/AwsRequest"
+import PostgresConf from "./config/PostgresConf"
+import RedisConf from "./config/RedisConf"
+import ConfRegistered from "./config/ConfRegistered"
 
-export const logger = phLogger
-export const store = StoreEnum
-export const dbFactory = DBFactory
-export const redis = RedisStore
+export const Logger = phLogger
+export const Store = StoreEnum
+export const SF = StoreFactory
 export const AWSRequest = AWSReq
+export const ConfigRegistered = ConfRegistered
+export const PostgresConfig = PostgresConf
+export const RedisConfig = RedisConf
 
-export const Main = async (event: Map<string, any>, db: any = StoreEnum.Postgres) => {
+export const Main = async (event: Map<string, any>, db: any = Store.Postgres) => {
     let result = null
     let del = null
     try {
-        logger.debug("进入初始化")
+        Logger.debug("进入初始化")
         del = new App()
-        logger.debug("正在创建实例")
-
         if (del.isFirstInit) {
-            logger.debug("开始连接数据库")
-            await del.prepare(db)
-            logger.debug("连接数据库结束")
+            Logger.debug("准备初始化数据开始")
+            del.prepare(db)
+            Logger.debug("准备初始化数据结束")
+            Logger.debug("开始连接数据库")
+            await del.store.open()
+            Logger.debug("连接数据库结束")
         }
-
         if (event !== null && event !== undefined) {
-            logger.debug("开始执行请求")
+            Logger.debug("开始执行请求")
             result = await del.exec(event)
-            logger.debug("执行请求结束")
+            Logger.debug("执行请求结束")
         }
-        logger.debug("关闭数据库")
         return result
     } catch (e) {
         throw e
     } finally {
         if (del !== null) {
-            await del.cleanUp()
+            del.isFirstInit = true
+            Logger.debug("关闭数据库开始")
+            await del.store.close()
+            Logger.debug("关闭数据库结束")
         }
     }
 }

@@ -151,8 +151,6 @@ class Entry {
                 }
             } catch (e) {
                 throw e
-            } finally {
-                await rds.close()
             }
         }
         return record

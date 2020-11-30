@@ -10,11 +10,11 @@ const Access = jest.fn(() => {
     event.headers.Authorization = "5092934c502f725ef082c4ad153a4f848a0ca9f734eb8760478ca22a8416192e"
     event.httpMethod = "GET"
     event.queryStringParameters = {
-        "ids[]": "APqnkJ2TjdeYG-gsc9n8"
+        "ids[]": "qtaGDePl1OrSFEgm"
     }
     event.multiValueQueryStringParameters = {
         "ids[]": [
-            "APqnkJ2TjdeYG-gsc9n8"
+            "qtaGDePl1OrSFEgm"
         ]
     }
     return event
@@ -28,16 +28,18 @@ beforeAll(() => {
 })
 
 test("权限Access", async () => {
-    if (rds) {
-        const event = new Access()
-        const result = await rds.find("access", null, {match: {token: event.headers.Authorization}})
-        if (result.payload.records.length === 1 ) {
-            const scope = result.payload.records[0].scope
-            const flag = identify(event, scope)
-            Logger.info(flag)
-        }
-    }
-
+    // if (rds) {
+    //     const event = new Access()
+    //     const result = await rds.find("access", null, {match: {token: event.headers.Authorization}})
+    //     if (result.payload.records.length === 1 ) {
+    //         const scope = result.payload.records[0].scope
+    //         const flag = identify(event, scope)
+    //         Logger.info(flag)
+    //     }
+    // }
+    const event = new Access()
+    const flag = identify(event, "")
+    Logger.info(flag)
 })
 
 afterAll(() => {

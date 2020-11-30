@@ -5,7 +5,7 @@ import Identify from "./Identify"
 export const Errors2response = errors2response
 
 export const identify = (event: Map<string, any>,scope: string): any => {
-    if (!new Identify().verify(scope, event)) {
+    if (!new Identify().verify(event, scope)) {
         return PhAccessToUnauthorized
     }
     return PhAccess

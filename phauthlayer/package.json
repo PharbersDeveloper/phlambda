@@ -29,10 +29,10 @@
 		"tslint-config-prettier": "^1.18.0",
 		"source-map-support": "^0.5.13",
 		"typedoc": "^0.14.2",
-		"typescript": "^3.3.1"
+		"typescript": "^3.3.1",
+		"phnodelayer": "^1.0.3"
 	},
 	"dependencies": {
-		"@types/node": "^14.14.9",
-		"phnodelayer": "^1.0.3"
+		"@types/node": "^14.14.9"
 	}
 }

@@ -5,6 +5,7 @@
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"scripts": {
+		"coverage": "open ./coverage/lcov-report/index.html",
 		"test": "jest --config jestconfig.json",
 		"build": "tsc",
 		"format": "prettier --write \"src/**/*.ts\"",

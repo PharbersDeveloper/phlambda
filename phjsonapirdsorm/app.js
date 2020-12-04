@@ -8,26 +8,34 @@ const corsHeader =   {
 }
 const phLogger = require("phnodelayer").Logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
+const accessResponse = require("phauthlayer").Errors2response
 
 const app = new delegate()
 
 
 const formatResponse = (content) => {
     let objHeader = {}
-    response.statusCode = content.statusCode
-    response.headers = content.output[0]
-    response.body = String(content.output[1])
-
-    const resultOutput = content.output[0].split("\r\n")
-    for (let index = 0; index < resultOutput.length; index++) {
-        const element = resultOutput[index].split(":");
-        if (element.length === 2) {
-            objHeader[element[0]] = element[1]
+    if ("output" in content) {
+        const resultOutput = content.output[0].split("\r\n")
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(":");
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
         }
+    } else {
+        objHeader = content.headers
     }
 
     Object.assign(objHeader, corsHeader)
+    response.statusCode = content.statusCode || content.status
     response.headers = objHeader
+    if ("output" in content) {
+        response.body = String(content.output[1])
+    } else {
+        accessResponse(content, response);
+        response.body = JSON.stringify(response.body)
+    }
 }
 /**
  *

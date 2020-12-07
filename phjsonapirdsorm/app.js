@@ -30,12 +30,14 @@ const formatResponse = (content) => {
     Object.assign(objHeader, corsHeader)
     response.statusCode = content.statusCode || content.status
     response.headers = objHeader
+    // response.body = "output" in content ? String(content.output[1]) : content.message.message
     if ("output" in content) {
         response.body = String(content.output[1])
     } else {
         accessResponse(content, response);
         response.body = JSON.stringify(response.body)
     }
+
 }
 /**
  *
@@ -56,6 +58,12 @@ exports.lambdaHandler = async function (event, context) {
         }
         if ( !event.body ) {
             event.body = ""
+        }
+        if ( !event.queryStringParameters ) {
+            event.queryStringParameters = {}
+        }
+        if ( !event.multiValueQueryStringParameters ) {
+            event.multiValueQueryStringParameters = {}
         }
         const result = await app.exec(event)
         if (result) {

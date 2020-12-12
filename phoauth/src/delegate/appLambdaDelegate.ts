@@ -1,7 +1,7 @@
 import CryptoJS from "crypto-js"
 import { ServerResponse } from "http"
 import moment from "moment"
-import { AWSRequest, dbFactory, logger, redis, store } from "phnodelayer"
+import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 import {
     errors2response,
     PhInvalidAuthGrant,
@@ -14,10 +14,15 @@ import {
 } from "../errors/pherrors"
 
 export default class AppLambdaDelegate {
-    public dbIns: any = dbFactory.getInstance.getStore(store.Postgres)
-    public rds: any = redis.getInstance
+    public rds: any = null
+    public pg: any = null
     public async exec(event: Map<string, any>) {
-        await this.dbIns.connect()
+        const pg = new PostgresConfig("oauth", "pharbers", "Abcde196125", "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn", 5432, "phcommon")
+        const redis = new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")
+        ConfigRegistered.getInstance.registered(pg).registered(redis)
+        this.rds = SF.getInstance.get(Store.Redis)
+        this.pg = SF.getInstance.get(Store.Postgres)
+        await this.pg.open()
         await this.rds.open()
         try {
             // @ts-ignore
@@ -40,7 +45,7 @@ export default class AppLambdaDelegate {
         } catch (e) {
             throw e
         } finally {
-            await this.dbIns.disconnect()
+            await this.pg.close()
             await this.rds.close()
         }
     }
@@ -49,7 +54,7 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         const email = event.queryStringParameters.email
         // @ts-ignore
-        const result = await this.dbIns.find("account", null, { match: { email } })
+        const result = await this.pg.find("account", null, { match: { email } })
         if (result.payload.records.length === 0) {
             errors2response(PhNotFoundError, response)
             return response
@@ -103,7 +108,7 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         const clientId = event.queryStringParameters.client_id // client 是干啥的
         // @ts-ignore
-        const client = await this.dbIns.find("client", clientId)
+        const client = await this.pg.find("client", clientId)
         const clientRecord = client.payload.records[0]
         if (client.payload.records.length === 0) {
             errors2response(PhInvalidClient, response)
@@ -123,7 +128,7 @@ export default class AppLambdaDelegate {
 
         // @ts-ignore
         const userId = event.queryStringParameters.user_id
-        const account = await this.dbIns.find("account", userId, null, ["defaultRole", "scope"])
+        const account = await this.pg.find("account", userId, null, ["defaultRole", "scope"])
         if (account.payload.records.length === 0) {
             errors2response(PhNotFoundError, response)
             return response
@@ -192,7 +197,7 @@ export default class AppLambdaDelegate {
         // @ts-ignore
         const grantType = event.queryStringParameters.grant_type
 
-        const client = await this.dbIns.find("client", clientId)
+        const client = await this.pg.find("client", clientId)
         if (client.payload.records.length === 0) {
             errors2response(PhNotFoundError, response)
             return response
@@ -240,7 +245,7 @@ export default class AppLambdaDelegate {
         if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return true
         }
-        if (scope.toLowerCase() === "sso") { // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
+        if (scope.toLowerCase().includes("sso")) { // 官网登入，直接放行，交由后续的mapping policies设置该账户可使用权限
             return true
         }
         const sa = scope.split("|")
@@ -263,7 +268,7 @@ export default class AppLambdaDelegate {
     protected async genAuthCode(uid: string, cid: string, scope: string) {
         const time = 2
         const now = new Date()
-        const exp = moment(now).add(time, "m").toDate()
+        const exp = moment(now).add(time, "week").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         const authCode = { uid, cid, code, scope, create: now, expired: exp }
         const result = await this.rds.create("authorization", authCode)
@@ -312,7 +317,7 @@ export default class AppLambdaDelegate {
         if (policies.length === 1 && policies[0].value === "*") { // 权限为admin
             return "*"
         }
-        if (scope.toLowerCase() === "sso") { // 官网登入，存入账户可使用的权限
+        if (scope.toLowerCase().includes("sso")) { // 官网登入，存入账户可使用的权限
             // @ts-ignore
             return policies.map((item: any) => item.value).join("#")
         }

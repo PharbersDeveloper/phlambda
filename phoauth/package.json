@@ -18,7 +18,7 @@
     "axios": "^0.19.2",
     "crypto-js": "^4.0.0",
     "moment": "^2.27.0",
-    "phnodelayer": "0.0.8",
+    "phnodelayer": "1.0.3",
     "typescript": "^3.3.1"
   },
   "devDependencies": {

@@ -29,7 +29,8 @@ export default class Identify implements IIdentify {
         // 如果是super admin scope = * 全权限 access
         if (splitScope.length === 1 && splitScope[0] === permissions.ALL) return true
 
-        splitScope = splitScope.filter(item => item.includes(paths[0]) || item.includes("*"))
+        splitScope = splitScope.filter(item => item.includes(paths[0]) || (item.includes("*") && item.split("|")[1].length === 1))
+        if (splitScope.length === 0) return false
         const initScope = splitScope.shift().split("|")
 
         // 如果是平台全权限 admin scope = APP|*|权限，需验证operation是否符合权限
@@ -41,6 +42,8 @@ export default class Identify implements IIdentify {
             if ("ids[]" in event["multiValueQueryStringParameters"]
                 && event["multiValueQueryStringParameters"]["ids[]"].length === 1) {
                 event["pathParameters"] = Object.assign(event["pathParameters"], {id: event["multiValueQueryStringParameters"]["ids[]"][0]})
+            } else if("filter[id]" in event["queryStringParameters"]) {
+                event["pathParameters"] = Object.assign(event["pathParameters"], {id: event["queryStringParameters"]["filter[id]"]})
             }
             return `${paths[1]}&${key}=${event["queryStringParameters"][key]}`
         })

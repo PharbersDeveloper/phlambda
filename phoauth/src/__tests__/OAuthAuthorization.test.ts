@@ -3,8 +3,8 @@ import * as fs from "fs"
 const AuthAccessEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_authorization.json", "utf8"))
     event.queryStringParameters.response_type = "code"
-    event.queryStringParameters.client_id = "V5I67BHIRVR2Z59kq-a-"
-    event.queryStringParameters.user_id = "qtaGDePl1OrSFEgm"
+    event.queryStringParameters.client_id = "XwgxtaFThqfJ4lru-a-"
+    event.queryStringParameters.user_id = "8m6H9cKoskgEfn0v"
     event.queryStringParameters.redirect_uri = "www.pharbers.com"
     return event
 })

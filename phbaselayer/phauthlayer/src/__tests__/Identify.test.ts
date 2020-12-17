@@ -3,21 +3,29 @@ import * as fs from "fs"
 import {ConfigRegistered, Logger, SF, Store, RedisConfig, AWSRequest} from "phnodelayer"
 import { ServerResponse } from "http"
 let rds: any = null
-let scope: string = "APP|phcommon:accounts:qtaGDePl1OrSFEgm:W,phcommon:parthers:psNeInomlGaSfgvd:R|W#APP|entry:assets&filter[parthers]=psNeInomlGaSfgvd:*:R,entry:assets&filter[owner]=qtaGDePl1OrSFEgm:*:W|W#APP|reports:parthers:5xeiSaYk_1noz-RKPyJ8:R,reports:templates:fVxL1xByKMkIAW1ct_su:R|R"
-const path = "../events/event_lambda_auth.json"
+// let scope: string = "APP|phcommon:accounts:qtaGDePl1OrSFEgm:W,phcommon:parthers:psNeInomlGaSfgvd:R|W#APP|entry:assets&filter[parthers]=psNeInomlGaSfgvd:*:R,entry:assets&filter[owner]=qtaGDePl1OrSFEgm:*:W|W#APP|reports:parthers:5xeiSaYk_1noz-RKPyJ8:R,reports:templates:fVxL1xByKMkIAW1ct_su:R|R"
+// let scope: string = "APP|phcommon:accounts:8m6H9cKoskgEfn0v:W,phcommon:partners:zudIcG_17yj8CEUoCTHg:R|W#APP|reports:*:*:R|R"
+let scope: string = "APP|entry:assets:a:R,entry:assets:b:R,entry:assets:c:R|R"
+const path = "../../events/event_lambda_auth.json"
 
 const Access = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync(path, "utf-8"))
-    event.path = "/phcommon/accounts"
+    event.path = "/entry/assets"
     event.headers.Authorization = "5092934c502f725ef082c4ad153a4f848a0ca9f734eb8760478ca22a8416192e"
     event.httpMethod = "GET"
     event.queryStringParameters = {
-        "ids[]": "qtaGDePl1OrSFEgm"
+        // "ids[]": "qtaGDePl1OrSFEgm"
+        // "filter[name]" : "t"
+        // "ids[]": "aaaa"
     }
     event.multiValueQueryStringParameters = {
-        "ids[]": [
-            "qtaGDePl1OrSFEgm"
-        ]
+        // "ids[]": [
+        //     "aaaa"
+        // ]
+    }
+    event.pathParameters =  {
+        "type": "assets",
+        // "id": "a"
     }
     return event
 })
@@ -97,14 +105,18 @@ beforeAll(() => {
 test("权限Access", async () => {
     if (rds) {
         const event = new Access()
-        const result = await rds.find("access", null, {match: {token: event.headers.Authorization}})
-        if (result.payload.records.length === 1 ) {
-            scope = result.payload.records[0].scope
-            const flag = identify(event, scope)
-            expect(flag.status).toBe(200)
-            expect(typeof flag.message).toBe("object")
-            expect(flag.message.message).toBe("Access")
-        }
+        const flag = identify(event, scope)
+        expect(flag.status).toBe(200)
+        expect(typeof flag.message).toBe("object")
+        expect(flag.message.message).toBe("Access")
+        // const result = await rds.find("access", null, {match: {token: event.headers.Authorization}})
+        // if (result.payload.records.length === 1 ) {
+        //     scope = result.payload.records[0].scope
+        //     const flag = identify(event, scope)
+        //     expect(flag.status).toBe(200)
+        //     expect(typeof flag.message).toBe("object")
+        //     expect(flag.message.message).toBe("Access")
+        // }
     }
 })
 

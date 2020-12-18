@@ -16,6 +16,7 @@ class Common {
             name: String,
             firstName: String,
             lastName: String,
+            picture: String,
             email: String,
             password: String,
             phoneNumber: String,

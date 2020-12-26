@@ -5,12 +5,13 @@ import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, 
 import {
     errors2response,
     PhInvalidAuthGrant,
+    PhInvalidAuthorizationLogin,
     PhInvalidClient,
     PhInvalidGrantType,
     PhInvalidParameters,
     PhInvalidPassword,
     PhNotFoundError,
-    PhRecordLoss,
+    PhRecordLoss
 } from "../errors/pherrors"
 
 export default class AppLambdaDelegate {
@@ -97,6 +98,12 @@ export default class AppLambdaDelegate {
      * @param response handler http response
      */
     protected async authHandler(event: Map<string, any>, response: ServerResponse) {
+        // @ts-ignore
+        const flag  = event.queryStringParameters.user_id // 定位user id
+        if (!flag) {
+            errors2response(PhInvalidAuthorizationLogin, response)
+            return response
+        }
         // @ts-ignore
         const redirectUri = event.queryStringParameters.redirect_uri // 重定向
         // @ts-ignore
@@ -214,13 +221,23 @@ export default class AppLambdaDelegate {
             return response
         }
         const content = codeRecord.payload.records[0]
+
         // TODO: Check register redirect URI
         // if (content.redirectUri !== redirectUri ||
         //     content.clientId !== clientId) {
         //     errors2response(PhInvalidParameters, response)
         //     return response
         // }
+
         const accessToken = await this.genAccessToken(content.uid, clientId, content.scope)
+
+        // @ts-ignore
+        const result = await this.pg.find("account", accessToken.uid )
+        if (result.payload.records.length === 0) {
+            errors2response(PhNotFoundError, response)
+            return response
+        }
+        const record = result.payload.records[0]
 
         // @ts-ignore
         response.statusCode = 200
@@ -228,6 +245,10 @@ export default class AppLambdaDelegate {
         response.headers = { "Content-Type": "application/json" }
         // @ts-ignore
         response.body = {
+            username: record.name,
+            first_name: record.firstName,
+            last_name: record.lastName,
+            email: record.email,
             access_token: accessToken.token,
             token_type: "bearer",
             expires_in: 64800,
@@ -268,7 +289,7 @@ export default class AppLambdaDelegate {
     protected async genAuthCode(uid: string, cid: string, scope: string) {
         const time = 2
         const now = new Date()
-        const exp = moment(now).add(time, "week").toDate()
+        const exp = moment(now).add(time, "m").toDate()
         const code = this.hexEncode(this.hash(uid + cid + new Date().toISOString() + Math.random().toString()))
         const authCode = { uid, cid, code, scope, create: now, expired: exp }
         const result = await this.rds.create("authorization", authCode)

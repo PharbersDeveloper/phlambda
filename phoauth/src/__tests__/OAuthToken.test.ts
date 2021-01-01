@@ -2,16 +2,16 @@ import * as fs from "fs"
 
 const OAuthAccess = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "5d9bd44187937f5cc0412b1d28de359695cbd0e155109831018f9199c74272c4"
+    event.queryStringParameters.code = "e31d2f7f78d27ec1511556a7ee5976d4e288d1e57746157f6d94cc0b0b51cc59"
     event.queryStringParameters.redirect_uri = "www.pharbers.com"
-    event.queryStringParameters.client_id = "V5I67BHIRVR2Z59kq-a-"
+    event.queryStringParameters.client_id = "XwgxtaFThqfJ4lru-a-"
     event.queryStringParameters.grant_type = "authorization_code"
     return event
 })
 
 const OAuthGenerateClientIdError = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "5d9bd44187937f5cc0412b1d28de359695cbd0e155109831018f9199c74272c4"
+    event.queryStringParameters.code = "4238a5547bbbefec1e10a0f6478a36aa3a523449acbe166ec9d997e82942386e"
     event.queryStringParameters.redirect_uri = "www.pharbers.com"
     event.queryStringParameters.client_id = "clientid0x1"
     event.queryStringParameters.grant_type = "authorization_code"
@@ -29,7 +29,7 @@ const OAuthGenerateCodeError = jest.fn(() => {
 
 const OAuthGenerateGrantTypeError = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "5d9bd44187937f5cc0412b1d28de359695cbd0e155109831018f9199c74272c4"
+    event.queryStringParameters.code = "4238a5547bbbefec1e10a0f6478a36aa3a523449acbe166ec9d997e82942386e"
     event.queryStringParameters.redirect_uri = "www.pharbers.com"
     event.queryStringParameters.client_id = "V5I67BHIRVR2Z59kq-a-"
     event.queryStringParameters.grant_type = "xauthorization_code"

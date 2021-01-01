@@ -1,6 +1,6 @@
 let response;
 
-const phLogger = require("phnodelayer").logger;
+const phLogger = require("phnodelayer").Logger;
 const delegate = require("./dist/delegate/appLambdaDelegate").default;
 
 const app = new delegate();
@@ -19,11 +19,13 @@ const app = new delegate();
  */
 exports.lambdaHandler = async function (event, context) {
   try {
-    let result;
     if (context && context.callbackWaitsForEmptyEventLoop) {
       context.callbackWaitsForEmptyEventLoop = false;
     }
-    result = await app.exec(event);
+    if ( !event.body ) {
+      event.body = ""
+    }
+    const result = await app.exec(event);
 
     Object.assign(result.headers, {
       "Access-Control-Allow-Headers": "Content-Type",

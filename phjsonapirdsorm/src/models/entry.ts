@@ -11,6 +11,8 @@ class Entry {
             accessibility: String,
             version: String,
             isNewVersion: Boolean,
+            shared: String, // null => 未公开, Access => 公开成功, Applying => 审核正在公开中
+            partners: String, // 对应公司ID
             providers: Array(String),
             markets: Array(String),
             molecules: Array(String),
@@ -79,7 +81,7 @@ class Entry {
 
     public operations = {
         hooks: {
-            asset: [ this.hooksDate ],
+            asset: [ this.hooksDate],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
             job: [ this.hooksDate ]
@@ -101,6 +103,7 @@ class Entry {
                 return update
         }
     }
+
 }
 
 export default Entry

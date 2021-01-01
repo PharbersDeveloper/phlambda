@@ -1,48 +1,34 @@
 {
-  "name": "phjsonapi",
-  "version": "0.0.1",
-  "description": "hello world sample for NodeJS",
-  "main": "app.js",
-  "author": "Alfred",
-  "license": "MIT",
-  "scripts": {
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
-    "build": "tsc",
-    "prestart": "npm run build",
-    "start": "node .",
-    "pretest": "tsc",
-    "watch": "mocha-typescript-watch",
-    "prepare": "tsc",
-    "test": "mocha tests/unit/",
-    "importTest": "mocha tests/import/ --timeout 50000"
-  },
-  "dependencies": {
-    "@types/aws-sdk": "^2.7.0",
-    "@types/js-yaml": "^3.12.1",
-    "aws-sdk": "^2.686.0",
-    "axios": "^0.19.2",
-    "crypto-js": "^4.0.0",
-    "fortune": "^5.5.17",
-    "fortune-http": "^1.2.26",
-    "fortune-json-api": "^2.3.0",
-    "fortune-postgres": "^1.6.10",
-    "fortune-redis": "^2.1.0",
-    "js-yaml": "^3.14.0",
-    "json2typescript": "^1.4.1",
-    "log4js": "^4.5.1",
-    "moment": "^2.27.0",
-    "pluralize": "0.0.11"
-  },
-  "devDependencies": {
-    "@types/chai": "^3.2.0",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "~10.17.24",
-    "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "mocha-typescript": "^1.1.17",
-    "source-map-support": "^0.5.13",
-    "tslint": "^5.18.0",
-    "typedoc": "^0.14.2",
-    "typescript": "^3.3.1"
-  }
+    "name": "auth",
+    "version": "0.1.0",
+    "description": "Auth AWS API Gateway",
+    "main": "app.js",
+    "author": "Alfred",
+    "license": "GPL3.0",
+    "scripts": {
+        "coverage": "open ./coverage/lcov-report/index.html",
+        "test": "jest --config jestconfig.json --coverage",
+        "build": "tsc",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "lint": "tslint -p tsconfig.json"
+    },
+    "dependencies": {
+        "@types/aws-sdk": "^2.7.0",
+        "@types/js-yaml": "^3.12.1",
+        "aws-sdk": "^2.686.0",
+        "js-yaml": "^3.14.0",
+        "phnodelayer": "0.0.8"
+    },
+    "devDependencies": {
+        "@types/node": "~10.17.24",
+        "jest": "^26.6.0",
+        "prettier": "^2.1.2",
+        "ts-jest": "^26.4.1",
+        "eslint": "^6.5.1",
+        "eslint-config-boss": "^1.0.6",
+        "source-map-support": "^0.5.13",
+        "tslint": "^5.18.0",
+        "typedoc": "^0.14.2",
+        "typescript": "^3.3.1"
+    }
 }

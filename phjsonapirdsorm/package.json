@@ -1,6 +1,6 @@
 {
   "name": "phjsonapi",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
   "author": "Alfred",
@@ -15,17 +15,18 @@
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "^2.686.0",
     "axios": "^0.21.0",
-    "phnodelayer": "0.0.7",
+    "phnodelayer": "1.0.3",
     "typescript": "^3.3.1"
   },
   "devDependencies": {
     "@types/node": "~10.17.24",
-    "jest": "^26.6.0",
-    "prettier": "^2.1.2",
-    "ts-jest": "^26.4.1",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",
+    "jest": "^26.6.0",
+    "phauthlayer": "0.0.1",
+    "prettier": "^2.1.2",
     "source-map-support": "^0.5.13",
+    "ts-jest": "^26.4.1",
     "tslint": "^5.18.0",
     "typedoc": "^0.14.2",
     "typescript": "^3.3.1"

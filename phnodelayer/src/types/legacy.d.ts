@@ -1,5 +1,0 @@
-declare module 'fortune'
-declare module 'fortune-mongodb'
-declare module 'fortune-mysql'
-declare module 'fortune-postgres'
-declare module 'fortune-redis'

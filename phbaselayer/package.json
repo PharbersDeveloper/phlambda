@@ -1,0 +1,21 @@
+{
+  "name": "phbaselayer",
+  "version": "1.0.3",
+  "description": "Pharbers Base Layer",
+  "main": "app.js",
+  "author": "Alfred",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf ./node_modules && npm install --production",
+    "zip": "rm -rf ./nodejs/* && cp -R node_modules nodejs && zip -r -q -o base-layer-$(date +%Y%m%d-%H%M).zip nodejs"
+  },
+  "dependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "aws-sdk": "^2.686.0",
+    "axios": "^0.19.2",
+    "crypto-js": "^4.0.0",
+    "moment": "^2.27.0",
+    "phnodelayer": "1.0.3",
+    "typescript": "^3.3.1"
+  }
+}

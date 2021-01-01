@@ -1,7 +1,7 @@
 let response;
 
-const phLogger = require("phnodelayer").logger;
-const delegate = require("./dist/delegate/appLmabdaDelegate").default;
+const phLogger = require("phnodelayer").Logger;
+const delegate = require("./dist/delegate/appLambdaDelegate").default;
 
 const app = new delegate();
 

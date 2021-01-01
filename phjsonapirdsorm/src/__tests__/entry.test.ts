@@ -12,7 +12,7 @@ test("Hook Context", async () => {
         const app = require("../../app.js")
         const res = await app.lambdaHandler(new HookContext(), undefined)
         // tslint:disable-next-line:no-console
-        console.info(JSON.stringify(JSON.parse(res.body)))
+        console.info(res.body)
     }
 
 }, 1000 * 60 * 2)

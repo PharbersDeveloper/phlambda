@@ -2,7 +2,7 @@ import * as fs from "fs"
 
 const LoginAccessEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_oauth_login.json", "utf8"))
-    event.queryStringParameters.email = "test@pharbers.com"
+    event.queryStringParameters.email = "alfredyang@pharbers.com"
     event.queryStringParameters.password = "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
     return event
 })

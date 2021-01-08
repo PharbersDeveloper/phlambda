@@ -3,9 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../style/max/style.css"/>
     <script src="../dist/app.bundle.js"></script>
+    {{!-- <link rel="stylesheet" type="text/css" href="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/style/max/style.css"/>
+    <script src="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/dist/app.bundle.js"></script> --}}
 </head>
 
 <body>
@@ -135,7 +137,10 @@
                 const pm = this.ds.dataset.find(it => {
                     return it.province === p
                 })
-                return pm[m]
+                if (pm && pm[m]) {
+                    return pm[m]
+                }
+                return 0
             }
 
             length() {
@@ -148,7 +153,9 @@
         }
 
         // 2年数据
-        const data =  [
+        
+        
+        const datashow =  {"result": [
 				{ "province": "新疆维吾尔自治区",  "market": 1000000,  "EI": 102 },
 				{ "province": "西藏自治区",  "market": 2000000, "EI": 12 },
 				{ "province": "内蒙古自治区",  "market": 3002222, "EI": 12 },
@@ -183,7 +190,10 @@
 				{ "province": "上海市",  "market": 4446600, "EI": 2 },
 				{ "province": "香港特别行政区",  "market": 8888880, "EI": 102 },
 				{ "province": "澳门特别行政区",  "market": 8866660, "EI": 102 },
-			]
+			]}
+        
+
+        // const datashow = {{{data}}}
 
         const hid = {{histogramId}}
         const piehid = {{histogramPieId}}
@@ -191,8 +201,8 @@
         const h = {{height}}
         const xt = ""
         const yt = "销售额"
-        const histogram = maxReportFactory.createMapHistogram(hid, data, createATMapAdapter)
-        const mapchart = maxReportFactory.createMapCharts(data, createATMapAdapter)
+        const histogram = maxReportFactory.createMapHistogram(hid, datashow.result, createATMapAdapter)
+        const mapchart = maxReportFactory.createMapCharts(datashow.result, createATMapAdapter)
 
         histogram.registerCharts(mapchart)
         histogram.displayHistogram(w, h, xt, yt)

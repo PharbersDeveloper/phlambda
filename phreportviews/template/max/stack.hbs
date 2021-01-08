@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
-    <script src="../dist/app.bundle.js"></script>
+    {{!-- <link rel="stylesheet" type="text/css" href="../style/max/style.css"/>
+    <script src="../dist/app.bundle.js"></script> --}}
+    <link rel="stylesheet" type="text/css" href="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/style/max/style.css"/>
+    <script src="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/dist/app.bundle.js"></script>
 </head>
 
 <body>
@@ -106,10 +108,20 @@
             }
 
             keys() {
-                const arr = Object.keys(this.ds.dataset[0])
-                const i = arr.indexOf("time")
-                arr.splice(i, 1) 
-                return arr
+                // const arr = Object.keys(this.ds.dataset[0])
+                // const i = arr.indexOf("time")
+                // arr.splice(i, 1) 
+                // return arr
+
+                const keys = []
+                this.ds.dataset.forEach(it => {
+                    keys.push(Object.keys(it))
+                })
+                const allKey = [...new Set([].concat(...keys))]
+                const i = allKey.indexOf("time")
+                allKey.splice(i, 1) 
+
+                return allKey
             }
 
             max() {
@@ -127,7 +139,7 @@
     
                     for(let j = 0; j < objLength; j++) {
                         if(objKey[j] !== "time") {
-                            tempMax += curObj[objKey[j]]
+                            tempMax += isNaN(curObj[objKey[j]]) ? 0 : curObj[objKey[j]]
                         }
                     }
 
@@ -150,32 +162,36 @@
         }
 
         // 2年数据
+        /**
         const data =  [
-				{ "time": "2018-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-				{ "time": "2018-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-                { "time": "2018-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2018-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-				{ "time": "2018-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-                { "time": "2019-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-				{ "time": "2019-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-                { "time": "2019-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000,"test2":20000000 }, 
-				{ "time": "2019-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
-				{ "time": "2019-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000,"test2":20000000 },
+				{ "time": "2018-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000, }, 
+				{ "time": "2018-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000, }, 
+				{ "time": "2018-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000, }, 
+				{ "time": "2018-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000, }, 
+				{ "time": "2018-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+				{ "time": "2018-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+                { "time": "2018-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000, }, 
+				{ "time": "2018-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000, }, 
+				{ "time": "2018-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000, }, 
+				{ "time": "2018-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000, }, 
+				{ "time": "2018-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+				{ "time": "2018-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+                { "time": "2019-01", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000, }, 
+				{ "time": "2019-02", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000, }, 
+				{ "time": "2019-03", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000, }, 
+				{ "time": "2019-04", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000, }, 
+				{ "time": "2019-05", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+				{ "time": "2019-06", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+                { "time": "2019-07", "ACETYLSALICYLIC ACID": 5000000, "CLOPIDOGREL": 10000000, "TICAGRELOR": 22000000, "test": 10000000, }, 
+				{ "time": "2019-08", "ACETYLSALICYLIC ACID": 4000000, "CLOPIDOGREL": 12000000, "TICAGRELOR": 28000000, "test": 10000000, }, 
+				{ "time": "2019-09", "ACETYLSALICYLIC ACID": 2000000, "CLOPIDOGREL": 19000000, "TICAGRELOR": 32000000, "test": 10000000, }, 
+				{ "time": "2019-10", "ACETYLSALICYLIC ACID": 7000000, "CLOPIDOGREL": 23000000, "TICAGRELOR": 35000000, "test": 10000000, }, 
+				{ "time": "2019-11", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
+				{ "time": "2019-12", "ACETYLSALICYLIC ACID": 23000000, "CLOPIDOGREL": 17000000, "TICAGRELOR": 43000000, "test": 10000000, },
 			]
+        */
+
+        const datashow = {{{data}}}
 
         const hid = {{histogramId}}
         const piehid = {{histogramPieId}}
@@ -183,8 +199,8 @@
         const h = {{height}}
         const xt = ""
         const yt = "销售额"
-        const histogram = maxReportFactory.createStackHistogram(hid, data, createATStackAdapter)
-        const stackchart = maxReportFactory.createStackCharts(data, createATStackAdapter)
+        const histogram = maxReportFactory.createStackHistogram(hid, datashow.result, createATStackAdapter)
+        const stackchart = maxReportFactory.createStackCharts(datashow.result, createATStackAdapter)
 
         histogram.registerCharts(stackchart)
         histogram.displayHistogram(w, h, xt, yt)

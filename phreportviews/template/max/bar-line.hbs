@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
-    <script src="../dist/app.bundle.js"></script>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/style/max/style.css"/>
+    <script src="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/dist/app.bundle.js"></script>
 </head>
 
 <body>
@@ -14,7 +14,8 @@
         <div class="histogram-title">
            
         </div>
-        <div class="histogram-legacy">
+        <div class="histogram-legacy">  
+            {{simon}}
 
         </div>
         <div class="histogram-content" id={{histogramId}} >
@@ -161,42 +162,18 @@
         }
 
         // 2年数据
-        const data =  [
-				{ "time": "2018-01", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": 0.1 }, 
-				{ "time": "2018-02", "市场规模": 5000000, "市场增长率": -0.7, "产品销售量": 22000000,"产品增长率": 0.2}, 
-				{ "time": "2018-03", "市场规模": 5000000, "市场增长率": 0.6, "产品销售量": 22000000,"产品增长率": 0.3}, 
-				{ "time": "2018-04", "市场规模": 5000000, "市场增长率": 0.6, "产品销售量": 22000000,"产品增长率": 0.6 }, 
-				{ "time": "2018-05", "市场规模": 5000000, "市场增长率": 0.9, "产品销售量": 22000000,"产品增长率": 0.9 },
-				{ "time": "2018-06", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": -0.1 },
-                { "time": "2018-07", "市场规模": 5000000, "市场增长率": 0.15, "产品销售量": 22000000,"产品增长率": -0.5 }, 
-				{ "time": "2018-08", "市场规模": 5000000, "市场增长率": 0.19, "产品销售量": 22000000,"产品增长率": 0.6}, 
-				{ "time": "2018-09", "市场规模": 5000000, "市场增长率": 0.12, "产品销售量": 22000000,"产品增长率": 0.3}, 
-				{ "time": "2018-10", "市场规模": 5000000, "市场增长率": 0.11, "产品销售量": 22000000,"产品增长率": 0.1 }, 
-				{ "time": "2018-11", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": 0.3 },
-				{ "time": "2018-12", "市场规模": 5000000, "市场增长率": 0.12, "产品销售量": 22000000,"产品增长率": 0.7 },
-                { "time": "2019-01", "市场规模": 5000000, "市场增长率": -0.12, "产品销售量": 22000000,"产品增长率": -0.1 }, 
-				{ "time": "2019-02", "市场规模": 5000000, "市场增长率": -0.1, "产品销售量": 22000000,"产品增长率": 0.7}, 
-				{ "time": "2019-03", "市场规模": 5000000, "市场增长率": -0.6, "产品销售量": 22000000,"产品增长率": 0.5}, 
-				{ "time": "2019-04", "市场规模": 5000000, "市场增长率": 0.4, "产品销售量": 22000000,"产品增长率": -0.7 }, 
-				{ "time": "2019-05", "市场规模": 5000000, "市场增长率": -0.1, "产品销售量": 22000000,"产品增长率": 0.4 },
-				{ "time": "2019-06", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": 0.9 },
-                { "time": "2019-07", "市场规模": 5000000, "市场增长率": 0.6, "产品销售量": 22000000,"产品增长率": -0.5 }, 
-				{ "time": "2019-08", "市场规模": 5000000, "市场增长率": 0.2, "产品销售量": 22000000,"产品增长率": 0.2}, 
-				{ "time": "2019-09", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": 0.1}, 
-				{ "time": "2019-10", "市场规模": 5000000, "市场增长率": 0.3, "产品销售量": 22000000,"产品增长率": 0.5 }, 
-				{ "time": "2019-11", "市场规模": 5000000, "市场增长率": -0.4, "产品销售量": 22000000,"产品增长率": 0.9 },
-				{ "time": "2019-12", "市场规模": 5000000, "市场增长率": 0.1, "产品销售量": 22000000,"产品增长率": 0.5 },
-			]
+        
+
+        const datashow = {{{data}}}
 
         const hid = {{histogramId}}
-        const piehid = {{histogramPieId}}
         const w = {{width}}
         const h = {{height}}
         const rTitle = "增长率"
         const lTitle = "销售量"
-        const histogram = maxReportFactory.createBarLineHistogram(hid, data, createATBarAdapter)
-        const barchart = maxReportFactory.createBarCharts(data, createATBarAdapter)
-        const linechart = maxReportFactory.createLineCharts(data, createATBarAdapter)
+        const histogram = maxReportFactory.createBarLineHistogram(hid, datashow.result, createATBarAdapter)
+        const barchart = maxReportFactory.createBarCharts(datashow.result, createATBarAdapter)
+        const linechart = maxReportFactory.createLineCharts(datashow.result, createATBarAdapter)
 
         histogram.registerCharts(barchart)
         histogram.registerCharts(linechart)

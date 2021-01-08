@@ -83,7 +83,6 @@ export class MaxMapCharts extends LineCharts {
            .attr("fill", d => {
                const provinceData = sourceData.getCurProvinceData(d.properties.name, "market")
                const color = provinceData < middleData ?  computeMinMiddle(xScale(provinceData)) : computeMiddleMax(yScale(provinceData))
-               console.log("color", color, d)
                return color
            })
            .on("mouseover", function(d) {
@@ -93,7 +92,15 @@ export class MaxMapCharts extends LineCharts {
                 const provinceData = sourceData.getCurProvinceData(d.properties.name, "market")
                 const color = provinceData < middleData ?  computeMinMiddle(xScale(provinceData)) : computeMiddleMax(yScale(provinceData))
                 d3.select(this).attr("fill", color)
-           });
+           })
+           .on("click", function(d) {
+            console.log("this province", d.properties.name)
+            // 调用父页面的方法
+            if (parent.window.changeProvince ){
+
+                parent.window.changeProvince(d.properties.name)
+            }
+        });
         
         // EI > 100 的省份绘制黑色三角形
         gs.append("polyline")
@@ -156,7 +163,6 @@ export class MaxMapCharts extends LineCharts {
 
         const lines = southseaData.filter(it => { return it.type === "line" })
         const paths = southseaData.filter(it => { return it.type === "path" })
-        console.log("ohh line", lines)
         southsea.selectAll("line.southSeaLine")
                 .data(lines)
                 .enter()
@@ -166,6 +172,7 @@ export class MaxMapCharts extends LineCharts {
                 .attr("x2", d => d.x2)
                 .attr("y2", d => d.y2)
                 .attr("stroke", "#EBECF0")
+                
 
         southsea.selectAll("path.southSeaPath")
                 .data(paths)

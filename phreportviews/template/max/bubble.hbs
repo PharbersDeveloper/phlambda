@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="../style/max/bubble.css"/>
-    <script src="../dist/app.bundle.js"></script>
+    {{!-- <link rel="stylesheet" type="text/css" href="../style/max/style.css"/>
+    <script src="../dist/app.bundle.js"></script> --}}
+    <link rel="stylesheet" type="text/css" href="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/style/max/style.css"/>
+    <script src="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/dist/app.bundle.js"></script>
 </head>
 
 <body>
@@ -155,7 +157,9 @@
         r市场规模
         EI会决定颜色不同
         */
-        const data = [
+
+        /**
+        const datashow = [
             { k: "广东", v: 1, x: 1, y: 1.0, r: 10, EI: 120 },
             { k: "上海", v: 2, x: 2, y: 2.0, r: 5, EI: 20 },
             { k: "江西", v: 3, x: 3, y: 3.0, r: 2, EI: 120 },
@@ -167,6 +171,8 @@
             { k: "山东", v: 4, x: 4, y: 2.0, r: 3, EI: 120 },
             { k: "内蒙", v: 5, x: 1, y: 2.5, r: 8, EI: 120 },
         ]
+        */
+         const datashow = {{{data}}}
 
         const hid = {{histogramId}}
         const piehid = {{histogramPieId}}
@@ -174,8 +180,8 @@
         const h = {{height}}
         const xt = "产品市场份额"
         const yt = "市场增长率(%)"
-        const histogram = maxReportFactory.createBubbleHistogram(hid, data, createATBarAdapter)
-        const circlechart = maxReportFactory.createCircleCharts(data, createATRAdapter)
+        const histogram = maxReportFactory.createBubbleHistogram(hid, datashow.result, createATBarAdapter)
+        const circlechart = maxReportFactory.createCircleCharts(datashow.result, createATRAdapter)
         
         histogram.registerCharts(circlechart)
         histogram.displayHistogram(w, h, xt, yt)

@@ -68,7 +68,7 @@ export class MaxCircleCharts extends CircleCharts {
 		const yScale = this.genYScale(ivp)
 		const rScale = this.genRScale(ivp)
 
-        const gs = svg.selectAll("g")
+		const gs = svg.selectAll("g")
                     .data(this.source.apply())
                     .enter()
                     .append("g")
@@ -76,11 +76,17 @@ export class MaxCircleCharts extends CircleCharts {
         gs.append("circle")
             .attr("fill", d => {
                 return d.EI > 100 ? "url('#EIRadia')" : "url('#defaultEI')"
-            })
+			})
 			.attr("cx", d => xScale(this.source.measure(d)[0]))
 			.attr("cy", d => yScale(this.source.measure(d)[1]))
             .attr("r", d => rScale(this.source.measure(d)[2]))
             .attr("clip-path", "url(#chart-area)")
+			.attr("filter", "url(#drop-shadow)")
+			.on("click", function(d) {
+				if (parent.window.changeCity ){
+					parent.window.changeCity(d.k, d.others)
+				}
+			});
         
         gs.append("text")
             .attr("x", d => {

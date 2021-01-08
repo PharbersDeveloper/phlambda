@@ -58,6 +58,7 @@ export class MaxStackCharts extends BarCharts {
         const curTheme = this.theme
         const stackSericeLength = this.stackSeries.length
         const keyArr = this.keys
+        const colorsArr = this.theme.getUsedColors(stackSericeLength)
 
 
         const groups = svg.selectAll("g")
@@ -65,7 +66,7 @@ export class MaxStackCharts extends BarCharts {
                 .enter()
                 .append("g")
                 .style("fill", function(d, i) {
-                    return curTheme.colors(i, stackSericeLength)
+                    return colorsArr[i]
                 })
              
         groups.selectAll(".textAll")
@@ -107,37 +108,48 @@ export class MaxStackCharts extends BarCharts {
                 return xScale(new Date(d.data.time)) - 6;
             })
             .attr("y", function(d) {
-                return yScale(d[1]); 
+                if (!isNaN(d[1])) {
+                    return yScale(d[1]); 
+                }
+                return  yScale(0);
             })
             .attr("height", function(d) {
-                return yScale(d[0]) - yScale(d[1]);
+                if (!isNaN(d[0]) && !isNaN(d[1])) {
+                    return yScale(d[0]) - yScale(d[1]);
+                }
+                return 0
             })
             .attr("width", 12)
 
-        groups.selectAll(".text") 
-            .data(function(d) { 
-                return d; 
-            }) 
-            .enter()
-            .append("text")
-            .attr("x", function(d, i) { 
-                return xScale(new Date(d.data.time)) - 16;
-            })
-            .attr("y", function(d) {
-                return  (yScale(d[0]) + yScale(d[1]))/2; 
-            })
-            .text(function(d) {
-                let all = 0
-                for(let i = 0; i < keyArr.length; i++) {
-                    const curK = keyArr[i]
-                    all += d.data[curK]
-                }
-                const value = (d[1] - d[0]) / all
+        // groups.selectAll(".text") 
+        //     .data(function(d) { 
+        //         return d; 
+        //     }) 
+        //     .enter()
+        //     .append("text")
+        //     .attr("x", function(d, i) { 
+        //         return xScale(new Date(d.data.time)) - 16;
+        //     })
+        //     .attr("y", function(d) {
+        //         if (d[0] && d[1]) {
+        //             return  (yScale(d[0]) + yScale(d[1]))/2; 
+        //         }
+        //         return yScale(0)
+        //     })
+        //     .text(function(d) {
+        //         let all = 0
+        //         for(let i = 0; i < keyArr.length; i++) {
+        //             const curK = keyArr[i]
+        //             if (d.data[curK]){ 
+        //                 all += d.data[curK]
+        //             }
+        //         }
+        //         const value = (d[1] - d[0]) / all
                 
-                return Math.round(value * 1000) / 10 + "%"
-            })
-            .attr("fill", "#848996")
-            .attr("font-size", 11)
+        //         return Math.round(value * 1000) / 10 + "%"
+        //     })
+        //     .attr("fill", "#848996")
+        //     .attr("font-size", 11)
     
 
         if (this.theme.hasLabel()) {

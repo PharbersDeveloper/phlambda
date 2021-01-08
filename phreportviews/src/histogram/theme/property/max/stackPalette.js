@@ -46,7 +46,8 @@ export class StackPalette extends Palette {
 
     usedColor(arr) {
         const colors = []
-        const len = arr.length
+        const len = !isNaN(arr) ? arr : arr.length
+        // 接受数组或者数字
 
         if (len <= 5) {
             for(let i = 0; i < len; i++) {
@@ -69,6 +70,11 @@ export class StackPalette extends Palette {
         if (len <= 12) {
             return this.colorsArr.slice(12 - len)
         }
+
+        if (len >= 12) {
+            return this.colorsArr
+        }
+
     }
 }
 

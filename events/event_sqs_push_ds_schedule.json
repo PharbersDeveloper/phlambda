@@ -1,0 +1,48 @@
+{
+  "Records": [
+    {
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": {
+        "jobId": "schema_job_638cffee-f004-4172-873b-2312618669c7",
+        "tabName": "sheet name",
+        "TraceId": "0x001",
+        "length": 100,
+        "url": "s3a://ph-stream/jobs/runId_5f2a893af362987940f3e45d/BPSSandBoxConvertSchemaJob/jobId_schema_job_638cffee-f004-4172-873b-2312618669c7/id_b74897d8-8664-49ca-bd7c-ffaa6af8837d/contents",
+        "description": "schemaJob",
+        "status": "end",
+        "columnNames": ["AAAA"]
+      },
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1523232000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1523232000001"
+      },
+      "messageAttributes": {
+        "type": {
+          "stringValue": "PushDs",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "jobId": {
+          "stringValue": "0x001",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "traceId": {
+          "stringValue": "0x001",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        }
+      },
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws-cn:sqs:cn-northwest-1:123456789012:MyQueue",
+      "awsRegion": "cn-northwest-1"
+    }
+  ]
+}

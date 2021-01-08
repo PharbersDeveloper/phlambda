@@ -1,0 +1,35 @@
+project: "reports"
+postgres:
+  algorithm: postgres
+  host: ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+  port: 5432
+  username: "pharbers"
+  pwd: "Abcde196125"
+  dbName: "phreports"
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000
+#mongo:
+#  algorithm: mongodb+srv
+#  host: ph-db-gp.wqegl.azure.mongodb.net
+#  port: 27017
+#  username: "pharbers"
+#  pwd: "Pharbers.84244216"
+#  coll: "phtest"
+#  authSource: "admin"
+#  other: "?retryWrites=true&w=majority"
+#  auth: true
+#mysql:
+#  algorithm: mysql
+#  host: 127.0.0.1
+#  port: 3306
+#  username: "root"
+#  pwd: "pharbers"
+#  dbName: "phtest"
+#redis:
+#  dao: "test"
+#  algorithm: redis
+#  # host: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+#  host: 127.0.0.1
+#  port: 6379
+#  db: 0

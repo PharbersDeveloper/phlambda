@@ -7,14 +7,14 @@
 	<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
-	<script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"
-		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
-	</script>
-	<script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
-		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
-	</script>
-	<script src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-	<script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script defer="defer" src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script defer="defer" src="https://cdn.bootcdn.net/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <!-- deploy -->
+    <!-- <script defer="defer" src="https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-08-10/components/js/pharbers-secret.min.js"></script> -->
+    <!--dev-->
+    <script defer="defer" src="./pharbers-secret.js"></script>
 	</script>
 	<style type="text/css">
 		.LoginPage input {
@@ -33,12 +33,12 @@
 		<div id="secret">
 			<input style="height: 48px" type="hidden" class="form-control mb-3" id="client_id" value="{{client_id}}">
 			<input style="height: 48px" type="hidden" class="form-control mb-3" id="redirect_uri" value="{{redirect_uri}}">
+			<input style="height: 48px" type="hidden" class="form-control mb-3" id="client_secret" value="{{client_secret}}">
 		</div>
 		<button style="height: 48px" id="authSubmit" class="btn btn-lg btn-primary btn-block"
 			type="button">{{btnDescribe}}</button>
 	</form>
 	<div id="alert"></div>
-	<script src="https://ph-oauth-cdn-js.s3.cn-northwest-1.amazonaws.com.cn/pharbers-secret.min.js"></script>
 </body>
 
 </html>

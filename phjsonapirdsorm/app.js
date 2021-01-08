@@ -1,14 +1,44 @@
-// const axios = require('axios')
-// const url = 'http://checkip.amazonaws.com/';
-let response;
 
-const phlogger = require("./dist/logger/phLogger").default
+let response = {}
+
+const corsHeader =   {
+    "Access-Control-Allow-Headers" : "Content-Type",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+}
+const phLogger = require("phnodelayer").Logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
+const accessResponse = require("phauthlayer").Errors2response
 
 const app = new delegate()
 
-let tmp = 0
 
+const formatResponse = (content) => {
+    let objHeader = {}
+    if ("output" in content) {
+        const resultOutput = content.output[0].split("\r\n")
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(":");
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
+        }
+    } else {
+        objHeader = content.headers
+    }
+
+    Object.assign(objHeader, corsHeader)
+    response.statusCode = content.statusCode || content.status
+    response.headers = objHeader
+    // response.body = "output" in content ? String(content.output[1]) : content.message.message
+    if ("output" in content) {
+        response.body = String(content.output[1])
+    } else {
+        accessResponse(content, response);
+        response.body = JSON.stringify(response.body)
+    }
+
+}
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -23,55 +53,31 @@ let tmp = 0
  */
 exports.lambdaHandler = async function (event, context) {
     try {
-        phlogger.info(event)
-        if (app.isFirstInit) {
-            await app.prepare()
-        }
-        // const result = await app.exec(event)
-        let result
-
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
-        result = await app.exec(event)
-        tmp = 0
-        response = {
-            'statusCode': result.statusCode,
-            'headers': result.output[0],
-            'body': String(result.output[1])
+        if ( !event.body ) {
+            event.body = ""
+        }
+        if ( !event.queryStringParameters ) {
+            event.queryStringParameters = {}
+        }
+        if ( !event.multiValueQueryStringParameters ) {
+            event.multiValueQueryStringParameters = {}
+        }
+        const result = await app.exec(event)
+        if (result) {
+            formatResponse(result)
         }
 
-        const resultOutput = result.output[0].split("\r\n")
-        const corsHeader =   {
-            "Access-Control-Allow-Headers" : "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        }
-        let objHeader = {}
-
-        for (let index = 0; index < resultOutput.length; index++) {
-            const element = resultOutput[index].split(":");
-            if (element.length === 2) {
-                objHeader[element[0]] = element[1]
-            }
-        }
-        Object.assign(objHeader, corsHeader)
-        response.headers = objHeader
-
-        // if (response.statusCode === 500 && !app.checkMongoConnection() && tmp === 0) {
-        //         phlogger.info("retry connect mongodb for another round.");
-        //         tmp = 1
-        //         return runLambda(event, context)
-        // }
     } catch (err) {
-        phlogger.error(err);
-        return err;
+        if ("meta" in err) {
+            formatResponse(err.meta.response)
+        } else {
+            phLogger.error(err);
+            return err;
+        }
     }
 
     return response
-};
-
-exports.cleanUp = async () => {
-    await app.cleanUp()
 };

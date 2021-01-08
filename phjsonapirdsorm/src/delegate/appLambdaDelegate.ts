@@ -1,120 +1,24 @@
-import fortune from "fortune"
-// import mongoAdapter from "fortune-mongodb"
-// import MySQLAdapter from "fortune-mysql"
-import postgresAdapter from "fortune-postgres"
-import * as fs from "fs"
-import http, {ServerResponse} from "http"
-import * as yaml from "js-yaml"
-import {JsonConvert, ValueCheckingMode} from "json2typescript"
-import fortuneHTTP from "../../lib/fortune-http"
-import jsonApiSerializer from "../../lib/fortune-json-api"
-import {ServerConf} from "../configFactory/serverConf"
-import phLogger from "../logger/phLogger"
-import AWSReq from "../strategies/awsRequest"
+import { identify } from "phauthlayer"
+import { ConfigRegistered, Logger, Main, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 
-/**
- * The summary section should be brief. On a documentation web site,
- * it will be shown on a page that lists summaries for many different
- * API items.  On a detail page for a single item, the summary will be
- * shown followed by the remarks section (if any).
- *
- */
 export default class AppLambdaDelegate {
-    // private httpStrategies: AWSLambdaStrategy
-    public store: any
-    public listener: any
-    public isFirstInit = true
-    private conf: ServerConf
-
-    public async prepare() {
-        this.loadConfiguration()
-        const record = this.genRecord()
-        const adapter = this.genPgAdapter()
-        this.store = fortune(record, {adapter})
-        await this.store.connect()
-        this.isFirstInit = false
-        this.listener = fortuneHTTP(this.store, {
-            serializers: [
-                [ jsonApiSerializer ]
-            ]
-        })
-    }
-
-    public async cleanUp() {
-        await this.store.disconnect()
-    }
-
     public async exec(event: Map<string, any>) {
+        const pg = new PostgresConfig("entry", "pharbers", "Abcde196125", "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn", 5432, "phentry")
+        const redis = new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")
+        ConfigRegistered.getInstance.registered(pg).registered(redis)
+        const rds = SF.getInstance.get(Store.Redis)
+        await rds.open()
         // @ts-ignore
-        if ( !event.body ) {
-            // @ts-ignore
-            event.body = ""
+        const result = await rds.find("access", null, {match: {token: event.headers.Authorization}})
+        await rds.close()
+        let scope = ""
+        if (result.payload.records.length > 0) {
+            scope  = result.payload.records[0].scope
         }
-        const req = new AWSReq(event, this.conf.project)
-        const response = new ServerResponse(req)
-        // @ts-ignore
-        const buffer = Buffer.from(event.body)
-        // @ts-ignore
-        req._readableState.buffer = buffer
-        await this.listener(req, response, buffer)
-        return response
-    }
-
-    protected loadConfiguration() {
-        try {
-            const path = "config/server.yml"
-            const jsonConvert = new JsonConvert()
-            const doc = yaml.safeLoad(fs.readFileSync(path, "utf8"))
-            // jsonConvert.operationMode = OperationMode.LOGGING // print some debug data
-            jsonConvert.ignorePrimitiveChecks = false // don't allow assigning number to string etc.
-            jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-            this.conf = jsonConvert.deserializeObject(doc, ServerConf)
-            // this.exportHandler = new ExportProejct(this.conf.oss)
-            // this.kafka = new KafkaDelegate(this.conf.kfk)
-        } catch (e) {
-            phLogger.fatal( e as Error )
+        const flag = identify(event, scope)
+        if (flag.status === 200) {
+            return await Main(event)
         }
+        return flag
     }
-
-    protected genRecord() {
-        const filename = "../models/" + this.conf.project + ".js"
-        return require(filename).default
-    }
-
-    // protected genMySQLAdapter() {
-    //     const url = "mysql://root:Abcde196125@localhost/ph_offweb?debug=true&charset=BIG5_CHINESE_CI&timezone=+0800"
-    //     return [MySQLAdapter , {
-    //         url
-    //     }]
-    // }
-
-    protected genPgAdapter() {
-        const prefix = this.conf.postgres.algorithm
-        const host = this.conf.postgres.host
-        const port = this.conf.postgres.port
-        const username = this.conf.postgres.username
-        const pwd = this.conf.postgres.pwd
-        const dbName = this.conf.postgres.dbName
-        const url = prefix + "://" + username + ":" + pwd + "@" + host + ":" + port + "/" + dbName
-        // const url = "postgres://postgres:196125@localhost:5432/phoffweb"
-        return [postgresAdapter , {
-            url
-        }]
-    }
-
-    // protected genAdapter() {
-    //     const prefix = this.conf.mongo.algorithm
-    //     const host = this.conf.mongo.host
-    //     const username = this.conf.mongo.username
-    //     const pwd = this.conf.mongo.pwd
-    //     const coll = this.conf.mongo.coll
-    //     const url = prefix + "://" + username + ":" + pwd + "@" + host +  "/" + coll + "?retryWrites=true&w=majority"
-    //     return [ mongoAdapter, {
-    //         url,
-    //         autoReconnect: true,
-    //         keepAlive: true,
-    //         keepAliveInitialDelay: 1000,
-    //         useNewUrlParser: true
-    //     } ]
-    // }
 }

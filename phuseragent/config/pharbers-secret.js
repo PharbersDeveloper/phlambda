@@ -664,14 +664,28 @@
 	const utils = $.PhSigV4ClientUtils();
 	const template = $.PhUriTemplate();
 
-	const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
-	const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
+	// const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");  //十六位十六进制数作为密钥
+	// const iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');   //正常情况由后端返回十六位十六进制数作为密钥偏移量
+	const client_id = $('#client_id').val().replace(/\s+/g, "")
+	const client_secret = $("#client_secret").val() // 暂时没用到，但是要留着
+	const callback = $("#redirect_uri").val()
+	const accessKey = "10EC20D06323077893326D4388B18ED12D08F45BEB066308279D890FDFEB872F"
+	const secretKey = "7A2A70C890EB8D3BFDE11F0C2FEBCB856A9151002A9D21AF3D5525B04F81C3F65340A646C74E5BFF6E672FC4740D96B0"
+
+	$("#secret").remove()
+
+	const invokeUrl = 'https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0';
+	const endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
+	const pathComponent = invokeUrl.substring(endpoint.length);
 
 	//解密方法
 	function Decrypt(word) {
 		let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
 		let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-		let decrypt = CryptoJS.AES.decrypt(srcs, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+		let decrypt = CryptoJS.AES.decrypt(srcs,
+			CryptoJS.enc.Utf8.parse("1234123412ABCDEF"),
+			{ iv: CryptoJS.enc.Utf8.parse('ABCDEF1234123412'), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+		);
 		let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
 		return decryptedStr.toString();
 	}
@@ -679,34 +693,11 @@
 	//加密方法
 	// function Encrypt(word) {
 	// 	let srcs = CryptoJS.enc.Utf8.parse(word);
-	// 	let encrypted = CryptoJS.AES.encrypt(srcs, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
+	// 	let encrypted = CryptoJS.AES.encrypt(srcs,
+	// 		CryptoJS.enc.Utf8.parse("1234123412ABCDEF"),
+	// 		{ iv: CryptoJS.enc.Utf8.parse('ABCDEF1234123412'), mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 	// 	return encrypted.ciphertext.toString().toUpperCase();
 	// }
-
-	const config = {
-		accessKey: Decrypt('2CD68AFF7A2E0E215F95390B4D9C2BA760C1F84FDC100C942EAE1B5284A2C878'),
-		secretKey: Decrypt('95BCBFAF9D4FDE03EFD69615780A53F5172AD1CAFDCA928817F26C6C7D753EAD45FA531BAC78F13FB98382F196FA652E'),
-		sessionToken: '',
-		region: 'cn-northwest-1',
-		apiKey: undefined,
-		defaultContentType: 'application/vnd.api+json',
-		defaultAcceptType: 'application/vnd.api+json'
-	};
-
-	const invokeUrl = 'https://2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn/v0';
-	const endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
-	const pathComponent = invokeUrl.substring(endpoint.length);
-
-	const sigV4ClientConfig = {
-		accessKey: config.accessKey,
-		secretKey: config.secretKey,
-		sessionToken: config.sessionToken,
-		serviceName: 'execute-api',
-		region: config.region,
-		endpoint: endpoint,
-		defaultContentType: config.defaultContentType,
-		defaultAcceptType: config.defaultAcceptType
-	};
 
 	function hexEncode(value) {
 		return value.toString(CryptoJS.enc.Hex)
@@ -716,6 +707,15 @@
 		return hexEncode(CryptoJS.SHA256(value).toString())
 	}
 
+	function tips(type, value) {
+		$('#alert').empty()
+		$('#alert').append(`<div class="alert alert-${type}"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>${type}! </strong>${value}</div>`)
+		setTimeout(function () {
+			$('#alert').empty()
+		}, 5000)
+		return;
+	}
+
 	$('#authSubmit').click(async () => {
 		function isEqRe(key, value) {
 			return value.indexOf(key) !== -1
@@ -723,34 +723,21 @@
 		const isNullRe = /^\s*$/g
 		const account = $('#account').val().replace(/\s+/g, "")
 		const password = $('#password').val()
-		const client_id = $('#client_id').val().replace(/\s+/g, "")
 		// const client_secret = $('#client_secret').val().replace(/\s+/g, "")
 
 		// TODO: || isNullRe.test(client_secret) || isEqRe("{{client_secret}}", client_secret)
 		// TODO: 这边只能验证client_id 和 secret是否为空，具体验证是否合法交由逻辑层
 		if (isNullRe.test(client_id) || isEqRe("{{client_id}}", client_id)) {
-			$('#alert').empty()
-			$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>client_id illegal input</div>')
-			setTimeout(function () {
-				$('#alert').empty()
-			}, 5000)
+			tips("warning", "client_id illegal input");
 			return;
 		}
 		if (isNullRe.test(account) || isNullRe.test(password)) {
-			$('#alert').empty()
-			$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>Input box is required</div>')
-			setTimeout(function () {
-				$('#alert').empty()
-			}, 5000)
+			tips("warning", "Input box is required");
 		} else {
-			const result = await login(account, sha256(password), client_id, client_secret)
+			const result = await login(account, sha256(password), client_id)
 			if (result === undefined || result.status !== 200) {
 				const msg = result === undefined ? 'An unknown error' : result.data.message
-				$('#alert').empty()
-				$('#alert').append('<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert">&times;</a><strong>Warning! </strong>' + msg + '</div>')
-				setTimeout(function () {
-					$('#alert').empty()
-				}, 5000)
+				tips("danger", msg);
 			} else {
 				console.info("Result", result)
 			}
@@ -775,8 +762,26 @@
 		return await axios(request)
 	}
 
-	async function login(accout, password, client_id, client_secret) {
-		const callback = `${window.location.href}oauth-callback`
+	async function login(accout, password) {
+		const config = {
+			accessKey: Decrypt(accessKey),
+			secretKey: Decrypt(secretKey),
+			sessionToken: '',
+			region: 'cn-northwest-1',
+			apiKey: undefined,
+			defaultContentType: 'application/vnd.api+json',
+			defaultAcceptType: 'application/vnd.api+json'
+		};
+		const sigV4ClientConfig = {
+			accessKey: config.accessKey,
+			secretKey: config.secretKey,
+			sessionToken: config.sessionToken,
+			serviceName: 'execute-api',
+			region: config.region,
+			endpoint: endpoint,
+			defaultContentType: config.defaultContentType,
+			defaultAcceptType: config.defaultAcceptType
+		};
 		const client = factory.newClient(sigV4ClientConfig)
 
 		async function oauthLogin(data) {
@@ -792,15 +797,17 @@
 		}
 
 		async function authorization(oauthLoginResult) {
+			const state = CryptoJS.MD5(`${client_id}${new Date().getTime()}`).toString()
 			const params = {
 				edp: "authorization",
 				Accept: "application/json",
 				client_id: client_id,
 				response_type: "code",
 				user_id: oauthLoginResult.data.uid,
-				redirect_uri: callback
+				redirect_uri: callback,
+				state
 			}
-			const result = await send(client, params, ['client_id', 'response_type', 'user_id', 'redirect_uri'])
+			const result = await send(client, params, ['client_id', 'response_type', 'user_id', 'redirect_uri', 'state'])
 			console.log(result)
 			const authorizationParams = {}
 
@@ -808,9 +815,18 @@
 				const obj = item.split('=')
 				authorizationParams[obj[0]] = obj[1]
 			}
+			if (authorizationParams.state !== state) {
+				tips("danger", "parameter error");
+				return
+			}
 			console.log(authorizationParams)
-			window.location = `${callback}?client_id=fjjnl2uSalHTdrppHG9u&grant_type=authorization_code&code=${authorizationParams.code}&redirect_uri=${authorizationParams.redirect_uri}`
-			return result
+			const callBackParm = [
+				`client_id=${client_id}`,
+				`code=${authorizationParams.code}`,
+				`redirect_uri=${authorizationParams.redirect_uri}`,
+				`grant_type=authorization_code`,
+				`state=${authorizationParams.state}`].join("&")
+			window.location = `${callback}?${callBackParm}`
 		}
 
 		const registerFuncs = registerFunc(authorization, registerFunc(oauthLogin, []));

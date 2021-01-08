@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/style/max/style.css"/>
+    <script src="https://s3.cn-northwest-1.amazonaws.com.cn/reports.pharbers.com/dist/app.bundle.js"></script>
+</head>
+
+<body>
+    <!-- 布局小付同学添加吧 -->
+    <div class="histogram-container">
+        <div class="histogram-title">
+           
+        </div>
+        <div class="histogram-legacy">  
+            {{simon}}
+
+        </div>
+        <div class="histogram-content" id={{histogramId}} >
+        </div>
+        <div class="histogram-content" id={{histogramPieId}} >
+        </div>
+    </div>
+    <script type="text/javascript" >
+
+        function createATBarAdapter(ds) {
+        	return new ATBarAdapter(ds)
+        }
+
+        class ATBarAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            keys() {
+                const arr = Object.keys(this.ds.dataset[0])
+                const i = arr.indexOf("time")
+                arr.splice(i, 1) 
+                return arr
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d["市场规模"]), 
+                    d3.max(this.ds.dataset, d => d["市场增长率"]), 
+                    d3.max(this.ds.dataset, d => d["产品销售量"]), 
+                    d3.max(this.ds.dataset, d => d["产品增长率"])]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x), d3.min(this.ds.dataset, d => d.y)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+
+        function createATRAdapter(ds) {
+            return new ATRAdapter(ds)
+        }
+
+        class ATRAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            max() {
+                return [d3.max(this.ds.dataset, d => d.x),
+                    d3.max(this.ds.dataset, d => d.y),
+                    d3.max(this.ds.dataset, d => d.r)]
+            }
+
+            min() {
+                return [d3.min(this.ds.dataset, d => d.x),
+                    d3.min(this.ds.dataset, d => d.y),
+                    d3.min(this.ds.dataset, d => d.r)]
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return [this.ds.measure(d).x,
+                    this.ds.measure(d).y,
+                    this.ds.measure(d).r]
+            }
+        }
+
+
+
+        function createATStackAdapter(ds) {
+        	return new ATStackAdapter(ds)
+        }
+
+        class ATStackAdapter {
+            constructor(ds) {
+                this.ds = ds
+            }
+
+            apply(key) {
+                return this.ds.apply(key)
+            }
+
+            keys() {
+                const arr = Object.keys(this.ds.dataset[0])
+                const i = arr.indexOf("time")
+                arr.splice(i, 1) 
+                return arr
+            }
+
+            max() {
+                const arr = this.ds.dataset
+                const al = arr.length
+                const objKey = Object.keys(arr[0])
+                const sumMax = {}
+                let maxSum = 0
+
+                
+                for (let i = 0; i < al; i++) {
+                    let curObj = arr[i]
+                    let objLength = objKey.length
+                    let tempMax = 0  
+    
+                    for(let j = 0; j < objLength; j++) {
+                        if(objKey[j] !== "time") {
+                            tempMax += curObj[objKey[j]]
+                        }
+                    }
+
+                    maxSum = tempMax > maxSum ? tempMax : maxSum
+                }
+                return maxSum
+            }
+
+            min() {
+                return 0
+            }
+
+            length() {
+                return this.ds.dataset.length
+            }
+
+            measure(d) {
+                return this.ds.measure(d).v
+            }
+        }
+
+        // 2年数据
+        
+
+        const datashow = {{{data}}}
+
+        const hid = {{histogramId}}
+        const w = {{width}}
+        const h = {{height}}
+        const rTitle = "增长率"
+        const lTitle = "销售量"
+        const histogram = maxReportFactory.createBarLineHistogram(hid, datashow.result, createATBarAdapter)
+        const barchart = maxReportFactory.createBarCharts(datashow.result, createATBarAdapter)
+        const linechart = maxReportFactory.createLineCharts(datashow.result, createATBarAdapter)
+
+        histogram.registerCharts(barchart)
+        histogram.registerCharts(linechart)
+        histogram.displayHistogram(w, h, rTitle, lTitle)
+
+    </script>
+</body>
+</html>

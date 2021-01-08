@@ -1,0 +1,40 @@
+project: "common"
+postgres:
+  algorithm: postgres
+  host: 127.0.0.1
+  port: 5432
+  username: ""
+  pwd: ""
+  dbName: ""
+  poolMax: 1
+  idleTimeoutMillis: 1000
+  connectionTimeoutMillis: 1000
+#mongo:
+#  algorithm: mongodb+srv
+#  host: ph-db-gp.wqegl.azure.mongodb.net
+#  port: 27017
+#  username: "pharbers"
+#  pwd: "Pharbers.84244216"
+#  dbName: "phtest"
+#  authSource: "admin"
+#  other: "?retryWrites=true&w=majority"
+#  auth: true
+#  poolMax: 1
+#  idleTimeoutMillis: 1000
+#  connectionTimeoutMillis: 1000
+#mysql:
+#  algorithm: mysql
+#  host: 127.0.0.1
+#  port: 3306
+#  username: "root"
+#  pwd: "pharbers"
+#  dbName: "phtest"
+#  poolMax: 1
+#  idleTimeoutMillis: 1000
+#  connectionTimeoutMillis: 1000
+#redis:
+#  dao: "TestRedis"
+#  algorithm: redis
+#  host: 127.0.0.1
+#  port: 6379
+#  dbName: "0"

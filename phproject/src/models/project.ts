@@ -19,7 +19,9 @@ class Project {
             atc: String,
             outSuffix: String,
             email: String,
-            version: String,
+            owner: String,
+            created: Date,
+            modified: Date,
             status: String,
         }
     }
@@ -48,18 +50,15 @@ class Project {
                     const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
                     if (res.status !== 200) { throw new BadRequestError(res.statusText) }
                     record.status = res.statusText
-                } else {
-                    const date = new Date()
-                    if (!record.created) {
-                        record.created = date
-                    }
-                    record.modified = date
                 }
+                const date = new Date()
+                if (!record.created) {
+                    record.created = date
+                }
+                record.modified = date
                 return record
             case "update":
-                if (type !== "trigger") {
-                    update.replace.modified = new Date()
-                }
+                update.replace.modified = new Date()
                 return update
         }
     }

@@ -115,12 +115,5 @@ rqXRfboQnoZsG4q5WTP468SQvvG5
     await mqtt.subscribe("test/1", QoS.AtLeastOnce, sub)
     Logger.info("订阅")
 
-    // setTimeout(async () => {
-    //     Logger.info("重连")
-    //     // await mqtt.reconnect()
-    //     await sleep(1000 * 60 * 10)
-    //     Logger.info("重连")
-    // }, 1000 * 1)
-
-    // await sleep(1000 * 60 * 10)
+    await sleep(1000 * 60 * 10)
 }, 1000 * 60 * 10)

@@ -13,10 +13,26 @@ const PublishAccess = jest.fn(() => {
 
 test("IoT Publish Access", async () => {
     const app = require("../../app.js")
-    const res = await app.lambdaHandler(new PublishAccess(), undefined)
-    expect(res.statusCode).toEqual(200)
-    Logger.info(res)
-}, 10000)
+    // const res = await app.lambdaHandler(new PublishAccess(), undefined)
+    // Logger.info(res)
+    const sleep = async (duration) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, duration)
+        })
+    }
+    for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) {
+        const res = await app.lambdaHandler(new PublishAccess(), undefined)
+        // expect(res.statusCode).toEqual(200)
+        Logger.info(res)
+    }
+    await sleep(1000 * 5)
+    for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) {
+        const res = await app.lambdaHandler(new PublishAccess(), undefined)
+        // expect(res.statusCode).toEqual(200)
+        Logger.info(res)
+    }
+
+}, 1000 * 60 * 60 * 24)
 
 test("IoT Subscribe", async () => {
 
@@ -44,5 +60,5 @@ test("IoT Subscribe", async () => {
     await mqtt.subscribe("pharbers/pid/uid", QoS.AtLeastOnce, sub)
     Logger.info("订阅")
 
-    await sleep(1000 * 60 * 20)
-}, 1000 * 60 * 20)
+    await sleep(1000 * 60 * 60 * 24)
+}, 1000 * 60 * 60 * 24)

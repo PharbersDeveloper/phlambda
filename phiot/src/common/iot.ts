@@ -67,8 +67,8 @@ export default class MQTT implements IIot {
         this.configBuilder.with_clean_session(this.cleanSession)
         this.configBuilder.with_client_id(this.clientId)
         this.configBuilder.with_endpoint(this.endPoint)
-        this.configBuilder.with_keep_alive_seconds(1000 * 60 * 10)
-        this.configBuilder.with_timeout_ms(1000 * 60 * 10)
+        this.configBuilder.with_keep_alive_seconds(1000 * 5)
+        this.configBuilder.with_timeout_ms(1000 * 10)
         // TODO: 并发有问题，先测试@Alex
         if (!this.client) {
             this.client = new mqtt.MqttClient(this.clientBootstrap)
@@ -79,7 +79,7 @@ export default class MQTT implements IIot {
         const config = this.configBuilder.build()
         this.connection = this.client.new_connection(config)
         this.verify()
-        await this.connection.connect()
+        const a = await this.connection.connect()
         Logger.info("Connected")
     }
 

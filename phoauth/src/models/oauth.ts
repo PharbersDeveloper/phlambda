@@ -45,6 +45,7 @@ class OAuth {
             created: Date,
             expired: Date,
             registerRedirectUri: Array(String),
+            domain: Array(String),
             clientComponents: { link: "component", isArray: true, inverse: "client" },
         },
         component: {

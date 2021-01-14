@@ -1,7 +1,7 @@
 import { ClientBootstrap } from "aws-crt/dist/native/io"
 import { iot, mqtt } from "aws-iot-device-sdk-v2"
 import { Logger } from "phnodelayer"
-import Conf from "./conf"
+import { IoTConf } from "./conf"
 
 export interface IIot {
     build()
@@ -56,7 +56,7 @@ export default class MQTT implements IIot {
     }
 
     public async build() {
-        if (Conf.websocket) {
+        if (IoTConf.websocket) {
             throw new Error("暂不支持WebSocket")
         } else {
             this.configBuilder = iot.AwsIotMqttConnectionConfigBuilder.new_mtls_builder(this.cert, this.key)

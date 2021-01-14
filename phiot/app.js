@@ -1,10 +1,42 @@
-let response;
+let response = {}
 
-const phLogger = require("phnodelayer").Logger;
-const delegate = require("./dist/delegate/appLambdaDelegate").default;
+const corsHeader =   {
+  "Access-Control-Allow-Headers" : "Content-Type",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
+}
+const phLogger = require("phnodelayer").Logger
+const delegate = require("./dist/delegate/appLambdaDelegate").default
+const accessResponse = require("phauthlayer").Errors2response
 
-const app = new delegate();
+const app = new delegate()
 
+
+const formatResponse = (content) => {
+  let objHeader = {}
+  if ("output" in content) {
+    const resultOutput = content.output[0].split("\r\n")
+    for (let index = 0; index < resultOutput.length; index++) {
+      const element = resultOutput[index].split(":");
+      if (element.length === 2) {
+        objHeader[element[0]] = element[1]
+      }
+    }
+  } else {
+    objHeader = content.headers || {}
+  }
+
+  Object.assign(objHeader, corsHeader)
+  response.statusCode = content.statusCode || content.status
+  response.headers = objHeader
+  if ("output" in content) {
+    response.body = String(content.output[1])
+  } else {
+    accessResponse(content, response);
+    response.body = JSON.stringify(response.body)
+  }
+
+}
 /**
  *
  * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
@@ -20,26 +52,30 @@ const app = new delegate();
 exports.lambdaHandler = async function (event, context) {
   try {
     if (context && context.callbackWaitsForEmptyEventLoop) {
-      context.callbackWaitsForEmptyEventLoop = false;
+      context.callbackWaitsForEmptyEventLoop = false
     }
     if ( !event.body ) {
       event.body = ""
     }
-    const result = await app.exec(event);
+    if ( !event.queryStringParameters ) {
+      event.queryStringParameters = {}
+    }
+    if ( !event.multiValueQueryStringParameters ) {
+      event.multiValueQueryStringParameters = {}
+    }
+    const result = await app.exec(event)
+    if (result) {
+      formatResponse(result)
+    }
 
-    Object.assign(result.headers, {
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-    });
-    response = {
-      statusCode: result.statusCode,
-      headers: result.headers,
-      body: JSON.stringify(result.body),
-    };
   } catch (err) {
-    phLogger.error(err);
-    return err;
+    if ("meta" in err) {
+      formatResponse(err.meta.response)
+    } else {
+      phLogger.error(err);
+      return err;
+    }
   }
-  return response;
+
+  return response
 };

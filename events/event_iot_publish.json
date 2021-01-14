@@ -1,7 +1,7 @@
 {
-    "body": "{\"email\": \"test@pharbers.com\", \"password\": \"222222\"}",
-    "resource": "/act/{type}",
-    "path": "/act/forgotPassword",
+    "body": "{\n  \"uid\": \"1\",\n  \"pid\": \"1\",\n  \"timestamp\": \"1610603599353\",\n  \"topic\": \"pharbers/pid/uid\",\n  \"body\": {\n  \t\"message\": \"测试数据\uD83D\uDE0B\"\n  }\n}",
+    "resource": "/phiot/{type}",
+    "path": "/phiot/forgotPassword",
     "httpMethod": "POST",
     "isBase64Encoded": false,
     "queryStringParameters": {

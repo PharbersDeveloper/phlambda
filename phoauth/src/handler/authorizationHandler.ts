@@ -58,8 +58,7 @@ export default class AuthorizationHandler implements IHandler {
             // TODO 为了优先稳定只能在这边做了不正确的解法
             // @ts-ignore
             PhInvalidAuthorizationLogin.headers.location =
-                // @ts-ignore
-                `${PhInvalidAuthorizationLogin.headers.location}?redirect_uri=${clientRecord.domain[0]}`
+                `http://accounts.pharbers.com/welcome?redirect_uri=${clientRecord.domain[0]}`
             errors2response(PhInvalidAuthorizationLogin, response)
             return response
         }

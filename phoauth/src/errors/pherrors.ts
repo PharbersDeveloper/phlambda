@@ -64,7 +64,7 @@ export const PhInvalidAuthorizationLogin: IPhErrors = {
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "location": "http://accounts.pharbers.com/welcome"
+        "location": ""
     },
     message: { message: "Invalid Authorization Login" },
 }

@@ -7,7 +7,6 @@
     "queryStringParameters": {
         "response_type": "code",
         "client_id": "V5I67BHIRVR2Z59kq-a-",
-        "user_id": "qtaGDePl1OrSFEgm",
         "redirect_uri": "www.pharbers.com"
     },
     "pathParameters": {

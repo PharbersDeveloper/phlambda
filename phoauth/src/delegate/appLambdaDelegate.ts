@@ -47,7 +47,7 @@ export default class AppLambdaDelegate {
                 await new AuthorizationHandler().execute(event, response, this.postgres, this.redis)
             } else if (endpoint === "token") {
                 await new TokenHandler().execute(event, response, this.postgres, this.redis)
-            } else if (endpoint === "getUserInfo") {
+            } else if (endpoint === "userinfo") {
                 await new UserInfoHandler().execute(event, response, this.postgres, this.redis)
             }
             return response

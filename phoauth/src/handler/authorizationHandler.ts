@@ -56,9 +56,15 @@ export default class AuthorizationHandler implements IHandler {
             // TODO: 不是正确解法，正确应该将AWS APIGetaway的鉴权去掉（None）
             // TODO Authorization、Token的跳转不应该交由前端去完成，后端应该直接返回302 location定位到匹配url
             // TODO 为了优先稳定只能在这边做了不正确的解法
+            const parameter = Object.keys(event.queryStringParameters).map((item) => {
+                if (item === "redirect_uri") {
+                    return `${item}=${clientRecord.registerRedirectUri[0]}`
+                }
+                return `${item}=${event.queryStringParameters[item]}`
+            }).join("&")
             // @ts-ignore
             PhInvalidAuthorizationLogin.headers.location =
-                `http://accounts.pharbers.com/welcome?redirect_uri=${clientRecord.domain[0]}`
+                `http://accounts.pharbers.com/welcome?${parameter}`
             errors2response(PhInvalidAuthorizationLogin, response)
             return response
         }
@@ -89,14 +95,14 @@ export default class AuthorizationHandler implements IHandler {
         // TODO 应该直接返回302状态 location定位到使用者的callback，callback、domain地址存到数据库中，符合大厂规范
 
         response.statusCode = 200
-        if (clientId !== "XwgxtaFThqfJ4lru-a-") {
+        if (clientId === "XwgxtaFThqfJ4lru-a-") {
             // TODO 目前自家产品都是使用本clientid进行登入因此跳过第三方介入，但这里如上面描述一样不是正解
             // @ts-ignore
             response.body =
                 "code=" +
                 (await this.genAuthCode(userId, clientId, scope, redis)) +
                 "&redirect_uri=" +
-                clientRecord.registerRedirectUri[0] +
+                redirectUri + "/oauth-callback" +
                 "&state=" +
                 state
         } else if (redirectUri) {

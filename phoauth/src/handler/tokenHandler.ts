@@ -45,12 +45,11 @@ export default class TokenHandler implements IHandler {
         }
         const content = codeRecord.payload.records[0]
 
-        // TODO: Check register redirect URI
-        // if (content.redirectUri !== redirectUri ||
-        //     content.clientId !== clientId) {
-        //     errors2response(PhInvalidParameters, response)
-        //     return response
-        // }
+        if (content.registerRedirectUri[0] !== redirectUri ||
+            content.clientId !== clientId) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
 
         const accessToken = await this.genAccessToken(content.uid, clientId, content.scope, redis)
 

@@ -37,7 +37,7 @@ export default class AppLambdaDelegate {
                 // @ts-ignore
                 event.body = ""
             }
-            const req = new AWSRequest(event, PostgresqlConf.entry)
+            const req = new AWSRequest(this.convert(event), PostgresqlConf.entry)
             const response = new ServerResponse(req)
             // @ts-ignore
             const endpoint = event.pathParameters.edp
@@ -57,5 +57,26 @@ export default class AppLambdaDelegate {
             await this.postgres.close()
             await this.redis.close()
         }
+    }
+
+    private convert(event: any): any {
+        // 目前只保证jupyter
+        if (event.httpMethod === "POST") {
+            // tslint:disable-next-line:no-unused-expression
+            if (event.headers.Authorization.indexOf("Basic") !== -1) {
+                // tslint:disable-next-line:no-unused-expression
+                const parm = new Buffer(event.headers.Authorization.replace("Basic ", ""), "base64").toString().split(":")
+                event.httpMethod = "GET"
+                const body = `client_id=${parm[0]}&client_secret=${parm[1]}&${event.body}`
+                event.body = ""
+                let queryObj = {}
+                for (const item of body.split("&")) {
+                    const obj = item.split("=")
+                    queryObj[obj[0]] = obj[1]
+                }
+                event.queryStringParameters = queryObj
+            }
+        }
+        return event
     }
 }

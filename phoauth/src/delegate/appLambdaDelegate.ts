@@ -4,6 +4,7 @@ import { PostgresqlConf, RedisConf } from "../common/config"
 import AuthorizationHandler from "../handler/authorizationHandler"
 import LoginHandler from "../handler/loginHandler"
 import TokenHandler from "../handler/tokenHandler"
+import UserInfoHandler from "../handler/userInfoHandler"
 
 export default class AppLambdaDelegate {
     public redis: any = null
@@ -46,6 +47,8 @@ export default class AppLambdaDelegate {
                 await new AuthorizationHandler().execute(event, response, this.postgres, this.redis)
             } else if (endpoint === "token") {
                 await new TokenHandler().execute(event, response, this.postgres, this.redis)
+            } else if (endpoint === "getUserInfo") {
+                await new UserInfoHandler().execute(event, response, this.postgres, this.redis)
             }
             return response
         } catch (e) {

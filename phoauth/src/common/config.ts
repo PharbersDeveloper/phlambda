@@ -26,3 +26,8 @@ export class PostgresqlConf extends Conf {
     public static port: number = 5432
     public static db: string = "phcommon"
 }
+
+// tslint:disable-next-line:max-classes-per-file
+export class AccountUri {
+    public static uri: string = "http://accounts.pharbers.com/welcome"
+}

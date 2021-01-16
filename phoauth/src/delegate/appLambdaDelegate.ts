@@ -65,7 +65,7 @@ export default class AppLambdaDelegate {
             // tslint:disable-next-line:no-unused-expression
             if (event.headers.Authorization.indexOf("Basic") !== -1) {
                 // tslint:disable-next-line:no-unused-expression
-                const parm = new Buffer(event.headers.Authorization.replace("Basic ", ""), "base64").toString().split(":")
+                const parm = Buffer.from(event.headers.Authorization.replace("Basic ", ""), "base64").toString().split(":")
                 event.httpMethod = "GET"
                 const body = `client_id=${parm[0]}&client_secret=${parm[1]}&${event.body}`
                 event.body = ""

@@ -57,7 +57,6 @@ export const PhRecordLoss: IPhErrors = {
 }
 
 // 在未登录情况下无user_id会重定向到登入页面
-// TODO @钱鹏 这块儿需要对未曾认证无client_id的进行跳转登入，并且redirect_uri需要动态写入
 export const PhInvalidAuthorizationLogin: IPhErrors = {
     status: 302,
     code: -8,

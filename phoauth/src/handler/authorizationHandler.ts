@@ -93,7 +93,7 @@ export default class AuthorizationHandler implements IHandler {
         if (!redirectUri) {
             // @ts-ignore
             response.body = `client_id=${clientId}&code=${(await this.genAuthCode(userId, clientId, scope, redis))}&state=${state}`
-        } else if (redirectUri.indexOf("reports.pharbers.com")) {
+        } else if (redirectUri.indexOf("reports.pharbers.com") !== -1) {
             // @ts-ignore
             response.body =
                 `client_id=${clientId}&code=${(await this.genAuthCode(userId, clientId, scope, redis))}&redirect_uri=http://reports.pharbers.com/oauth-callback&state=${state}`

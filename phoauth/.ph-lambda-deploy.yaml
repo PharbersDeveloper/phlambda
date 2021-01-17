@@ -10,14 +10,14 @@ oauth:
     layer_path: oauth-layer.zip
     layer_desc: oauth核心逻辑
   lambda:
-    code_path: config,dist,app.js
+    code_path: dist,app.js
     package_name: oauth-code.zip
     lambda_path: oauth-code.zip
     lambda_handler: app.lambdaHandler
     lambda_layers: oauth
     lambda_desc: oauth核心逻辑
     lambda_timeout: 30
-    lambda_memory_size: 128
+    lambda_memory_size: 512
     vpc_config:
       SubnetIds:
       - 'subnet-0260eab5acd58bc53'

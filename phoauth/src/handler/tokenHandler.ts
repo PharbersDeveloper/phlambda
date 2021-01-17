@@ -32,6 +32,12 @@ export default class TokenHandler implements IHandler {
             errors2response(PhNotFoundError, response)
             return response
         }
+        const clientRecord = client.payload.records[0]
+        if (!clientRecord.registerRedirectUri.includes(redirectUri) ||
+            clientRecord.id !== clientId) {
+            errors2response(PhInvalidParameters, response)
+            return response
+        }
 
         if (grantType !== "authorization_code") {
             errors2response(PhInvalidGrantType, response)
@@ -44,13 +50,6 @@ export default class TokenHandler implements IHandler {
             return response
         }
         const content = codeRecord.payload.records[0]
-
-        // TODO: Check register redirect URI
-        // if (content.redirectUri !== redirectUri ||
-        //     content.clientId !== clientId) {
-        //     errors2response(PhInvalidParameters, response)
-        //     return response
-        // }
 
         const accessToken = await this.genAccessToken(content.uid, clientId, content.scope, redis)
 

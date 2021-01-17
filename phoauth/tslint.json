@@ -6,6 +6,7 @@
         "no-console": false,
         "trailing-comma": [false],
         "no-bitwise": false,
+        "prefer-const": false,
         "semicolon": { "options": ["never"] },
 //        "indent": [true, "spaces", 4],
         "object-literal-sort-keys": false

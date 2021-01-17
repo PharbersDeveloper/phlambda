@@ -1,5 +1,6 @@
 import { ServerResponse } from "http"
 import moment from "moment"
+import { AccountUri } from "../common/config"
 import Crypto from "../common/crypto"
 import {
     errors2response, PhInvalidAuthGrant,
@@ -27,7 +28,7 @@ import { IHandler } from "./IHandler"
 export default class AuthorizationHandler implements IHandler {
     public async execute(event: any, response: ServerResponse, pg: any, redis: any) {
         const redirectUri = event.queryStringParameters.redirect_uri // 重定向
-        const responseType = event.queryStringParameters.response_type // code?
+        const responseType = event.queryStringParameters.response_type // code
         if (responseType !== "code") {
             errors2response(PhInvalidParameters, response)
             return response
@@ -51,14 +52,14 @@ export default class AuthorizationHandler implements IHandler {
             scope = ["APP", `${clientName}:*:*:R`, "R"].join("|")
         }
 
-        const userId = event.queryStringParameters.user_id // 暂时定位user id，没有的统一认为是接入OAuth
+        const userId = event.queryStringParameters.user_id // 定位user id，没有id的统一认为是接入OAuth
         if (!userId) {
-            // TODO: 不是正确解法，正确应该将AWS APIGetaway的鉴权去掉（None）
-            // TODO Authorization、Token的跳转不应该交由前端去完成，后端应该直接返回302 location定位到匹配url
-            // TODO 为了优先稳定只能在这边做了不正确的解法
+            const parameter = Object.keys(event.queryStringParameters).map((item) => {
+                if (item === "redirect_uri") {return `${item}=${clientRecord.registerRedirectUri[0]}`}
+                return `${item}=${event.queryStringParameters[item]}`
+            }).join("&")
             // @ts-ignore
-            PhInvalidAuthorizationLogin.headers.location =
-                `http://accounts.pharbers.com/welcome?redirect_uri=${clientRecord.domain[0]}`
+            PhInvalidAuthorizationLogin.headers.location = `${AccountUri.uri}?${parameter}`
             errors2response(PhInvalidAuthorizationLogin, response)
             return response
         }
@@ -86,31 +87,20 @@ export default class AuthorizationHandler implements IHandler {
             state = "xyz"
         }
 
-        // TODO 应该直接返回302状态 location定位到使用者的callback，callback、domain地址存到数据库中，符合大厂规范
+        // TODO 应该直接返回302状态，目前直接返回会出现跨域问题，这部分需要前端一起更改请求方式才可
 
         response.statusCode = 200
-        if (clientId !== "XwgxtaFThqfJ4lru-a-") {
-            // TODO 目前自家产品都是使用本clientid进行登入因此跳过第三方介入，但这里如上面描述一样不是正解
+        if (!redirectUri) {
+            // @ts-ignore
+            response.body = `client_id=${clientId}&code=${(await this.genAuthCode(userId, clientId, scope, redis))}&state=${state}`
+        } else if (redirectUri.indexOf("reports.pharbers.com") !== -1) {
             // @ts-ignore
             response.body =
-                "code=" +
-                (await this.genAuthCode(userId, clientId, scope, redis)) +
-                "&redirect_uri=" +
-                clientRecord.registerRedirectUri[0] +
-                "&state=" +
-                state
-        } else if (redirectUri) {
-            // @ts-ignore
-            response.body =
-                "code=" +
-                (await this.genAuthCode(userId, clientId, scope, redis)) +
-                "&redirect_uri=" +
-                redirectUri +
-                "&state=" +
-                state
+                `client_id=${clientId}&code=${(await this.genAuthCode(userId, clientId, scope, redis))}&redirect_uri=http://reports.pharbers.com/oauth-callback&state=${state}`
         } else {
             // @ts-ignore
-            response.body = "code=" + (await this.genAuthCode(userId, clientId, scope)) + "&state=" + state
+            response.body =
+                `client_id=${clientId}&code=${(await this.genAuthCode(userId, clientId, scope, redis))}&redirect_uri=${clientRecord.registerRedirectUri[0]}&state=${state}`
         }
         // @ts-ignore
         response.headers = { "Content-Type": "application/x-www-form-urlencoded" }

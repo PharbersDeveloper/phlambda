@@ -1,0 +1,121 @@
+{
+    "resource": "/oauth/{edp}",
+    "path": "/oauth/login",
+    "httpMethod": "GET",
+    "headers": {
+        "accept": "application/vnd.api+json",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "content-type": "application/vnd.api+json",
+        "Host": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
+        "origin": "http://accounts.pharbers.com",
+        "referer": "http://accounts.pharbers.com/",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.52",
+        "x-amz-date": "20210123T110524Z",
+        "X-Amzn-Trace-Id": "Root=1-600c02f4-79b09d07380ea61b2d8e685d",
+        "X-Forwarded-For": "111.197.248.129",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+        "accept": [
+            "application/vnd.api+json"
+        ],
+        "accept-encoding": [
+            "gzip, deflate, br"
+        ],
+        "accept-language": [
+            "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"
+        ],
+        "content-type": [
+            "application/vnd.api+json"
+        ],
+        "Host": [
+            "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn"
+        ],
+        "origin": [
+            "http://accounts.pharbers.com"
+        ],
+        "referer": [
+            "http://accounts.pharbers.com/"
+        ],
+        "sec-fetch-dest": [
+            "empty"
+        ],
+        "sec-fetch-mode": [
+            "cors"
+        ],
+        "sec-fetch-site": [
+            "cross-site"
+        ],
+        "User-Agent": [
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.52"
+        ],
+        "x-amz-date": [
+            "20210123T110524Z"
+        ],
+        "X-Amzn-Trace-Id": [
+            "Root=1-600c02f4-79b09d07380ea61b2d8e685d"
+        ],
+        "X-Forwarded-For": [
+            "111.197.248.129"
+        ],
+        "X-Forwarded-Port": [
+            "443"
+        ],
+        "X-Forwarded-Proto": [
+            "https"
+        ]
+    },
+    "queryStringParameters": {
+        "email": "pqian@pharbers.com",
+        "password": "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
+    },
+    "multiValueQueryStringParameters": {
+        "email": [
+            "pqian@pharbers.com"
+        ],
+        "password": [
+            "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
+        ]
+    },
+    "pathParameters": {
+        "edp": "login"
+    },
+    "stageVariables": null,
+    "requestContext": {
+        "resourceId": "22qxmw",
+        "resourcePath": "/oauth/{edp}",
+        "httpMethod": "GET",
+        "extendedRequestId": "ZmVmOEP-5PgFV7w=",
+        "requestTime": "23/Jan/2021:11:05:24 +0000",
+        "path": "/v0/oauth/login",
+        "accountId": "444603803904",
+        "protocol": "HTTP/1.1",
+        "stage": "v0",
+        "domainPrefix": "2t69b7x032",
+        "requestTimeEpoch": 1611399924539,
+        "requestId": "3dbe8c88-f127-4c8d-8543-01e75eaae010",
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": "444603803904",
+            "cognitoIdentityId": null,
+            "caller": "AIDAWPBDTVEAE4F54WET7",
+            "sourceIp": "111.197.248.129",
+            "principalOrgId": null,
+            "accessKey": "AKIAWPBDTVEAPOX3QT6U",
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": "arn:aws-cn:iam::444603803904:user/Ph-Front-RW",
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.52",
+            "user": "AIDAWPBDTVEAE4F54WET7"
+        },
+        "domainName": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
+        "apiId": "2t69b7x032"
+    },
+    "body": "",
+    "isBase64Encoded": false
+}

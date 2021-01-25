@@ -1,10 +1,73 @@
-// import { ServerResponse } from "http"
-// import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
-// import { PostgresqlConf, RedisConf } from "../common/config"
+import { ServerResponse } from "http"
+import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
+import { AccountUri, PostgresConf, RedisConf} from "../constants"
+import { UnauthorizedRequestError } from "../errors"
+import {CodeResponseType, OAuth2Server, Request, Response, TokenResponseType} from "../index"
+import { Pharbers } from "../models/pharbers"
+
 // import AuthorizationHandler from "../handler_back/authorizationHandler"
 // import LoginHandler from "../handler_back/loginHandler"
 // import TokenHandler from "../handler_back/tokenHandler"
 // import UserInfoHandler from "../handler_back/userInfoHandler"
+
+export default class AppLambdaDelegate {
+    redis: any = null
+    postgres: any = null
+    async exec(event: any) {
+        const awsRequest = new AWSRequest(event, PostgresConf.entry)
+        const awsResponse = new ServerResponse(awsRequest)
+        const pg = new PostgresConfig(
+            PostgresConf.entry, PostgresConf.user, PostgresConf.password,
+            PostgresConf.url, PostgresConf.port, PostgresConf.db
+        )
+        const rds = new RedisConfig(
+            RedisConf.entry, RedisConf.user, RedisConf.password,
+            RedisConf.url, RedisConf.port, RedisConf.db
+        )
+        ConfigRegistered.getInstance.registered(pg).registered(rds)
+        this.redis = SF.getInstance.get(Store.Redis)
+        this.postgres = SF.getInstance.get(Store.Postgres)
+        await this.postgres.open()
+        await this.redis.open()
+        try {
+            if (!event.body) {
+                event.body = ""
+            }
+            const oauth = new OAuth2Server({
+                model: new Pharbers()
+            })
+
+            await oauth.authorize(new Request(awsRequest), new Response(awsResponse))
+        } catch (error) {
+            if (error instanceof UnauthorizedRequestError && error.message === "Unauthorized request: no authentication given") {
+                const parm = [
+                    // @ts-ignore
+                    `client_id=${awsRequest.query.client_id}`,
+                    // @ts-ignore
+                    `redirect_uri=${awsRequest.query.redirect_uri}`,
+                    // @ts-ignore
+                    `scope=${awsRequest.query.scope}`,
+                    // @ts-ignore
+                    `state=${awsRequest.query.state}`]
+                const r = new Response(awsResponse)
+                r.redirect(`${AccountUri.uri}?${parm.join("&")}`)
+                return r
+            } else {
+                throw error
+            }
+        } finally {
+            await this.postgres.close()
+            await this.redis.close()
+        }
+    }
+
+    private updateResponse(response: Response,
+                           redirectUri: any,
+                           responseType: string,
+                           state: any) {
+
+    }
+}
 
 // export default class AppLambdaDelegate {
 //     public redis: any = null

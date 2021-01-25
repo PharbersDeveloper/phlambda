@@ -61,8 +61,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Authorize Handler.
-   */
+     * Authorize Handler.
+     */
 
     async handle(request: Request, response: Response) {
         if (!(request instanceof Request)) {
@@ -127,11 +127,12 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get the client from the model.
-   */
+     * Get the client from the model.
+     */
 
     async getClient(request: Request) {
-        const clientId = request.body.clientId || request.query.clientId
+        const clientId = request.body.client_id || request.body.clientId ||
+            request.query.client_id || request.query.clientId
 
         if (!clientId) {
             throw new InvalidRequestError("Missing parameter: `clientId`")
@@ -141,7 +142,8 @@ export class AuthorizeHandler {
             throw new InvalidRequestError("Invalid parameter: `clientId`")
         }
 
-        const redirectUri = request.body.redirectUri || request.query.redirectUri
+        const redirectUri = request.body.redirect_uri || request.body.redirectUri ||
+            request.query.redirect_uri || request.query.redirectUri
 
         if (redirectUri && !is.uri(redirectUri)) {
             throw new InvalidRequestError(
@@ -160,8 +162,8 @@ export class AuthorizeHandler {
             throw new InvalidClientError("Invalid client: missing client `grants`")
         }
 
-        const responseType =
-      request.body.responseType || request.query.responseType
+        const responseType = request.body.response_type || request.body.responseType ||
+            request.query.response_type || request.query.responseType
         const requestedGrantType =
       responseType === "token" ? "implicit" : "authorizationCode"
 
@@ -187,8 +189,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Validate requested scope.
-   */
+     * Validate requested scope.
+     */
     async validateScope(user: User, client: Client, scope: string) {
         if (this.model.validateScope) {
             const validatedScope = await this.model.validateScope(
@@ -209,8 +211,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get scope from the request.
-   */
+     * Get scope from the request.
+     */
 
     getScope(request: Request) {
         const scope = request.body.scope || request.query.scope
@@ -223,8 +225,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get state from the request.
-   */
+     * Get state from the request.
+     */
 
     getState(request: Request) {
         const state = request.body.state || request.query.state
@@ -241,8 +243,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get user by calling the authenticate middleware.
-   */
+     * Get user by calling the authenticate middleware.
+     */
 
     async getUser(request: Request, response: Response) {
         if (this.authenticateHandler instanceof AuthenticateHandler) {
@@ -262,8 +264,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get redirect URI.
-   */
+     * Get redirect URI.
+     */
 
     getRedirectUri(request: Request, client: Client) {
         return (
@@ -274,8 +276,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Get response type.
-   */
+     * Get response type.
+     */
 
     getResponseType(request: Request, client: Client) {
         const responseType =
@@ -304,8 +306,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Build a successful response that redirects the user-agent to the client-provided url.
-   */
+     * Build a successful response that redirects the user-agent to the client-provided url.
+     */
 
     buildSuccessRedirectUri(
         redirectUri: string,
@@ -317,8 +319,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Build an error response that redirects the user-agent to the client-provided url.
-   */
+     * Build an error response that redirects the user-agent to the client-provided url.
+     */
 
     buildErrorRedirectUri(
         redirectUri: any,
@@ -351,8 +353,8 @@ export class AuthorizeHandler {
     }
 
     /**
-   * Update response with the redirect uri and the state parameter, if available.
-   */
+     * Update response with the redirect uri and the state parameter, if available.
+     */
 
     updateResponse(
         response: Response,

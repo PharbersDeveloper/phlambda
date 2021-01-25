@@ -51,8 +51,8 @@ export class Request {
     /**
      * Check if the content-type matches any of the given mime type.
      */
-    public is(args: string[]): string | false
-    public is(...args: string[]): string | false
+    is(args: string[]): string | false
+    is(...args: string[]): string | false
 
     is(...args) {
         let types = args

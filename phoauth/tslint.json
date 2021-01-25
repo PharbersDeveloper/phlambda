@@ -5,6 +5,7 @@
     "rules": {
         "no-console": false,
         "trailing-comma": [false],
+        "member-access": [true, "no-public"],
         "no-bitwise": false,
         "prefer-const": false,
         "semicolon": { "options": ["never"] },

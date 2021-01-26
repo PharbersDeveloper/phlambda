@@ -225,7 +225,8 @@ export class TokenHandler {
      */
 
     async handleGrantType(request: Request, client: Client) {
-        const grantType = request.body.grantType
+        const grantType = request.body.grantType || request.body.grant_type ||
+            request.query.grantType || request.query.grant_type
 
         if (!grantType) {
             throw new InvalidRequestError("Missing parameter: `grantType`")

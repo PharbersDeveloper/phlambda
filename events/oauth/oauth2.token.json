@@ -1,12 +1,13 @@
 {
     "resource": "/oauth/{edp}",
-    "path": "/oauth/authorize",
-    "httpMethod": "GET",
+    "path": "/oauth/token",
+    "httpMethod": "POST",
     "headers": {
-        "accept": "application/json",
+        "authorization": "Basic VjVJNjdCSElSVlIyWjU5a3EtYS06OTYxZWQ0YWQ4NDIxNDdhNWM5YTFjYmM2MzM2OTM0MzhlMWY0YThlYmI3MTA1MGQ5ZDlmN2M0M2RiYWRmOWI3Mg==",
+        "accept": "application/x-www-form-urlencoded",
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "content-type": "application/vnd.api+json",
+        "content-type": "application/x-www-form-urlencoded",
         "Host": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
         "origin": "http://accounts.pharbers.com",
         "referer": "http://accounts.pharbers.com/",
@@ -22,7 +23,7 @@
     },
     "multiValueHeaders": {
         "accept": [
-            "application/json"
+            "application/x-www-form-urlencoded"
         ],
         "accept-encoding": [
             "gzip, deflate, br"
@@ -31,7 +32,7 @@
             "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6"
         ],
         "content-type": [
-            "application/vnd.api+json"
+            "application/x-www-form-urlencoded"
         ],
         "Host": [
             "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn"
@@ -71,40 +72,20 @@
         ]
     },
     "queryStringParameters": {
-        "user_id": "5UBSLZvV0w9zh7-lZQap",
-        "client_id": "V5I67BHIRVR2Z59kq-a-",
-        "client_secret": "961ed4ad842147a5c9a1cbc633693438e1f4a8ebb71050d9d9f7c43dbadf9b72",
-        "redirect_uri": "http://general.pharbers.com/oauth-callback",
-        "response_type": "code"
     },
     "multiValueQueryStringParameters": {
-        "user_id": [
-            "5UBSLZvV0w9zh7-lZQap"
-        ],
-        "client_id": [
-            "V5I67BHIRVR2Z59kq-a-"
-        ],
-        "client_secret": [
-            "961ed4ad842147a5c9a1cbc633693438e1f4a8ebb71050d9d9f7c43dbadf9b72"
-        ],
-        "redirect_uri": [
-            "http://general.pharbers.com/oauth-callback"
-        ],
-        "response_type": [
-            "code"
-        ]
     },
     "pathParameters": {
-        "edp": "authorize"
+        "edp": "token"
     },
     "stageVariables": null,
     "requestContext": {
         "resourceId": "22qxmw",
         "resourcePath": "/oauth/{edp}",
-        "httpMethod": "GET",
+        "httpMethod": "POST",
         "extendedRequestId": "ZmVmOEP-5PgFV7w=",
         "requestTime": "23/Jan/2021:11:05:24 +0000",
-        "path": "/v0/oauth/authorize",
+        "path": "/v0/oauth/token",
         "accountId": "444603803904",
         "protocol": "HTTP/1.1",
         "stage": "v0",
@@ -128,6 +109,6 @@
         "domainName": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
         "apiId": "2t69b7x032"
     },
-    "body": "",
+    "body": "code=d817dac6c70ae9cb38cd807975b35b7e9621c2d5fe296cfa5642e26236d8ac51&grant_type=authorization_code&redirect_uri=http://general.pharbers.com/oauth-callback",
     "isBase64Encoded": false
 }

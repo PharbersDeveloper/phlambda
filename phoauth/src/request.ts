@@ -26,10 +26,12 @@ export class Request {
         this.query = options.query
 
         // Store the headers in lower case.
-        for (const field in options.headers) {
-            if (hasOwnProperty(options.headers, field)) {
-                this.headers[field.toLowerCase()] = options.headers[field]
-            }
+        // tslint:disable-next-line:forin
+        for (const field in options.rawHeaders) {
+            this.headers[field.toLowerCase()] = options.rawHeaders[field]
+            // if (hasOwnProperty(options.headers, field)) {
+            //     this.headers[field.toLowerCase()] = options.rawHeaders[field]
+            // }
         }
 
         // Store additional properties of the request object passed in
@@ -60,6 +62,6 @@ export class Request {
             types = types[0]
         }
 
-        return typeIs(this as any, types) || false
+        return typeIs.is(this as any, types) || false
     }
 }

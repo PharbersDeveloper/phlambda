@@ -37,7 +37,7 @@ export default class AWSReq extends IncomingMessage {
             this.headers = {
                 accept: hds.Accept,
                 "content-length": String(buffer.length),
-                "content-type": "application/vnd.api+json",
+                "content-type": hds.contentTyp || hds["content-type"] || "application/vnd.api+json",
                 "transfer-encoding": hds.tranferEncoding,
             }
         }
@@ -60,8 +60,25 @@ export default class AWSReq extends IncomingMessage {
 
         // @ts-ignore
         if (event.body) {
-            // @ts-ignore
-            this.body = JSON.parse(event.body)
+            try {
+                // @ts-ignore
+                this.body = JSON.parse(event.body)
+            } catch (e) {
+                // @ts-ignore
+                if (event.body.includes("&") && this.headers["content-type"] === "application/x-www-form-urlencoded") {
+                    const body = {}
+                    // @ts-ignore
+                    for (const item of event.body.split("&")) {
+                        const obj = item.split("=")
+                        body[obj[0].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())] =
+                            obj[1].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
+                    }
+                    this.body = body;
+                } else {
+                    // @ts-ignore
+                    this.body = event.body;
+                }
+            }
         }
 
         // @ts-ignore

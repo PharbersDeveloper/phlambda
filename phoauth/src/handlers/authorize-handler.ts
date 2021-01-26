@@ -1,3 +1,4 @@
+import { Logger, SF, Store } from "phnodelayer"
 import * as url from "url"
 import { AuthenticateHandler } from "."
 import {
@@ -8,7 +9,7 @@ import {
     InvalidScopeError,
     OAuthError,
     ServerError,
-    UnauthorizedClientError,
+    UnauthorizedClientError, UnauthorizedRequestError,
     UnsupportedResponseTypeError,
 } from "../errors"
 import { Client, Model, User } from "../interfaces"
@@ -247,6 +248,17 @@ export class AuthorizeHandler {
      */
 
     async getUser(request: Request, response: Response) {
+        const userId = request.body.userId || request.body.user_id || request.query.user_id || request.query.userId
+        if (request.query.hasOwnProperty("response_type") && request.query.response_type === "code" && userId) {
+            const u = await this.options.model.getUser(userId)
+            if (!u) {
+                throw new UnauthorizedRequestError(
+                    "Unauthorized request: no authentication given",
+                )
+            }
+            return u
+        }
+
         if (this.authenticateHandler instanceof AuthenticateHandler) {
             const data = await this.authenticateHandler.handle(request, response)
 
@@ -280,11 +292,11 @@ export class AuthorizeHandler {
      */
 
     getResponseType(request: Request, client: Client) {
-        const responseType =
-      request.body.responseType || request.query.responseType
+        const responseType = request.body.response_type || request.body.responseType ||
+            request.query.response_type || request.query.responseType
 
         if (!responseType) {
-            throw new InvalidRequestError("Missing parameter: `responseType`")
+            throw new InvalidRequestError("Missing parameter: `responseType` or response_type")
         }
 
         if (!hasOwnProperty(responseTypes, responseType)) {

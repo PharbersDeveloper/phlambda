@@ -2,13 +2,9 @@ import { ServerResponse } from "http"
 import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 import { AccountUri, PostgresConf, RedisConf} from "../constants"
 import { UnauthorizedRequestError } from "../errors"
-import {CodeResponseType, OAuth2Server, Request, Response, TokenResponseType} from "../index"
+import { LoginHandler } from "../handlers"
+import { OAuth2Server, Request, Response } from "../index"
 import { Pharbers } from "../models/pharbers"
-
-// import AuthorizationHandler from "../handler_back/authorizationHandler"
-// import LoginHandler from "../handler_back/loginHandler"
-// import TokenHandler from "../handler_back/tokenHandler"
-// import UserInfoHandler from "../handler_back/userInfoHandler"
 
 export default class AppLambdaDelegate {
     redis: any = null
@@ -37,7 +33,19 @@ export default class AppLambdaDelegate {
                 model: new Pharbers()
             })
 
-            await oauth.authorize(new Request(awsRequest), new Response(awsResponse))
+            const request = new Request(awsRequest)
+            const response = new Response(awsResponse)
+
+            const endpoint = event.pathParameters.edp
+            if (endpoint === "login") {
+                await new LoginHandler().handle(request, response)
+            } else if (endpoint === "authorization") {
+                await oauth.authorize(request, response)
+            } else if (endpoint === "token") {
+                await oauth.token(request, response)
+            }
+
+            return response
         } catch (error) {
             if (error instanceof UnauthorizedRequestError && error.message === "Unauthorized request: no authentication given") {
                 const parm = [
@@ -59,13 +67,6 @@ export default class AppLambdaDelegate {
             await this.postgres.close()
             await this.redis.close()
         }
-    }
-
-    private updateResponse(response: Response,
-                           redirectUri: any,
-                           responseType: string,
-                           state: any) {
-
     }
 }
 

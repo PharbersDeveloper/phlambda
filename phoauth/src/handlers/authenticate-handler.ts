@@ -77,6 +77,7 @@ export class AuthenticateHandler {
         try {
             let token = await this.getTokenFromRequest(request)
             token = await this.getAccessToken(token)
+            await this.model.revokeToken(token)
             this.validateAccessToken(token)
             if (this.scope) {
                 await this.verifyScope(token)

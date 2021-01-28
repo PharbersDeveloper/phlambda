@@ -38,8 +38,16 @@ exports.lambdaHandler = async function (event, context) {
       body: JSON.stringify(result.body),
     };
   } catch (err) {
-    phLogger.error(err);
-    return err;
+    phLogger.error(err)
+    response = {
+      statusCode: err.statusCode,
+      headers: {
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+      },
+      body: JSON.stringify({message: err.message})
+    }
   }
   return response;
 };

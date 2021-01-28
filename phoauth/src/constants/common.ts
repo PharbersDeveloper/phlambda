@@ -10,8 +10,8 @@ export interface IPhConf {
 export const MS_IN_S = 1_000
 
 export const RedisConf: IPhConf = {
-    // url: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
-    url: "127.0.0.1",
+    url: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
+    // url: "127.0.0.1",
     user: "",
     password: "",
     entry: "db/token",

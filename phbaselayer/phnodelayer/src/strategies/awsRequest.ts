@@ -65,7 +65,7 @@ export default class AWSReq extends IncomingMessage {
                 this.body = JSON.parse(event.body)
             } catch (e) {
                 // @ts-ignore
-                if (event.body.includes("&") && this.headers["content-type"] === "application/x-www-form-urlencoded") {
+                if (event.body.includes("&") && this.method === "POST" && this.params.hasOwnProperty("edp") && this.params.edp === "token") {
                     const body = {}
                     // @ts-ignore
                     for (const item of event.body.split("&")) {
@@ -73,10 +73,10 @@ export default class AWSReq extends IncomingMessage {
                         body[obj[0].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())] =
                             obj[1].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
                     }
-                    this.body = body;
+                    this.body = body
                 } else {
                     // @ts-ignore
-                    this.body = event.body;
+                    this.body = event.body
                 }
             }
         }

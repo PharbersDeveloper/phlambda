@@ -50,6 +50,7 @@ export class Pharbers implements AuthorizationCodeModel {
         token.client = client
         token.user = user
         delete token.scope
+        delete token.user.scope
         return token
     }
 

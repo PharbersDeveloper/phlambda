@@ -857,13 +857,6 @@ aws4@^1.8.0:
   resolved "https://registry.npmjs.org/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axios@^0.19.2:
-  version "0.19.2"
-  resolved "https://registry.npmjs.org/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
-  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
-  dependencies:
-    follow-redirects "1.5.10"
-
 babel-jest@^26.6.3:
   version "26.6.3"
   resolved "https://registry.npmjs.org/babel-jest/-/babel-jest-26.6.3.tgz#d87d25cb0037577a0c89f82e5755c5d293c01056"
@@ -1371,13 +1364,6 @@ date-format@^2.0.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/date-format/-/date-format-2.1.0.tgz#31d5b5ea211cf5fd764cd38baf9d033df7e125cf"
   integrity sha512-bYQuGLeFxhkxNOF3rcMtiZxvCBAquGzZm6oWA1oZ0g2THUzivaRhv8uOhdr19LmoobSOLoIAxeUK2RdbM8IFTA==
-
-debug@=3.1.0:
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
-  integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
-  dependencies:
-    ms "2.0.0"
 
 debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
@@ -2037,13 +2023,6 @@ flexbuffer@0.0.6:
   version "0.0.6"
   resolved "https://registry.npmjs.org/flexbuffer/-/flexbuffer-0.0.6.tgz#039fdf23f8823e440c38f3277e6fef1174215b30"
   integrity sha1-A5/fI/iCPkQMOPMnfm/vEXQhWzA=
-
-follow-redirects@1.5.10:
-  version "1.5.10"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
-  integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
-  dependencies:
-    debug "=3.1.0"
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -3507,11 +3486,6 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-moment@^2.27.0:
-  version "2.29.1"
-  resolved "https://registry.npmjs.org/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
-  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
-
 mongodb@^3.1.8:
   version "3.6.3"
   resolved "https://registry.npmjs.org/mongodb/-/mongodb-3.6.3.tgz#eddaed0cc3598474d7a15f0f2a5b04848489fd05"
@@ -3922,10 +3896,10 @@ pgpass@1.x:
   dependencies:
     split2 "^3.1.1"
 
-phnodelayer@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-1.0.3.tgz#b031ded9cff35e5aa2a9c160e6dba09fb17cd1c1"
-  integrity sha512-UEOcuBdBoWcGBMx64iTZ0GxFM7L5UNT4Gk/zN7ijavnac2cPZNbN4MMYYlnwRAXj3o6HSgN5wJNTcyyl7AihOg==
+phnodelayer@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-1.0.5.tgz#16a0620b46d983cda544a7ac6345519b35e5d34b"
+  integrity sha512-Wo92tQ0W/q/+365BrGscnjGX1MjNDON/n7EO4HEoqXbASeNTPOiY3ODIPPLuZh8VVEzFmCQNl5vLg/dC2qj8aQ==
   dependencies:
     "@types/aws-sdk" "^2.7.0"
     "@types/js-yaml" "^3.12.1"

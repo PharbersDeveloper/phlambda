@@ -40,7 +40,15 @@ export default class AppLambdaDelegate {
             if (endpoint === "login") {
                 await new LoginHandler().handle(request, response)
             } else if (endpoint === "authorization") {
-                await oauth.authorize(request, response)
+                const r = await oauth.authorize(request, response)
+                const state = request.body.state || request.query.state
+                const code = r.authorizationCode
+                const redirectUri = r.redirectUri
+                response.status = 200
+                response.body = {
+                    redirectUri: `${redirectUri}?code=${code}&state=${state}`
+                }
+                return response
             } else if (endpoint === "token") {
                 await oauth.token(request, response)
             }

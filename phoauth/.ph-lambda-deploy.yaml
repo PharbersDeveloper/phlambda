@@ -14,7 +14,7 @@ oauth:
     package_name: oauth-code.zip
     lambda_path: oauth-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: oauth
+    lambda_layers: oauth,base-layer-node
     lambda_desc: oauth核心逻辑
     lambda_timeout: 30
     lambda_memory_size: 512

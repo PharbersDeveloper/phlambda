@@ -4,6 +4,7 @@ import Crypto from "../common/crypto"
 import {AuthorizationCode, Client, RefreshToken, Token, User} from "../interfaces"
 import { AuthorizationCodeModel } from "../interfaces/model.interface"
 import { Request } from "../request"
+import {TokenHandler} from "../handlers";
 
 export class Pharbers implements AuthorizationCodeModel {
     // -------------------BaseModel----------------------
@@ -174,6 +175,7 @@ export class Pharbers implements AuthorizationCodeModel {
             firstName: record.firstName,
             lastName: record.lastName,
             employerId: record.employer,
+            email: record.email,
             scope: record.include.scope.map((x) =>
                 x.name.toLowerCase() === "default" ?
                     {name: x.name, value: x.scopePolicy.replace("{uid}", userId).replace("{pid}", record.employer)} :
@@ -201,7 +203,13 @@ export class Pharbers implements AuthorizationCodeModel {
 
     async revokeToken(token: RefreshToken | Token): Promise<boolean> {
         const redis = SF.getInstance.get(Store.Redis)
-        let result = await redis.find("access", null, { match: { token: token.accessToken } })
+        let result
+        if (token.hasOwnProperty("accessToken")) {
+            result = await redis.find("access", null, { match: { token: token.accessToken } })
+        } else {
+            result = await redis.find("access", null, { match: { refresh: token.refreshToken } })
+        }
+
         if (result.payload.records.length === 0) {
             return false
         }

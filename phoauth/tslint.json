@@ -9,6 +9,7 @@
         "no-bitwise": false,
         "prefer-const": false,
         "semicolon": { "options": ["never"] },
+        "no-string-literal": false,
 //        "indent": [true, "spaces", 4],
         "object-literal-sort-keys": false
     },

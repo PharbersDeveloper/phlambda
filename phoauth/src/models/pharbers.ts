@@ -4,7 +4,6 @@ import Crypto from "../common/crypto"
 import {AuthorizationCode, Client, RefreshToken, Token, User} from "../interfaces"
 import { AuthorizationCodeModel } from "../interfaces/model.interface"
 import { Request } from "../request"
-import {TokenHandler} from "../handlers";
 
 export class Pharbers implements AuthorizationCodeModel {
     // -------------------BaseModel----------------------

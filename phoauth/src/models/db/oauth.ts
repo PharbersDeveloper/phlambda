@@ -1,5 +1,5 @@
 class OAuth {
-    public model: any = {
+    model: any = {
         account: {
             name: String,
             firstName: String,
@@ -10,6 +10,7 @@ class OAuth {
             wechatOpenId: String,
             created: Date,
             modified: Date,
+            notification: String,
             defaultRole: { link: "role", inverse: "accountRole" },
             employer: { link: "partner", inverse: "employee" },
         },

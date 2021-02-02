@@ -1,30 +1,24 @@
 import { ServerResponse } from "http"
 import { AWSRequest, ConfigRegistered, Logger, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
-import { PostgresqlConf, RedisConf } from "../common/config"
-import AuthorizationHandler from "../handler/authorizationHandler"
-import LoginHandler from "../handler/loginHandler"
-import TokenHandler from "../handler/tokenHandler"
-import UserInfoHandler from "../handler/userInfoHandler"
+import { AccountUri, PostgresConf, RedisConf} from "../constants"
+import { UnauthorizedRequestError } from "../errors"
+import { LoginHandler, UserInfoHandler } from "../handlers"
+import { OAuth2Server, Request, Response } from "../index"
+import { Pharbers } from "../models/pharbers"
 
 export default class AppLambdaDelegate {
-    public redis: any = null
-    public postgres: any = null
-    public async exec(event: Map<string, any>) {
+    redis: any = null
+    postgres: any = null
+    async exec(event: any) {
+        const awsRequest = new AWSRequest(event, PostgresConf.entry)
+        const awsResponse = new ServerResponse(awsRequest)
         const pg = new PostgresConfig(
-            PostgresqlConf.entry,
-            PostgresqlConf.user,
-            PostgresqlConf.password,
-            PostgresqlConf.url,
-            PostgresqlConf.port,
-            PostgresqlConf.db
+            PostgresConf.entry, PostgresConf.user, PostgresConf.password,
+            PostgresConf.url, PostgresConf.port, PostgresConf.db
         )
         const rds = new RedisConfig(
-            RedisConf.entry,
-            RedisConf.user,
-            RedisConf.password,
-            RedisConf.url,
-            RedisConf.port,
-            RedisConf.db
+            RedisConf.entry, RedisConf.user, RedisConf.password,
+            RedisConf.url, RedisConf.port, RedisConf.db
         )
         ConfigRegistered.getInstance.registered(pg).registered(rds)
         this.redis = SF.getInstance.get(Store.Redis)
@@ -32,51 +26,53 @@ export default class AppLambdaDelegate {
         await this.postgres.open()
         await this.redis.open()
         try {
-            // @ts-ignore
             if (!event.body) {
-                // @ts-ignore
                 event.body = ""
             }
-            const req = new AWSRequest(this.convert(event), PostgresqlConf.entry)
-            const response = new ServerResponse(req)
-            // @ts-ignore
+            const oauth = new OAuth2Server({
+                model: new Pharbers()
+            })
+
+            const request = new Request(awsRequest)
+            const response = new Response(awsResponse)
+
             const endpoint = event.pathParameters.edp
             if (endpoint === "login") {
-                await new LoginHandler().execute(event, response, this.postgres, this.redis)
+                await new LoginHandler().handle(request, response)
             } else if (endpoint === "authorization") {
-                await new AuthorizationHandler().execute(event, response, this.postgres, this.redis)
+                const r = await oauth.authorize(request, response)
+                const state = request.body.state || request.query.state
+                const code = r.authorizationCode
+                const redirectUri = r.redirectUri
+                response.status = 200
+                response.body = { redirectUri: `${redirectUri}?code=${code}&state=${state}` }
+                return response
             } else if (endpoint === "token") {
-                await new TokenHandler().execute(event, response, this.postgres, this.redis)
-            } else if (endpoint === "userinfo") {
-                await new UserInfoHandler().execute(event, response, this.postgres, this.redis)
+                await oauth.token(request, response)
+            }  else if (endpoint === "userinfo" || endpoint === "userInfo" || endpoint === "user_info" ) {
+                await new UserInfoHandler().handle(request, response)
             }
+
             return response
-        } catch (e) {
-            throw e
+        } catch (error) {
+            if (error instanceof UnauthorizedRequestError &&
+                error.message === "Unauthorized request: no authentication given") {
+                const scope = "APP|*|R"
+                const url = [
+                    `client_id=${awsRequest.query["client_id"]}`,
+                    `redirect_uri=${awsRequest.query["redirect_uri"]}`,
+                    `scope=${awsRequest.query["scope"] || scope}`,
+                    `state=${awsRequest.query["state"]}`
+                ].join("&")
+                const r = new Response(awsResponse)
+                r.redirect(`${AccountUri.uri}?${url}`)
+                return r
+            } else {
+                throw error
+            }
         } finally {
             await this.postgres.close()
             await this.redis.close()
         }
-    }
-
-    private convert(event: any): any {
-        // 目前只保证jupyter
-        if (event.httpMethod === "POST") {
-            // tslint:disable-next-line:no-unused-expression
-            if (event.headers.Authorization.indexOf("Basic") !== -1) {
-                // tslint:disable-next-line:no-unused-expression
-                const parm = Buffer.from(event.headers.Authorization.replace("Basic ", ""), "base64").toString().split(":")
-                event.httpMethod = "GET"
-                const body = `client_id=${parm[0]}&client_secret=${parm[1]}&${event.body}`
-                event.body = ""
-                let queryObj = {}
-                for (const item of body.split("&")) {
-                    const obj = item.split("=")
-                    queryObj[obj[0]] = obj[1]
-                }
-                event.queryStringParameters = queryObj
-            }
-        }
-        return event
     }
 }

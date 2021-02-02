@@ -10,6 +10,7 @@ class OAuth {
             wechatOpenId: String,
             created: Date,
             modified: Date,
+            notification: String,
             defaultRole: { link: "role", inverse: "accountRole" },
             employer: { link: "partner", inverse: "employee" },
         },

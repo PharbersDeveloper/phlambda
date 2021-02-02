@@ -1,5 +1,5 @@
 class OAuth {
-    public model: any = {
+    model: any = {
         account: {
             name: String,
             firstName: String,

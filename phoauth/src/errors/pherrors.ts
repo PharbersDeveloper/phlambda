@@ -1,4 +1,3 @@
-import { ServerResponse } from "http"
 
 interface IPhErrors {
     status: number
@@ -68,7 +67,7 @@ export const PhInvalidAuthorizationLogin: IPhErrors = {
     message: { message: "Invalid Authorization Login" },
 }
 
-export function errors2response(err: IPhErrors, response: ServerResponse) {
+export function errors2response(err: IPhErrors, response: any) {
     response.statusCode = err.status
     // @ts-ignore
     response.headers = err.headers

@@ -6,6 +6,7 @@
   "testEnvironment": "node",
   "coveragePathIgnorePatterns": [
     "<rootDir>/node_modules/",
+    "<rootDir>/dist/",
     "<rootDir>/app.js"
   ],
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",

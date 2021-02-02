@@ -6,6 +6,7 @@
             "es7"
         ],
         "target": "es6",
+        "skipLibCheck": true,
         "noImplicitAny": false,
         "moduleResolution": "node",
         "sourceMap": true,

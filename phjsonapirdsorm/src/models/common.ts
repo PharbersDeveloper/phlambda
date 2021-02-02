@@ -22,6 +22,7 @@ class Common {
             phoneNumber: String,
             wechatOpenId: String,
             created: Date,
+            notification: String,
             modified: Date,
             defaultRole: { link: "role", inverse: "accountRole" },
             employer: { link: "partner", inverse: "employee" }

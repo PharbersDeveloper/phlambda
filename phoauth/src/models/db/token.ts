@@ -1,21 +1,30 @@
+
 class Token {
-    public model: any = {
+    model: any = {
         authorization: {
             uid: String,
             cid: String,
             code: String,
+            redirectUri: String,
             scope: String,
-            create: Date,
             expired: Date,
         },
+        // authorization: {
+        //     authorizationCode: String,
+        //     expiresAt: Date,
+        //     redirectUri: String,
+        //     scope: String,
+        //     client: Object,
+        //     user: Object
+        // },
         access: {
             uid: String,
             cid: String,
             token: String,
             refresh: String,
             scope: String,
-            create: Date,
             expired: Date,
+            refreshExpired: Date,
         },
     }
 }

@@ -136,7 +136,8 @@ export class AuthorizationCodeGrantType extends AbstractGrantType {
             return
         }
 
-        const redirectUri = request.body.redirectUri || request.query.redirectUri
+        let redirectUri = request.body.redirectUri || request.query.redirectUri
+        redirectUri  = decodeURIComponent(redirectUri)
 
         if (!is.uri(redirectUri)) {
             throw new InvalidRequestError(

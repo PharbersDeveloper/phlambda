@@ -129,7 +129,8 @@ export class TokenHandler {
 
     async getClient(request, response) {
         const credentials = this.getClientCredentials(request)
-        const grantType = request.body.grantType
+        const grantType = request.body.grantType || request.body.grant_type ||
+            request.query.grantType || request.query.grant_type
 
         if (!credentials.clientId) {
             throw new InvalidRequestError("Missing parameter: `clientId`")
@@ -193,7 +194,8 @@ export class TokenHandler {
 
     getClientCredentials(request: Request) {
         const credentials = auth(request as any)
-        const grantType = request.body.grantType
+        const grantType = request.body.grantType || request.body.grant_type ||
+            request.query.grant_type || request.query.grant_type
 
         if (credentials) {
             return {
@@ -225,8 +227,10 @@ export class TokenHandler {
      */
 
     async handleGrantType(request: Request, client: Client) {
-        const grantType = request.body.grantType || request.body.grant_type ||
+        let grantType = request.body.grantType || request.body.grant_type ||
             request.query.grantType || request.query.grant_type
+
+        grantType = grantType.replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
 
         if (!grantType) {
             throw new InvalidRequestError("Missing parameter: `grantType`")

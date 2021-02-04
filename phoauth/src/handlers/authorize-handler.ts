@@ -284,8 +284,10 @@ export class AuthorizeHandler {
     getRedirectUri(request: Request, client: Client) {
         return (
             request.body.redirectUri ||
-      request.query.redirectUri ||
-      client.redirectUris[0]
+            request.body.redirect_uri ||
+            request.query.redirectUri ||
+            request.query.redirect_uri ||
+            client.redirectUris[0]
         )
     }
 

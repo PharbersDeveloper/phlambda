@@ -1,8 +1,7 @@
 import * as fs from "fs"
 
 const OAuth2ServerLoginSuccess = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../events/oauth/oauth2.login.json", "utf8"))
-    return event
+    return JSON.parse(fs.readFileSync("../events/oauth/oauth2.login.json", "utf8"))
 })
 
 const OAuth2ServerAuthorizeSuccess = jest.fn(() => {

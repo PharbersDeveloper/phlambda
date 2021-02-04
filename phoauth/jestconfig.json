@@ -2,7 +2,7 @@
   "transform": {
     "^.+\\.(t)sx?$": "ts-jest"
   },
-  "collectCoverage": true,
+  "collectCoverage": false,
   "testEnvironment": "node",
   "coveragePathIgnorePatterns": [
     "<rootDir>/node_modules/",

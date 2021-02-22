@@ -70,8 +70,8 @@ export default class AWSReq extends IncomingMessage {
                     // @ts-ignore
                     for (const item of event.body.split("&")) {
                         const obj = item.split("=")
-                        body[obj[0].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())] =
-                            obj[1].replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
+                        // .replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
+                        body[obj[0]] = obj[1]
                     }
                     this.body = body
                 } else {

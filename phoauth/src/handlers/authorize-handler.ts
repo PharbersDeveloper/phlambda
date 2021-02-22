@@ -143,8 +143,10 @@ export class AuthorizeHandler {
             throw new InvalidRequestError("Invalid parameter: `clientId`")
         }
 
-        const redirectUri = request.body.redirect_uri || request.body.redirectUri ||
+        let redirectUri = request.body.redirect_uri || request.body.redirectUri ||
             request.query.redirect_uri || request.query.redirectUri
+
+        redirectUri = decodeURIComponent(redirectUri)
 
         if (redirectUri && !is.uri(redirectUri)) {
             throw new InvalidRequestError(
@@ -282,8 +284,10 @@ export class AuthorizeHandler {
     getRedirectUri(request: Request, client: Client) {
         return (
             request.body.redirectUri ||
-      request.query.redirectUri ||
-      client.redirectUris[0]
+            request.body.redirect_uri ||
+            request.query.redirectUri ||
+            request.query.redirect_uri ||
+            client.redirectUris[0]
         )
     }
 

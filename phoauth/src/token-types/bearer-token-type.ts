@@ -37,8 +37,8 @@ export class BearerTokenType {
 
     valueOf() {
         const object: any = {
-            accessToken: this.accessToken,
-            tokenType: "Bearer",
+            access_token: this.accessToken,
+            token_type: "Bearer",
         }
 
         if (this.accessTokenLifetime) {
@@ -46,7 +46,7 @@ export class BearerTokenType {
         }
 
         if (this.refreshToken) {
-            object.refreshToken = this.refreshToken
+            object.refresh_token = this.refreshToken
         }
 
         if (this.scope) {

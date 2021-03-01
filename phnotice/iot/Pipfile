@@ -4,12 +4,12 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-requests = "*"
 
 [packages]
 cmake = "*"
 awsiotsdk = "*"
 boto3 = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"

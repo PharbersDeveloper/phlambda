@@ -46,4 +46,4 @@ if __name__ == '__main__':
     topic = 'test/1'
     message = 'test message'
     response = iot_data_client.publish(topic=topic, payload=message)
-    print('IOT send {message} to topic={topic} response={response}'.format(message=message, topic=topic, response=response))
+    print('IOT send {message} to topic={topic}, response={response}'.format(message=message, topic=topic, response=response))

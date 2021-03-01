@@ -139,7 +139,12 @@ export class Pharbers implements AuthorizationCodeModel {
             if (scope === undefined) {
                 cpScope = ["APP", `${client.name}:*:*:R`, "R"].join("|")
             }
-            if (!user || !client || !this.grantScopeAuth(cpScope, user.scope)) {
+
+            const flag = cpScope.indexOf("#") > -1 ?
+                cpScope.split("#").map((x: string) => this.grantScopeAuth(x, user.scope)).includes(true) :
+                this.grantScopeAuth(cpScope, user.scope)
+
+            if (!user || !client || !flag) {
                 return null
             }
             if (user.scope.length === 1 && user.scope[0].value === "*") { // 权限为admin

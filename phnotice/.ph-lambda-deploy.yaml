@@ -10,7 +10,7 @@ PH_NOTICE_IOT:
     layer_path: PH_NOTICE_IOT-layer.zip
     layer_desc: 根据触发事件转发消息到 IOT
   lambda:
-    code_path: iot
+    code_path: iot/main.py
     package_name: PH_NOTICE_IOT-code.zip
     lambda_path: PH_NOTICE_IOT-code.zip
     lambda_handler: iot/main.lambda_handler
@@ -18,13 +18,13 @@ PH_NOTICE_IOT:
     lambda_desc: 根据触发事件转发消息到 IOT
     lambda_timeout: 30
     lambda_memory_size: 128
-    vpc_config:
-      SubnetIds:
-      - 'subnet-0260eab5acd58bc53'
-      - 'subnet-0e3daa88acef9b136'
-      SecurityGroupIds:
-      - 'sg-058404c2ad02dcbb9'
-      - 'sg-09f5205a1194149ab'
+    # vpc_config:
+    #   SubnetIds:
+    #   - 'subnet-0260eab5acd58bc53'
+    #   - 'subnet-0e3daa88acef9b136'
+    #   SecurityGroupIds:
+    #   - 'sg-058404c2ad02dcbb9'
+    #   - 'sg-09f5205a1194149ab'
     lambda_env:
       TEST: test
     lambda_tag:

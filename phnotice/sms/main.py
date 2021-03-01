@@ -1,4 +1,5 @@
 import os, sys
+import json
 import logging
 
 from aliyunsdkcore.client import AcsClient
@@ -55,6 +56,13 @@ def lambda_handler(event, context):
         }
     '''
     phlogger.info("event = " + str(event))
+
+    if 'Records' in event:
+        records = event['Records'][0]
+        if 'EventSource' in records and records['EventSource'] == 'aws:sns':
+            message = records['Sns']['Message']
+            event = json.loads(message)
+    phlogger.info("actual_event = " + str(event))
 
     phone_number = event['phone_number']
     sign_ame = event['sign_ame']

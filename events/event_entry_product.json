@@ -1,6 +1,6 @@
 {
   "resource": "/entry/{type}",
-  "path": "/entry/product",
+  "path": "/entry/products",
   "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",
@@ -55,7 +55,7 @@
   "multiValueQueryStringParameters": {
   },
   "pathParameters": {
-    "type": "assets"
+    "type": "products"
   },
   "stageVariables": null,
   "requestContext": {

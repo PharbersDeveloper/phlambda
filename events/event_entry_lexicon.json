@@ -1,6 +1,6 @@
 {
   "resource": "/entry/{type}",
-  "path": "/entry/assets",
+  "path": "/entry/lexicon",
   "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",

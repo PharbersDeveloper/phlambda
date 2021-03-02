@@ -1,6 +1,6 @@
 {
   "resource": "/entry/{type}",
-  "path": "/entry/assets",
+  "path": "/entry/manufacturer",
   "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",

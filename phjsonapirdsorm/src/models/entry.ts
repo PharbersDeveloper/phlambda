@@ -68,6 +68,69 @@ class Entry {
             modified: Date,
             description: String,
         },
+        drugcategory: {
+            category: String,
+            type: String,
+            level: Number,
+            value: String,
+            description: String,
+            version: String,
+        },
+        drugrelationship: {
+            category: String,
+            type: String,
+            value: String,
+            version: String
+        },
+        lexicon: {
+            category: String,
+            type: String,
+            encode: Number,
+            value: String,
+            version: String,
+        },
+        product: {
+            moleName: String,
+            prodDesc: String,
+            prodNameCH: String,
+            pack: String,
+            pckDesc: String,
+            dosage: String,
+            contains: { link: "molespec", isArray: true, inverse: "id" },
+            spec: String,
+            mnfId: { link: "manufacturer", inverse: "manufacturerId" },
+            atc: String,
+            nfc: String,
+            events: String,
+        },
+        molespec: {
+            // molespecId: {link: "product", inverse: "contains"},
+            type: String,
+            moleName: String,
+            quantity: String,
+            unit: String,
+        },
+        manufacturer: {
+            manufacturerId: {link: "product", inverse: "mnfId"},
+            mnfNameCH: String,
+            mnfType: String,
+            mnfTypeName: String,
+            mnfTypeNameCH: String,
+            corpId: String,
+            corpNameEn: String,
+            corpNameCH: String,
+            location: String,
+            version: String,
+            mnfId: String,
+            mnfName: String,
+        }
+        // molecular: {
+        //     category: Number,
+        //     type: String,
+        //     value: String,
+        //     version: String,
+        //     // mauns: {link: "manufacturer", inverse: "moles"}
+        // },
         // dbSource: {
         //     dbType: String,
         //     url: String,
@@ -84,7 +147,8 @@ class Entry {
             asset: [ this.hooksDate],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
-            job: [ this.hooksDate ]
+            job: [ this.hooksDate ],
+            manufacturer: [ this.hooksDate ],
         }
     }
 

@@ -68,19 +68,21 @@ class Entry {
             modified: Date,
             description: String,
         },
-        drugcategory: {
+        productcategory: {
             category: String,
             type: String,
             level: Number,
             value: String,
             description: String,
             version: String,
+            product: { link: "product", isArray: true, inverse: "category" },
         },
-        drugrelationship: {
+        productrelationship: {
             category: String,
             type: String,
             value: String,
-            version: String
+            version: String,
+            product: { link: "product", isArray: true, inverse: "packId" },
         },
         lexicon: {
             category: String,
@@ -96,15 +98,15 @@ class Entry {
             pack: String,
             pckDesc: String,
             dosage: String,
-            // contains: { link: "molespec", isArray: true, inverse: "product" },
+            contains: { link: "molespec", isArray: true, inverse: "product" },
             spec: String,
             mnfId: { link: "manufacturer", inverse: "product" },
-            atc: String,
-            nfc: String,
+            category: { link: "productcategory", isArray: true, inverse: "product" },
+            packId: { link: "productrelationship", inverse: "product" },
             events: String,
         },
         molespec: {
-            // product: {link: "product", isArray: true, inverse: "contains"},
+            product: {link: "product", isArray: true, inverse: "contains"},
             type: String,
             moleName: String,
             quantity: String,

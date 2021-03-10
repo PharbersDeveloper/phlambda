@@ -1,6 +1,3 @@
-import {Http} from "../../../phproject/src/common/http";
-import * as fortune from "fortune"
-
 class Entry {
     public model: any = {
         asset: {
@@ -124,7 +121,7 @@ class Entry {
             corpId: String,
             corpNameEn: String,
             corpNameCh: String,
-            location: Array,
+            location: Array(String),
             version: String
         },
         description: {
@@ -150,8 +147,7 @@ class Entry {
             asset: [ this.hooksDate],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
-            job: [ this.hooksDate ],
-            description: [ this.descHooksDate ]
+            job: [ this.hooksDate ]
         }
     }
 
@@ -170,35 +166,6 @@ class Entry {
                 return update
         }
     }
-
-    protected async descHooksDate(context, record, update) {
-        const { request: { method, type, meta: { language } } } = context
-        const { errors: { BadRequestError } } = fortune
-        switch (method) {
-            // post
-            case "create":
-                if (type === "description") {
-                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/${record.dagId}/dagRuns`
-                    const parm = {}
-                    const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
-                    if (res.status !== 200) { throw new BadRequestError(res.statusText) }
-                    record.status = res.statusText
-                }
-                const date = new Date()
-                if (!record.created) {
-                    record.created = date
-                }
-                record.modified = date
-                return record
-            // patch
-            case "update":
-                update.replace.modified = new Date()
-                return update
-            // delete
-            case "delete": return null
-        }
-    }
-
 }
 
 export default Entry

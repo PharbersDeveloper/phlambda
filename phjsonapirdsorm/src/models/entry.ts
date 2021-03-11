@@ -1,3 +1,6 @@
+import fortune from "fortune"
+import { Http } from "../common/http"
+
 class Entry {
     public model: any = {
         asset: {
@@ -147,7 +150,8 @@ class Entry {
             asset: [ this.hooksDate],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
-            job: [ this.hooksDate ]
+            job: [ this.hooksDate ],
+            description: [ this.descHooksDate ]
         }
     }
 
@@ -163,6 +167,29 @@ class Entry {
                 return record
             case "update":
                 update.replace.modified = new Date()
+                return update
+        }
+    }
+    protected async descHooksDate(context, record, update) {
+        const { request: { method, type, meta: { language } } } = context
+        const { errors: { BadRequestError } } = fortune
+        switch (method) {
+            case "create":
+                if (type === "description") {
+                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/${record.dagId}/dagRuns`
+                    const parm = {version: record.version}
+                    const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
+                    if (res.status !== 200) { throw new BadRequestError(res.statusText) }
+                    record.status = res.statusText
+                }
+                const date = new Date()
+                if (!record.created) {
+                    record.created = date
+                }
+                record.modified = date
+                return record
+            case "update":
+                // update.replace.modified = new Date()
                 return update
         }
     }

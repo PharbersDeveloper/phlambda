@@ -42,7 +42,7 @@ const ManufacturerContext = jest.fn(() => {
     return event
 })
 
-const DescriptionContext = jest.fn(() => {
+const DescriptionPostContext = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_entry_descpost.json", "utf8"))
     // event.queryStringParameters.
     return event
@@ -127,7 +127,7 @@ test("manufacturer init", async () => {
 test("description init", async () => {
 
     const app = require("../../app.js")
-    const res = await app.lambdaHandler(new DescriptionDelContext(), undefined)
+    const res = await app.lambdaHandler(new DescriptionPostContext(), undefined)
     // tslint:disable-next-line:no-console
     console.info(res.body)
 

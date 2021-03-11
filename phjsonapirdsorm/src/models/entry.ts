@@ -1,4 +1,5 @@
 import fortune from "fortune"
+import { Logger, SF, Store } from "phnodelayer"
 import { Http } from "../common/http"
 
 class Entry {
@@ -176,22 +177,28 @@ class Entry {
         switch (method) {
             case "create":
                 if (type === "description") {
-                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/${record.dagId}/dagRuns`
-                    const parm = {version: record.version}
-                    const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
-                    if (res.status !== 200) { throw new BadRequestError(res.statusText) }
-                    record.status = res.statusText
+                    const validResult = await this.validDBData(record)
+                    if (!validResult) {
+                        throw new BadRequestError("You need other version!")
+                    }
+                    // const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/dw_db2dw/dagRuns`
+                    // const parm = {version: record.version}
+                    // const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
+                    // if (res.status !== 200) { throw new BadRequestError(res.statusText) }
                 }
                 const date = new Date()
-                if (!record.created) {
-                    record.created = date
-                }
-                record.modified = date
+                record.createTime = date
                 return record
-            case "update":
-                // update.replace.modified = new Date()
-                return update
         }
+    }
+    private async validDBData(record) {
+        Logger.info("texttttt")
+        const store = SF.getInstance.get(Store.Postgres)
+        const result = await store.find("description", null, {match: {version: record.version}})
+        if (result.payload.records.length !== 0) {
+            return false
+        }
+        return true
     }
 }
 

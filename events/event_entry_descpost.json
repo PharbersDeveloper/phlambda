@@ -1,5 +1,5 @@
 {
-    "body": "{\"data\": {\"type\": \"descriptions\",\"attributes\": {\"name\": \"Ember Hamster\",\"source\": \"http://example.com\", \"format\": \"333\",\"createTime\": \"\",\"version\": \"1.0.0\"}}}",
+    "body": "{\"data\": {\"type\": \"descriptions\",\"attributes\": {\"name\": \"lexicon\",\"source\": \"s3a://ph-max-auto/2020-08-11/data_matching/refactor/data/METADATA/LEXICON/\", \"format\": \"\",\"createTime\": \"2021-03-11\",\"version\": \"0.0.1\"}}}",
     "resource": "/entry/{type}",
     "path": "/entry/descriptions",
     "httpMethod": "POST",

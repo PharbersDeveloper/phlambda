@@ -129,6 +129,6 @@ test("description init", async () => {
     const app = require("../../app.js")
     const res = await app.lambdaHandler(new DescriptionPostContext(), undefined)
     // tslint:disable-next-line:no-console
-    console.info(res.body)
+    console.info(res)
 
 }, 1000 * 60 * 2)

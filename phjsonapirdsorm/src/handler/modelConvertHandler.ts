@@ -1,5 +1,5 @@
 import fortune from "fortune"
-import { Http } from "../common/http"
+import {Http} from "../common/http"
 
 export async function modelConvert(event: Map<string, any>) {
     // @ts-ignore
@@ -9,5 +9,10 @@ export async function modelConvert(event: Map<string, any>) {
     const parm = {version}
     const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
     if (res.status !== 200) { throw new BadRequestError(res.statusText) }
-    return version
+    return {
+        headers: {},
+        status: res.status,
+        message: {message: "success"}
+
+    }
 }

@@ -4,25 +4,16 @@ const temp = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../events/event_entry_descpost.json", "utf8"))
     const japi = JSON.stringify({
         data: {
-            type: "manufacturers",
+            type: "descriptions",
             attributes: {
-                mnfNameCh: "test",
-                mnfType: "test",
-                mnfTypeName: "test",
-                mnfTypeNameCh: "test",
-                corpId: "test",
-                corpNameEn: "test",
-                corpNameCh: "test",
-                location: [0, 0],
-                version: "test",
+                name: "test",
+                source: "aaa",
+                createTime: new Date(),
+                version: "0.0.1"
             }
         }
     })
     event.body = japi
-    event.path = "/entry/manufacturers"
-    event.pathParameters = {
-        type: "manufacturers"
-    }
     return event
 })
 

@@ -3,6 +3,7 @@ import { Logger, SF, Store } from "phnodelayer"
 import { Http } from "../common/http"
 
 class Entry {
+
     public model: any = {
         asset: {
             name: String,
@@ -171,16 +172,13 @@ class Entry {
                 return update
         }
     }
+
     protected async descHooksDate(context, record, update) {
         const { request: { method, type, meta: { language } } } = context
         const { errors: { BadRequestError } } = fortune
         switch (method) {
             case "create":
                 if (type === "description") {
-                    const validResult = await this.validDBData(record)
-                    if (!validResult) {
-                        throw new BadRequestError("You need other version!")
-                    }
                     // const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/dw_db2dw/dagRuns`
                     // const parm = {version: record.version}
                     // const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
@@ -190,15 +188,6 @@ class Entry {
                 record.createTime = date
                 return record
         }
-    }
-    private async validDBData(record) {
-        Logger.info("texttttt")
-        const store = SF.getInstance.get(Store.Postgres)
-        const result = await store.find("description", null, {match: {version: record.version}})
-        if (result.payload.records.length !== 0) {
-            return false
-        }
-        return true
     }
 }
 

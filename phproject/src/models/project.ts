@@ -39,7 +39,7 @@ class Project {
         switch (method) {
             case "create":
                 if (type === "trigger") {
-                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/${record.dagId}/dagRuns`
+                    const airflowRunDagUrl = `http://192.168.112.226:30086/api/v1/dags/${record.dagId}/dagRuns`
                     const parm = {}
                     for (const item of Object.keys(record)) {
                         const key = item.replace(/([A-Z])/g, "_$1").toLowerCase()

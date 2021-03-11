@@ -179,7 +179,7 @@ class Entry {
         switch (method) {
             case "create":
                 if (type === "description") {
-                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/dw_db2dw/dagRuns`
+                    const airflowRunDagUrl = `http://192.168.112.226:30086/api/v1/dags/dw_db2dw/dagRuns`
                     const parm = {version: record.version}
                     const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
                     if (res.status !== 200) { throw new BadRequestError(res.statusText) }

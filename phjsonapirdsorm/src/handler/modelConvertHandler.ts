@@ -3,7 +3,7 @@ import { Http } from "../common/http"
 
 export async function modelConvert(event: Map<string, any>) {
     // @ts-ignore
-    const version = event.body.version
+    const version = JSON.parse(event.body).version
     const { errors: { BadRequestError } } = fortune
     const airflowRunDagUrl = `http://192.168.112.226:30086/api/v1/dags/dw_dw2db/dagRuns`
     const parm = {version}

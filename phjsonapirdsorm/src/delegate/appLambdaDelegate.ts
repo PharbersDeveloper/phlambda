@@ -1,12 +1,17 @@
 import { identify } from "phauthlayer"
 import { ConfigRegistered, Logger, Main, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 import { modelConvert } from "../handler/modelConvertHandler"
+import { modelExport } from "../handler/modelExportHandler"
 
 export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
         // @ts-ignore
         if (event.pathParameters.type === "convert") {
             return await modelConvert(event)
+        }
+        // @ts-ignore
+        if (event.pathParameters.type === "export") {
+            return await modelExport(event)
         }
         const pg = new PostgresConfig("entry", "pharbers", "Abcde196125", "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn", 5432, "phentry")
         const redis = new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")

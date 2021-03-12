@@ -9,7 +9,7 @@ export async function modelExport(event: Map<string, any>) {
     const res =  await new Http().post(airflowRunDagUrl, {conf: eventBody})
     if (res.status !== 200) { throw new BadRequestError(res.statusText) }
     return {
-        headers: {},
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         status: res.status,
         message: {message: "success"}
 

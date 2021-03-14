@@ -1,7 +1,7 @@
 {
   "resource": "/entry/{type}",
   "path": "/entry/assets",
-  "httpMethod": "GET",
+  "httpMethod": "POST",
   "headers": {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -51,7 +51,6 @@
     ]
   },
   "queryStringParameters": {
-    "filter[owner]": "qtaGDePl1OrSFEgma"
   },
   "multiValueQueryStringParameters": {
   },
@@ -93,6 +92,6 @@
     "domainName": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
     "apiId": "2t69b7x032"
   },
-  "body": "",
+  "body": "{\"data\": {\"type\": \"assets\",\"attributes\": {\"name\": \"lexicon\"}}}",
   "isBase64Encoded": false
 }

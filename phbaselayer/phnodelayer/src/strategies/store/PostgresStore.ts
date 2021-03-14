@@ -1,21 +1,24 @@
 "use strict"
 
-import { Store, IStore } from "./Store"
+import { Store } from "./Store"
 import PostgresAdapter from "fortune-postgres"
 import fortune from "fortune"
 import ConfRegistered from "../../config/ConfRegistered"
+import {StoreEnum} from "../../common/StoreEnum"
 
-export default class PostgresStore extends Store implements IStore {
+export default class PostgresStore extends Store {
     constructor() {
         super()
 
+        this.name = StoreEnum.Postgres
         const conf = ConfRegistered.getInstance.getConf("PostgresConf")
         if (!conf) { throw new Error("PostgresConf Is Null")}
         const record = new (this.getRecord(conf.entry))()
         const option = Object.assign(
-            {adapter: [PostgresAdapter, {connection: conf.getConnect()}]},
+            { adapter: [ PostgresAdapter, { connection: conf.getConnect() } ] },
             record.operations,
         )
+
         this.store = fortune(record.model, option)
         // if (conf.postgres) {
         //     const record = new (this.getRecord(conf.postgres.entry))()
@@ -41,19 +44,19 @@ export default class PostgresStore extends Store implements IStore {
         return await this.store.disconnect()
     }
 
-    async create(type: string, records: any, include: any, meta: any): Promise<any> {
+    async create(type: string, records: any, include?: any, meta?: any): Promise<any> {
         return await this.store.create(type, records, include, meta)
     }
 
-    async delete(type: string, ids: any, include: any, meta: any): Promise<any> {
+    async delete(type: string, ids: any, include?: any, meta?: any): Promise<any> {
         return await this.store.delete(type, ids, include, meta)
     }
 
-    async find(type: string, ids: any, options: any, include: any, meta: any): Promise<any> {
+    async find(type: string, ids?: any, options?: any, include?: any, meta?: any): Promise<any> {
         return await this.store.find(type, ids, options, include, meta)
     }
 
-    async update(type: string, updates: any, include: any, meta: any): Promise<any> {
+    async update(type: string, updates: any, include?: any, meta?: any): Promise<any> {
         return await this.store.update(type, updates, include, meta)
     }
 }

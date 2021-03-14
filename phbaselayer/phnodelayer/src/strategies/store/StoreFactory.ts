@@ -4,6 +4,7 @@ import PostgresStore from "./PostgresStore"
 import RedisStore from "./RedisStore"
 import { StoreEnum } from "../../common/StoreEnum"
 import ConfRegistered from "../../config/ConfRegistered"
+import {Store} from "./Store"
 
 export default class StoreFactory {
     private static instance: StoreFactory = null
@@ -31,13 +32,13 @@ export default class StoreFactory {
         return StoreFactory.instance
     }
 
-    public get(name?: string): any {
+    public get(name?: string): Store {
         if (name === undefined || name === null || name.length === 0) {
             if (this.typeAnalyzerMapping.size === 1) {
                 return [...this.typeAnalyzerMapping.values()][0]
             } else {
                 throw new Error(
-                    `存在多个Store, 请使用 getStore(参数) 获取对应Store，包含参数：${[
+                    `存在多个Store, 请使用 get(参数) 获取对应Store，包含参数：${[
                         ...this.typeAnalyzerMapping.keys(),
                     ]}`,
                 )

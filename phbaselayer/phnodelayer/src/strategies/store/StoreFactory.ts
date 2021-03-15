@@ -1,14 +1,15 @@
 "use strict"
 
 import PostgresStore from "./PostgresStore"
+import MongoStore from "./MongoStore"
 import RedisStore from "./RedisStore"
 import { StoreEnum } from "../../common/StoreEnum"
 import ConfRegistered from "../../config/ConfRegistered"
-import {Store} from "./Store"
+import {IStore, Store} from "./Store"
 
 export default class StoreFactory {
     private static instance: StoreFactory = null
-    private typeAnalyzerMapping: Map<string, any> = new Map()
+    private typeAnalyzerMapping: Map<string, Store> = new Map()
 
     private constructor() {
         for (const item in StoreEnum ) {
@@ -16,6 +17,9 @@ export default class StoreFactory {
                 switch (item.toLowerCase()) {
                     case StoreEnum.Postgres:
                         this.typeAnalyzerMapping.set(StoreEnum.Postgres, new PostgresStore())
+                        break
+                    case StoreEnum.Mongo:
+                        this.typeAnalyzerMapping.set(StoreEnum.Mongo, new MongoStore())
                         break
                     case StoreEnum.Redis:
                         this.typeAnalyzerMapping.set(StoreEnum.Redis, new RedisStore())
@@ -32,7 +36,7 @@ export default class StoreFactory {
         return StoreFactory.instance
     }
 
-    public get(name?: string): Store {
+    public get(name?: string): RedisStore | Store | IStore{
         if (name === undefined || name === null || name.length === 0) {
             if (this.typeAnalyzerMapping.size === 1) {
                 return [...this.typeAnalyzerMapping.values()][0]

@@ -4,7 +4,7 @@ import { Store, IStore } from "./Store"
 import RedisAdapter from "fortune-redis"
 import fortune from "fortune"
 import ConfRegistered from "../../config/ConfRegistered"
-import {StoreEnum} from "../../common/StoreEnum";
+import {StoreEnum} from "../../common/StoreEnum"
 
 export interface IRedisStore extends IStore {
     setExpire(key: string, value: any, expire: number): Promise<any>

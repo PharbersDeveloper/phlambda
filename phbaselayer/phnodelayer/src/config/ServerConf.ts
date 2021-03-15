@@ -1,5 +1,5 @@
 "use strict"
-// import MongoConf from "./MongoConf"
+import MongoConf from "./MongoConf"
 import MysqlConf from "./MysqlConf"
 import PostgresConf from "./PostgresConf"
 import RedisConf from "./RedisConf"
@@ -10,7 +10,7 @@ export default class ServerConf {
 
     public postgres: PostgresConf = undefined
 
-    // public mongo: MongoConf = undefined
+    public mongo: MongoConf = undefined
 
     public mysql: MysqlConf = undefined
 
@@ -26,7 +26,8 @@ export default class ServerConf {
     constructor(project: string) {
         this.project = project
         this.postgres = ConfRegistered.getInstance.getConf("PostgresConf")
-        this.mysql = ConfRegistered.getInstance.getConf("MysqlConf")
+        this.mongo = ConfRegistered.getInstance.getConf("MongoConf")
         this.redis = ConfRegistered.getInstance.getConf("RedisConf")
+        // this.mysql = ConfRegistered.getInstance.getConf("MysqlConf")
     }
 }

@@ -4,6 +4,7 @@ import { StoreEnum } from "./common/StoreEnum"
 import StoreFactory from "./strategies/store/StoreFactory"
 import AWSReq from "./strategies/AwsRequest"
 import PostgresConf from "./config/PostgresConf"
+import MongoConf from "./config/MongoConf"
 import RedisConf from "./config/RedisConf"
 import ConfRegistered from "./config/ConfRegistered"
 import {IStore} from "./strategies/store/Store"
@@ -14,6 +15,7 @@ export const SF = StoreFactory
 export const AWSRequest = AWSReq
 export const ConfigRegistered = ConfRegistered
 export const PostgresConfig = PostgresConf
+export const MongoConfig = MongoConf
 export const RedisConfig = RedisConf
 
 // @ts-ignore

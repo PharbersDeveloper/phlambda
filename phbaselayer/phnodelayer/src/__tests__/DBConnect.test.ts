@@ -62,19 +62,20 @@ test("Mongo DB Connect", async () => {
         "",
         "localhost",
         27017,
-        "phentry"
+        "pharbers-tm"
     )
 
     ConfigRegistered.getInstance.registered(mo)
-    const event = JSON.parse(fs.readFileSync("../../events/event_entry_find.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("../../events/ntm/event_ntm_upload.json", "utf8"))
     const db = SF.getInstance.get(Store.Mongo)
-    const list = Array.from({ length: 100 }, (v, k) => k )
+    const list = Array.from({ length: 1 }, (v, k) => k )
     for (const i of list) {
         await db.open()
+        // await db.find("test", "60505e4b81ef2c5db38b468a")
         const result = await JsonApiMain({event, db})
         await db.close()
-        expect(result.statusCode).toBe(201)
-        // Logger.info(String(result["output"][1]))
+        // expect(result.statusCode).toBe(201)
+        Logger.info(String(result["output"][1]))
     }
 
 }, 1000 * 60 * 100)

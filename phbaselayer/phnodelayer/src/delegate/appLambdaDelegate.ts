@@ -14,12 +14,12 @@ export default class AppLambdaDelegate {
     private storeIns: Store
 
     public listener: any
-    public isFirstInit = true
+    // public isFirstInit = true
 
     public prepare(storeIns: Store) {
         // this.key = name
         this.storeIns = storeIns
-        this.isFirstInit = false
+        // this.isFirstInit = false
         this.listener = this.fortuneHTTP(storeIns.store, {
             serializers: [[this.jsonApiSerializer]],
         })

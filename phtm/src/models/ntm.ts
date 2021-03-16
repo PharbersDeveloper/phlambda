@@ -1,8 +1,8 @@
 
-class Entry {
+class Ntm {
     public model: any = {
         answer: {
-            category: String, //todo
+            category: String, // todo
             salesTarget: Number,
             budget: Number,
             meetingPlaces: Number,
@@ -24,8 +24,8 @@ class Entry {
             target: { link: "hospital", inverse: "answerHospital" },
         },
         evaluation: {
-            proposalEvaluation: {link: "proposal", reverse: "evaluations"},
-            category: String, //todo
+            proposalEvaluation: { link: "proposal", reverse: "evaluations" },
+            category: String, // todo
             level: String,
             abilityDescription: String,
             awardDescription: String,
@@ -33,7 +33,7 @@ class Entry {
             actionDescription: String
         },
         final: {
-            projectFinals: {link: "project", reverseL: "finals"},
+            projectFinals: { link: "project", reverseL: "finals" },
             sales: Number,
             quota: Number,
             budget: Number,
@@ -49,11 +49,11 @@ class Entry {
             manageTeam: Number
         },
         hospital: {
-            answerHospital: {link: "answer", reverse: "target"},
+            answerHospital: { link: "answer", reverse: "target" },
             avatar: { link: "image", inverse: "hospitalAvatar" },
-            presetHospital: {link: "preset", inverse: "hospital"},
-            proposalTargets: {link: "proposal", inverse: "targets"},
-            reportHospital: {link: "report", inverse: "hospital"},
+            presetHospital: { link: "preset", inverse: "hospital" },
+            proposalTargets: { link: "proposal", inverse: "targets" },
+            reportHospital: { link: "report", inverse: "hospital" },
             name: String,
             describe: String,
             regtime: String,
@@ -90,7 +90,6 @@ class Entry {
             rankImg: {link: "image", reverse: "levelRankImg"},
             awardImg: {link: "image", reverse: "levelAwardImg"},
         },
-        modelBase: { },
         period: {
             projectPeriods: {link: "project", reverse: "periods"},
             phase: Number,
@@ -252,7 +251,6 @@ class Entry {
             avatar: {link: "image", reverse: "resourceAvatar"},
             avatarPath: String,
         },
-        result: {},
         usableProposal: {
             accountId: String,
             proposal: {link: "proposal", reverse: "usableProposalProposal"},
@@ -270,4 +268,4 @@ class Entry {
 
 }
 
-export default Entry
+export default Ntm

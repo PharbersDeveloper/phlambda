@@ -1,10 +1,10 @@
 {
   "name": "phtm",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
-  "author": "Alfred",
-  "license": "MIT",
+  "author": "wodelu",
+  "license": "GPL3.0",
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc",

@@ -19,7 +19,7 @@ export class RedisConf extends Conf {
 
 // tslint:disable-next-line:max-classes-per-file
 export class MongoConf extends Conf {
-    public static url: string = "localhost"
+    public static url: string = "192.168.100.116"
     public static user: string = ""
     public static password: string = ""
     public static entry: string = "ntm"

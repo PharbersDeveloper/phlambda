@@ -4,6 +4,7 @@ import { Store, IStore } from "./Store"
 import RedisAdapter from "fortune-redis"
 import fortune from "fortune"
 import ConfRegistered from "../../config/ConfRegistered"
+import {StoreEnum} from "../../common/StoreEnum"
 
 export interface IRedisStore extends IStore {
     setExpire(key: string, value: any, expire: number): Promise<any>
@@ -12,6 +13,7 @@ export interface IRedisStore extends IStore {
 export default class RedisStore extends Store implements IRedisStore {
     constructor() {
         super()
+        this.name = StoreEnum.Redis
         const conf = ConfRegistered.getInstance.getConf("RedisConf")
         if (!conf) { throw new Error("RedisConf Is Null")}
         const record = new (this.getRecord(conf.entry))()
@@ -42,18 +44,18 @@ export default class RedisStore extends Store implements IRedisStore {
        return await this.store.adapter.redis.set(key, value, "EX", expire)
     }
 
-    async create(type: string, records: any, include: any, meta: any): Promise<any> {
+    async create(type: string, records: any, include?: any, meta?: any): Promise<any> {
         return await this.store.create(type, records, include, meta)
     }
-    async find(type: string, ids: any, options: any, include: any, meta: any): Promise<any> {
+    async find(type: string, ids?: any, options?: any, include?: any, meta?: any): Promise<any> {
         return await this.store.find(type, ids, options, include, meta)
     }
 
-    async update(type: string, updates: any, include: any, meta: any): Promise<any> {
+    async update(type: string, updates: any, include?: any, meta?: any): Promise<any> {
         return await this.store.update(type, updates, include, meta)
     }
 
-    async delete(type: string, ids: any, include: any, meta: any): Promise<any> {
+    async delete(type: string, ids: any, include?: any, meta?: any): Promise<any> {
         return await this.store.delete(type, ids, include, meta)
     }
 

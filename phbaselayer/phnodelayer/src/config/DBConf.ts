@@ -1,6 +1,9 @@
 "use strict"
 
 export abstract class DBConf {
+    // 数据库协议
+    public protocols: string = undefined
+
     public dbName: string = undefined
 
     public host: string = undefined
@@ -18,6 +21,8 @@ export abstract class DBConf {
     public username: string = undefined
 
     public pwd: string = undefined
+
+    public other: string = undefined
 
     public abstract getUrl(): string
 

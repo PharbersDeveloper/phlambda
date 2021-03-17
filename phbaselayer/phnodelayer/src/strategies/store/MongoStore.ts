@@ -1,21 +1,25 @@
 "use strict"
 
 import { Store } from "./Store"
-import PostgresAdapter from "fortune-postgres"
 import fortune from "fortune"
 import ConfRegistered from "../../config/ConfRegistered"
 import {StoreEnum} from "../../common/StoreEnum"
 
-export default class PostgresStore extends Store {
+export default class MongoStore extends Store {
+    private MongodbAdapter = require("../../../custom/fortune-mongodb")
     constructor() {
         super()
-
-        this.name = StoreEnum.Postgres
-        const conf = ConfRegistered.getInstance.getConf("PostgresConf")
-        if (!conf) { throw new Error("PostgresConf Is Null")}
+        let BSON = require('bson')
+        this.name = StoreEnum.Mongo
+        const conf = ConfRegistered.getInstance.getConf("MongoConf")
+        if (!conf) { throw new Error("MongoConf Is Null")}
         const record = new (this.getRecord(conf.entry))()
         const option = Object.assign(
-            { adapter: [ PostgresAdapter, { connection: conf.getConnect() } ] },
+            { adapter: [ this.MongodbAdapter,
+                    {
+                        url: conf.getUrl(),
+                        generateId: () => new BSON.ObjectId()
+                    } ] },
             record.operations,
         )
 
@@ -51,7 +55,6 @@ export default class PostgresStore extends Store {
     async delete(type: string, ids: any, include?: any, meta?: any): Promise<any> {
         return await this.store.delete(type, ids, include, meta)
     }
-
     async find(type: string, ids?: any, options?: any, include?: any, meta?: any): Promise<any> {
         return await this.store.find(type, ids, options, include, meta)
     }

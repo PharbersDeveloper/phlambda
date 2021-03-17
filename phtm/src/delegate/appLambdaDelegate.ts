@@ -1,4 +1,4 @@
-import { identify } from "phauthlayer"
+// import { identify } from "phauthlayer"
 import { ConfigRegistered, JsonApiMain, Logger, MongoConfig, RedisConfig, SF, Store } from "phnodelayer"
 import { MongoConf } from "../common/config"
 
@@ -13,7 +13,11 @@ export default class AppLambdaDelegate {
             MongoConf.password,
             MongoConf.url,
             MongoConf.port,
-            MongoConf.db
+            MongoConf.db,
+            1,
+            1000,
+            1000,
+            MongoConf.other
         )
         ConfigRegistered.getInstance.registered(mongoConf)
         const dbIns = SF.getInstance.get(Store.Mongo)

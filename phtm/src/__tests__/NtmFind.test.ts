@@ -190,7 +190,12 @@ test("Find validation", async () => {
 test("Find usableProposal", async () => {
     const app = require("../../app.js")
     const result = await app.lambdaHandler(new usableProposal(), undefined)
-    console.info(result.body)
+    expect(result.statusCode).toBe(200)
+}, 1000 * 60)
+
+test("Find images", async () => {
+    const app = require("../../app.js")
+    const result = await app.lambdaHandler(new image(), undefined)
     expect(result.statusCode).toBe(200)
 }, 1000 * 60)
 

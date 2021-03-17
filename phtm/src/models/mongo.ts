@@ -1,5 +1,5 @@
 
-class Ntm {
+class Mongo {
     model: any = {
         answer: {
             category: String, // todo
@@ -103,7 +103,7 @@ class Ntm {
             describe: String,
         },
         preset: {
-            proposal: {link: "proposal", inverse: "presetProposals"},
+            proposal: {link: "proposal", inverse: "presetProposal"},
             proposalId: String,
             projectId: String,
             periodId: String,
@@ -172,7 +172,7 @@ class Ntm {
             finals: {link: "final", isArray: true, inverse: "projectFinals"},
         },
         proposal: {
-            presetProposals: {link: "preset", isArray: true, inverse: "proposal"},
+            presetProposal: {link: "preset", inverse: "proposal"},
             projectProposal: {link: "project", inverse: "proposal"},
             usableProposalProposal: {link: "usableProposal", inverse: "proposal"},
             name: String,
@@ -265,6 +265,7 @@ class Ntm {
             rightValue: String,
         }
     }
+
 }
 
-export default Ntm
+export default Mongo

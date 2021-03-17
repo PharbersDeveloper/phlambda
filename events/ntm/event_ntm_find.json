@@ -1,13 +1,13 @@
 {
   "body": "",
   "resource": "/ntm/{type}",
-  "path": "/ntm/hospitals",
+  "path": "/ntm/answers",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "type": "hospitals"
+    "type": "answers"
   },
   "stageVariables": {
     "baz": "qux"

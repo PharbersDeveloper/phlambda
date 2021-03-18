@@ -24,22 +24,22 @@ const jsonApiPost = jest.fn((type: string, body: string) => {
 describe("convert mongodb 2 postgresql",  () => {
     // 只有转换数据才解开注释
 
-    // const app = require("../../app.js")
-    // let mdb = null
-    // beforeEach(async () => {
-    //     Logger.debug("before......")
-    //     const conf = new MongoConfig("mongodb", "mongo", "", "", "localhost", 27017, "pharbers-tm")
-    //     const postgresConf = new PostgresConfig(PostgresqlConf.entry, PostgresqlConf.user,
-    //         PostgresqlConf.password, PostgresqlConf.url,
-    //         PostgresqlConf.port, PostgresqlConf.db)
-    //     ConfigRegistered.getInstance.registered(conf).registered(postgresConf)
-    //     mdb = SF.getInstance.get(Store.Mongo)
-    //     await mdb.open()
-    // })
-    // afterEach(async () => {
-    //     Logger.debug("after......")
-    //     await mdb.close()
-    // })
+    const app = require("../../app.js")
+    let mdb = null
+    beforeEach(async () => {
+        Logger.debug("before......")
+        const conf = new MongoConfig("mongodb", "mongo", "", "", "localhost", 27017, "pharbers-tm")
+        const postgresConf = new PostgresConfig(PostgresqlConf.entry, PostgresqlConf.user,
+            PostgresqlConf.password, PostgresqlConf.url,
+            PostgresqlConf.port, PostgresqlConf.db)
+        ConfigRegistered.getInstance.registered(conf).registered(postgresConf)
+        mdb = SF.getInstance.get(Store.Mongo)
+        await mdb.open()
+    })
+    afterEach(async () => {
+        Logger.debug("after......")
+        await mdb.close()
+    })
 
     // test("convert evaluation 2 postgresql", async () => {
     //     Logger.debug("Run ......")
@@ -70,7 +70,7 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
     // test("convert product 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("product", null)
@@ -80,7 +80,7 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
     // test("convert resource 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("resource", null)
@@ -90,7 +90,7 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
     // test("convert requirement 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("requirement", null)
@@ -100,7 +100,7 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
     // test("convert report 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("report", null)
@@ -110,7 +110,7 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
     // test("convert proposal 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("proposal", null)
@@ -120,7 +120,17 @@ describe("convert mongodb 2 postgresql",  () => {
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)
-
+    //
+    // test("convert preset 2 postgresql", async () => {
+    //     Logger.debug("Run ......")
+    //     const eveResult = await mdb.find("preset", null)
+    //     for (const item of eveResult.payload.records) {
+    //         const record = convert2JsonApi("presets", item)
+    //         const result = await app.lambdaHandler(new jsonApiPost("presets", JSON.stringify(record)), undefined)
+    //         expect(result.statusCode).toBe(201)
+    //     }
+    // }, 1000 * 60 * 100)
+    //
     // test("convert usableProposal 2 postgresql", async () => {
     //     Logger.debug("Run ......")
     //     const eveResult = await mdb.find("usableProposal", null)
@@ -128,16 +138,6 @@ describe("convert mongodb 2 postgresql",  () => {
     //         const record = convert2JsonApi("usable-proposals", item)
     //         const result = await app.lambdaHandler(new jsonApiPost("usable-proposals",
     //             JSON.stringify(record)), undefined)
-    //         expect(result.statusCode).toBe(201)
-    //     }
-    // }, 1000 * 60 * 100)
-
-    // test("convert preset 2 postgresql", async () => {
-    //     Logger.debug("Run ......")
-    //     const eveResult = await mdb.find("preset", null)
-    //     for (const item of eveResult.payload.records) {
-    //         const record = convert2JsonApi("presets", item)
-    //         const result = await app.lambdaHandler(new jsonApiPost("presets", JSON.stringify(record)), undefined)
     //         expect(result.statusCode).toBe(201)
     //     }
     // }, 1000 * 60 * 100)

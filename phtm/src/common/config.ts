@@ -19,12 +19,12 @@ export class RedisConf extends Conf {
 
 // tslint:disable-next-line:max-classes-per-file
 export class PostgresqlConf extends Conf {
-     static url: string = "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
-     // static url: string = "localhost"
+     // static url: string = "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
+     static url: string = "localhost"
      static user: string = "pharbers"
      static password: string = "Abcde196125"
      static entry: string = "ntm"
      static port: number = 5432
-     static db: string = "pharbers-ntm-client"
-     // static db: string = "phntm"
+     // static db: string = "pharbers-ntm-client"
+     static db: string = "phntm2"
 }

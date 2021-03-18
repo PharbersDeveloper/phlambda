@@ -10,7 +10,7 @@ phntm:
     layer_path: phntm-layer.zip
     layer_desc: ntm
   lambda:
-    code_path: dist,app.js,rds-combined-ca-cn-bundle.pem
+    code_path: dist,app.js
     package_name: phntm-code.zip
     lambda_path: phntm-code.zip
     lambda_handler: app.lambdaHandler

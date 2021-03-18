@@ -10,14 +10,12 @@ export default class AppLambdaDelegate {
      */
     private fortuneHTTP = require("../../custom/fortune-http")
     private jsonApiSerializer = require("../../custom/fortune-json-api")
-    // private key: string = ""
     private storeIns: Store
 
     public listener: any
     // public isFirstInit = true
 
     public prepare(storeIns: Store) {
-        // this.key = name
         this.storeIns = storeIns
         // this.isFirstInit = false
         this.listener = this.fortuneHTTP(storeIns.store, {

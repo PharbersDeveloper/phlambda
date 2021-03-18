@@ -9,7 +9,7 @@ export default class AppLambdaDelegate {
             PostgresqlConf.port, PostgresqlConf.db)
         ConfigRegistered.getInstance.registered(postgresConf)
         const dbIns = SF.getInstance.get(Store.Postgres)
-        await dbIns.open()
+        // await dbIns.open()
         const result = await JsonApiMain({event, db: dbIns})
         await dbIns.close()
         return result

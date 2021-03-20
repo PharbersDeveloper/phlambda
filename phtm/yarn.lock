@@ -1283,11 +1283,6 @@ cross-spawn@^7.0.0:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-crypto-js@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
-  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
-
 css-select@^2.0.2:
   version "2.1.0"
   resolved "https://registry.npmjs.org/css-select/-/css-select-2.1.0.tgz#6a34653356635934a81baca68d0255432105dbef"
@@ -3875,10 +3870,10 @@ phauthlayer@0.0.1:
   dependencies:
     "@types/node" "^14.14.9"
 
-phnodelayer@^1.0.7-beta.0:
-  version "1.0.7-beta.0"
-  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-1.0.7-beta.0.tgz#15e19873dd85f18e6c3835947709416eb5099942"
-  integrity sha512-8zbSsCd6P4UdI3TZOqxPijdqj/WMRL/FSpT2weP0vBphy7sUupBigaOEIJhpAGExVz7KsxV6b2ITdKXjMru5HQ==
+phnodelayer@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-1.0.6.tgz#5c33b91d1292ccb6f900c884f55a7cb2ccd4ea28"
+  integrity sha512-Ng3UZhjUHWeYVuuDMSHkOk1x44gwrr56FTHfU/lmPUrhMei7qhGhvv9jw5NqMYCqUIObo5Of6we2at0hq2mfFA==
   dependencies:
     "@types/aws-sdk" "^2.7.0"
     "@types/js-yaml" "^3.12.1"
@@ -3887,7 +3882,6 @@ phnodelayer@^1.0.7-beta.0:
     busboy "^0.3.1"
     clean-css "^4.2.1"
     cookie "^0.4.0"
-    crypto-js "^4.0.0"
     deep-equal "^2.0.4"
     fast-crc32c "^2.0.0"
     fortune "^5.5.17"

@@ -1,6 +1,6 @@
 {
   "name": "phntm",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "hello world sample for NodeJS",
   "main": "app.js",
   "author": "Alfred",
@@ -18,7 +18,7 @@
     "typescript": "^3.3.1"
   },
   "devDependencies": {
-    "phnodelayer": "^1.0.7-beta.0",
+    "phnodelayer": "^1.0.6",
     "@types/node": "~10.17.24",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",

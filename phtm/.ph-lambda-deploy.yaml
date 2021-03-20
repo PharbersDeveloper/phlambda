@@ -14,10 +14,10 @@ phntm:
     package_name: phntm-code.zip
     lambda_path: phntm-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: phntm
+    lambda_layers: base-layer-node,lbdauth
     lambda_desc: ntm
     lambda_timeout: 30
-    lambda_memory_size: 128
+    lambda_memory_size: 512
     vpc_config:
       SubnetIds:
       - 'subnet-0260eab5acd58bc53'

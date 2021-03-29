@@ -1,6 +1,7 @@
 import * as fs from "fs"
 
-import { ConfigRegistered, JsonApiMain, Logger, MongoConfig, PostgresConfig, SF, Store } from "phnodelayer"
+// import { ConfigRegistered, JsonApiMain, Logger, MongoConfig, PostgresConfig, SF, Store } from "phnodelayer"
+import { ConfigRegistered, Logger, Main, PostgresConfig, SF, Store } from "phnodelayer"
 import {PostgresqlConf} from "../common/config"
 
 const convert2JsonApi = (type: string, record: any) => {
@@ -26,20 +27,20 @@ describe("convert mongodb 2 postgresql",  () => {
 
     const app = require("../../app.js")
     let mdb = null
-    beforeEach(async () => {
-        Logger.debug("before......")
-        const conf = new MongoConfig("mongodb", "mongo", "", "", "localhost", 27017, "pharbers-tm")
-        const postgresConf = new PostgresConfig(PostgresqlConf.entry, PostgresqlConf.user,
-            PostgresqlConf.password, PostgresqlConf.url,
-            PostgresqlConf.port, PostgresqlConf.db)
-        ConfigRegistered.getInstance.registered(conf).registered(postgresConf)
-        mdb = SF.getInstance.get(Store.Mongo)
-        await mdb.open()
-    })
-    afterEach(async () => {
-        Logger.debug("after......")
-        await mdb.close()
-    })
+    // beforeEach(async () => {
+    //     Logger.debug("before......")
+    //     const conf = new MongoConfig("mongodb", "mongo", "", "", "localhost", 27017, "pharbers-tm")
+    //     const postgresConf = new PostgresConfig(PostgresqlConf.entry, PostgresqlConf.user,
+    //         PostgresqlConf.password, PostgresqlConf.url,
+    //         PostgresqlConf.port, PostgresqlConf.db)
+    //     ConfigRegistered.getInstance.registered(conf).registered(postgresConf)
+    //     mdb = SF.getInstance.get(Store.Mongo)
+    //     await mdb.open()
+    // })
+    // afterEach(async () => {
+    //     Logger.debug("after......")
+    //     await mdb.close()
+    // })
 
     // test("convert evaluation 2 postgresql", async () => {
     //     Logger.debug("Run ......")

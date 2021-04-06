@@ -1,6 +1,7 @@
 import AWS from "aws-sdk"
 import S3 from "aws-sdk/clients/s3"
 import fortune from "fortune"
+import * as fs from "fs"
 import { SF, Store } from "phnodelayer"
 import { ConfigRegistered, PostgresConfig } from "phnodelayer"
 // @ts-ignore
@@ -16,12 +17,12 @@ export async function exportsHandler(event: Map<string, any>) {
     const suffix: string = ".xlsx"
     // @ts-ignore
     const body = JSON.parse(event.body).data.attributes
-    console.log(body)
+    // console.log(body)
     const projectId = body.projectId
     const phase = body.phase
     const uid = body.uid
     let isReport = body.isReport
-    console.log(projectId, phase, uid, isReport)
+    // 连接数据库
     const postgres = SF.getInstance.get(Store.Postgres)
     await postgres.open()
     // console.log("curProject result")
@@ -79,7 +80,7 @@ export async function exportsHandler(event: Map<string, any>) {
     /**
      * 1.找到当前project下的周期
      */
-    const curProjectObject = await postgres.find("project", "rR9lwp8e55q9izZdHdQZ")
+    const curProjectObject = await postgres.find("project", projectId)
     const curProject = JSON.parse(JSON.stringify(curProjectObject.payload.records))[0]
     // console.log(curProject)
     const currentPhase = parseInt(phase, 10)
@@ -115,7 +116,6 @@ export async function exportsHandler(event: Map<string, any>) {
     let headers: Array<Array<string | number>> = []
     // const proposalCase = curProposal.case
     const proposalCase = "tm"
-    isReport = false
     if (isReport) {
         // @ts-ignore
         if (proposalCase === "ucb") {
@@ -401,17 +401,7 @@ export async function exportsHandler(event: Map<string, any>) {
         Title: jobId + suffix,
     }
     XLSX.utils.book_append_sheet(workbook, worksheet, "TM-Export") // append the sheet to the workbook
-    XLSX.writeFile(workbook,  jobId + suffix)
-    // // 获取数据
-    // const excelBuffer = await XLSX.readFile(jobId + suffix)
-    //
-    // // 解析数据
-    // const result = XLSX.read(excelBuffer, {
-    //     type: "buffer",
-    //     cellHTML: false,
-    // })
-    //
-    // console.log("TCL: result", result)
+    XLSX.writeFile(workbook,  jobId + suffix) // 此时会在本地生成一个excel文件
 
     /**
      * aws s3 upload
@@ -424,14 +414,45 @@ export async function exportsHandler(event: Map<string, any>) {
     AWS.config.update( credentials )
     const s3 = new AWS.S3({apiVersion: "2006-03-01"})
     const bucketName = "ph-origin-files"
-    // console.log(localPath + jobId + suffix)
     const fileKey = `export/${ uid }/${ jobId + suffix }`
+    const readFile = require("util").promisify(fs.readFile)
+    async function run(filePath) {
+        try {
+            // tslint:disable-next-line:no-shadowed-variable
+            const fr = await readFile(filePath)
+            return fr
+        } catch (err) {
+            console.log("Error", err)
+        }
+    }
+    // tslint:disable-next-line:only-arrow-functions no-shadowed-variable
+    // fs.readFile(jobId + suffix, function(err, data) {
+    //     console.log(data)
+    //     uploadData = data
+    //     if (err) { throw err }
+    //     uploadFileParams = {
+    //         Bucket: bucketName,
+    //         Key: fileKey,
+    //         // Body: Buffer.from(JSON.stringify(workbook), "binary")
+    //         Body: data
+    //     }
+    //     console.log(uploadFileParams)
+    //     // tslint:disable-next-line:no-shadowed-variable only-arrow-functions
+    //     s3.putObject(uploadFileParams, function(err, data) {
+    //         if (err) {
+    //             console.log(err)
+    //         } else {
+    //             console.log("Successfully uploaded data to myBucket/myKey")
+    //         }
+    //     })
+    // })
+    const uploadData = await run(jobId + suffix)
     const uploadFileParams = {
         Bucket: bucketName,
         Key: fileKey,
-        Body: Buffer.from(JSON.stringify(workbook), "binary")
+        Body: uploadData
     }
-    const response = await s3.upload(uploadFileParams, ).promise()
+    const response = await s3.upload(uploadFileParams).promise()
     return {
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         status: 200,

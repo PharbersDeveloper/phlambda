@@ -16,7 +16,7 @@ export async function exportsHandler(event: Map<string, any>) {
     const exportDir: string = "tm-export/"
     const suffix: string = ".xlsx"
     // @ts-ignore
-    const body = JSON.parse(event.body).data.attributes
+    const body = JSON.parse(event.body)
     // console.log(body)
     const projectId = body.projectId
     const phase = body.phase

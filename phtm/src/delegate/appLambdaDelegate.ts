@@ -1,4 +1,3 @@
-// import { identify } from "phauthlayer"
 import { ConfigRegistered, Logger, Main, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 import { PostgresqlConf } from "../common/config"
 import { callRHandler } from "../handler/callRHandler"
@@ -19,11 +18,5 @@ export default class AppLambdaDelegate {
             return await exportsHandler(event)
         }
         return Main(event)
-        // ConfigRegistered.getInstance.registered(postgresConf)
-        // const dbIns = SF.getInstance.get(Store.Postgres)
-        // // await dbIns.open()
-        // const result = await JsonApiMain({event, db: dbIns})
-        // await dbIns.close()
-        // return result
     }
 }

@@ -401,8 +401,7 @@ export async function exportsHandler(event: Map<string, any>) {
         Title: jobId + suffix,
     }
     XLSX.utils.book_append_sheet(workbook, worksheet, "TM-Export") // append the sheet to the workbook
-    XLSX.writeFile(workbook,  jobId + suffix) // 此时会在本地生成一个excel文件
-
+    XLSX.writeFile(workbook,  "/tmp/" + jobId + suffix) // 此时会在本地生成一个excel文件
     /**
      * aws s3 upload
      */
@@ -446,13 +445,14 @@ export async function exportsHandler(event: Map<string, any>) {
     //         }
     //     })
     // })
-    const uploadData = await run(jobId + suffix)
+    const uploadData = await run("/tmp/" + jobId + suffix)
     const uploadFileParams = {
         Bucket: bucketName,
         Key: fileKey,
         Body: uploadData
     }
     const response = await s3.upload(uploadFileParams).promise()
+    await postgres.close()
     return {
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         status: 200,

@@ -17,7 +17,6 @@ export async function exportsHandler(event: Map<string, any>) {
     const suffix: string = ".xlsx"
     // @ts-ignore
     const body = JSON.parse(event.body)
-    // console.log(body)
     const projectId = body.projectId
     const phase = body.phase
     const uid = body.uid
@@ -108,14 +107,14 @@ export async function exportsHandler(event: Map<string, any>) {
     /**
      * 5.获取当前的proposal下所有参与的resources
      */
-    const resIds = curProposal.products
-    const resourcesObject = await postgres.find("product", prodIds)
+    const resIds = curProposal.resources
+    // console.log("resIds",resIds)
+    const resourcesObject = await postgres.find("resource", resIds)
     const resources = JSON.parse(JSON.stringify(resourcesObject.payload.records))
-    // console.log(resources)
+    // console.log("resources",resources)
     let unSortData: any[] = []
     let headers: Array<Array<string | number>> = []
-    // const proposalCase = curProposal.case
-    const proposalCase = "tm"
+    const proposalCase = curProposal.case
     if (isReport) {
         // @ts-ignore
         if (proposalCase === "ucb") {
@@ -131,16 +130,16 @@ export async function exportsHandler(event: Map<string, any>) {
          * 6. 从数据库中拉取数据Report
          */
         // tslint:disable-next-line:max-line-length
-        const reportsObject = await postgres.find("report", null, { or: { projectId, proposalId: proposalId.toString()}, match: {category: "Hospital"}, range: {phase: [0, currentPhase]}, sort: {phase: true}})
+        const reportsObject = await postgres.find("report", null, { or: { projectId, proposalId: proposalId.toString()}, match: {category: "Hospital"}, range: {phase: [null, currentPhase]}, sort: {phase: true}})
         const reports = JSON.parse(JSON.stringify(reportsObject.payload.records))
         // tslint:disable-next-line:max-line-length
-        const presetsObject = await postgres.find("preset", null, { or: { projectId, proposalId: proposalId.toString()}, match: {category: 8}, range: {phase: [0, currentPhase]}})
+        const presetsObject = await postgres.find("preset", null, { or: { projectId, proposalId: proposalId.toString()}, match: {category: 8}, range: {phase: [null, currentPhase]}})
         const presets = JSON.parse(JSON.stringify(presetsObject.payload.records))
         unSortData = reports.map( (x, index) => {
-            const hospital = hospitals.find((h) => h.id === x.hospital.toString())
+            const hospital = hospitals.find((h) => h.id === x.hospital ? x.hospital.toString() : "")
             const tmprid = x.resource ? x.resource.toString() : ""
             const resource = resources.find((r) => r.id === tmprid)
-            const product = products.find((p) => p.id === x.product.toString())
+            const product = products.find((p) => p.id === x.product ? x.product.toString() : "")
 
             const condi = (pp) => {
                 if (x.phase < 0) {
@@ -250,9 +249,9 @@ export async function exportsHandler(event: Map<string, any>) {
             } else if (proposalCase === "tm") {
                 return [
                     pss, // 0
-                    hospital.position,
-                    hospital.name, // 2
-                    hospital.level,
+                    hospital ? hospital.position : "",
+                    hospital ? hospital.name : "", // 2
+                    hospital ? hospital.level : "",
                     resource ? resource.name : "未分配",
                     product ? product.name : "",
                     potentialOrPatient, // 7
@@ -280,7 +279,7 @@ export async function exportsHandler(event: Map<string, any>) {
             const phaseAnsIds = allPeriods[i].answers.map( (x) => {
                 return x
             } )
-            const phaseAnswersObject = await postgres.find("answer", null, { or: { phaseAnsIds }})
+            const phaseAnswersObject = await postgres.find("answer", null, { or: { phaseAnsIds }, match: {category: "Business"}})
             const phaseAnswers = JSON.parse(JSON.stringify(phaseAnswersObject.payload.records))
             // console.log("phaseAnswers" + i)
             // console.log(phaseAnswers)

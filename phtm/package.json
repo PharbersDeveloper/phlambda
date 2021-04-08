@@ -32,6 +32,7 @@
     "ts-jest": "^26.4.1",
     "tslint": "^5.18.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.1"
+    "typescript": "^3.3.1",
+    "@types/aws-sdk": "^2.7.0"
   }
 }

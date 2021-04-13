@@ -93,9 +93,9 @@ def lambda_handler(event, context):
     addressees = event['addressees']
     subject = event['subject']
     content = event['content'] 
-    content_type = event['content_type']
+    content_type = event.get("content_type", "plain")
     sender_name = event.get("sender_name", DEFAULT_SENDER_NAME)
-    attach_files = event['attach_files']
+    attach_files = event.get("attach_files", None)
     
     send_email(
         addressees=addressees,

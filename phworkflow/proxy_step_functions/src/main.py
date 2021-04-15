@@ -5,27 +5,23 @@ def lambda_handler(event, context):
     sfn = Sfn()
     if event['policy'] == 'CreateAndRun':
         create_response = sfn.create_sfn(event)
-        print(create_response)
         machine_arn = create_response.get('stateMachineArn')
         event['machine_arn'] = machine_arn
-        run_response = sfn.run_sfn(event)
-        print(run_response)
+        sfn.run_sfn(event)
     elif event['policy'] == 'Create':
-        response = sfn.create_sfn(event)
-        print(response)
+        sfn.create_sfn(event)
     elif event['policy'] == 'Run':
-        response = sfn.run_sfn(event)
-        print(response)
+        sfn.run_sfn(event)
 
 
 if __name__ == '__main__':
 
     event = {
-        "policy": "Run",
-        "machine_arn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:hbzhao_test",
-        "create_machine_name": "hbzhao_test",
-        "roleArn": "arn:aws-cn:iam::444603803904:role/Pharbers-IoC-Maintainer",
-        "type": "STANDARD",
+        "policy": "CreateAndRun",
+        "machine_name": "hbzhao_test",
+        "machine_input": {
+            "clusterId": "j-1U72768ECOHFD"
+        },
         "definition": {
             "Comment": "An example of the Amazon States Language for running jobs on Amazon EMR",
             "StartAt": "Run first step hbzhao",
@@ -34,7 +30,7 @@ if __name__ == '__main__':
                     "Type": "Task",
                     "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
                     "Parameters": {
-                        "ClusterId": "j-311Y2HBZW2J3O",
+                        "ClusterId.$": "$.clusterId",
                         "Step": {
                             "Name": "My first EMR step",
                             "ActionOnFailure": "CONTINUE",
@@ -63,7 +59,7 @@ if __name__ == '__main__':
                     "Type": "Task",
                     "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
                     "Parameters": {
-                        "ClusterId": "j-311Y2HBZW2J3O",
+                        "ClusterId.$": "$.clusterId",
                         "Step": {
                             "Name": "My second EMR step",
                             "ActionOnFailure": "CONTINUE",

@@ -1,8 +1,8 @@
 {
-  "body": "{\"data\": {\"type\": \"reports\",\"attributes\": {\"projectId\": \"rR9lwp8e55q9izZdHdQZ\",\"phase\": \"1\", \"isReport\": \"true\", \"uid\": \"c89b8123-a120-498f-963c-5be102ee9082\"}}}",
+  "body": "",
   "resource": "/offweb/{type}",
   "path": "/offweb",
-  "httpMethod": "POST",
+  "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },

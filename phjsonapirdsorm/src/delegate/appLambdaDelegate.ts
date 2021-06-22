@@ -16,7 +16,8 @@ export default class AppLambdaDelegate {
         }
 
         const pg = new PostgresConfig("offweb", "pharbers", "Abcde196125", "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn", 5432, "phoffweb")
-        // const redis = new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")
+        // const redis =
+        // new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")
         // ConfigRegistered.getInstance.registered(pg).registered(redis)
         // const rds = SF.getInstance.get(Store.Redis)
         // await rds.open()

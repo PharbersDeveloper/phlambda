@@ -2,6 +2,7 @@ import { identify } from "phauthlayer"
 import { ConfigRegistered, Logger, Main, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
 import { modelConvert } from "../handler/modelConvertHandler"
 import { modelExport } from "../handler/modelExportHandler"
+import { modelExportOffwebExcel } from "../handler/modelExportOffwebExcel"
 
 export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
@@ -13,6 +14,7 @@ export default class AppLambdaDelegate {
         if (event.pathParameters.type === "export") {
             return await modelExport(event)
         }
+
         const pg = new PostgresConfig("offweb", "pharbers", "Abcde196125", "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn", 5432, "phoffweb")
         // const redis = new RedisConfig("token", "", "", "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", 6379, "0")
         // ConfigRegistered.getInstance.registered(pg).registered(redis)
@@ -31,6 +33,10 @@ export default class AppLambdaDelegate {
         // }
         // return flag
         ConfigRegistered.getInstance.registered(pg)
+        // @ts-ignore
+        if (event.pathParameters.type === "exports") {
+            return await modelExportOffwebExcel(event)
+        }
         return await Main(event)
     }
 }

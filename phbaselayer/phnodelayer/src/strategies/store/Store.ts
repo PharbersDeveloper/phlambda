@@ -25,29 +25,30 @@ export class Store implements IStore {
         }
     }
 
-    close(): void {
-        throw new Error("super not impl close")
+    async open() {
+        await this.store.connect()
     }
 
-    create(type: string, records: any, include?: any, meta?: any): Promise<any> {
-        throw new Error("super not impl create")
+    async close() {
+        await this.store.disconnect()
     }
 
-    delete(type: string, ids: any, include?: any, meta?: any): Promise<any> {
-        throw new Error("super not impl delete")
+    async create(type: string, records: any, include?: any, meta?: any): Promise<any> {
+        return await this.store.create(type, records, include, meta)
     }
 
-    find(type: string, ids?: any, options?: any, include?: any, meta?: any): Promise<any> {
-        throw new Error("super not impl find")
+    async delete(type: string, ids: any, include?: any, meta?: any): Promise<any> {
+        return await this.store.delete(type, ids, include, meta)
     }
 
-    open(): void {
-        throw new Error("super not impl open")
+    async find(type: string, ids?: any, options?: any, include?: any, meta?: any): Promise<any> {
+        return await this.store.find(type, ids, options, include, meta)
     }
 
-    update(type: string, updates: any, include?: any, meta?: any): Promise<any> {
-        throw new Error("super not impl update")
+    async update(type: string, updates: any, include?: any, meta?: any): Promise<any> {
+        return await this.store.update(type, updates, include, meta)
     }
+
 }
 
 

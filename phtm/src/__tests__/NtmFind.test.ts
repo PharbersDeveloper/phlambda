@@ -181,6 +181,22 @@ const validation = jest.fn(() => {
     return event
 })
 
+const projectExport = jest.fn(() => {
+    const event = JSON.parse(fs.readFileSync("../events/ntm/event_ntm_post_export.json", "utf8"))
+    event.path = "/ntm/projects"
+    event.httpMethod = "POST"
+    event.pathParameters = {
+        type: "export"
+    }
+    return event
+})
+
+test("Find projectExport", async () => {
+    const app = require("../../app.js")
+    const result = await app.lambdaHandler(new projectExport(), undefined)
+    console.log(result)
+}, 1000 * 60)
+
 test("Find validation", async () => {
     const app = require("../../app.js")
     const result = await app.lambdaHandler(new validation(), undefined)
@@ -190,7 +206,12 @@ test("Find validation", async () => {
 test("Find usableProposal", async () => {
     const app = require("../../app.js")
     const result = await app.lambdaHandler(new usableProposal(), undefined)
-    console.info(result.body)
+    expect(result.statusCode).toBe(200)
+}, 1000 * 60)
+
+test("Find images", async () => {
+    const app = require("../../app.js")
+    const result = await app.lambdaHandler(new image(), undefined)
     expect(result.statusCode).toBe(200)
 }, 1000 * 60)
 

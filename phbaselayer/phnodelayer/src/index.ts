@@ -27,10 +27,9 @@ export const JsonApiMain = async ({
     db: any,
 } = {}) => {
     let result = null
-    let del = null
 
     try {
-        del = new App()
+        const del = new App()
         del.prepare(db)
         if (event !== null && event !== undefined) {
             Logger.debug("开始执行请求")

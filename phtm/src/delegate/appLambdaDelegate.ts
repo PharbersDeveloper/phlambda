@@ -1,29 +1,22 @@
-// import { identify } from "phauthlayer"
-import { ConfigRegistered, JsonApiMain, Logger, MongoConfig, RedisConfig, SF, Store } from "phnodelayer"
-import { MongoConf } from "../common/config"
+import { ConfigRegistered, Logger, Main, PostgresConfig, RedisConfig, SF, Store } from "phnodelayer"
+import { PostgresqlConf } from "../common/config"
+import { callRHandler } from "../handler/callRHandler"
+import { exportsHandler } from "../handler/exportsHandler"
 
 export default class AppLambdaDelegate {
-    public async exec(event: Map<string, any>) {
-        Logger.info("Run")
-
-        const mongoConf = new MongoConfig(
-            "mongodb",
-            MongoConf.entry,
-            MongoConf.user,
-            MongoConf.password,
-            MongoConf.url,
-            MongoConf.port,
-            MongoConf.db,
-            1,
-            1000,
-            1000,
-            MongoConf.other
-        )
-        ConfigRegistered.getInstance.registered(mongoConf)
-        const dbIns = SF.getInstance.get(Store.Mongo)
-        await dbIns.open()
-        const result = await JsonApiMain({event, db: dbIns})
-        await dbIns.close()
-        return result
+    async exec(event: Map<string, any>) {
+        const postgresConf = new PostgresConfig(PostgresqlConf.entry, PostgresqlConf.user,
+            PostgresqlConf.password, PostgresqlConf.url,
+            PostgresqlConf.port, PostgresqlConf.db, 1, 1000 * 10, 1000 * 10)
+        ConfigRegistered.getInstance.registered(postgresConf)
+        // @ts-ignore
+        if (event.pathParameters.type === "callR") {
+            return await callRHandler(event)
+        }
+        // @ts-ignore
+        if (event.pathParameters.type === "export") {
+            return await exportsHandler(event)
+        }
+        return Main(event)
     }
 }

@@ -1,7 +1,7 @@
 import fortune from "fortune"
 import {Http} from "../common/http"
 
-export async function modelConvert(event: Map<string, any>) {
+export async function entryModelConvert(event: Map<string, any>) {
     // @ts-ignore
     const version = JSON.parse(event.body).version
     const { errors: { BadRequestError } } = fortune

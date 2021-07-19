@@ -1,4 +1,9 @@
+import fortune from "fortune"
+import { Logger, SF, Store } from "phnodelayer"
+import { Http } from "../common/http"
+
 class Entry {
+
     public model: any = {
         asset: {
             name: String,
@@ -68,6 +73,69 @@ class Entry {
             modified: Date,
             description: String,
         },
+        productcategory: {
+            category: String,
+            type: String,
+            level: Number,
+            value: String,
+            description: String,
+            version: String,
+            products: { link: "product", isArray: true, inverse: "category" },
+        },
+        productrelationship: {
+            category: String,
+            type: String,
+            value: String,
+            version: String,
+            products: { link: "product", isArray: true, inverse: "packId" },
+        },
+        lexicon: {
+            category: String,
+            type: String,
+            encode: Number,
+            value: String,
+            version: String,
+        },
+        product: {
+            moleName: String,
+            prodDesc: String,
+            prodNameCh: String,
+            pack: String,
+            pckDesc: String,
+            dosage: String,
+            contains: { link: "molespec", isArray: true, inverse: "products" },
+            spec: String,
+            mnfId: { link: "manufacturer", inverse: "products" },
+            category: { link: "productcategory", isArray: true, inverse: "products" },
+            packId: { link: "productrelationship", inverse: "products" },
+            events: String,
+        },
+        molespec: {
+            products: {link: "product", isArray: true, inverse: "contains"},
+            type: String,
+            moleName: String,
+            quantity: String,
+            unit: String,
+        },
+        manufacturer: {
+            products: {link: "product", isArray: true, inverse: "mnfId"},
+            mnfNameCh: String,
+            mnfType: String,
+            mnfTypeName: String,
+            mnfTypeNameCh: String,
+            corpId: String,
+            corpNameEn: String,
+            corpNameCh: String,
+            location: Array(String),
+            version: String
+        },
+        description: {
+            name: String,
+            source: String,
+            format: String,
+            createTime: Date,
+            version: String
+        },
         // dbSource: {
         //     dbType: String,
         //     url: String,
@@ -84,7 +152,8 @@ class Entry {
             asset: [ this.hooksDate],
             dataSet: [ this.hooksDate ],
             dataSetSample: [ this.hooksDate ],
-            job: [ this.hooksDate ]
+            job: [ this.hooksDate ],
+            description: [ this.descHooksDate ]
         }
     }
 
@@ -104,6 +173,22 @@ class Entry {
         }
     }
 
+    protected async descHooksDate(context, record, update) {
+        const { request: { method, type, meta: { language } } } = context
+        const { errors: { BadRequestError } } = fortune
+        switch (method) {
+            case "create":
+                if (type === "description") {
+                    const airflowRunDagUrl = `http://192.168.112.226:30086/api/v1/dags/dw_db2dw/dagRuns`
+                    const parm = {version: record.version}
+                    const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
+                    if (res.status !== 200) { throw new BadRequestError(res.statusText) }
+                }
+                const date = new Date()
+                record.createTime = date
+                return record
+        }
+    }
 }
 
 export default Entry

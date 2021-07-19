@@ -1,6 +1,6 @@
 
 class Ntm {
-    public model: any = {
+    model: any = {
         answer: {
             category: String, // todo
             salesTarget: Number,
@@ -19,9 +19,10 @@ class Ntm {
             clientManagementTime: Number,
             kpiAnalysisTime: Number,
             teamMeetingTime: Number,
-            resource: { link: "resource", inverse: "answerResource" },
-            product: { link: "product", inverse: "answerProduct" },
-            target: { link: "hospital", inverse: "answerHospital" },
+            periodAnswers: {link: "period", inverse: "answers"},
+            resource: { link: "resource", inverse: "answerResources" },
+            product: { link: "product", inverse: "answerProducts" },
+            target: { link: "hospital", inverse: "answerHospitals" },
         },
         evaluation: {
             proposalEvaluation: { link: "proposal", inverse: "evaluations" },
@@ -49,11 +50,13 @@ class Ntm {
             manageTeam: Number
         },
         hospital: {
-            answerHospital: { link: "answer", inverse: "target" },
+            answerHospitals: { link: "answer", isArray: true, inverse: "target" },
             avatar: { link: "image", inverse: "hospitalAvatar" },
             presetHospital: { link: "preset", inverse: "hospital" },
             proposalTargets: { link: "proposal", inverse: "targets" },
-            reportHospital: { link: "report", inverse: "hospital" },
+            reportHospitals: { link: "report", isArray: true, inverse: "hospital" },
+            policies: {link: "policy", isArray: true, inverse: "hospitalPolicies"},
+            region: {link: "region", inverse: "hospitalRegion"},
             name: String,
             describe: String,
             regtime: String,
@@ -62,7 +65,7 @@ class Ntm {
             avatarPath: String,
             category: String,
             level: String,
-            docterNumber: Number,
+            doctorNumber: Number,
             bedNumber: Number,
             income: Number,
             spaceBelongs: String,
@@ -70,15 +73,12 @@ class Ntm {
             selfPayPercentage: Number,
             patientNum: Number,
             patientNumA: Number,
-            patientNumB: Number,
-            policies: {link: "policy", isArray: true, inverse: "hospitalPolicies"},
-            region: {link: "region", inverse: "hospitalRegion"},
+            patientNumB: Number
         },
         image: {
             hospitalAvatar: { link: "hospital", inverse: "avatar" },
             levelRankImg: {link: "level", inverse: "rankImg"},
             levelAwardImg: {link: "level", inverse: "awardImg"},
-            periodAnswers: {link: "period", inverse: "answers"},
             productAvatar: {link: "product", inverse: "avatar"},
             resourceAvatar: {link: "resource", inverse: "avatar"},
             img: String,
@@ -91,11 +91,11 @@ class Ntm {
             awardImg: {link: "image", inverse: "levelAwardImg"},
         },
         period: {
+            answers: {link: "answer", isArray: true, inverse: "periodAnswers"},
+            reports: {link: "report", isArray: true, inverse: "periodReports"},
             projectPeriods: {link: "project", inverse: "periods"},
             phase: Number,
-            name: String,
-            answers: {link: "image", isArray: true, inverse: "periodAnswers"},
-            reports: {link: "report", isArray: true, inverse: "periodReports"},
+            name: String
         },
         policy: {
             hospitalPolicies: {link: "hospital", inverse: "policies"},
@@ -103,13 +103,13 @@ class Ntm {
             describe: String,
         },
         preset: {
-            proposal: {link: "proposal", inverse: "presetProposal"},
+            proposal: {link: "proposal", inverse: "presetProposals"},
             proposalId: String,
             projectId: String,
             periodId: String,
-            product: {link: "product", inverse: "presetProduct"},
+            product: {link: "product", inverse: "presetProducts"},
             hospital: {link: "hospital", inverse: "presetHospital"},
-            resource: {link: "resource", inverse: "presetResource"},
+            resource: {link: "resource", inverse: "presetResources"},
             phase: Number,
             category: Number,
             lastQuota: Number,
@@ -134,10 +134,10 @@ class Ntm {
             initBudget: Number,
         },
         product: {
-            answerProduct: {link: "answer", inverse: "product"},
-            presetProduct: {link: "preset", inverse: "product"},
-            proposalProducts: {link: "proposal", inverse: "products"},
-            reportProduct: {link: "report", inverse: "product"},
+            answerProducts: {link: "answer", isArray: true, inverse: "product"},
+            presetProducts: {link: "preset", isArray: true, inverse: "product"},
+            proposalProduct: {link: "proposal", inverse: "products"},
+            reportProducts: {link: "report", isArray: true, inverse: "product"},
             name: String,
             productCategory: String,
             medicateCategory: String,
@@ -161,7 +161,7 @@ class Ntm {
         },
         project: {
             accountId: String,
-            proposal: {link: "proposal", inverse: "projectProposal"},
+            proposal: {link: "proposal", inverse: "projectProposals"},
             current: Number,
             pharse: Number,
             status: Number,
@@ -172,21 +172,21 @@ class Ntm {
             finals: {link: "final", isArray: true, inverse: "projectFinals"},
         },
         proposal: {
-            presetProposal: {link: "preset", inverse: "proposal"},
-            projectProposal: {link: "project", inverse: "proposal"},
-            usableProposalProposal: {link: "usableProposal", inverse: "proposal"},
+            presetProposals: {link: "preset", isArray: true, inverse: "proposal"},
+            projectProposals: {link: "project", isArray: true, inverse: "proposal"},
+            usableProposalProposals: {link: "usableProposal", isArray: true, inverse: "proposal"},
+            products: {link: "product", isArray: true, inverse: "proposalProduct"},
+            targets: {link: "hospital", isArray: true, inverse: "proposalTargets"},
+            resources: {link: "resource", isArray: true, inverse: "proposalResource"},
+            evaluations: {link: "evaluation", isArray: true, inverse: "proposalEvaluation"},
+            quota: {link: "requirement", inverse: "proposalQuota"},
+            validations: {link: "validation", isArray: true, inverse: "proposalValidations"},
             name: String,
             describe: String,
             totalPhase: Number,
             case: String,
             periodStep: String,
             periodBase: Number,
-            products: {link: "product", isArray: true, inverse: "proposalProducts"},
-            targets: {link: "hospital", isArray: true, inverse: "proposalTargets"},
-            resources: {link: "resource", isArray: true, inverse: "proposalResources"},
-            evaluations: {link: "evaluation", isArray: true, inverse: "proposalEvaluation"},
-            quota: {link: "requirement", inverse: "proposalQuota"},
-            validations: {link: "validation", isArray: true, inverse: "proposalValidations"}
         },
         region: {
             hospitalRegion: {link: "hospital", inverse: "region"},
@@ -198,14 +198,14 @@ class Ntm {
             patientNum: Number,
         },
         report: {
+            hospital: {link: "hospital", inverse: "reportHospitals"},
+            product: {link: "product", inverse: "reportProducts"},
+            resource: {link: "resource", inverse: "reportResources"},
             periodReports: {link: "period", inverse: "reports"},
             category: String, // todo
             proposalId: String,
             projectId: String,
             periodId: String,
-            hospital: {link: "hospital", inverse: "reportHospital"},
-            product: {link: "product", inverse: "reportProduct"},
-            resource: {link: "resource", inverse: "reportResource"},
             phase: Number,
             region: String,
             potential: Number,
@@ -234,10 +234,11 @@ class Ntm {
             totalBudget: Number
         },
         resource: {
-            answerResource: {link: "answer", inverse: "resource"},
-            presetResource: {link: "preset", inverse: "resource"},
-            proposalResources: {link: "proposal", inverse: "resources"},
-            reportResource: {link: "report", inverse: "resource"},
+            answerResources: {link: "answer", isArray: true, inverse: "resource"},
+            presetResources: {link: "preset", isArray: true, inverse: "resource"},
+            proposalResource: {link: "proposal", inverse: "resources"},
+            reportResources: {link: "report", isArray: true, inverse: "resource"},
+            avatar: {link: "image", inverse: "resourceAvatar"},
             name: String,
             gender: Number,
             age: Number,
@@ -248,12 +249,11 @@ class Ntm {
             experience: Number,
             totalTime: Number,
             entryTime: Number,
-            avatar: {link: "image", inverse: "resourceAvatar"},
             avatarPath: String,
         },
         usableProposal: {
             accountId: String,
-            proposal: {link: "proposal", inverse: "usableProposalProposal"},
+            proposal: {link: "proposal", inverse: "usableProposalProposals"},
         },
         validation: {
             proposalValidations: {link: "proposal", inverse: "validations"},
@@ -265,7 +265,6 @@ class Ntm {
             rightValue: String,
         }
     }
-
 }
 
 export default Ntm

@@ -5,6 +5,9 @@
         "lib": [
             "es7"
         ],
+        "types": [
+            "jest"
+        ],
         "target": "es6",
         "skipLibCheck": true,
         "noImplicitAny": false,
@@ -18,6 +21,9 @@
         "paths": {
             "*": [
                 "node_modules/*"
+            ],
+            "ramda": [
+                "location-of-types/npm-ramda-package/index"
             ]
         }
     },

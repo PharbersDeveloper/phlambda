@@ -5,18 +5,18 @@ import boto3
 def lambda_handler(event, context):
 
     step_client = boto3.client("stepfunctions")
-    arn = "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:hbzhao_1417318821241812932"
+    executionArn = event['executionArn']
 
     # 获取执行状态
     response = step_client.describe_execution(
-        executionArn=arn
+        executionArn=executionArn
     )
     execution_status = response['status']
 
     if not execution_status == "SUCCEEDED":
         # 获取执行的历史
         response = step_client.get_execution_history(
-            executionArn=arn,
+            executionArn=executionArn,
             maxResults=333,
             includeExecutionData=False
         )

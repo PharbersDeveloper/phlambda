@@ -1,0 +1,36 @@
+ph_get_execution_status:
+  metadata:
+    name: ph_get_execution_status
+    bucket: ph-platform
+    runtime: python3.8 # lambda funciton 会按照第一个使用， layer 全使用
+    desc: 获取step_execution_status
+  layer:
+    lib_path: .venv/lib/python3.8/site-packages
+    package_name: ph_get_execution_status-layer.zip
+    layer_path: ph_get_execution_status-layer.zip
+    layer_desc: 获取step_execution_status
+  lambda:
+    code_path: src
+    package_name: ph_get_execution_status-code.zip
+    lambda_path: ph_get_execution_status-code.zip
+    lambda_handler: src.main.lambda_handler
+    lambda_layers: ph_get_execution_status
+    lambda_desc: 获取step_execution_status
+    lambda_timeout: 30
+    lambda_memory_size: 128
+#    vpc_config:
+#      SubnetIds:
+#      - 'subnet-0260eab5acd58bc53'
+#      - 'subnet-0e3daa88acef9b136'
+#      SecurityGroupIds:
+#      - 'sg-058404c2ad02dcbb9'
+#      - 'sg-09f5205a1194149ab'
+    lambda_env:
+      DEFAULT_ROLE_ARN: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+    lambda_tag:
+      language: python3.8
+  gateway:
+    rest_api_id: 2t69b7x032
+    api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
+    lambda_name: ph_get_execution_status
+    alias_version: current

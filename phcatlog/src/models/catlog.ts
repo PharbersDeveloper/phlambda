@@ -3,26 +3,21 @@ class Catlog {
     public model: any = {
         database: {
             name: String,
-            tables: { link: "table", isArray: true, inverse: "db" },
+            // tables: { link: "table", isArray: true, inverse: "db" },
             describe: String,
         },
         table: {
             name: String,
             schemas: Object,
-            db: { link: "database", inverse: "tables" },
-            partitions: { link: "partition", isArray: true, inverse: "tablePartition" },
-            info: { link: "basicInfo", isArray: false, inverse: "tableBasicInfo" }
-        },
-        basicInfo: {
-            tableBasicInfo: { link: "table", inverse: "info" },
+            describe: String,
             source: String,
             connect: String,
             deprecated: String,
-            modifyTime: String,
+            lastModifyTime: String,
             inputFormat: String,
             outputFormat: String,
             serdeLib: String,
-            serdeArguments: String,
+            serdeArguments: Object,
             sizeKey: String,
             objectCount: String,
             updateByCrawler: String,
@@ -31,12 +26,13 @@ class Catlog {
             averageRecordSize: String,
             crawlerSchemaDeserializerVersion: String,
             compressionType: String,
-            typeOfData: String
+            typeOfData: String,
+            // db: { link: "database", inverse: "tables" },
+            // partitions: { link: "partition", isArray: true, inverse: "tablePartition" },
         },
         partition: {
-            tablePartition: { link: "table", inverse: "partitions" },
-            field: String,
-            value: String,
+            // tablePartition: { link: "table", inverse: "partitions" },
+            schema: String,
             attribute: String
         }
     }

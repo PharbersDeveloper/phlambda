@@ -1,4 +1,11 @@
-import { GetDatabasesCommand, GlueClient } from "@aws-sdk/client-glue"
+import {
+    GetDatabasesCommand,
+    GetPartitionsCommand,
+    GetTableCommand,
+    GetTablesCommand,
+    GlueClient,
+    paginateGetDatabases } from "@aws-sdk/client-glue"
+
 export class AWsGlue {
     private client: any = null
 
@@ -16,17 +23,7 @@ export class AWsGlue {
         })
     }
 
-    public async getDataBases() {
-        const command = new GetDatabasesCommand({})
-        const result = await this.client.send(command)
-        return result.DatabaseList
-    }
-
-    public async getTables() {
-        return ""
-    }
-
-    public async getTable() {
-        return ""
+    public getClient() {
+        return this.client
     }
 }

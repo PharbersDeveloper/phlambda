@@ -1,7 +1,7 @@
 import fortune from "fortune"
 import {Http} from "../common/http"
 
-export async function modelExport(event: Map<string, any>) {
+export async function entryModelExport(event: Map<string, any>) {
     // @ts-ignore
     const eventBody = JSON.parse(event.body)
     const { errors: { BadRequestError } } = fortune
@@ -12,6 +12,5 @@ export async function modelExport(event: Map<string, any>) {
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         status: res.status,
         message: {message: "success"}
-
     }
 }

@@ -1,6 +1,6 @@
 {
   "body": "",
-  "resource": "/catlog/{edp}",
+  "resource": "/catlog/{type}",
   "path": "/catlog/partitions",
   "httpMethod": "GET",
   "isBase64Encoded": false,
@@ -9,7 +9,7 @@
     "filter[table]": "chemdata"
   },
   "pathParameters": {
-    "edp": "partitions"
+    "type": "partitions"
   },
   "stageVariables": {
     "baz": "qux"
@@ -55,7 +55,7 @@
       "user": null
     },
     "path": "/catlog/partitions",
-    "resourcePath": "/catlog/{edp}",
+    "resourcePath": "/catlog/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

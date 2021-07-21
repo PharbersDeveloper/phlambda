@@ -35,7 +35,12 @@ export default class GetGlueData {
                 name: table.Name,
                 source: table.Location,
                 schemas: table.StorageDescriptor.Columns.map((col) => {
-                    return { field: col.Name, type: col.Type }
+                    return {
+                        field: col.Name || "",
+                        type: col.Type || "",
+                        comment: col.Comment || "",
+                        parameters: col.Parameters || ""
+                    }
                 }),
                 describe: "",
                 connect: "",
@@ -54,6 +59,14 @@ export default class GetGlueData {
                 averageRecordSize: table.Parameters.averageRecordSize,
                 compressionType: table.Parameters.compressionType,
                 typeOfData: table.Parameters.typeOfData,
+                partitionKeys: table.PartitionKeys.map((partition) => {
+                    return {
+                        name: partition.Name || "",
+                        comment: partition.Comment || "",
+                        type: partition.Type || "",
+                        parameters: partition.Parameters || ""
+                    }
+                })
             }
         }
         const command = new GetTablesCommand({

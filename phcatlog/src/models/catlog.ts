@@ -27,6 +27,7 @@ class Catlog {
             crawlerSchemaDeserializerVersion: String,
             compressionType: String,
             typeOfData: String,
+            partitionKeys: Object,
             // db: { link: "database", inverse: "tables" },
             // partitions: { link: "partition", isArray: true, inverse: "tablePartition" },
         },

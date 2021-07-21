@@ -1,13 +1,13 @@
 {
   "body": "",
-  "resource": "/catlog/{edp}",
+  "resource": "/catlog/{type}",
   "path": "/catlog/databases",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "edp": "databases"
+    "type": "databases"
   },
   "stageVariables": {
     "baz": "qux"
@@ -53,7 +53,7 @@
       "user": null
     },
     "path": "/catlog/databases",
-    "resourcePath": "/catlog/{edp}",
+    "resourcePath": "/catlog/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

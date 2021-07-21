@@ -3,7 +3,7 @@ import Register from "./register"
 
 export default class ModelSerialize {
 
-    public serialize(model: string, data: any) {
+    serialize(model: string, data: any) {
         const entity = Register.getInstance.getEntity()
         const models = data.map((item) => entity.model[model] = item)
         const serializerIns = new Serializer(model, {

@@ -19,6 +19,7 @@
     "typescript": "^3.3.1"
   },
   "devDependencies": {
+    "phnodelayer": "1.0.6",
     "@types/node": "~10.17.24",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",

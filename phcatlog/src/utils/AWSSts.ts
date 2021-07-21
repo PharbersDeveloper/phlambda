@@ -1,7 +1,7 @@
 import {AssumeRoleCommand, STSClient} from "@aws-sdk/client-sts"
 
 export class AWSSts {
-    public async assumeRole(accessKeyId: string,
+    async assumeRole(accessKeyId: string,
                             secretAccessKey: string,
                             region: string = "cn-northwest-1",
                             roleArn: string = "arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles",

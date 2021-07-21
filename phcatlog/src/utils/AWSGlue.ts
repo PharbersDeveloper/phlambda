@@ -23,7 +23,7 @@ export class AWsGlue {
         })
     }
 
-    public getClient() {
+    getClient() {
         return this.client
     }
 }

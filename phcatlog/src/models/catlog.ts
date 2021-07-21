@@ -1,6 +1,6 @@
 
 class Catlog {
-    public model: any = {
+    model: any = {
         database: {
             name: String,
             // tables: { link: "table", isArray: true, inverse: "db" },
@@ -37,7 +37,7 @@ class Catlog {
         }
     }
 
-    public operations = {
+    operations = {
         hooks: {}
     }
 }

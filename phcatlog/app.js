@@ -24,7 +24,7 @@ const formatResponse = (content) => {
             }
         }
     } else {
-        objHeader = content.headers
+        objHeader = content.headers || {}
     }
 
     Object.assign(objHeader, corsHeader)

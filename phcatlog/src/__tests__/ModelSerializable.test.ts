@@ -7,23 +7,22 @@ import {AWsGlue} from "../utils/AWSGlue"
 import {AWSSts} from "../utils/AWSSts"
 
 test("Test jsonapi-serializer Library", async () => {
-    const sts = new AWSSts()
-    const result = await sts.assumeRole("AKIAWPBDTVEAI6LUCLPX",
-        "Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599")
-    const glueIns = new AWsGlue(result.AccessKeyId, result.SecretAccessKey, result.SessionToken)
-    const getGlueData = new GetGlueData()
-
-    const register = Register.getInstance
-    register.registerEntity("catlog")
-    register.registerFunction("database", getGlueData.getDataBases)
-    register.registerFunction("tables", getGlueData.getTables)
-    register.registerFunction("partitions", getGlueData.getPartitions)
-
-    const data = await register.getFunc("tables")(glueIns, "phdatacat")
-    const serialize = new ModelSerialize()
-    const res = serialize.serialize("tables", data)
-    console.info(JSON.stringify(res, null, "\t"))
-
+    // const sts = new AWSSts()
+    // const result = await sts.assumeRole("AKIAWPBDTVEAI6LUCLPX",
+    //     "Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599")
+    // const glueIns = new AWsGlue(result.AccessKeyId, result.SecretAccessKey, result.SessionToken)
+    // const getGlueData = new GetGlueData()
+    //
+    // const register = Register.getInstance
+    // register.registerEntity("catlog")
+    // register.registerFunction("database", getGlueData.getDataBases)
+    // register.registerFunction("tables", getGlueData.getTables)
+    // register.registerFunction("partitions", getGlueData.getPartitions)
+    //
+    // const data = await register.getFunc("database")(glueIns, "phdatacat")
+    // const serialize = new ModelSerialize()
+    // const res = serialize.serialize("database", data)
+    // console.info(JSON.stringify(res, null, "\t"))
 
     // const listDataBase = await glue.getDataBases()
     // const catlog = new Catlog()

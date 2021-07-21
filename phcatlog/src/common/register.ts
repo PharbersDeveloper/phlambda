@@ -7,23 +7,23 @@ export default class Register {
     private func: Map<string, any> = new Map()
     private constructor() {}
 
-    public registerEntity(entity: string) {
+    registerEntity(entity: string) {
         if (!this.entity) {
             this.entity = new (this.createModel(entity))()
         }
         return this
     }
 
-    public registerFunction(model: string, func: any) {
+    registerFunction(model: string, func: any) {
         this.func.set(model, func)
         return this
     }
 
-    public getEntity() {
+    getEntity() {
         return this.entity
     }
 
-    public getFunc(entity: string) {
+    getFunc(entity: string) {
         return this.func.get(entity)
     }
 

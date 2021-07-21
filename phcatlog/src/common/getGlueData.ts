@@ -6,7 +6,17 @@ import {
 
 export default class GetGlueData {
 
-    public async getDataBases(glueIns: any) {
+    private static async getTablePartitionKeys(glueIns: any, databaseName: string, tableName: string) {
+        const command = new GetTableCommand({
+            DatabaseName: databaseName,
+            Name: tableName
+        })
+
+        const result = await glueIns.getClient().send(command)
+        return result.Table.PartitionKeys
+    }
+
+    async getDataBases(glueIns: any) {
         const command = new GetDatabasesCommand({})
         const result = await glueIns.getClient().send(command)
         return result.DatabaseList.map((item) => {
@@ -18,7 +28,7 @@ export default class GetGlueData {
         }).filter((item) => item.name !== "default")
     }
 
-    public async getTables(glueIns: any, databaseName: string) {
+    async getTables(glueIns: any, databaseName: string) {
         function returnTableObject(table: any) {
             return {
                 id: table.DatabaseName +  table.Name,
@@ -53,8 +63,8 @@ export default class GetGlueData {
         return result.TableList.map((table) => returnTableObject(table))
     }
 
-    public async getPartitions(glueIns: any, databaseName: string, tableName: string) {
-        const partitionKeys = await this.getTablePartitionKeys(glueIns, databaseName, tableName)
+    async getPartitions(glueIns: any, databaseName: string, tableName: string) {
+        const partitionKeys = await GetGlueData.getTablePartitionKeys(glueIns, databaseName, tableName)
         const command = new GetPartitionsCommand({
             DatabaseName: databaseName,
             TableName: tableName
@@ -65,15 +75,5 @@ export default class GetGlueData {
             item.Values.forEach((val, idx) => { schema[partitionKeys[idx].Name] = val })
             return { id: (databaseName + tableName + index), schema, attribute: JSON.stringify(item.StorageDescriptor) }
         })
-    }
-
-    private async getTablePartitionKeys(glueIns: any, databaseName: string, tableName: string) {
-        const command = new GetTableCommand({
-            DatabaseName: databaseName,
-            Name: tableName
-        })
-
-        const result = await glueIns.getClient().send(command)
-        return result.Table.PartitionKeys
     }
 }

@@ -3,15 +3,20 @@ import boto3
 
 
 def lambda_handler(event, context):
-
+    body = json.loads(event['body'])
     step_client = boto3.client("stepfunctions")
-    executionArn = event['executionArn']
+    executionArn = body['executionArn']
 
     # 获取执行状态
     response = step_client.describe_execution(
         executionArn=executionArn
     )
     execution_status = response['status']
+
+    last_enter_event = {}
+    last_exited_event = {}
+    enter_steps = []
+    exited_steps = []
 
     if not execution_status == "SUCCEEDED":
         # 获取执行的历史
@@ -22,10 +27,6 @@ def lambda_handler(event, context):
         )
 
         # 如果是COMPLETE 不获取异常的step
-        last_enter_event = {}
-        last_exited_event = {}
-        enter_steps = []
-        exited_steps = []
 
         # 获取所有Enter的step
         for event in response['events']:
@@ -49,7 +50,10 @@ def lambda_handler(event, context):
                 enter_steps.remove(exited_step)
 
     return {
-        "execution_status": execution_status,
-        "steps": enter_steps
+        'statusCode': 200,
+        'body': json.dumps({
+            "execution_status": execution_status,
+            "steps": enter_steps
+        })
     }
 

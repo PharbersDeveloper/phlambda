@@ -14,8 +14,8 @@ export default class AppLambdaDelegate {
             const awsResponse = new ServerResponse(awsRequest)
 
             const sts = new AWSSts()
-            const result = await sts.assumeRole("AKIAWPBDTVEAI6LUCLPX",
-                "Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599")
+            const result = await sts.assumeRole(process.env.AccessKeyId,
+                process.env.SecretAccessKey)
             const glueIns = new AWsGlue(result.AccessKeyId, result.SecretAccessKey, result.SessionToken)
             const getGlueData = new GetGlueData()
 

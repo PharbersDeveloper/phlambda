@@ -9,7 +9,7 @@ import {
     Store
 } from "../index"
 import * as fs from "fs"
-import RedisStore from "../strategies/store/RedisStore";
+import RedisStore from "../strategies/store/RedisStore"
 
 test("Postgres DB Connect", async () => {
     const pg = new PostgresConfig(

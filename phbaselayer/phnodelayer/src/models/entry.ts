@@ -1,7 +1,7 @@
 
 class Entry {
     public model: any = {
-        test: {
+        asset: {
             name: String
         }
         // asset: {

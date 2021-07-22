@@ -44,6 +44,8 @@ export default class GetGlueData {
                 }),
                 describe: "",
                 connect: "",
+                category: table.StorageDescriptor.Parameters.classification,
+                location: table.StorageDescriptor.Location,
                 deprecated: table.Retention,
                 lastModifyTime: table.LastAccessTime,
                 inputFormat: table.StorageDescriptor.InputFormat,

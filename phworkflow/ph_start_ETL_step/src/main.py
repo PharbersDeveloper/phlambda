@@ -2,8 +2,8 @@ import json
 import boto3
 from src.snowflakeId import snowflake
 
-def lambda_handler(event, context):
 
+def lambda_handler(event, context):
     body = json.loads(event['body'])
     machine_input = {}
     executor = "executor"
@@ -38,8 +38,14 @@ def lambda_handler(event, context):
     executionArn = start_response['executionArn']
 
     return {
-        'statusCode': 200,
-        'body': json.dumps({
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST",
+        },
+        "body": json.dumps({
             "executionArn": executionArn
+
         })
     }

@@ -51,6 +51,11 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST",
+        },
         'body': json.dumps({
             "execution_status": execution_status,
             "steps": enter_steps

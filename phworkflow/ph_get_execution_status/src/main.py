@@ -3,6 +3,7 @@ import boto3
 
 
 def lambda_handler(event, context):
+    # 测试cicd
     body = json.loads(event['body'])
     step_client = boto3.client("stepfunctions")
     executionArn = body['executionArn']

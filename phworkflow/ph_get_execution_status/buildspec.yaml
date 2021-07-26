@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+        python: 3.8
+  build:
+    commands:
+      - aws cloudformation package --template-file template.yaml --s3-bucket ph-platform --output-template-file outputtemplate.yaml --s3-prefix 2020-11-11/cicd/ph-get-step-status/artifacts/
+artifacts:
+  type: zip
+  name: ph-get-step-status-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/ph-get-step-status/artifacts/
+

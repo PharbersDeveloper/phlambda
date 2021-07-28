@@ -32,7 +32,7 @@ export default class GetGlueData {
         function returnTableObject(table: any) {
             const partitionKeys = table.PartitionKeys.map((partition) => {
                 return {
-                    name: partition.Name,
+                    field: partition.Name,
                     type: partition.Type,
                     comment: partition.Comment || "",
                     parameters: partition.Parameters || ""
@@ -45,11 +45,7 @@ export default class GetGlueData {
                     comment: col.Comment || "",
                     parameters: col.Parameters || ""
                 }
-            }).concat(partitionKeys.map((item) => {
-                item["field"] = item.name
-                delete item.name
-                return item
-            }))
+            })
             return {
                 id: table.DatabaseName +  table.Name,
                 name: table.Name,

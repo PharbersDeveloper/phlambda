@@ -30,43 +30,38 @@ export default class GetGlueData {
 
     async getTables(glueIns: any, databaseName: string) {
         function returnTableObject(table: any) {
+            const partitionKeys = table.PartitionKeys.map((partition) => {
+                return {
+                    field: partition.Name,
+                    type: partition.Type,
+                    comment: partition.Comment || "",
+                    parameters: partition.Parameters || ""
+                }
+            })
+            const schemas = table.StorageDescriptor.Columns.map((col) => {
+                return {
+                    field: col.Name,
+                    type: col.Type,
+                    comment: col.Comment || "",
+                    parameters: col.Parameters || ""
+                }
+            })
             return {
                 id: table.DatabaseName +  table.Name,
                 name: table.Name,
                 source: table.Location,
-                schemas: table.StorageDescriptor.Columns.map((col) => {
-                    return {
-                        field: col.Name || "",
-                        type: col.Type || "",
-                        comment: col.Comment || "",
-                        parameters: col.Parameters || ""
-                    }
-                }),
-                describe: "",
+                partitionKeys ,
+                schemas,
+                describe: table.Description || "",
                 connect: "",
+                location: table.StorageDescriptor.Location,
                 deprecated: table.Retention,
-                lastModifyTime: table.LastAccessTime,
+                lastModifyTime: table.UpdateTime.getTime(),
                 inputFormat: table.StorageDescriptor.InputFormat,
                 outputFormat: table.StorageDescriptor.OutputFormat,
                 serdeLib: table.StorageDescriptor.SerdeInfo.SerializationLibrary,
                 serdeArguments: table.StorageDescriptor.SerdeInfo.Parameters,
-                sizeKey: table.Parameters.sizeKey,
-                objectCount: table.Parameters.objectCount,
-                updateByCrawler: table.Parameters.UPDATED_BY_CRAWLER,
-                crawlerSchemaSerializerVersion: table.Parameters.CrawlerSchemaSerializerVersion,
-                crawlerSchemaDeserializerVersion: table.Parameters.CrawlerSchemaDeserializerVersion,
-                recordCount: table.Parameters.recordCount,
-                averageRecordSize: table.Parameters.averageRecordSize,
-                compressionType: table.Parameters.compressionType,
-                typeOfData: table.Parameters.typeOfData,
-                partitionKeys: table.PartitionKeys.map((partition) => {
-                    return {
-                        name: partition.Name || "",
-                        comment: partition.Comment || "",
-                        type: partition.Type || "",
-                        parameters: partition.Parameters || ""
-                    }
-                })
+                tableAttributes: table.Parameters
             }
         }
         const command = new GetTablesCommand({

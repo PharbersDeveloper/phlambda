@@ -1,28 +1,27 @@
-import { IncomingMessage } from "http"
-import phLogger from "../logger/PhLogger"
 
-export default class AWSReq extends IncomingMessage {
+import PhLogger from "../logger/phLogger"
+import {IncomingMessage} from "http"
+
+export default class AWSRequest extends IncomingMessage {
     public protocol?: string
     public host?: string
-    public params?: object
-    public query?: object
-    public pagination: object
-    public body?: object
+    public params?: any
+    public query?: any
+    public pagination: any
+    public body?: any
     public queryStr?: string
+    public ids: any[]
 
-    constructor(event: object, projectName: string) {
-        // @ts-ignore
+    constructor(event: any, projectName: string) {
         super(event.body)
         this.aborted = false
-        // @ts-ignore
         this.httpVersion = event.requestContext.protocol.toString()
         if (this.httpVersion === undefined) {
             this.httpVersion = "HTTP/1.1"
         }
         this.httpVersionMajor = 1.1
         this.httpVersionMinor = 1.1
-        this.connection = null
-        // @ts-ignore
+        // this.connection = null
         const hds = event.headers
         if (hds.contentLength) {
             this.headers = {
@@ -32,7 +31,6 @@ export default class AWSReq extends IncomingMessage {
                 "transfer-encoding": hds.tranferEncoding,
             }
         } else {
-            // @ts-ignore
             const buffer = Buffer.from(event.body)
             this.headers = {
                 accept: hds.Accept,
@@ -42,32 +40,23 @@ export default class AWSReq extends IncomingMessage {
             }
         }
 
-        // @ts-ignore
         this.rawHeaders = event.headers
-        // @ts-ignore
         this.method = event.httpMethod
         this.protocol = this.httpVersion.substr(0, this.httpVersion.indexOf("/")).toLowerCase()
         this.host = hds.Host
-        // @ts-ignore
         this.params = event.pathParameters
         this.query = {}
         this.pagination = {}
 
-        // @ts-ignore
         const idsArr = event.multiValueQueryStringParameters ? event.multiValueQueryStringParameters["ids[]"] : []
-        // @ts-ignore
         this.ids = idsArr && idsArr.length > 0 ? idsArr : []
 
-        // @ts-ignore
         if (event.body) {
             try {
-                // @ts-ignore
                 this.body = JSON.parse(event.body)
             } catch (e) {
-                // @ts-ignore
                 if (event.body.includes("&") && this.method === "POST" && this.params.hasOwnProperty("edp") && this.params.edp === "token") {
                     const body = {}
-                    // @ts-ignore
                     for (const item of event.body.split("&")) {
                         const obj = item.split("=")
                         // .replace(/_(\w)/g, (all: any, letter: any) => letter.toUpperCase())
@@ -75,23 +64,20 @@ export default class AWSReq extends IncomingMessage {
                     }
                     this.body = body
                 } else {
-                    // @ts-ignore
                     this.body = event.body
                 }
             }
         }
 
-        // @ts-ignore
         this.processQueryStringParameters(event.queryStringParameters)
 
         if (this.queryStr.length) {
-            // @ts-ignore
             this.url = event.path.substr(event.path.indexOf(projectName) + projectName.length) + "?" + this.queryStr
         } else {
-            // @ts-ignore
             this.url = event.path.substr(event.path.indexOf(projectName) + projectName.length)
-            phLogger.info("url", this.url)
+            PhLogger.info("url", this.url)
         }
+
     }
 
     private processQueryStringParameters(queryStringParameters: any) {
@@ -100,8 +86,7 @@ export default class AWSReq extends IncomingMessage {
             let queryStr = ""
             keys.forEach((ele) => {
                 queryStr += `${ele}=${queryStringParameters[ele]}&`
-                phLogger.info(ele)
-                // @ts-ignore
+                PhLogger.info(ele)
                 this.query[ele] = queryStringParameters[ele]
             })
             this.queryStr = queryStr.slice(0, queryStr.length - 1)

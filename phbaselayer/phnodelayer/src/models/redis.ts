@@ -1,4 +1,4 @@
-class TestRedis {
+class Redis {
     public model: any = {
         user: {
             age: Number,
@@ -6,4 +6,4 @@ class TestRedis {
     }
 }
 
-export default TestRedis
+export default Redis

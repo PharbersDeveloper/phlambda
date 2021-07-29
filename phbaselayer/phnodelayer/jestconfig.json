@@ -7,7 +7,8 @@
   "coveragePathIgnorePatterns": [
     "<rootDir>/node_modules/",
     "<rootDir>/lib/",
-    "<rootDir>/custom/"
+    "<rootDir>/custom/",
+    "<rootDir>/models/"
   ],
   "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
   "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]

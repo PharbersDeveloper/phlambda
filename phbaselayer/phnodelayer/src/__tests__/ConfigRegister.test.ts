@@ -7,6 +7,7 @@ import PhLogger from "../common/logger/phLogger"
 const createDBConfig = jest.fn(() => {
     return new DBConfig({
         name: StoreEnum.POSTGRES,
+        entity: "entry",
         database: "phentry",
         user: "admin",
         password: "123",

@@ -1,5 +1,6 @@
 import BaseModel from "../models/BaseModel"
 import Register from "./Register"
+import PhLogger from "../logger/phLogger"
 
 export default class ConfigRegister extends Register {
 
@@ -17,6 +18,7 @@ export default class ConfigRegister extends Register {
     
 
     register(model: BaseModel): void {
+        PhLogger.info(`${model.name} Config Registering`)
         this.typeAnalyzerMap.set(model.name, model)
     }
 

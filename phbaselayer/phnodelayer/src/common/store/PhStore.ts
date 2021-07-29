@@ -5,7 +5,8 @@ import ConfigRegister from "../factory/ConfigRegister"
 import {StoreEnum} from "../enum/StoreEnum"
 import IStore from "./IStore"
 import * as fs from "fs"
-import * as fortune from "fortune"
+import fortune from "fortune"
+import DBConfig from "../config/DBConfig"
 
 
 export default class PhStore implements IStore {
@@ -18,11 +19,13 @@ export default class PhStore implements IStore {
     ])
 
     // 处理Entity与store实例,其他的都不干
-    constructor(entity: string) {
+    constructor(key: string) {
+        this.name = key
         const register = ConfigRegister.getInstance
-        const record = new (this.getRecord(entity))()
+        const config = register.getData(key) as DBConfig
+        const record = new (this.getRecord(config.entity))()
         const option = Object.assign(
-            { adapter: [this.adapter.get(entity), { connection: register.getData(entity).toStructure()}] },
+            { adapter: [this.adapter.get(key), { connection: register.getData(key).toStructure() }] },
             record.operations
         )
         this.store = fortune(record.model, option)
@@ -42,7 +45,7 @@ export default class PhStore implements IStore {
             fs.statSync(`${base}/dist/models`)
             return require(`${base}/dist/models${entity}.js`).default
         } catch (error) {
-            throw error
+            return require(`${base}/lib/models/${entity}.js`).default
         }
     }
 
@@ -68,6 +71,10 @@ export default class PhStore implements IStore {
 
     async update(type: string, updates: any, include?: any, meta?: any): Promise<any> {
         return await this.store.update(type, updates, include, meta)
+    }
+
+    getStore(): any {
+        return this.store
     }
 
 }

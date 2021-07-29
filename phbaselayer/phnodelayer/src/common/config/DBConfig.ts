@@ -6,6 +6,7 @@ import Config from "./Config"
 export default class DBConfig extends Config {
     public name: string
     // private protocols: string
+    public readonly entity: string
     private readonly database: string
     private readonly host: string
     private readonly port: number
@@ -19,6 +20,7 @@ export default class DBConfig extends Config {
 
     constructor({
         name = null,
+        entity = null,
         database = null,
         user = null,
         password = null,
@@ -30,6 +32,7 @@ export default class DBConfig extends Config {
         connectionTimeoutMs = 1000
     }: {
         name: string,
+        entity: string,
         database: string,
         user: string,
         password: string,
@@ -42,6 +45,7 @@ export default class DBConfig extends Config {
     }) {
         super()
         this.name = name
+        this.entity = entity
         this.database = database
         this.user = user
         this.password = password

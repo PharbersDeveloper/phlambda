@@ -12,8 +12,6 @@ class Catlog {
             describe: String,
             source: String,
             connect: String,
-            category: String,
-            location: String,
             deprecated: String,
             lastModifyTime: String,
             inputFormat: String,

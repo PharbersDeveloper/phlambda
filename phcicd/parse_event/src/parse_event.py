@@ -6,12 +6,13 @@ class Parse:
 
     def print_branch_information(self, event):
         body = json.loads(event['body'].replace("'", "\""))
+        # body = event["body"]
         if body["eventKey"] == "repo:refs_changed":
             return self.branch_change(body)
         if body["eventKey"] == "pr:merged":
             return self.branch_merge(body)
 
-    def branch_change(self, event):
+    def branch_change(self, body):
         # body = json.loads(event["body"])
         # body = event["body"]
         git_change_message = {}
@@ -23,7 +24,7 @@ class Parse:
         git_change_message["branch_namee"] = body["changes"][0]["ref"]["displayId"]
         return git_change_message
 
-    def branch_merge(self, event):
+    def branch_merge(self, body):
         # body = json.loads(event["body"])
         # body = event["body"]
         git_change_message = {}

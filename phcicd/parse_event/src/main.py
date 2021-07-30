@@ -8,6 +8,7 @@ from src.package_code import zip_code
 def lambda_handler(event, context):
     parse = Parse()
     print(event)
+    
     print(type(event['body']))
     git_event = parse.print_branch_information(event=event)
     print(git_event)

@@ -1,27 +1,40 @@
 import os
+import boto3
+import random
 
-def upload_code():
-    pass
 
-def package_code():
+def upload_code(zip_name):
+    s3_client = boto3.client('s3')
+    s3_client.upload_file(
+        Bucket="ph-platform",
+        Key="2020-11-11/cicd/ph-get-step-status/source/code.zip",
+        Filename="/tmp/" + zip_name
+    )
 
-    local_path_prefix = '/home/hbzhao/PycharmProjects/pythonProject/phlambda/phcicd/parse_event/src'
+
+def zip_code():
+    local_path_prefix = '/tmp'
     local_path = os.path.join(local_path_prefix, 'phlambda')
     code_path = local_path + "/phworkflow/ph_get_execution_status/"
+
     # 复制ph_get_execution_status下的代码到当前目录下
     key_str = ""
     for key in os.listdir(code_path):
-        print(code_path + key)
         cp_cmd = "cp -r " + code_path + key + " " + local_path_prefix
+        # key =  "/tmp/" + ke
         os.popen(cp_cmd)
         key_str = key_str + key + " "
-    # 打包代码为code.zip
-    zip_cmd = "zip -r -q " + local_path_prefix + "/code.zip " + key_str
-    os.popen(zip_cmd)
-    print(zip_cmd)
 
-    # 删除复制来的代码
+    os.chdir("/tmp")
+    # 打包代码为code.zip
+    random_code = random.randint(10000, 99999)
+    zip_name = "code" + str(random_code) + ".zip"
+    zip_cmd = "zip -r " + zip_name + " " + key_str
+    os.system(zip_cmd)
+
+    # 上传code到s3
+    upload_code(zip_name)
 
 
 if __name__ == '__main__':
-    package_code()
+    upload_code()

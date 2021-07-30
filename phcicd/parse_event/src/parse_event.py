@@ -13,8 +13,6 @@ class Parse:
             return self.branch_merge(body)
 
     def branch_change(self, body):
-        # body = json.loads(event["body"])
-        # body = event["body"]
         git_change_message = {}
         git_change_message["event_key"] = body["eventKey"]
         git_change_message["event_type"] = body["changes"][0]["type"]
@@ -25,8 +23,6 @@ class Parse:
         return git_change_message
 
     def branch_merge(self, body):
-        # body = json.loads(event["body"])
-        # body = event["body"]
         git_change_message = {}
         git_change_message["event_key"] = body["eventKey"]
         git_change_message["event_state"] = body["pullRequest"]["state"]

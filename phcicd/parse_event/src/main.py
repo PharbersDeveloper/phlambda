@@ -7,14 +7,15 @@ from src.package_code import zip_code
 
 def lambda_handler(event, context):
     parse = Parse()
-
+    print(event)
+    print(type(event['body']))
     git_event = parse.print_branch_information(event=event)
-    if git_event['event_type'] == "UPDATE" and :
+    print(git_event)
+    if git_event['event_type'] == "UPDATE" and git_event['operator_name'] == "hbzhao":
         git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
         local_path_prefix = '/tmp'
         local_path = os.path.join(local_path_prefix, 'phlambda')
         repo = GitRepository(local_path, git_url, branch='feature/PBDP-1767-phlambda-cicd')
-        print(repo.branches())
 
     zip_code()
 

@@ -5,4 +5,5 @@ ph-notification
 test
 lambda
 .venv
-**/__pycache__
+
+__pycache__

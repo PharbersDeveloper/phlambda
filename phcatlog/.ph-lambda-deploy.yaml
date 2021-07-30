@@ -26,7 +26,8 @@ phcatlog:
 #      - 'sg-058404c2ad02dcbb9'
 #      - 'sg-09f5205a1194149ab'
     lambda_env:
-      TEST: test
+      AccessKeyId: AKIAWPBDTVEAI6LUCLPX
+      SecretAccessKey: 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
     lambda_tag:
       language: nodejs10.x
   gateway:

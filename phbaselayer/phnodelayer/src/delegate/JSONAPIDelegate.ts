@@ -1,9 +1,9 @@
 import AWSRequest from "../common/request/AWSRequest"
-import BuildMaker from "../build/BuildMaker"
-import Config from "../common/config/Config"
 import IStore from "../common/store/IStore"
 import { ServerResponse } from "http"
 import { StoreEnum } from "../common/enum/StoreEnum"
+import StoreRegister from "../common/factory/StoreRegister"
+import PhStore from "../common/store/PhStore"
 
 
 export default class JSONAPIDelegate {
@@ -17,9 +17,8 @@ export default class JSONAPIDelegate {
 
     public isFirstInit = true
 
-    public async prepare(jsonApiDB: StoreEnum, configs: Config[]) {
-        const build = new BuildMaker(configs)
-        this.store = build.getStore(jsonApiDB)
+    public async prepare(jsonApiDB: StoreEnum) {
+        this.store = (StoreRegister.getInstance.getData(jsonApiDB) as PhStore)
         this.isFirstInit = false
         this.listener = this.fortuneHTTP(this.store.getStore(), {
             serializers: [[this.jsonApiSerializer]]

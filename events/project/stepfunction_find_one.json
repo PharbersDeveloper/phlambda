@@ -1,15 +1,14 @@
 {
   "body": "",
-  "resource": "/stepfunction/{type}",
-  "path": "/stepfunction/functions",
+  "resource": "/phproject/{type}/{id}",
+  "path": "/phproject/projects/zxebgU3NF0PDrOZM",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "filter[limit]": "10",
-    "filter[name]": "MAX"
   },
   "pathParameters": {
-    "type": "functions"
+    "type": "projects",
+    "id": "zxebgU3NF0PDrOZM"
   },
   "stageVariables": {
     "baz": "qux"
@@ -54,8 +53,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/stepfunction/functions",
-    "resourcePath": "/stepfunction/{type}",
+    "path": "/phproject/projects",
+    "resourcePath": "/phproject/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

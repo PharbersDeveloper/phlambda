@@ -49,6 +49,9 @@ export default class GetStepFunctionData {
         const cond = Object.keys(filters).map((key) => {
             return `item["${key}"] === filters["${key}"]`
         }).join(" && ")
+        if (cond === "") {
+            return result
+        }
         // tslint:disable-next-line:no-eval
         return result.filter((item) => eval(cond))
     }

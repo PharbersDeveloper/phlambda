@@ -11,4 +11,9 @@ export default class AWSStepFunction {
     getClient() {
         return this.client
     }
+
+    destroy() {
+        this.client.destroy()
+    }
+
 }

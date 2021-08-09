@@ -14,10 +14,10 @@
   resolved "https://registry.npmjs.org/@types/js-yaml/-/js-yaml-3.12.6.tgz#7f10c926aa41e189a2755c4c7fcf8e4573bd7ac1"
   integrity sha512-cK4XqrLvP17X6c0C8n4iTbT59EixqyXL3Fk8/Rsk4dF3oX4dg70gYUXrXVUUHpnsGMPNlTQMqf+TVmNPX6FmSQ==
 
-"@types/node@^14.14.9":
-  version "14.14.22"
-  resolved "https://registry.npmjs.org/@types/node/-/node-14.14.22.tgz#0d29f382472c4ccf3bd96ff0ce47daf5b7b84b18"
-  integrity sha512-g+f/qj/cNcqKkc3tFqlXOYjrmZA+jNBiDzbP3kH+B+otKFqAdPgVTGP1IeKRdMml/aE69as5S4FqtxAbl+LaMw==
+"@types/node@^14.17.3":
+  version "14.17.9"
+  resolved "https://registry.npmjs.org/@types/node/-/node-14.17.9.tgz#b97c057e6138adb7b720df2bd0264b03c9f504fd"
+  integrity sha512-CMjgRNsks27IDwI785YMY0KLt3co/c0cQ5foxHYv/shC2w8oOnVwz5Ubq1QG5KzrcW+AXk6gzdnxIkDnTvzu3g==
 
 argparse@^1.0.7:
   version "1.0.10"
@@ -443,11 +443,11 @@ fortune-mysql@^1.6.4:
   dependencies:
     mysql "^2.15"
 
-"fortune-postgres@https://github.com/fortunejs/fortune-postgres":
-  version "1.6.10"
-  resolved "https://github.com/fortunejs/fortune-postgres#3a16f867513ed9bbeff92c940da2d3051f0db865"
+"fortune-postgres@https://github.com/Faiz2/fortune-postgres#fix-pg-dependency-bug":
+  version "1.6.11"
+  resolved "https://github.com/Faiz2/fortune-postgres#c50aeb1bccc18d87cb529ad976c19cc2cf1f5b2a"
   dependencies:
-    pg "^7.6.1"
+    pg "^8.7.1"
   optionalDependencies:
     pg-native "^3.0.0"
 
@@ -811,10 +811,10 @@ packet-reader@1.0.0:
   resolved "https://registry.npmjs.org/packet-reader/-/packet-reader-1.0.0.tgz#9238e5480dedabacfe1fe3f2771063f164157d74"
   integrity sha512-HAKu/fG3HpHFO0AA8WE8q2g+gBJaZ9MG7fcKk+IJPLTGAD6Psw4443l+9DGRbOIh3/aXr7Phy0TjilYivJo5XQ==
 
-pg-connection-string@0.1.3:
-  version "0.1.3"
-  resolved "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-0.1.3.tgz#da1847b20940e42ee1492beaf65d49d91b245df7"
-  integrity sha1-2hhHsglA5C7hSSvq9l1J2RskXfc=
+pg-connection-string@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.5.0.tgz#538cadd0f7e603fc09a12590f3b8a452c2c0cf34"
+  integrity sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ==
 
 pg-int8@1.0.1:
   version "1.0.1"
@@ -830,15 +830,15 @@ pg-native@^3.0.0:
     pg-types "^1.12.1"
     readable-stream "1.0.31"
 
-pg-packet-stream@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/pg-packet-stream/-/pg-packet-stream-1.1.0.tgz#e45c3ae678b901a2873af1e17b92d787962ef914"
-  integrity sha512-kRBH0tDIW/8lfnnOyTwKD23ygJ/kexQVXZs7gEyBljw4FYqimZFxnMMx50ndZ8In77QgfGuItS5LLclC2TtjYg==
+pg-pool@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.npmjs.org/pg-pool/-/pg-pool-3.4.1.tgz#0e71ce2c67b442a5e862a9c182172c37eda71e9c"
+  integrity sha512-TVHxR/gf3MeJRvchgNHxsYsTCHQ+4wm3VIHSS19z8NC0+gioEhq1okDY1sm/TYbfoP6JLFx01s0ShvZ3puP/iQ==
 
-pg-pool@^2.0.10:
-  version "2.0.10"
-  resolved "https://registry.npmjs.org/pg-pool/-/pg-pool-2.0.10.tgz#842ee23b04e86824ce9d786430f8365082d81c4a"
-  integrity sha512-qdwzY92bHf3nwzIUcj+zJ0Qo5lpG/YxchahxIN8+ZVmXqkahKXsnl2aiJPHLYN9o5mB/leG+Xh6XKxtP7e0sjg==
+pg-protocol@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.5.0.tgz#b5dd452257314565e2d54ab3c132adc46565a6a0"
+  integrity sha512-muRttij7H8TqRNu/DxrAJQITO4Ac7RmX3Klyr/9mJEOBeIpgnF8f9jAfRz5d3XwQZl5qBjF9gLsUtMPJE0vezQ==
 
 pg-types@^1.12.1:
   version "1.13.0"
@@ -862,19 +862,18 @@ pg-types@^2.1.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@^7.6.1:
-  version "7.18.2"
-  resolved "https://registry.npmjs.org/pg/-/pg-7.18.2.tgz#4e219f05a00aff4db6aab1ba02f28ffa4513b0bb"
-  integrity sha512-Mvt0dGYMwvEADNKy5PMQGlzPudKcKKzJds/VbOeZJpb6f/pI3mmoXX0JksPgI3l3JPP/2Apq7F36O63J7mgveA==
+pg@^8.7.1:
+  version "8.7.1"
+  resolved "https://registry.npmjs.org/pg/-/pg-8.7.1.tgz#9ea9d1ec225980c36f94e181d009ab9f4ce4c471"
+  integrity sha512-7bdYcv7V6U3KAtWjpQJJBww0UEsWuh4yQ/EjNf2HeO/NnvKjpvhEIe/A/TleP6wtmSKnUnghs5A9jUoK6iDdkA==
   dependencies:
     buffer-writer "2.0.0"
     packet-reader "1.0.0"
-    pg-connection-string "0.1.3"
-    pg-packet-stream "^1.1.0"
-    pg-pool "^2.0.10"
+    pg-connection-string "^2.5.0"
+    pg-pool "^3.4.1"
+    pg-protocol "^1.5.0"
     pg-types "^2.1.0"
     pgpass "1.x"
-    semver "4.3.2"
 
 pgpass@1.x:
   version "1.0.4"
@@ -883,14 +882,14 @@ pgpass@1.x:
   dependencies:
     split2 "^3.1.1"
 
-phnodelayer@^1.0.7-beta.0:
-  version "1.0.7-beta.0"
-  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-1.0.7-beta.0.tgz#15e19873dd85f18e6c3835947709416eb5099942"
-  integrity sha512-8zbSsCd6P4UdI3TZOqxPijdqj/WMRL/FSpT2weP0vBphy7sUupBigaOEIJhpAGExVz7KsxV6b2ITdKXjMru5HQ==
+phnodelayer@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.npmjs.org/phnodelayer/-/phnodelayer-2.0.2.tgz#86c6d528b2e8c6e48bb361b3597d329599d46531"
+  integrity sha512-iVY/gqB/tHNHS8QCUeYH93nQEUxVquj2zz3QjyIZan+K27vejjYDsJt1v2omR7oL3zcA5/ttjh8vsLRL3j33yg==
   dependencies:
     "@types/aws-sdk" "^2.7.0"
     "@types/js-yaml" "^3.12.1"
-    "@types/node" "^14.14.9"
+    "@types/node" "^14.17.3"
     aws-sdk "^2.686.0"
     busboy "^0.3.1"
     clean-css "^4.2.1"
@@ -901,7 +900,7 @@ phnodelayer@^1.0.7-beta.0:
     fortune "^5.5.17"
     fortune-mongodb "^1.3.2"
     fortune-mysql "^1.6.4"
-    fortune-postgres "https://github.com/fortunejs/fortune-postgres"
+    fortune-postgres "https://github.com/Faiz2/fortune-postgres#fix-pg-dependency-bug"
     fortune-redis "^2.1.0"
     i "^0.3.6"
     inflection "^1.12.0"
@@ -1054,11 +1053,6 @@ sax@>=0.6.0:
   version "1.2.4"
   resolved "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
-
-semver@4.3.2:
-  version "4.3.2"
-  resolved "https://registry.npmjs.org/semver/-/semver-4.3.2.tgz#c7a07158a80bedd052355b770d82d6640f803be7"
-  integrity sha1-x6BxWKgL7dBSNVt3DYLWZA+AO+c=
 
 semver@^5.1.0:
   version "5.7.1"

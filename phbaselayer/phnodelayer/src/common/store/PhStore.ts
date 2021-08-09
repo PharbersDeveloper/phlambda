@@ -43,7 +43,7 @@ export default class PhStore implements IStore {
         const base = process.cwd()
         try {
             fs.statSync(`${base}/dist/models`)
-            return require(`${base}/dist/models${entity}.js`).default
+            return require(`${base}/dist/models/${entity}.js`).default
         } catch (error) {
             return require(`${base}/lib/models/${entity}.js`).default
         }

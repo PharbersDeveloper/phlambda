@@ -1,6 +1,6 @@
 import { GlueClient } from "@aws-sdk/client-glue"
 
-export class AWsGlue {
+export default class AWsGlue {
     private readonly client: any = null
 
     constructor(config: any) {

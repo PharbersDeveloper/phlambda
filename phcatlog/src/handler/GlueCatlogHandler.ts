@@ -3,8 +3,8 @@ import {
     GetPartitionsCommand,
     GetTableCommand
 } from "@aws-sdk/client-glue"
-import AWSSts from "../../../phproject/src/utils/AWSSts"
-import {AWsGlue} from "../utils/AWSGlue"
+import AWsGlue from "../utils/AWSGlue"
+import AWSSts from "../utils/AWSSts"
 
 export default class GlueCatlogHandler {
 

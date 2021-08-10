@@ -1,13 +1,13 @@
 {
   "body": "",
   "resource": "/catlog/{type}",
-  "path": "/catlog/databases",
+  "path": "/catlog/dbs",
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "type": "databases"
+    "type": "dbs"
   },
   "stageVariables": {
     "baz": "qux"
@@ -52,7 +52,7 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/catlog/databases",
+    "path": "/catlog/dbs",
     "resourcePath": "/catlog/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",

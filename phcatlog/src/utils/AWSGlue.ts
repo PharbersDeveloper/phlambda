@@ -1,29 +1,17 @@
-import {
-    GetDatabasesCommand,
-    GetPartitionsCommand,
-    GetTableCommand,
-    GetTablesCommand,
-    GlueClient,
-    paginateGetDatabases } from "@aws-sdk/client-glue"
+import { GlueClient } from "@aws-sdk/client-glue"
 
 export class AWsGlue {
-    private client: any = null
+    private readonly client: any = null
 
-    constructor(accessKeyId: string,
-                secretAccessKey: string,
-                sessionToken: string,
-                region: string = "cn-northwest-1") {
-       this.client = new GlueClient({
-            region,
-            credentials: {
-                accessKeyId,
-                secretAccessKey,
-                sessionToken
-            }
-        })
+    constructor(config: any) {
+        this.client = new GlueClient(config)
     }
 
     getClient() {
         return this.client
+    }
+
+    destroy() {
+        this.client.destroy()
     }
 }

@@ -17,7 +17,7 @@ export default class StepFunctionHandler {
             stateMachineArn: arn
         })
         const content = await client.send(command)
-        client.destroy()
+        instance.destroy()
         return content
     }
 
@@ -26,12 +26,12 @@ export default class StepFunctionHandler {
         const config = await sts.assumeRole()
         const instance = new AWSStepFunction(config)
         const client = instance.getClient()
-        client.destroy()
         const command = new DescribeExecutionCommand({
             executionArn: arn
         })
-
-        return await client.send(command)
+        const content = await client.send(command)
+        instance.destroy()
+        return content
     }
 
     async findEventHistory(arn: string) {
@@ -39,12 +39,12 @@ export default class StepFunctionHandler {
         const config = await sts.assumeRole()
         const instance = new AWSStepFunction(config)
         const client = instance.getClient()
-        client.destroy()
         const command = new GetExecutionHistoryCommand({
             executionArn: arn,
             reverseOrder: false
         })
-
-        return await client.send(command)
+        const content = await client.send(command)
+        instance.destroy()
+        return content
     }
 }

@@ -3,36 +3,33 @@ class Catlog {
     model: any = {
         database: {
             name: String,
-            // tables: { link: "table", isArray: true, inverse: "db" },
-            describe: String,
+            provider: String,
+            version: String,
+            isNewVersion: Boolean,
+            partitionCount: Number,
+            tables: { link: "table", isArray: true, inverse: "db" },
         },
         table: {
             name: String,
-            schemas: Object,
-            describe: String,
-            source: String,
-            connect: String,
-            deprecated: String,
-            lastModifyTime: String,
-            inputFormat: String,
-            outputFormat: String,
-            serdeLib: String,
-            serdeArguments: Object,
-            tableAttributes: Object,
-            partitionKeys: Object,
-            // db: { link: "database", inverse: "tables" },
-            // partitions: { link: "partition", isArray: true, inverse: "tablePartition" },
+            db: { link: "database", inverse: "tables" },
         },
-        partition: {
-            // tablePartition: { link: "table", inverse: "partitions" },
-            schema: String,
-            attribute: String
+        partition: { // 逻辑抽象，实际数据库会有一条假数据，与链表的辅助头节点原理一致，只是为了能更好的处理数据
+            name: String
         }
     }
 
     operations = {
-        hooks: {}
+        hooks: {
+            database: [null, this.hookDataBaseOutput]
+        }
     }
+
+    protected async hookDataBaseOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        return record
+    }
+
 }
 
 export default Catlog

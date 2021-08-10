@@ -1,4 +1,3 @@
-import fortune from "fortune"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Project {

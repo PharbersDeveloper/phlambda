@@ -9,14 +9,12 @@ class Catlog {
         },
         table: {
             name: String,
+            database: String,
             provider: String,
             version: String,
             isNewVersion: Boolean,
             partitionCount: Number,
             db: { link: "db", inverse: "tables" },
-        },
-        partition: { // 逻辑抽象，实际数据库会有一条假数据，与链表的辅助头节点原理一致，只是为了能更好的处理数据
-            name: String
         }
     }
 
@@ -24,7 +22,6 @@ class Catlog {
         hooks: {
             db: [null, this.hookDataBaseOutput],
             table: [null, this.hookTableOutput],
-            partition: [null, this.hookPartition]
         }
     }
 
@@ -34,8 +31,9 @@ class Catlog {
         switch (method) {
             case "find":
                 const gch = new GlueCatlogHandler()
-                const content = await gch.findDatabase("")
-                record.created = ""
+                const content = await gch.findDatabase(record.name)
+                record.created = content.Database.CreateTime.getTime()
+                record.description = content.Database.Description || ""
         }
         return record
     }
@@ -46,24 +44,25 @@ class Catlog {
         switch (method) {
             case "find":
                 const gch = new GlueCatlogHandler()
-                const content = await gch.findTable("", "")
-                record.created = ""
+                const content = await gch.findTable(record.database, record.name)
+                record.created = content.Table.CreateTime.getTime()
+                record.updated = content.Table.UpdateTime.getTime()
+                record.retention = content.Table.Retention
+                record.cloumns = content.Table.StorageDescriptor.Columns
+                record.location = content.Table.StorageDescriptor.Location
+                record.inputFormat = content.Table.StorageDescriptor.InputFormat
+                record.outputFormat = content.Table.StorageDescriptor.OutputFormat
+                record.compressed = content.Table.StorageDescriptor.Compressed
+                record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
+                record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
+                record.sortColumns = content.Table.StorageDescriptor.SortColumns
+                record.parameters = content.Table.Parameters
+                record.partitionKeys = content.Table.PartitionKeys
+                record.tableType = content.Table.TableType
+                record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
         }
         return record
     }
-
-    protected async hookPartition(context, record) {
-        const { request: { method, type } } = context
-        const { request: { uriObject: { query }} } = context
-        switch (method) {
-            case "find":
-                const gch = new GlueCatlogHandler()
-                const content = await gch.findPartitions("", "", "")
-                record.created = ""
-        }
-        return record
-    }
-
 }
 
 export default Catlog

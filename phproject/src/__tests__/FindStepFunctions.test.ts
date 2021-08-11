@@ -21,31 +21,32 @@ const FindStepFunctionExecutions = jest.fn( () => {
 process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
 process.env.SecretAccessKey = "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"
 
-test("Find Step Functions", async () => {
-    const app = require("../../app.js")
-    const result = await app.lambdaHandler(new FindStepFunctions(), undefined)
-    expect(result.statusCode).toBe(200)
-    Logger.info(result)
+describe("StepFunctions Test", () => {
+    test("Find Step Functions", async () => {
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(new FindStepFunctions(), undefined)
+        Logger.info(result)
+        expect(result.statusCode).toBe(200)
+    }, 1000 * 60 * 10)
 
-}, 1000 * 60 * 10)
+    test("Find Step Functions By ID", async () => {
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(new FindStepFunctionByID(), undefined)
+        expect(result.statusCode).toBe(200)
+        Logger.info(result)
+    }, 1000 * 60 * 10)
 
-test("Find Step Functions By ID", async () => {
-    const app = require("../../app.js")
-    const result = await app.lambdaHandler(new FindStepFunctionByID(), undefined)
-    expect(result.statusCode).toBe(200)
-    Logger.info(result)
-}, 1000 * 60 * 10)
+    test("Find Step Functions Include", async () => {
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(new FindStepFunctionInclude(), undefined)
+        expect(result.statusCode).toBe(200)
+        Logger.info(result)
+    }, 1000 * 60 * 10)
 
-test("Find Step Functions Include", async () => {
-    const app = require("../../app.js")
-    const result = await app.lambdaHandler(new FindStepFunctionInclude(), undefined)
-    expect(result.statusCode).toBe(200)
-    Logger.info(result)
-}, 1000 * 60 * 10)
-
-test("Find Step Functions Executions", async () => {
-    const app = require("../../app.js")
-    const result = await app.lambdaHandler(new FindStepFunctionExecutions(), undefined)
-    expect(result.statusCode).toBe(200)
-    Logger.info(result)
-}, 1000 * 2)
+    test("Find Step Functions Executions", async () => {
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(new FindStepFunctionExecutions(), undefined)
+        expect(result.statusCode).toBe(200)
+        Logger.info(result)
+    }, 1000 * 2)
+})

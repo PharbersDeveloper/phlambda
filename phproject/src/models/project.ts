@@ -7,19 +7,19 @@ class Project {
             name: String,
             provider: String,
             version: String,
-            executions: { link: "execution", isArray: true, inverse: "projectExecution"}
+            // executions: { link: "execution", isArray: true, inverse: "projectExecution"}
         },
         execution: {
-            projectExecution: { link: "project", inverse: "executions"},
+            // projectExecution: { link: "project", inverse: "executions"},
             arn: String,
-            name: String,
+            input: String,
         }
     }
 
     operations = {
         hooks: {
             project: [null, this.hookProjectOutput],
-            execution: [null, this.hookExecutionOutput]
+            execution: [this.hookExecutionInput, this.hookExecutionOutput]
         }
     }
 
@@ -28,27 +28,44 @@ class Project {
         const { request: { uriObject: { query }} } = context
         switch (method) {
             case "find":
-                const stp = new StepFunctionHandler()
-                const content = await stp.findStepFunctions(record.arn)
-                record["type"] = content.type
-                record["created"] = content.creationDate.getTime()
-                record["define"] = JSON.stringify(JSON.parse(content.definition))
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findStepFunctions(record.arn)
+                    record.type = content.type
+                    record.created = content.creationDate.getTime()
+                    record.define = JSON.stringify(JSON.parse(content.definition))
+                }
         }
         return record
 
     }
 
+    protected async hookExecutionInput(context, record) {
+        const { request: { method, type } } = context
+        const stp = new StepFunctionHandler()
+        switch (method) {
+            case "create":
+                const {result, input} = await stp.startExecution(record.input)
+                record.arn = result.executionArn
+                record.input = input
+                break
+        }
+        return record
+    }
+
     protected async hookExecutionOutput(context, record) {
         const { request: { method, type } } = context
-        const { request: { uriObject: { query }} } = context
         switch (method) {
             case "find":
-                const stp = new StepFunctionHandler()
-                const content = await stp.findExecutions(record.arn)
-                record.status = content.status
-                record.startTime = content.startDate.getTime()
-                record.stopDate = content.stopDate.getTime()
-                record.input = content.input
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findExecutions(record.arn)
+                    record.status = content.status
+                    record.startTime = content.startDate.getTime()
+                    record.stopTime = content.stopDate.getTime()
+                    record.input = JSON.stringify(content.input)
+                }
+                break
         }
         return record
 

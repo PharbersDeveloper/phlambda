@@ -7,10 +7,10 @@ class Project {
             name: String,
             provider: String,
             version: String,
-            // executions: { link: "execution", isArray: true, inverse: "projectExecution"}
+            executions: { link: "execution", isArray: true, inverse: "projectExecution"}
         },
         execution: {
-            // projectExecution: { link: "project", inverse: "executions"},
+            projectExecution: { link: "project", inverse: "executions"},
             arn: String,
             input: String,
         }

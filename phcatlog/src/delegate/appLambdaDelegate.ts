@@ -1,4 +1,5 @@
-import { DBConfig, IStore, JSONAPI, Logger, ServerRegisterConfig, StoreEnum} from "phnodelayer"
+import { ServerResponse } from "http"
+import { AWSRequest, DBConfig, IStore, JSONAPI, Logger, ServerRegisterConfig, StoreEnum } from "phnodelayer"
 import PagePartitionHandler from "../handler/PagePartitionHandler"
 
 export default class AppLambdaDelegate {
@@ -18,7 +19,15 @@ export default class AppLambdaDelegate {
                 })
             ]
             if (endpoint === "partitions") {
-                return await new PagePartitionHandler().pageFind("phdatacat", "factor", "")
+                const awsRequest = new AWSRequest(event, "catlog")
+                const awsResponse = new ServerResponse(awsRequest)
+                const result = await new PagePartitionHandler().pageFind(
+                    event.queryStringParameters["filter[database]"],
+                    event.queryStringParameters["filter[table]"],
+                    event.queryStringParameters["nextToken"],
+                    event.queryStringParameters["filter[limit]"])
+                awsResponse["outputData"] = [{data: ""}, {data: JSON.stringify(result)}]
+                return awsResponse
             }
             ServerRegisterConfig(configs)
             return JSONAPI(StoreEnum.POSTGRES, event)

@@ -6,7 +6,11 @@
   "isBase64Encoded": false,
   "queryStringParameters": {
     "filter[database]": "phdatacat",
-    "filter[table]": "factor"
+    "filter[table]": "factor",
+    "filter[page]": 2,
+    "filter[limit]": 100,
+    "filter[isNewVersion]": true,
+    "nextToken": ""
   },
   "pathParameters": {
     "type": "partitions"

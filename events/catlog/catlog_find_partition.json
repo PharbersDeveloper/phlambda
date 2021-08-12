@@ -7,10 +7,9 @@
   "queryStringParameters": {
     "filter[database]": "phdatacat",
     "filter[table]": "factor",
-    "filter[page]": 2,
-    "filter[limit]": 100,
-    "filter[isNewVersion]": true,
-    "nextToken": ""
+    "nextToken": "",
+    "page[offset]": 0,
+    "page[limit]": 100
   },
   "pathParameters": {
     "type": "partitions"

@@ -25,7 +25,7 @@ export default class AppLambdaDelegate {
                     event.queryStringParameters["filter[database]"],
                     event.queryStringParameters["filter[table]"],
                     event.queryStringParameters["nextToken"],
-                    event.queryStringParameters["filter[limit]"])
+                    event.queryStringParameters["page[limit]"])
                 awsResponse["outputData"] = [{data: ""}, {data: JSON.stringify(result)}]
                 return awsResponse
             }

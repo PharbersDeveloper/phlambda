@@ -1,6 +1,4 @@
-import type {Config} from "@jest/types"
-
-const config: Config.InitialOptions = {
+const config = {
     verbose: true,
     transform: {
         ["^.+\\.(t)sx?$"]: "ts-jest"
@@ -12,6 +10,7 @@ const config: Config.InitialOptions = {
         "<rootDir>/app.js"
     ],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"]
-}
-export default config
+    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+    testTimeout: 1000 * 3
+};
+module.exports = config;

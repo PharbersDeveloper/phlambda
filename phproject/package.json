@@ -29,6 +29,7 @@
     "prettier": "^2.1.2",
     "source-map-support": "^0.5.13",
     "ts-jest": "^26.4.1",
+    "ts-node": "^10.2.0",
     "tslint": "^5.18.0",
     "typedoc": "^0.14.2",
     "typescript": "^3.3.1"

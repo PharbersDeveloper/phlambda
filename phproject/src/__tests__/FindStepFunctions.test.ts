@@ -48,5 +48,5 @@ describe("StepFunctions Test", () => {
         const result = await app.lambdaHandler(new FindStepFunctionExecutions(), undefined)
         expect(result.statusCode).toBe(200)
         Logger.info(result)
-    }, 1000 * 2)
+    }, 1000 * 3)
 })

@@ -1,3 +1,4 @@
+import {Logger} from "phnodelayer"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Project {
@@ -60,9 +61,11 @@ class Project {
                 if (record.arn) {
                     const stp = new StepFunctionHandler()
                     const content = await stp.findExecutions(record.arn)
+                    Logger.debug(JSON.stringify(content))
+                    record.name = record.arn.split(":").slice(-1)
                     record.status = content.status
                     record.startTime = content.startDate.getTime()
-                    record.stopTime = content.stopDate.getTime()
+                    record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()
                     record.input = JSON.stringify(content.input)
                 }
                 break

@@ -2,7 +2,8 @@ import {
     DescribeExecutionCommand,
     DescribeStateMachineCommand,
     GetExecutionHistoryCommand,
-    StartExecutionCommand
+    StartExecutionCommand,
+    StopExecutionCommand
 } from "@aws-sdk/client-sfn"
 
 import {
@@ -97,5 +98,17 @@ export default class StepFunctionHandler {
             input: JSON.stringify(params)
         }
 
+    }
+
+    async stopExecution(arn) {
+        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
+        const config = await sts.assumeRole()
+        const instance = new AWSStepFunction(config)
+        const client = instance.getClient()
+        const command = new StopExecutionCommand({
+            executionArn: arn
+        })
+        await client.send(command)
+        instance.destroy()
     }
 }

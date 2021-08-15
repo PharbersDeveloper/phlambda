@@ -1,5 +1,4 @@
 import {Logger} from "phnodelayer"
-import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Index {
     model: any = {
@@ -25,7 +24,6 @@ class Index {
             database: String,
             provider: String,
             version: String,
-            isNewVersion: Boolean,
             db: { link: "db", inverse: "tables" },
         }
     }

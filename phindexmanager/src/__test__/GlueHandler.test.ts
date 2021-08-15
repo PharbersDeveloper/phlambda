@@ -1,6 +1,6 @@
 import {DBConfig, IStore, Register, ServerRegisterConfig, StoreEnum} from "phnodelayer"
 import AWSConfig from "../common/AWSConfig"
-import StepFunctionHandler from "../handler/StepFunctionHandler"
+import GlueHandler from "../handler/GlueHandler"
 
 process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
 process.env.SecretAccessKey = "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"
@@ -20,8 +20,8 @@ const configs = [
 ServerRegisterConfig(configs)
 const store = (Register.getInstance.getData(StoreEnum.POSTGRES)) as IStore
 
-describe("Step Function Test", () => {
-    test("Step Function All Index Sync To DB", async () => {
+describe("Glue Test", () => {
+    test("Glue All Index Sync To DB", async () => {
 
         const awsConfigs = ["Ph-Data-Resource-Admin", "Pharbers-ETL-Roles"]
         const awsConfig = AWSConfig.getInstance
@@ -29,7 +29,7 @@ describe("Step Function Test", () => {
 
         console.time("index")
         await store.open()
-        const handler = new StepFunctionHandler(store)
+        const handler = new GlueHandler(store)
         await handler.syncAll()
         await store.close()
         console.timeEnd("index")

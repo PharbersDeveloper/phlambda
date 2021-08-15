@@ -6,7 +6,7 @@ export default class AWSSts {
 
     constructor(accessKeyId: string,
                 secretAccessKey: string,
-                region: string = "cn-northwest-1",
+                region: string,
                 ) {
         this.region = region
         this.client = new STSClient({
@@ -15,14 +15,12 @@ export default class AWSSts {
         })
     }
 
-    async assumeRole(name: string = "Ph-Data-Resource-Admin",
-                     arn: string = "arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin") {
-        const command = new AssumeRoleCommand({
-            RoleArn: arn,
-            RoleSessionName: name
-        })
+    async assumeRole(name: string = "", arn: string = "") {
         try {
-            const result = await this.client.send(command)
+            const result = await this.client.send(new AssumeRoleCommand({
+                RoleArn: arn,
+                RoleSessionName: name
+            }))
             return {
                 region: this.region,
                 credentials: {

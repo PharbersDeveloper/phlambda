@@ -1,17 +1,17 @@
 import {
     DescribeExecutionCommand,
-    // DescribeStateMachineCommand,
     ListTagsForResourceCommand,
     paginateListExecutions,
     paginateListStateMachines
 } from "@aws-sdk/client-sfn"
-import { IStore, Logger, Register, StoreEnum } from "phnodelayer"
+import { IStore, Logger } from "phnodelayer"
+import AWSConfig from "../common/AWSConfig"
 import AWSStepFunction from "../utils/AWSStepFunction"
-import AWSSts from "../utils/AWSSts"
 
 export default class StepFunctionHandler {
 
     private readonly store: IStore
+    private config: any = AWSConfig.getInstance.getConf("Ph-Data-Resource-Admin")
 
     constructor(store: IStore) {
         this.store = store
@@ -22,9 +22,7 @@ export default class StepFunctionHandler {
     }
 
     async syncAll() {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
         const stepFunctionContents = await paginateListStateMachines({ client }, {})
         const stepFunctionArns = []
@@ -51,26 +49,19 @@ export default class StepFunctionHandler {
         }
 
         // 执行step function index入库操作
-        // for (const arn of stepFunctionArns) {
-        //     await this.syncStepFunctions(arn)
-        // }
+        for (const arn of stepFunctionArns) {
+            await this.syncStepFunctions(arn)
+        }
 
         // execution index入库操作
-        // for (const item of executions) {
-        //     await this.syncExecutions(item.stateMachineArn, item.executionArn)
-        // }
-
-        console.info(stepFunctionArns.length)
-        console.info(executions.length)
+        for (const item of executions) {
+            await this.syncExecutions(item.stateMachineArn, item.executionArn)
+        }
     }
 
     private async syncStepFunctions(arn: string) {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
-        // const command = new DescribeStateMachineCommand({ stateMachineArn: arn })
-        // const content = await client.send(command)
         const tagCommand = new ListTagsForResourceCommand({ resourceArn: arn})
         const tagContent = await client.send(tagCommand)
         instance.destroy()
@@ -84,9 +75,7 @@ export default class StepFunctionHandler {
     }
 
     private async syncExecutions(stateMachineArn: string, executionArn: string) {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
         const command = new DescribeExecutionCommand({
             executionArn
@@ -100,6 +89,5 @@ export default class StepFunctionHandler {
             projectExecution: project.payload.records[0].id,
         }
         await this.store.create("execution", record)
-        // console.info(record)
     }
 }

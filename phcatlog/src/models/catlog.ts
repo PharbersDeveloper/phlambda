@@ -12,8 +12,6 @@ class Catlog {
             database: String,
             provider: String,
             version: String,
-            isNewVersion: Boolean,
-            // partitionCount: Number,
             db: { link: "db", inverse: "tables" },
         }
     }

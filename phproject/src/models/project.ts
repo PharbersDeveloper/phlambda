@@ -6,6 +6,7 @@ class Project {
         project: {
             arn: String,
             name: String,
+            projectName: String,
             provider: String,
             version: String,
             executions: { link: "execution", isArray: true, inverse: "projectExecution"}

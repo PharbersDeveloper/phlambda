@@ -13,7 +13,7 @@ export default class AppLambdaDelegate {
                     database: "phentry",
                     user: "pharbers",
                     password: "Abcde196125",
-                    host: "127.0.0.1",
+                    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
                     port: 5432,
                     poolMax: 2
                 })

@@ -6,7 +6,7 @@
   "isBase64Encoded": false,
   "queryStringParameters": {
     "filter[database]": "phdatacat",
-    "page[limit]": 10,
+    "page[limit]": 1,
     "page[offset]": 0
   },
   "pathParameters": {

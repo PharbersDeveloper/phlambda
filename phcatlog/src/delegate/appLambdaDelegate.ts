@@ -6,6 +6,7 @@ import PagePartitionHandler from "../handler/PagePartitionHandler"
 export default class AppLambdaDelegate {
     async exec(event: any) {
         try {
+            await AWSConfig.getInstance.register(["Pharbers-ETL-Roles"])
             const endpoint = event.pathParameters.type
             const configs = [
                 new DBConfig({
@@ -20,17 +21,16 @@ export default class AppLambdaDelegate {
                 })
             ]
             if (endpoint === "partitions") {
-                const awsRequest = new AWSRequest(event, "catlog")
+                const awsRequest = new AWSRequest(event, "phcatlog")
                 const awsResponse = new ServerResponse(awsRequest)
                 const result = await new PagePartitionHandler().pageFind(
                     event.queryStringParameters["filter[database]"],
                     event.queryStringParameters["filter[table]"],
                     event.queryStringParameters["nextToken"],
-                    event.queryStringParameters["page[limit]"])
+                    Number(event.queryStringParameters["page[limit]"]))
                 awsResponse["outputData"] = [{data: ""}, {data: JSON.stringify(result)}]
                 return awsResponse
             }
-            await AWSConfig.getInstance.register(["Pharbers-ETL-Roles"])
             ServerRegisterConfig(configs)
             return JSONAPI(StoreEnum.POSTGRES, event)
         } catch (error) {

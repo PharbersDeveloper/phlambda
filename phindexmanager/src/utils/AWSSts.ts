@@ -1,5 +1,4 @@
-
-import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts"
+import {AssumeRoleCommand, STSClient} from "@aws-sdk/client-sts"
 
 export default class AWSSts {
     private readonly client: STSClient = null
@@ -7,8 +6,8 @@ export default class AWSSts {
 
     constructor(accessKeyId: string,
                 secretAccessKey: string,
-                region: string = "cn-northwest-1",
-    ) {
+                region: string,
+                ) {
         this.region = region
         this.client = new STSClient({
             region,
@@ -16,14 +15,12 @@ export default class AWSSts {
         })
     }
 
-    async assumeRole(name: string = "Pharbers-ETL-Roles",
-                     arn: string = "arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles") {
-        const command = new AssumeRoleCommand({
-            RoleArn: arn,
-            RoleSessionName: name
-        })
+    async assumeRole(name: string = "", arn: string = "") {
         try {
-            const result = await this.client.send(command)
+            const result = await this.client.send(new AssumeRoleCommand({
+                RoleArn: arn,
+                RoleSessionName: name
+            }))
             return {
                 region: this.region,
                 credentials: {

@@ -1,48 +1,30 @@
-import { ServerResponse } from "http"
-import { AWSRequest } from "phnodelayer"
-import GetStepFunctionData from "../common/GetStepFunctionData"
-import Register from "../common/Register"
-import AWSStepFunction from "../utils/AWSStepFunction"
-import AWSSts from "../utils/AWSSts"
-import ModelSerialize from "../utils/ModelSerialize"
+import { DBConfig, IStore, JSONAPI, Logger, ServerRegisterConfig, StoreEnum} from "phnodelayer"
+import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 export default class AppLambdaDelegate {
     async exec(event: any) {
-        const projectName = "phproject"
-        const entityName = "project"
-        const awsRequest = new AWSRequest(event, projectName)
-        const awsResponse = new ServerResponse(awsRequest)
         try {
-            const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-            const config = await sts.assumeRole()
-            const stepFunctionIns = new AWSStepFunction(config)
-            const stepFunctionData = new GetStepFunctionData()
-            const register = Register.getInstance
-            register.registerEntity(entityName)
-            register.registerFunction("projects", stepFunctionData.getStepFunctions)
-
-            if (!event.body) {
-                event.body = ""
+            const configs = [
+                new DBConfig({
+                    name: StoreEnum.POSTGRES,
+                    entity: "project",
+                    database: "phentry",
+                    user: "pharbers",
+                    password: "Abcde196125",
+                    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
+                    port: 5432,
+                    poolMax: 2
+                })
+            ]
+            ServerRegisterConfig(configs)
+            if (event.pathParameters.type === "stopexecution" && event.httpMethod.toLowerCase() === "post") {
+                const stp = new StepFunctionHandler()
+                const arn = JSON.parse(event.body).arn
+                await stp.stopExecution(arn)
             }
-            const endpoint = event.pathParameters.type
-            const queryStringParameters = event.queryStringParameters
-
-            if (endpoint === "projects") {
-                const data = await register.getFunc(endpoint)(stepFunctionIns,
-                    event.pathParameters.id,
-                    queryStringParameters["filter[name]"],
-                    queryStringParameters["filter[provider]"]
-                    )
-                awsResponse["output"] = ["", JSON.stringify(new ModelSerialize().serialize(entityName, data))]
-            }
+            return JSONAPI(StoreEnum.POSTGRES, event)
         } catch (error) {
-            awsResponse["output"] = ["", error.message]
-            awsResponse["statusCode"] = 500
-            const err = new Error()
-            err["meta"] = {}
-            err["meta"]["response"] = awsResponse
-            throw err
+            throw error
         }
-        return awsResponse
     }
 }

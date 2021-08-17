@@ -1,13 +1,13 @@
 {
-  "body": "",
-  "resource": "/catlog/{type}",
-  "path": "/catlog/dbs",
-  "httpMethod": "GET",
+  "body": "{\"arn\": \"2\"}",
+  "resource": "/phproject/{type}",
+  "path": "/phproject/stopexecution",
+  "httpMethod": "POST",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "type": "dbs"
+    "type": "stopexecution"
   },
   "stageVariables": {
     "baz": "qux"
@@ -52,8 +52,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/catlog/dbs",
-    "resourcePath": "/catlog/{type}",
+    "path": "/phproject/stopexecution",
+    "resourcePath": "/phproject/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

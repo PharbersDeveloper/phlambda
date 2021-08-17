@@ -154,3 +154,7 @@ events/event_entry_trigger.json
 events/event_entry_triggerData.json
 
 phcatlog/.ph-lambda-deploy.yaml
+
+*/yarn.lock
+
+*.lock

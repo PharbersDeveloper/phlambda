@@ -6,7 +6,10 @@
   "isBase64Encoded": false,
   "queryStringParameters": {
     "filter[database]": "phdatacat",
-    "filter[table]": "chemdata"
+    "filter[table]": "factor",
+    "nextToken": "",
+    "page[offset]": 0,
+    "page[limit]": 100
   },
   "pathParameters": {
     "type": "partitions"

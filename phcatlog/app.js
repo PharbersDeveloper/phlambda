@@ -1,4 +1,3 @@
-
 let response = {}
 
 const corsHeader =   {
@@ -15,8 +14,11 @@ const app = new delegate()
 
 const formatResponse = (content) => {
     let objHeader = {}
-    if ("output" in content) {
-        const resultOutput = content.output[0].split("\r\n")
+    let output = null
+    const cond = "output" in content || "outputData" in content
+    if (cond) {
+        output = content.output || content.outputData.map((item) => item.data)
+        const resultOutput = output[0].split("\r\n")
         for (let index = 0; index < resultOutput.length; index++) {
             const element = resultOutput[index].split(":");
             if (element.length === 2) {
@@ -24,15 +26,15 @@ const formatResponse = (content) => {
             }
         }
     } else {
-        objHeader = content.headers || {}
+        objHeader = content.headers || content.getHeaders()
     }
 
     Object.assign(objHeader, corsHeader)
     response.statusCode = content.statusCode || content.status
     response.headers = objHeader
     // response.body = "output" in content ? String(content.output[1]) : content.message.message
-    if ("output" in content) {
-        response.body = String(content.output[1])
+    if (cond) {
+        response.body = String(output[1])
     } else {
         accessResponse(content, response);
         response.body = JSON.stringify(response.body)

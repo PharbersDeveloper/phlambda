@@ -5,7 +5,8 @@
   "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "filter[database]": "phresult"
+    "filter[database]": "phdatacat",
+    "filter[isNewVersion]": true
   },
   "pathParameters": {
     "type": "tables"

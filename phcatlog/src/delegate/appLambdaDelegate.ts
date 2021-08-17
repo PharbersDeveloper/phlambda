@@ -1,5 +1,6 @@
 import { ServerResponse } from "http"
 import { AWSRequest, DBConfig, IStore, JSONAPI, Logger, ServerRegisterConfig, StoreEnum } from "phnodelayer"
+import AWSConfig from "../common/AWSConfig"
 import PagePartitionHandler from "../handler/PagePartitionHandler"
 
 export default class AppLambdaDelegate {
@@ -29,6 +30,7 @@ export default class AppLambdaDelegate {
                 awsResponse["outputData"] = [{data: ""}, {data: JSON.stringify(result)}]
                 return awsResponse
             }
+            await AWSConfig.getInstance.register(["Pharbers-ETL-Roles"])
             ServerRegisterConfig(configs)
             return JSONAPI(StoreEnum.POSTGRES, event)
         } catch (error) {

@@ -28,8 +28,7 @@ class Catlog {
         const { request: { uriObject: { query }} } = context
         switch (method) {
             case "find":
-                const gch = new GlueCatlogHandler()
-                const content = await gch.findDatabase(record.name)
+                const content = await GlueCatlogHandler.getInstance.findDatabase(record.name)
                 record.created = content.Database.CreateTime.getTime()
                 record.description = content.Database.Description || ""
         }
@@ -41,8 +40,7 @@ class Catlog {
         const { request: { uriObject: { query }} } = context
         switch (method) {
             case "find":
-                const gch = new GlueCatlogHandler()
-                const content = await gch.findTable(record.database, record.name)
+                const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
                 record.created = content.Table.CreateTime.getTime()
                 record.updated = content.Table.UpdateTime.getTime()
                 record.retention = content.Table.Retention

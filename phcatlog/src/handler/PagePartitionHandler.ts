@@ -4,7 +4,7 @@ import GlueCatlogHandler from "./GlueCatlogHandler"
 export default class PagePartitionHandler {
 
     async pageFind(database: string, table: string, nextToken: string, size: number) {
-        const gch = new GlueCatlogHandler()
+        const gch = GlueCatlogHandler.getInstance
         const partitionContent = await gch.findPartitions(database, table, nextToken, size)
         return {
             data: partitionContent.content.map((item, index) => {

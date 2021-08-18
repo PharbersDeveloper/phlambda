@@ -1,3 +1,5 @@
+import * as fs from "fs"
+import GetStepLogs from "../handler/GetStepLogs"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
@@ -35,10 +37,10 @@ describe("Handler Test", () => {
     }, 1000 * 60 * 10)
 
     test("get logs", async () => {
-        const sfh = new StepFunctionHandler()
-        const content = await sfh.findEventHistory("arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:execution_336301637352165376")
-        const cleanEvents = JSON.parse(JSON.stringify(content.events)) // .filter((item) => item.name)
-        // cleanEvents.filter((item) => item.name.toLowerCase().search("succeeded") > -1)
-        console.info(cleanEvents)
-    })
+        const gsl = new GetStepLogs()
+        const content = await gsl.FindMapReduceLogs(
+            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:Auto_max_refactor:execution_336004797931065344",
+            "Max_job1_hospital_mapping")
+        console.info(content)
+    }, 1000 * 60 * 10)
 })

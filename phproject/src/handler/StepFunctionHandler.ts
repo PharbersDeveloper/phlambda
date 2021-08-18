@@ -53,8 +53,32 @@ export default class StepFunctionHandler {
             reverseOrder: false
         })
         const content = await client.send(command)
-        instance.destroy()
-        return content
+        // instance.destroy()
+        let prevName = ""
+        return JSON.parse(JSON.stringify(content.events)).map((event) => {
+            const item = {
+                id: undefined,
+                name: undefined,
+                previousEventId: undefined,
+                timestamp: undefined,
+                type: undefined,
+                resourceType: undefined,
+                value: undefined
+            }
+            item.id = event.id
+            item.previousEventId = event.previousEventId
+            item.type = event.type
+            item.timestamp = event.timestamp
+            delete event.id
+            delete event.previousEventId
+            delete event.type
+            delete event.timestamp
+            Object.keys(event).forEach((key) => item.value = event[key])
+            item.name = item.value?.name || prevName
+            prevName = item.name
+            item.resourceType = item.value?.resourceType
+            return item
+        }).filter((item) => item.type.search("Execution") < 0)
     }
 
     async startExecution(input: string) {

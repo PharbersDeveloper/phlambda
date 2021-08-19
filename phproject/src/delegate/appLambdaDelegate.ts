@@ -23,7 +23,7 @@ export default class AppLambdaDelegate {
                 const stp = new StepFunctionHandler()
                 const arn = JSON.parse(event.body).arn
                 await stp.stopExecution(arn)
-            } else if (event.pathParameters.type === "logs" && event.httpMethod.toLowerCase === "post") {
+            } else if (event.pathParameters.type === "logs" && event.httpMethod.toLowerCase() === "post") {
                 const paths = event.path.split("/")
                 const projectName = paths[0] === "" ? paths[1] : paths[0]
                 const awsRequest = new AWSRequest(event, projectName)

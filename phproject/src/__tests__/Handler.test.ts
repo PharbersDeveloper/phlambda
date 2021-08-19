@@ -39,8 +39,8 @@ describe("Handler Test", () => {
     test("get logs", async () => {
         const logsHandler = new LogsHandler()
         const content = await logsHandler.getLogs(
-            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:Auto_max_refactor:executor_1423548345342894080",
-            "create_run_id")
+            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:execution_336301637352165376",
+            "move-to-readable")
         console.info(content)
     }, 1000 * 60 * 10)
 })

@@ -32,8 +32,9 @@ export default class AppLambdaDelegate {
                 const result = await new LogsHandler().getLogs(body.arn, body.name)
                 awsResponse["outputData"] = [{data: ""}, {data: JSON.stringify(result)}]
                 return awsResponse
+            } else {
+                return JSONAPI(StoreEnum.POSTGRES, event)
             }
-            return JSONAPI(StoreEnum.POSTGRES, event)
         } catch (error) {
             throw error
         }

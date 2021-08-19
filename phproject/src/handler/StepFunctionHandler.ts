@@ -44,6 +44,9 @@ export default class StepFunctionHandler {
     }
 
     async findEventHistory(arn: string) {
+        function getResourceType(type: string) {
+            return type.toLocaleLowerCase().search("lambda") > -1 ? "lambda" : ""
+        }
         const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
         const config = await sts.assumeRole()
         const instance = new AWSStepFunction(config)
@@ -76,7 +79,7 @@ export default class StepFunctionHandler {
             Object.keys(event).forEach((key) => item.value = event[key])
             item.name = item.value?.name || prevName
             prevName = item.name
-            item.resourceType = item.value?.resourceType
+            item.resourceType = item.value?.resourceType || getResourceType(item.type)
             return item
         }).filter((item) => item.type.search("Execution") < 0)
     }

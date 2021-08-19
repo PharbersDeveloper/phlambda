@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import GetStepLogs from "../handler/GetStepLogs"
+import LogsHandler from "../handler/LogsHandler"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
@@ -37,10 +37,10 @@ describe("Handler Test", () => {
     }, 1000 * 60 * 10)
 
     test("get logs", async () => {
-        const gsl = new GetStepLogs()
-        const content = await gsl.FindMapReduceLogs(
-            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:Auto_max_refactor:execution_336004797931065344",
-            "Max_job1_hospital_mapping")
+        const logsHandler = new LogsHandler()
+        const content = await logsHandler.getLogs(
+            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:Auto_max_refactor:executor_1423548345342894080",
+            "create_run_id")
         console.info(content)
     }, 1000 * 60 * 10)
 })

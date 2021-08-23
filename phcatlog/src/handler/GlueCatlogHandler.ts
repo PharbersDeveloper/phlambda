@@ -67,7 +67,12 @@ export default class GlueCatlogHandler {
                 if (!skipData) {
                     currentData = item.Partitions.map((partition, index) => {
                         const schema = {}
-                        partition.Values.forEach((val, idx) => { schema[partitions[idx].Name] = val })
+                        partition.Values.forEach((val, idx) => {
+                            if (partitions[idx]) {
+                                schema[partitions[idx].Name] = val
+                            }
+                            
+                        })
                         return { schema, attribute: JSON.stringify(partition.StorageDescriptor) }
                     })
                 }
@@ -77,7 +82,11 @@ export default class GlueCatlogHandler {
             const next = (await content.next())
             currentData = next.value.Partitions.map((partition, index) => {
                 const schema = {}
-                partition.Values.forEach((val, idx) => { schema[partitions[idx].Name] = val })
+                partition.Values.forEach((val, idx) => {
+                    if (partitions[idx]) {
+                        schema[partitions[idx].Name] = val
+                    }
+                })
                 return { schema, attribute: JSON.stringify(partition.StorageDescriptor) }
             })
         }

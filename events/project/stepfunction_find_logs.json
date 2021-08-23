@@ -1,16 +1,13 @@
 {
-  "body": "",
-  "resource": "/catlog/{type}",
-  "path": "/catlog/tables",
-  "httpMethod": "GET",
+  "body": "{\"arn\": \"arn:aws-cn:states:cn-northwest-1:444603803904:execution:Auto_max_refactor:executor_1423548345342894080\", \"name\": \"Max_job1_hospital_mapping\"}",
+  "resource": "/phproject/{type}",
+  "path": "/phproject/logs",
+  "httpMethod": "POST",
   "isBase64Encoded": false,
   "queryStringParameters": {
-    "filter[database]": "phdatacat",
-    "page[limit]": 1,
-    "page[offset]": 0
   },
   "pathParameters": {
-    "type": "tables"
+    "type": "logs"
   },
   "stageVariables": {
     "baz": "qux"
@@ -55,8 +52,8 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/catlog/tables",
-    "resourcePath": "/catlog/{type}",
+    "path": "/phproject/logs",
+    "resourcePath": "/phproject/{type}",
     "httpMethod": "GET",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"

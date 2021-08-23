@@ -1,3 +1,5 @@
+import * as fs from "fs"
+import LogsHandler from "../handler/LogsHandler"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
@@ -11,6 +13,7 @@ describe("Handler Test", () => {
             dag_name: "ETL_Iterator",
             parameters: [
                 {
+                    // tslint:disable-next-line:max-line-length
                     p_input: "s3://ph-max-auto/v0.0.1-2020-06-08/Common_files/extract_data_files/MAX_city_normalize.csv",
                     p_output: "s3://ph-platform/2020-11-11/etl/readable_files/test",
                     g_partition: "provider, version",
@@ -33,4 +36,11 @@ describe("Handler Test", () => {
         await sfh.startExecution(JSON.stringify(input))
     }, 1000 * 60 * 10)
 
+    test("get logs", async () => {
+        const logsHandler = new LogsHandler()
+        const content = await logsHandler.getLogs(
+            "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:execution_336301637352165376",
+            "move-to-readable")
+        console.info(content)
+    }, 1000 * 60 * 10)
 })

@@ -62,7 +62,7 @@ class Project {
                 if (record.arn) {
                     const stp = new StepFunctionHandler()
                     const content = await stp.findExecutions(record.arn)
-                    record.name = record.arn.split(":").slice(-1)
+                    record.name = record.arn.split(":").slice(-1)[0]
                     record.status = content.status
                     record.startTime = content.startDate.getTime()
                     record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()

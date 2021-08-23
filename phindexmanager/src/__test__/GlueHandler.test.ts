@@ -12,7 +12,7 @@ const configs = [
         database: "phentry",
         user: "pharbers",
         password: "Abcde196125",
-        host: "127.0.0.1",
+        host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
         port: 5432,
         poolMax: 2
     })
@@ -34,4 +34,14 @@ describe("Glue Test", () => {
         await store.close()
         console.timeEnd("index")
     }, 1000 * 60 * 100)
+
+    test("Glue Partition Count", async () => {
+        const awsConfigs = ["Ph-Data-Resource-Admin", "Pharbers-ETL-Roles"]
+        const awsConfig = AWSConfig.getInstance
+        await awsConfig.register(awsConfigs)
+
+        const handler = new GlueHandler(store)
+        await handler.syncAll(true)
+
+    }, 1000 * 60 * 20)
 })

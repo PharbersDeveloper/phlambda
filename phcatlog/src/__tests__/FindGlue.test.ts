@@ -20,13 +20,13 @@ describe("Find Glue Test", () => {
     test("Find DataBaseAll", async () => {
         const app = require("../../app.js")
         const result = await app.lambdaHandler(new FindDataBaseEvent(), undefined)
-        console.info(result)
+        console.info(JSON.stringify(JSON.parse(result)))
     }, 1000 * 60 * 10)
 
     test("Find DataBase Table", async () => {
         const app = require("../../app.js")
         const result = await app.lambdaHandler(new FindDataBaseTableEvent(), undefined)
-        console.info(result)
+        console.info(JSON.stringify(JSON.parse(result.body)))
     }, 1000 * 60 * 10)
 
     test("Find Page Partitions", async () => {

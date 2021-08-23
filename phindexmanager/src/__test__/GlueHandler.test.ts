@@ -34,4 +34,14 @@ describe("Glue Test", () => {
         await store.close()
         console.timeEnd("index")
     }, 1000 * 60 * 100)
+
+    test("Glue Partition Count", async () => {
+        const awsConfigs = ["Ph-Data-Resource-Admin", "Pharbers-ETL-Roles"]
+        const awsConfig = AWSConfig.getInstance
+        await awsConfig.register(awsConfigs)
+
+        const handler = new GlueHandler(store)
+        await handler.syncAll(true)
+
+    }, 1000 * 60 * 20)
 })

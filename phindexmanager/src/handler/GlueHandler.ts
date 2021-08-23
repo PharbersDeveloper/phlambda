@@ -2,8 +2,10 @@ import {
     GetDatabaseCommand,
     GetTableCommand,
     paginateGetDatabases,
+    paginateGetPartitions,
     paginateGetTables,
-    paginateGetTableVersions
+    paginateGetTableVersions,
+    UpdateTableCommand
 } from "@aws-sdk/client-glue"
 import {IStore, Logger} from "phnodelayer"
 import AWSConfig from "../common/AWSConfig"
@@ -21,7 +23,7 @@ export default class GlueHandler {
         Logger.info("exec")
     }
 
-    async syncAll() {
+    async syncAll(updatePartitionCount: boolean = false) {
         const instance = new AWSGlue(this.config)
         const client = instance.getClient()
         const pageDataBaseContent = await paginateGetDatabases({client}, {})
@@ -45,13 +47,50 @@ export default class GlueHandler {
             }
         }
 
-        for (const dbName of databaseNames) {
-            await this.syncDatabases(dbName)
-        }
+        if (updatePartitionCount) {
+            for (const table of tableNames) {
+                await this.addPartitionCountToTableAttr(table.databaseName, table.tableName)
+            }
+        } else {
+            for (const dbName of databaseNames) {
+                await this.syncDatabases(dbName)
+            }
 
-        for (const table of tableNames) {
-            await this.syncTables(table.databaseName, table.tableName)
+            for (const table of tableNames) {
+                await this.syncTables(table.databaseName, table.tableName)
+            }
         }
+    }
+
+    private async addPartitionCountToTableAttr(databaseName: string, tableName: string) {
+        const instance = new AWSGlue(this.config)
+        const client = instance.getClient()
+        const partitions = await paginateGetPartitions({client}, {
+            DatabaseName: databaseName,
+            TableName: tableName
+        })
+        const partitionCountArr = []
+        for await (const item of partitions) {
+            partitionCountArr.push(item.Partitions.length)
+        }
+        const partitionCount = partitionCountArr.reduce((sum, current) => sum + current).toString() || "0"
+        const getTableCommand = new GetTableCommand({
+            DatabaseName: databaseName,
+            Name: tableName
+        })
+        console.info(`database => ${databaseName}  table => ${tableName}   partitionCount => ${partitionCount}`)
+        const getTable = await client.send(getTableCommand)
+        const tableInput = getTable.Table
+        if (tableInput.Parameters === undefined) {
+            tableInput.Parameters = {}
+        }
+        tableInput.Parameters.partitionCount = partitionCount
+
+        const updateCommand = new UpdateTableCommand({
+            DatabaseName: databaseName,
+            TableInput: tableInput
+        })
+        await client.send(updateCommand)
     }
 
     private async syncDatabases(databaseName: string) {

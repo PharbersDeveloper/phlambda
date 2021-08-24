@@ -12,15 +12,13 @@ import {
 
 import AWSSsm from "../utils/AWSSsm"
 import AWSStepFunction from "../utils/AWSStepFunction"
-import AWSSts from "../utils/AWSSts"
 import ObjectUtil from "../utils/ObjectUtil"
 import SnowflakeID from "../utils/SnowflakeID"
 
 export default class StepFunctionHandler {
+
     async findStepFunctions(arn: string) {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction()
         const client = instance.getClient()
         const command = new DescribeStateMachineCommand({
             stateMachineArn: arn
@@ -31,9 +29,7 @@ export default class StepFunctionHandler {
     }
 
     async findExecutions(arn: string) {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction()
         const client = instance.getClient()
         const command = new DescribeExecutionCommand({
             executionArn: arn
@@ -47,9 +43,7 @@ export default class StepFunctionHandler {
         function getResourceType(type: string) {
             return type.toLocaleLowerCase().search("lambda") > -1 ? "lambda" : ""
         }
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction()
         const client = instance.getClient()
         const command = new GetExecutionHistoryCommand({
             executionArn: arn,
@@ -92,9 +86,7 @@ export default class StepFunctionHandler {
             parameters: args.parameters,
             iterator: undefined
         }
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const ssmInstance = new AWSSsm(config)
+        const ssmInstance = new AWSSsm()
         const ssmCommand = new GetParameterCommand({
             Name: "cluster_id"
         })
@@ -112,7 +104,7 @@ export default class StepFunctionHandler {
 
         ObjectUtil.delObjectKeyIsNull(params)
 
-        const stepFunctionInstance = new AWSStepFunction(config)
+        const stepFunctionInstance = new AWSStepFunction()
         const command = new StartExecutionCommand({
             stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:" + args.dag_name,
             input: JSON.stringify(params),
@@ -128,9 +120,7 @@ export default class StepFunctionHandler {
     }
 
     async stopExecution(arn) {
-        const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey)
-        const config = await sts.assumeRole()
-        const instance = new AWSStepFunction(config)
+        const instance = new AWSStepFunction()
         const client = instance.getClient()
         const command = new StopExecutionCommand({
             executionArn: arn

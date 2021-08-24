@@ -1,4 +1,3 @@
-import {Logger} from "phnodelayer"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Project {

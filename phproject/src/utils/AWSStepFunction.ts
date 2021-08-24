@@ -1,11 +1,14 @@
 
 import { SFNClient } from "@aws-sdk/client-sfn"
+import { AWSConfig } from "../common/AWSConfig"
 
 export default class AWSStepFunction {
     private readonly client: SFNClient = null
 
-    constructor(config: any) {
-        this.client = new SFNClient(config)
+    constructor() {
+        this.client = new SFNClient({
+            region: AWSConfig.REGION
+        })
     }
 
     getClient() {

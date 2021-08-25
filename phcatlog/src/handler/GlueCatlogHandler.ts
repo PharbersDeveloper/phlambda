@@ -3,13 +3,10 @@ import {
     GetTableCommand,
     paginateGetPartitions
 } from "@aws-sdk/client-glue"
-import AWSConfig from "../common/AWSConfig"
 import AWsGlue from "../utils/AWSGlue"
 
 export default class GlueCatlogHandler {
     private static instance: GlueCatlogHandler = null
-
-    private config: any = AWSConfig.getInstance.getConf("Pharbers-ETL-Roles")
 
     private constructor() {}
 
@@ -21,7 +18,7 @@ export default class GlueCatlogHandler {
     }
 
     async findDatabase(name: string) {
-        const instance = await new AWsGlue(this.config)
+        const instance = await new AWsGlue()
         const client = instance.getClient()
         const command = new GetDatabaseCommand({
             Name: name
@@ -32,7 +29,7 @@ export default class GlueCatlogHandler {
     }
 
     async findTable(databaseName: string, name: string) {
-        const instance = await new AWsGlue(this.config)
+        const instance = await new AWsGlue()
         const client = instance.getClient()
         const command = new GetTableCommand({
             DatabaseName: databaseName,
@@ -44,7 +41,7 @@ export default class GlueCatlogHandler {
     }
 
     async findPartitions(databaseName: string, name: string, nextToken: string, size: number) {
-        const instance = await new AWsGlue(this.config)
+        const instance = await new AWsGlue()
         const client = instance.getClient()
         const table = await this.findTable(databaseName, name)
         const partitions = table.Table.PartitionKeys
@@ -71,7 +68,7 @@ export default class GlueCatlogHandler {
                             if (partitions[idx]) {
                                 schema[partitions[idx].Name] = val
                             }
-                            
+
                         })
                         return { schema, attribute: JSON.stringify(partition.StorageDescriptor) }
                     })

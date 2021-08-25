@@ -1,11 +1,14 @@
 
 import { SSMClient } from "@aws-sdk/client-ssm"
+import { AWSConfig } from "../common/AWSConfig"
 
 export default class AWSSsm {
     private readonly client: SSMClient = null
 
-    constructor(config: any) {
-        this.client = new SSMClient(config)
+    constructor() {
+        this.client = new SSMClient({
+            region: AWSConfig.REGION
+        })
     }
 
     getClient() {

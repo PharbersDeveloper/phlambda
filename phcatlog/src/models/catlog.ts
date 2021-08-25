@@ -44,7 +44,7 @@ class Catlog {
                 record.created = content.Table.CreateTime.getTime()
                 record.updated = content.Table.UpdateTime.getTime()
                 record.retention = content.Table.Retention
-                record.cloumns = content.Table.StorageDescriptor.Columns
+                record.columns = content.Table.StorageDescriptor.Columns
                 record.location = content.Table.StorageDescriptor.Location
                 record.inputFormat = content.Table.StorageDescriptor.InputFormat
                 record.outputFormat = content.Table.StorageDescriptor.OutputFormat

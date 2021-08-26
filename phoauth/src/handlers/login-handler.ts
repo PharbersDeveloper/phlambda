@@ -1,4 +1,4 @@
-import { SF, Store } from "phnodelayer"
+import { IStore, Logger, Register, StoreEnum } from "phnodelayer"
 import { errors2response, PhInvalidPassword, PhNotFoundError, PhRecordLoss} from "../errors/pherrors"
 import { Request } from "../request"
 import { Response } from "../response"
@@ -13,7 +13,7 @@ export class LoginHandler {
         const account = request.body.account || request.query.account
         const password = request.body.password || request.query.password
 
-        const pg = SF.getInstance.get(Store.Postgres)
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
         const result = await pg.find("account", null, { match: { email: account } })
         if (result.payload.records.length === 0) {
             errors2response(PhNotFoundError, response)

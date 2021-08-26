@@ -9,14 +9,6 @@ class Token {
             scope: String,
             expired: Date,
         },
-        // authorization: {
-        //     authorizationCode: String,
-        //     expiresAt: Date,
-        //     redirectUri: String,
-        //     scope: String,
-        //     client: Object,
-        //     user: Object
-        // },
         access: {
             uid: String,
             cid: String,

@@ -12,7 +12,7 @@ export interface IPhConf {
 }
 
 export const PostgresConf: IPhConf = {
-    name: StoreEnum.REDIS,
+    name: StoreEnum.POSTGRES,
     entity: "offweb",
     database: "phoffweb",
     user: "pharbers",

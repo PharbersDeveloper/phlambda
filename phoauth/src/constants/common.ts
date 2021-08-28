@@ -26,7 +26,7 @@ export const RedisConf: IPhConf = {
 }
 
 export const PostgresConf: IPhConf = {
-    name: StoreEnum.REDIS,
+    name: StoreEnum.POSTGRES,
     entity: "db/oauth",
     database: "phcommon",
     user: "pharbers",

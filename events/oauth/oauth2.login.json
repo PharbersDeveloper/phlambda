@@ -2,6 +2,13 @@
     "resource": "/oauth/{edp}",
     "path": "/oauth/login",
     "httpMethod": "GET",
+    "queryStringParameters": {
+    },
+    "multiValueQueryStringParameters": {
+    },
+    "pathParameters": {
+        "edp": "login"
+    },
     "headers": {
         "accept": "application/json",
         "accept-encoding": "gzip, deflate, br",
@@ -69,21 +76,6 @@
         "X-Forwarded-Proto": [
             "https"
         ]
-    },
-    "queryStringParameters": {
-        "account": "alfredyang@pharbers.com",
-        "password": "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
-    },
-    "multiValueQueryStringParameters": {
-        "account": [
-            "alfredyang@pharbers.com"
-        ],
-        "password": [
-            "1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582"
-        ]
-    },
-    "pathParameters": {
-        "edp": "login"
     },
     "stageVariables": null,
     "requestContext": {

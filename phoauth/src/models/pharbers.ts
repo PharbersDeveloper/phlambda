@@ -17,7 +17,7 @@ export class Pharbers implements AuthorizationCodeModel {
             return null
         }
         const record = result.payload.records[0]
-        if (record.expired !== null && record.expired > new Date()) {
+        if (record.expired !== null && record.expired < new Date()) {
             return null
         }
 

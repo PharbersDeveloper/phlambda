@@ -2,22 +2,22 @@ phproject:
   metadata:
     name: phproject
     bucket: ph-platform
-    runtime: nodejs10.x # lambda funciton 会按照第一个使用， layer 全使用
-    desc: 临时Project查询与Dag调度
+    runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
+    desc: Step Functions 展示
   layer:
     lib_path: node_modules
     package_name: phproject-layer.zip
     layer_path: phproject-layer.zip
-    layer_desc: 临时Project查询与Dag调度
+    layer_desc: Step Functions 展示
   lambda:
-    code_path: dist,app.js
+    code_path: app.js,dist
     package_name: phproject-code.zip
     lambda_path: phproject-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: base-layer-node,lbdauth
-    lambda_desc: 临时Project查询与Dag调度
+    lambda_layers: phproject,base-layer-node,lbdauth
+    lambda_desc: Step Functions 展示
     lambda_timeout: 30
-    lambda_memory_size: 128
+    lambda_memory_size: 512
     vpc_config:
       SubnetIds:
       - 'subnet-0260eab5acd58bc53'
@@ -27,8 +27,10 @@ phproject:
       - 'sg-09f5205a1194149ab'
     lambda_env:
       TEST: test
+#      AccessKeyId: AKIAWPBDTVEAI6LUCLPX
+#      SecretAccessKey: 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
     lambda_tag:
-      language: nodejs10.x
+      language: nodejs14.x
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml

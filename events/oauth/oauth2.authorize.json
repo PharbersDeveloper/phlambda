@@ -2,6 +2,15 @@
     "resource": "/oauth/{edp}",
     "path": "/oauth/authorization",
     "httpMethod": "GET",
+    "queryStringParameters": {
+
+    },
+    "multiValueQueryStringParameters": {
+
+    },
+    "pathParameters": {
+        "edp": "authorization"
+    },
     "headers": {
         "accept": "text/plain",
         "accept-encoding": "gzip, deflate, br",
@@ -69,29 +78,6 @@
         "X-Forwarded-Proto": [
             "https"
         ]
-    },
-    "queryStringParameters": {
-
-    },
-    "multiValueQueryStringParameters": {
-        "user_id": [
-            "5UBSLZvV0w9zh7-lZQap"
-        ],
-        "client_id": [
-            "V5I67BHIRVR2Z59kq-a-"
-        ],
-        "redirect_uri": [
-            "http://general.pharbers.com/oauth-callback"
-        ],
-        "response_type": [
-            "code"
-        ],
-        "state": [
-            "xyz"
-        ]
-    },
-    "pathParameters": {
-        "edp": "authorization"
     },
     "stageVariables": null,
     "requestContext": {

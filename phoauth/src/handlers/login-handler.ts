@@ -10,7 +10,8 @@ export class LoginHandler {
      * @param response
      */
     async handle(request: Request, response: Response) {
-        const account = request.body.account || request.query.account
+        const account = request.body.account || request.body.email || request.body.phone
+            || request.query.account || request.query.email || request.query.phone
         const password = request.body.password || request.query.password
 
         const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore

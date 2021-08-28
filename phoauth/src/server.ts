@@ -61,8 +61,7 @@ export class OAuth2Server {
     async authorize(request: Request, response: Response, options?: any) {
         const opts = {
             allowEmptyState: false,
-            accessTokenLifetime: 60 * 60 * 24,
-            authorizationCodeLifetime: 10 * 60,
+            authorizationCodeLifetime: 60 * 5,
             ...this.options,
             ...options,
         }
@@ -76,8 +75,8 @@ export class OAuth2Server {
 
     async token(request: Request, response: Response, options?: any) {
         const opts = {
-            accessTokenLifetime: 60 * 60 * 24, // 1 day.
-            refreshTokenLifetime: 60 * 60 * 24 * 14, // 2 weeks.
+            accessTokenLifetime: 60 * 60 * 8, // 8 小时.
+            refreshTokenLifetime: 60 * 60 * 10, // 10 小时
             allowExtendedTokenAttributes: false,
             requireClientAuthentication: {},
             ...this.options,

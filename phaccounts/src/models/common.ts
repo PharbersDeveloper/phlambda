@@ -1,5 +1,3 @@
-import * as fortune from "fortune"
-
 class Common {
 
     public model: any = {

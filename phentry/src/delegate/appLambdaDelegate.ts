@@ -11,22 +11,23 @@ export default class AppLambdaDelegate {
                 new DBConfig(RedisConf)
             ]
             ServerRegisterConfig(configs)
-            const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
-            await redis.open()
-            const result = await redis.find("access", null, {match: {token: event.headers.Authorization}})
-            await redis.close()
-            let scope = ""
-            if (result.payload.records.length > 0) {
-                scope  = result.payload.records[0].scope
-            }
-            const flag = identify(event, scope)
-            if (flag.status === 200) {
-                if (event.pathParameters.type === "download" && event.httpMethod.toLowerCase() === "post") {
-                    return await downloadHandler(event)
-                }
-                return JSONAPI(StoreEnum.POSTGRES, event)
-            }
-            return flag
+            // const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+            // await redis.open()
+            // const result = await redis.find("access", null, {match: {token: event.headers.Authorization}})
+            // await redis.close()
+            // let scope = ""
+            // if (result.payload.records.length > 0) {
+            //     scope  = result.payload.records[0].scope
+            // }
+            // const flag = identify(event, scope)
+            // if (flag.status === 200) {
+            //     if (event.pathParameters.type === "download" && event.httpMethod.toLowerCase() === "post") {
+            //         return await downloadHandler(event)
+            //     }
+            //     return JSONAPI(StoreEnum.POSTGRES, event)
+            // }
+            // return flag
+            return JSONAPI(StoreEnum.POSTGRES, event)
         } catch (error) {
             throw error
         }

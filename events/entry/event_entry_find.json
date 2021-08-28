@@ -1,7 +1,7 @@
 {
   "resource": "/entry/{type}",
   "path": "/entry/assets",
-  "httpMethod": "POST",
+  "httpMethod": "GET",
   "headers": {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
@@ -92,6 +92,6 @@
     "domainName": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
     "apiId": "2t69b7x032"
   },
-  "body": "{\"data\": {\"type\": \"assets\",\"attributes\": {\"name\": \"lexicon\"}}}",
+  "body": "",
   "isBase64Encoded": false
 }

@@ -1,21 +1,21 @@
-oauth:
+reports:
   metadata:
-    name: oauth
+    name: reports
     bucket: ph-platform
     runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
-    desc: oauth核心逻辑
+    desc: reports逻图表逻辑层
   layer:
     lib_path: node_modules
-    package_name: oauth-layer.zip
-    layer_path: oauth-layer.zip
-    layer_desc: oauth核心逻辑
+    package_name: reports-layer.zip
+    layer_path: reports-layer.zip
+    layer_desc: reports逻图表逻辑层
   lambda:
     code_path: dist,app.js
-    package_name: oauth-code.zip
-    lambda_path: oauth-code.zip
+    package_name: reports-code.zip
+    lambda_path: reports-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: oauth,base-layer-node
-    lambda_desc: oauth核心逻辑
+    lambda_layers: base-layer-node,lbdauth
+    lambda_desc: reports逻图表逻辑层
     lambda_timeout: 30
     lambda_memory_size: 512
     vpc_config:
@@ -32,5 +32,5 @@ oauth:
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
-    lambda_name: oauth
+    lambda_name: reports
     alias_version: current

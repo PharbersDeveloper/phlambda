@@ -1,21 +1,21 @@
-oauth:
+offweb:
   metadata:
-    name: oauth
+    name: offweb
     bucket: ph-platform
     runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
-    desc: oauth核心逻辑
+    desc: 官网
   layer:
     lib_path: node_modules
-    package_name: oauth-layer.zip
-    layer_path: oauth-layer.zip
-    layer_desc: oauth核心逻辑
+    package_name: offweb-layer.zip
+    layer_path: offweb-layer.zip
+    layer_desc: 官网
   lambda:
     code_path: dist,app.js
-    package_name: oauth-code.zip
-    lambda_path: oauth-code.zip
+    package_name: offweb-code.zip
+    lambda_path: offweb-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: oauth,base-layer-node
-    lambda_desc: oauth核心逻辑
+    lambda_layers: base-layer-node
+    lambda_desc: 官网
     lambda_timeout: 30
     lambda_memory_size: 512
     vpc_config:
@@ -32,5 +32,5 @@ oauth:
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
-    lambda_name: oauth
+    lambda_name: offweb
     alias_version: current

@@ -26,7 +26,7 @@ const registerConfigs = jest.fn(() => {
         password: "Abcde196125",
         host: "127.0.0.1",
         port: 5432,
-        poolMax: 1
+        poolMax: 2
     })
 
     const redisDBConfig = new DBConfig({
@@ -35,9 +35,8 @@ const registerConfigs = jest.fn(() => {
         database: "0",
         user: "",
         password: "",
-        host: "127.0.0.1",
-        port: 6379,
-        poolMax: 1
+        host: "192.168.100.50",
+        port: 6379
     })
 
     return [jsonapiDBConfig, redisDBConfig]

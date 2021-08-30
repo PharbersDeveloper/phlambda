@@ -1,6 +1,6 @@
 {
 	"name": "phnodelayer",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"description": "",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
@@ -15,7 +15,7 @@
 		"config",
 		"custom"
 	],
-	"keywords": [],
+	"keywords": ["AWS Lambda", "JSONAPI", "Fortune", "TypeScript"],
 	"author": "Alfred",
 	"maintainer": "Alex",
 	"license": "GPL3.0",

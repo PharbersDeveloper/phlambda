@@ -1,7 +1,7 @@
 {
-  "name": "phglueindex",
+  "name": "phstepfunctionindex",
   "version": "0.0.1",
-  "description": "Glue Index To Postgres",
+  "description": "Step Function Index To Postgres",
   "main": "app.js",
   "author": "Alex",
   "license": "GPL3.0",
@@ -9,16 +9,14 @@
     "coverage": "open ./coverage/lcov-report/index.html",
     "test": "jest --coverage",
     "build": "tsc",
-    "format": "prettier --write \\\"src/**/*.ts\\\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@aws-sdk/client-glue": "^3.26.0",
-    "@aws-sdk/client-sfn": "^3.24.0",
-    "@aws-sdk/client-ssm": "^3.25.0",
-    "@aws-sdk/client-sts": "^3.22.0"
+    "@aws-sdk/client-sfn": "^3.24.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-sts": "^3.22.0",
     "@types/jest": "^26.0.23",
     "@types/node": "~14.17.3",
     "eslint": "^6.5.1",

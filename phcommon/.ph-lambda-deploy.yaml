@@ -1,0 +1,36 @@
+phcommon:
+  metadata:
+    name: phcommon
+    bucket: ph-platform
+    runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
+    desc: phcommon用户体系的增删改查操作
+  layer:
+    lib_path: node_modules
+    package_name: phcommon-layer.zip
+    layer_path: phcommon-layer.zip
+    layer_desc: phcommon用户体系的增删改查操作
+  lambda:
+    code_path: dist,app.js
+    package_name: phcommon-code.zip
+    lambda_path: phcommon-code.zip
+    lambda_handler: app.lambdaHandler
+    lambda_layers: base-layer-node,lbdauth
+    lambda_desc: phcommon用户体系的增删改查操作
+    lambda_timeout: 30
+    lambda_memory_size: 512
+    vpc_config:
+      SubnetIds:
+      - 'subnet-0260eab5acd58bc53'
+      - 'subnet-0e3daa88acef9b136'
+      SecurityGroupIds:
+      - 'sg-058404c2ad02dcbb9'
+      - 'sg-09f5205a1194149ab'
+    lambda_env:
+      TEST: test
+    lambda_tag:
+      language: nodejs14.x
+  gateway:
+    rest_api_id: 2t69b7x032
+    api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
+    lambda_name: phcommon
+    alias_version: current

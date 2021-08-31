@@ -2,7 +2,7 @@ oauth:
   metadata:
     name: oauth
     bucket: ph-platform
-    runtime: nodejs10.x # lambda funciton 会按照第一个使用， layer 全使用
+    runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
     desc: oauth核心逻辑
   layer:
     lib_path: node_modules
@@ -28,7 +28,7 @@ oauth:
     lambda_env:
       TEST: test
     lambda_tag:
-      language: nodejs10.x
+      language: nodejs14.x
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml

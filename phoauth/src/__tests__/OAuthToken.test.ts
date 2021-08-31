@@ -1,69 +1,79 @@
 import * as fs from "fs"
 
 const OAuthAccess = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "e31d2f7f78d27ec1511556a7ee5976d4e288d1e57746157f6d94cc0b0b51cc59"
-    event.queryStringParameters.redirect_uri = "www.pharbers.com"
-    event.queryStringParameters.client_id = "XwgxtaFThqfJ4lru-a-"
-    event.queryStringParameters.grant_type = "authorization_code"
+    const event = JSON.parse(fs.readFileSync("../events/oauth/oauth2.token.json", "utf8"))
+    event.httpMethod = "POST"
+    event.headers.authorization = "Basic WHdneHRhRlRocWZKNGxydS1hLTo5NjFlZDRhZDg0MjE0N2E1YzlhMWNiYzYzMzY5MzQzOGUxZjRhOGViYjcxMDUwZDlkOWY3YzQzZGJhZGY5Yjcy"
+    event.headers.accept = "application/x-www-form-urlencoded"
+    event.headers["content-type"] = "application/x-www-form-urlencoded"
+    const code = "9762717268e814b8f61e536a9887248af4c5db36ba93b98738cdb8e474806974"
+    event.body = `code=${code}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Fgeneral.pharbers.com%2Foauth-callback`
     return event
 })
 
 const OAuthGenerateClientIdError = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "4238a5547bbbefec1e10a0f6478a36aa3a523449acbe166ec9d997e82942386e"
-    event.queryStringParameters.redirect_uri = "www.pharbers.com"
-    event.queryStringParameters.client_id = "clientid0x1"
-    event.queryStringParameters.grant_type = "authorization_code"
+    const event = JSON.parse(fs.readFileSync("../events/oauth/oauth2.token.json", "utf8"))
+    event.httpMethod = "POST"
+    event.headers.authorization = "Basic Y2xpZW50aWQweDE6OTYxZWQ0YWQ4NDIxNDdhNWM5YTFjYmM2MzM2OTM0MzhlMWY0YThlYmI3MTA1MGQ5ZDlmN2M0M2RiYWRmOWI3Mg=="
+    event.headers.accept = "application/x-www-form-urlencoded"
+    event.headers["content-type"] = "application/x-www-form-urlencoded"
+    const code = "9762717268e814b8f61e536a9887248af4c5db36ba93b98738cdb8e474806974"
+    event.body = `code=${code}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Fgeneral.pharbers.com%2Foauth-callback`
     return event
 })
 
 const OAuthGenerateCodeError = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "coodeerror"
-    event.queryStringParameters.redirect_uri = "www.pharbers.com"
-    event.queryStringParameters.client_id = "V5I67BHIRVR2Z59kq-a-"
-    event.queryStringParameters.grant_type = "authorization_code"
+    const event = JSON.parse(fs.readFileSync("../events/oauth/oauth2.token.json", "utf8"))
+    event.httpMethod = "POST"
+    event.headers.authorization = "Basic WHdneHRhRlRocWZKNGxydS1hLTo5NjFlZDRhZDg0MjE0N2E1YzlhMWNiYzYzMzY5MzQzOGUxZjRhOGViYjcxMDUwZDlkOWY3YzQzZGJhZGY5Yjcy"
+    event.headers.accept = "application/x-www-form-urlencoded"
+    event.headers["content-type"] = "application/x-www-form-urlencoded"
+    const code = "coodeerror"
+    event.body = `code=${code}&grant_type=authorization_code&redirect_uri=http%3A%2F%2Fgeneral.pharbers.com%2Foauth-callback`
     return event
 })
 
 const OAuthGenerateGrantTypeError = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../events/event_oauth_token.json", "utf8"))
-    event.queryStringParameters.code = "4238a5547bbbefec1e10a0f6478a36aa3a523449acbe166ec9d997e82942386e"
-    event.queryStringParameters.redirect_uri = "www.pharbers.com"
-    event.queryStringParameters.client_id = "V5I67BHIRVR2Z59kq-a-"
-    event.queryStringParameters.grant_type = "xauthorization_code"
+    const event = JSON.parse(fs.readFileSync("../events/oauth/oauth2.token.json", "utf8"))
+    event.httpMethod = "POST"
+    event.headers.authorization = "Basic WHdneHRhRlRocWZKNGxydS1hLTo5NjFlZDRhZDg0MjE0N2E1YzlhMWNiYzYzMzY5MzQzOGUxZjRhOGViYjcxMDUwZDlkOWY3YzQzZGJhZGY5Yjcy"
+    event.headers.accept = "application/x-www-form-urlencoded"
+    event.headers["content-type"] = "application/x-www-form-urlencoded"
+    const code = "9762717268e814b8f61e536a9887248af4c5db36ba93b98738cdb8e474806974"
+    event.body = `code=${code}&grant_type=xauthorization_code&redirect_uri=http%3A%2F%2Fgeneral.pharbers.com%2Foauth-callback`
     return event
 })
 
-test("OAuth Generate Token Access", async () => {
-    const app = require("../../app.js")
-    const res = await app.lambdaHandler(new OAuthAccess(), undefined)
-    expect(res.statusCode).toBe(200)
-    expect(typeof res.body).toEqual("string")
-    expect("access_token" in JSON.parse(res.body)).toEqual(true)
-}, 5000)
+describe("OAuth Token Test", () => {
+    test("OAuth Generate Token ClientId Error", async () => {
+        const app = require("../../app.js")
+        const res = await app.lambdaHandler(new OAuthGenerateClientIdError(), undefined)
+        expect(res.statusCode).toBe(401)
+        expect(typeof res.body).toEqual("string")
+        expect(JSON.parse(res.body).message.toLowerCase()).toBe("invalid client: client is invalid")
+    }, 5000)
 
-test("OAuth Generate Token ClientId Error", async () => {
-    const app = require("../../app.js")
-    const res = await app.lambdaHandler(new OAuthGenerateClientIdError(), undefined)
-    expect(res.statusCode).toBe(404)
-    expect(typeof res.body).toEqual("string")
-    expect(JSON.parse(res.body).message.toLowerCase()).toBe("record not found")
-}, 5000)
+    test("OAuth Generate Token Code Error", async () => {
+        const app = require("../../app.js")
+        const res = await app.lambdaHandler(new OAuthGenerateCodeError(), undefined)
+        expect(res.statusCode).toBe(400)
+        expect(typeof res.body).toEqual("string")
+        expect(JSON.parse(res.body).message.toLowerCase()).toBe("invalid grant: authorization code is invalid")
+    }, 5000)
 
-test("OAuth Generate Token Code Error", async () => {
-    const app = require("../../app.js")
-    const res = await app.lambdaHandler(new OAuthGenerateCodeError(), undefined)
-    expect(res.statusCode).toBe(501)
-    expect(typeof res.body).toEqual("string")
-    expect(JSON.parse(res.body).message.toLowerCase()).toBe("invalid parameters")
-}, 5000)
+    test("OAuth Generate Token GrantType Error", async () => {
+        const app = require("../../app.js")
+        const res = await app.lambdaHandler(new OAuthGenerateGrantTypeError(), undefined)
+        expect(res.statusCode).toBe(400)
+        expect(typeof res.body).toEqual("string")
+        expect(JSON.parse(res.body).message.toLowerCase()).toBe("unsupported grant type: `granttype` is invalid")
+    }, 5000)
 
-test("OAuth Generate Token GrantType Error", async () => {
-    const app = require("../../app.js")
-    const res = await app.lambdaHandler(new OAuthGenerateGrantTypeError(), undefined)
-    expect(res.statusCode).toBe(403)
-    expect(typeof res.body).toEqual("string")
-    expect(JSON.parse(res.body).message.toLowerCase()).toBe("invalid grant type")
-}, 5000)
+    test("OAuth Generate Token Access", async () => {
+        const app = require("../../app.js")
+        const res = await app.lambdaHandler(new OAuthAccess(), undefined)
+        expect(res.statusCode).toBe(200)
+        expect(typeof res.body).toEqual("string")
+        expect("access_token" in JSON.parse(res.body)).toEqual(true)
+    }, 5000)
+})

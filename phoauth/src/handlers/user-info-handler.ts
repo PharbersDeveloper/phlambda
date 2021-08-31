@@ -1,4 +1,4 @@
-import { SF, Store } from "phnodelayer"
+import { IStore, Logger, Register, StoreEnum } from "phnodelayer"
 import {InvalidRequestError} from "../errors"
 import { Request } from "../request"
 import { Response } from "../response"
@@ -14,8 +14,8 @@ export class UserInfoHandler {
             )
         }
         const token = matches[1]
-        const redis = SF.getInstance.get(Store.Redis)
-        const pg = SF.getInstance.get(Store.Postgres)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
         const result = await redis.find("access", null, {match: {token}})
         const records = result.payload.records
         if (records.length > 0) {

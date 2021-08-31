@@ -69,8 +69,7 @@ export const PhInvalidAuthorizationLogin: IPhErrors = {
 
 export function errors2response(err: IPhErrors, response: any) {
     response.statusCode = err.status
-    // @ts-ignore
+    response.status = err.status
     response.headers = err.headers
-    // @ts-ignore
     response.body = err.message
 }

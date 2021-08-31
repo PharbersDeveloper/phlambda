@@ -1,5 +1,5 @@
 
-import { Logger, SF, Store } from "phnodelayer"
+import { IStore, Logger, Register, StoreEnum } from "phnodelayer"
 import Crypto from "../common/crypto"
 import {AuthorizationCode, Client, RefreshToken, Token, User} from "../interfaces"
 import { AuthorizationCodeModel } from "../interfaces/model.interface"
@@ -10,23 +10,24 @@ export class Pharbers implements AuthorizationCodeModel {
     request: Request
 
     async getClient(clientId: string, clientSecret?: string | undefined): Promise<Client> {
-            const pg = SF.getInstance.get(Store.Postgres)
-            const result = await pg.find("client", [clientId], {})
-            if (result.payload.records.length === 0) {
-                return null
-            }
-            const record = result.payload.records[0]
-            if (record.expired !== null && record.expired > new Date()) {
-                return null
-            }
+        // const pg = SF.getInstance.get(Store.Postgres)
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+        const result = await pg.find("client", [clientId], {})
+        if (result.payload.records.length === 0) {
+            return null
+        }
+        const record = result.payload.records[0]
+        if (record.expired !== null && record.expired < new Date()) {
+            return null
+        }
 
-            return {
-                id: clientId,
-                name: record.name,
-                redirectUris: record.registerRedirectUri,
-                grants: ["authorizationCode", "authorization_code", "refreshToken", "refresh_token", "implicit"],
-                secret: record.secret
-            }
+        return {
+            id: clientId,
+            name: record.name,
+            redirectUris: record.registerRedirectUri,
+            grants: ["authorizationCode", "authorization_code", "refreshToken", "refresh_token", "implicit"],
+            secret: record.secret
+        }
     }
 
     generateAccessToken(client: Client, user: User, scope: string): Promise<string> {
@@ -35,16 +36,19 @@ export class Pharbers implements AuthorizationCodeModel {
      }
 
     async saveToken(token: Token, client: Client, user: User): Promise<Token> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         const tk = {
             uid: user.id, cid: client.id,
             token: token.accessToken, refresh: token.refreshToken,
             expired: token.accessTokenExpiresAt, scope: token.scope, refreshExpired: token.refreshTokenExpiresAt }
         const result = await redis.create("access", tk)
         const seconds = (tk.refreshExpired.getTime() - new Date().getTime()) / 1000
-        await redis.setExpire(
+        const store = redis.getStore()
+        store.adapter.redis.set(
             `access:${result.payload.records[0].id}`,
             JSON.stringify(result.payload.records[0]),
+            "EX",
             seconds.toFixed(0),
         )
         token.client = client
@@ -56,7 +60,8 @@ export class Pharbers implements AuthorizationCodeModel {
 
     // --------------------RequestAuthenticationModel----------------------
     async getAccessToken(accessToken: string): Promise<Token> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         const result = await redis.find("access", null, { match: { token: accessToken } })
         if (result.payload.records.length === 0) {
             return null
@@ -91,7 +96,8 @@ export class Pharbers implements AuthorizationCodeModel {
     }
 
     async getAuthorizationCode(authorizationCode: string): Promise<AuthorizationCode> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         const result = await redis.find("authorization", null, { match: { code: authorizationCode } })
         if (result.payload.records.length === 0) {
             return null
@@ -108,22 +114,26 @@ export class Pharbers implements AuthorizationCodeModel {
     }
 
     async saveAuthorizationCode(code: AuthorizationCode, client: Client, user: User): Promise<AuthorizationCode> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         const authCode = { uid: user.id, cid: client.id,
             code: code.authorizationCode, redirectUri: code.redirectUri,
             scope: code.scope, expired: code.expiresAt }
         const seconds = (authCode.expired.getTime() - new Date().getTime()) / 1000
         const result = await redis.create("authorization", authCode)
-        await redis.setExpire(
+        const store = redis.getStore()
+        store.adapter.redis.set(
             `authorization:${result.payload.records[0].id}`,
             JSON.stringify(result.payload.records[0]),
+            "EX",
             seconds.toFixed(0),
         )
         return code
     }
 
     async revokeAuthorizationCode(code: AuthorizationCode): Promise<boolean> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         let result = await redis.find("authorization", null, { match: { code: code.authorizationCode } })
         if (result.payload.records.length === 0) {
             return false
@@ -166,7 +176,8 @@ export class Pharbers implements AuthorizationCodeModel {
     }
 
     async getUser(userId: string): Promise<User> {
-        const pg = SF.getInstance.get(Store.Postgres)
+        // const pg = SF.getInstance.get(Store.Postgres)
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
         const result = await pg.find("account", userId, null, ["defaultRole", "scope"])
         if (result.payload.records.length === 0) {
             return null
@@ -190,7 +201,8 @@ export class Pharbers implements AuthorizationCodeModel {
 
     // ---------------------RefreshTokenModel---------------------
     async getRefreshToken(refreshToken: string): Promise<RefreshToken> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         const result = await redis.find("access", null, { match: { refresh: refreshToken } })
         if (result.payload.records.length === 0) {
             return null
@@ -206,7 +218,8 @@ export class Pharbers implements AuthorizationCodeModel {
     }
 
     async revokeToken(token: RefreshToken | Token): Promise<boolean> {
-        const redis = SF.getInstance.get(Store.Redis)
+        // const redis = SF.getInstance.get(Store.Redis)
+        const redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
         let result
         if (token.hasOwnProperty("accessToken")) {
             result = await redis.find("access", null, { match: { token: token.accessToken } })

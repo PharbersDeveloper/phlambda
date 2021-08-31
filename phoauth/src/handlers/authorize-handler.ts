@@ -1,4 +1,3 @@
-import { Logger, SF, Store } from "phnodelayer"
 import * as url from "url"
 import { AuthenticateHandler } from "."
 import {
@@ -87,22 +86,18 @@ export class AuthorizeHandler {
         // Extend model object with request
         this.model.request = request
 
-        const client = await this.getClient(request)
-        const user = await this.getUser(request, response)
-
-        let scope: string
-        let state: string
-        let RequestedResponseType: any
         let responseType: any
-        const uri = this.getRedirectUri(request, client)
+        let uri: string
+        let state: string
+        const client = await this.getClient(request)
         try {
+            uri = this.getRedirectUri(request, client)
             const requestedScope = this.getScope(request)
-
-            const validScope = await this.validateScope(user, client, requestedScope)
-            scope = validScope
+            const RequestedResponseType = this.getResponseType(request, client)
             state = this.getState(request)
-            RequestedResponseType = this.getResponseType(request, client)
             responseType = new RequestedResponseType(this.options)
+            const user = await this.getUser(request, response)
+            const scope = await this.validateScope(user, client, requestedScope)
             const codeOrAccessToken = await responseType.handle(
                 request,
                 client,

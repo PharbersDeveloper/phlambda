@@ -1,11 +1,11 @@
 import CryptoJS from "crypto-js"
 
 export default class Crypto {
-    public hexEncode(value) {
+    hexEncode(value) {
         return value.toString(CryptoJS.enc.Hex)
     }
 
-    public hash(value) {
+    hash(value) {
         return CryptoJS.SHA256(value)
     }
 }

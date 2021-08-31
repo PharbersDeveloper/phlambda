@@ -8,19 +8,34 @@ import {
     UpdateTableCommand
 } from "@aws-sdk/client-glue"
 import {IStore, Logger} from "phnodelayer"
-import AWSConfig from "../common/AWSConfig"
 import AWSGlue from "../utils/AWSGlue"
 
 export default class GlueHandler {
     private readonly store: IStore
-    private config: any = AWSConfig.getInstance.getConf("Pharbers-ETL-Roles")
+    private readonly config: any
 
-    constructor(store: IStore) {
+    constructor(store: IStore, config: any) {
         this.store = store
+        this.config = config
     }
 
     async exec(event: any) {
-        Logger.info("exec")
+        for ( const item of event.Records ) {
+            const subject = item?.Sns?.Subject || undefined
+            const message = item?.Sns?.Message || undefined
+            const attributes = item?.Sns?.MessageAttributes || undefined
+            if (message && attributes && subject === "glue") {
+                switch (attributes.type.Value) {
+                    case "database":
+                        await this.syncDatabases(JSON.parse(message).name, attributes.action.Value)
+                        break
+                    case "table":
+                        const { name, database } = JSON.parse(message)
+                        await this.syncTables(database, name, attributes.action.Value)
+                        break
+                }
+            }
+        }
     }
 
     async syncAll(updatePartitionCount: boolean = false) {
@@ -53,11 +68,11 @@ export default class GlueHandler {
             }
         } else {
             for (const dbName of databaseNames) {
-                await this.syncDatabases(dbName)
+                await this.syncDatabases(dbName, "create")
             }
 
             for (const table of tableNames) {
-                await this.syncTables(table.databaseName, table.tableName)
+                await this.syncTables(table.databaseName, table.tableName, "create")
             }
         }
     }
@@ -93,55 +108,63 @@ export default class GlueHandler {
         await client.send(updateCommand)
     }
 
-    private async syncDatabases(databaseName: string) {
+    private async syncDatabases(databaseName: string, action: string) {
         const instance = new AWSGlue(this.config)
         const client = instance.getClient()
         const command = new GetDatabaseCommand({
             Name: databaseName
         })
         const content = await client.send(command)
-        instance.destroy()
-        const record = {
-            name: content.Database.Name,
-            provider: content.Database.Parameters?.provider || "pharbers"
+        switch (action) {
+            case "create":
+                const record = {
+                    name: content.Database.Name,
+                    provider: content.Database.Parameters?.provider || "pharbers"
+                }
+                await this.store.create("db", record)
+                break
+            case "delete":
+                const dt = await this.store.find("db", null, {match: {name: databaseName}})
+                await this.store.delete("db", dt.payload.records[0].id)
+                await this.store.delete("table", dt.payload.records[0].tables)
+                break
         }
-        await this.store.create("db", record)
     }
 
-    private async syncTables(databaseName: string, tableName: string) {
+    private async syncTables(databaseName: string, tableName: string, action: string) {
         const instance = new AWSGlue(this.config)
         const client = instance.getClient()
         const pageContent = await paginateGetTableVersions({client}, {
             DatabaseName: databaseName,
             TableName: tableName
         })
-        const tables = []
-        for await (const item of pageContent) {
-            const t = item.TableVersions[0]
-            tables.push({
-                version: t.VersionId,
-                provider: t.Table.Parameters?.provider || "pharbers"
-            })
-        }
-        for (const item of tables) {
-            const table = await this.store.find("table", null, {match: {database: databaseName, name: tableName}})
-            if (table.payload.records.length === 1) {
-                const updateRecord = {
-                    id: table.payload.records[0].id,
-                    replace: {version: item.version}
-                }
-                await this.store.update("table", updateRecord)
-            } else {
+        const lastTable = (await pageContent.next()).value.TableVersions[0]
+        switch (action) {
+            case "create":
+                await this.addPartitionCountToTableAttr(databaseName, tableName)
                 const db = await this.store.find("db", null, {match: {name: databaseName}})
                 const record = {
                     name: tableName,
-                    version: item.version,
+                    version: lastTable.VersionId,
                     database: databaseName,
-                    provider: item.provider,
+                    provider: lastTable.Table.Parameters?.provider || "pharbers",
                     db: db.payload.records[0].id
                 }
                 await this.store.create("table", record)
-            }
+                break
+            case "update":
+                await this.addPartitionCountToTableAttr(databaseName, tableName)
+                const table = await this.store.find("table", null, {match: {database: databaseName, name: tableName}})
+                const updateRecord = {
+                    id: table.payload.records[0].id,
+                    replace: {version: lastTable.VersionId}
+                }
+                await this.store.update("table", updateRecord)
+                break
+            case "delete":
+                const dt = await this.store.find("table", null, {match: {database: databaseName, name: tableName}})
+                await this.store.delete("table", dt.payload.records[0].id)
+                break
         }
     }
 }

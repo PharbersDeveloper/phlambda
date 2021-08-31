@@ -11,8 +11,8 @@ const awsConfig = jest.fn(async () => {
 })
 
 const SNSUpdateTableEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/glue/sns_event.json", "utf8"))
-    event.Records[0].Sns.Subject = "glue"
+    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    event.Records[0].Sns.Subject = "glueindex"
     event.Records[0].Sns.Message = JSON.stringify({
         name: "chemdata",
         database: "phdatacat"
@@ -31,8 +31,8 @@ const SNSUpdateTableEvent = jest.fn(() => {
 })
 
 const SNSDeleteDataBaseEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/glue/sns_event.json", "utf8"))
-    event.Records[0].Sns.Subject = "glue"
+    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    event.Records[0].Sns.Subject = "glueindex"
     event.Records[0].Sns.Message = JSON.stringify({
         name: "phdatacat",
     })

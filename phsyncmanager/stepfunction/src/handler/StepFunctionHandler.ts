@@ -5,20 +5,35 @@ import {
     paginateListStateMachines
 } from "@aws-sdk/client-sfn"
 import { IStore, Logger } from "phnodelayer"
-import AWSConfig from "../common/AWSConfig"
 import AWSStepFunction from "../utils/AWSStepFunction"
 
 export default class StepFunctionHandler {
 
     private readonly store: IStore
-    private config: any = AWSConfig.getInstance.getConf("Ph-Data-Resource-Admin")
+    private readonly config: any
 
-    constructor(store: IStore) {
+    constructor(store: IStore, config: any) {
         this.store = store
+        this.config = config
     }
 
     async exec(event: any) {
-        Logger.info("exec")
+        for ( const item of event.Records ) {
+            const subject = item?.Sns?.Subject || undefined
+            const message = item?.Sns?.Message || undefined
+            const attributes = item?.Sns?.MessageAttributes || undefined
+            if (message && attributes && subject === "functionindex") {
+                switch (attributes.type.Value) {
+                    case "function":
+                        await this.syncStepFunctions(JSON.parse(message).stateMachineArn, attributes.action.Value)
+                        break
+                    case "execution":
+                        const { stateMachineArn, executionArn } = JSON.parse(message)
+                        await this.syncExecutions(stateMachineArn, executionArn, attributes.action.Value)
+                        break
+                }
+            }
+        }
     }
 
     async syncAll() {
@@ -50,44 +65,69 @@ export default class StepFunctionHandler {
 
         // 执行step function index入库操作
         for (const arn of stepFunctionArns) {
-            await this.syncStepFunctions(arn)
+            await this.syncStepFunctions(arn, "create")
         }
 
         // execution index入库操作
         for (const item of executions) {
-            await this.syncExecutions(item.stateMachineArn, item.executionArn)
+            await this.syncExecutions(item.stateMachineArn, item.executionArn, "create")
         }
     }
 
-    private async syncStepFunctions(arn: string) {
+    private async syncStepFunctions(arn: string, action: string) {
         const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
         const tagCommand = new ListTagsForResourceCommand({ resourceArn: arn})
         const tagContent = await client.send(tagCommand)
-        instance.destroy()
-        const record = {
-            arn,
-            name: tagContent.tags.find((item) => item.key === "name")?.value || "unknown",
-            provider: tagContent.tags.find((item) => item.key === "provider")?.value || "unknown",
-            version: tagContent.tags.find((item) => item.key === "version")?.value || "unknown"
+        switch (action) {
+            case "create":
+                const record = {
+                    arn,
+                    name: tagContent.tags.find((item) => item.key === "name")?.value || "unknown",
+                    projectName: tagContent.tags.find((item) => item.key === "project")?.value || "unknown",
+                    provider: tagContent.tags.find((item) => item.key === "provider")?.value || "unknown",
+                    version: tagContent.tags.find((item) => item.key === "version")?.value || "unknown"
+                }
+                await this.store.create("project", record)
+                break
+            case "update":
+                const project = await this.store.find("project", null, {match: {arn}})
+                const updateRecord = {
+                    id: project.payload.records[0].id,
+                    replace: {
+                        name: tagContent.tags.find((item) => item.key === "name")?.value || "unknown",
+                        projectName: tagContent.tags.find((item) => item.key === "project")?.value || "unknown",
+                        provider: tagContent.tags.find((item) => item.key === "provider")?.value || "unknown",
+                        version: tagContent.tags.find((item) => item.key === "version")?.value || "unknown"
+                    }
+                }
+                await this.store.update("project", updateRecord)
+                break
+            case "delete":
+                const dp = await this.store.find("project", null, { match: { arn }})
+                await this.store.delete("project", dp.payload.records[0].id)
+                await this.store.delete("execution", dp.payload.records[0].executions)
+                break
         }
-        await this.store.create("project", record)
     }
 
-    private async syncExecutions(stateMachineArn: string, executionArn: string) {
+    private async syncExecutions(stateMachineArn: string, executionArn: string, action: string) {
         const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
         const command = new DescribeExecutionCommand({
             executionArn
         })
         const content = await client.send(command)
-        instance.destroy()
-        const project = await this.store.find("project", null, { match: { arn: stateMachineArn }})
-        const record = {
-            arn: executionArn,
-            input: content.input,
-            projectExecution: project.payload.records[0].id,
+        switch (action) {
+            case "create":
+                const project = await this.store.find("project", null, { match: { arn: stateMachineArn }})
+                const record = {
+                    arn: executionArn,
+                    input: content.input,
+                    projectExecution: project.payload.records[0].id,
+                }
+                await this.store.create("execution", record)
+                break
         }
-        await this.store.create("execution", record)
     }
 }

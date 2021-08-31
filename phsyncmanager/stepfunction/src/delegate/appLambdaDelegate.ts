@@ -1,21 +1,18 @@
-import { DBConfig, Logger, ServerRegisterConfig, StoreEnum} from "phnodelayer"
+import {DBConfig, IStore, Logger, Register, ServerRegisterConfig, StoreEnum} from "phnodelayer"
+import { AWSRegion, PostgresConf } from "../constants/common"
+import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 export default class AppLambdaDelegate {
     async exec(event: any) {
         try {
-            const configs = [
-                new DBConfig({
-                    name: StoreEnum.POSTGRES,
-                    entity: "index",
-                    database: "phentry",
-                    user: "pharbers",
-                    password: "Abcde196125",
-                    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
-                    port: 5432,
-                    poolMax: 2
-                })
-            ]
-            ServerRegisterConfig(configs)
+            ServerRegisterConfig([new DBConfig(PostgresConf)])
+            const store = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+            await store.open()
+            const handler = new StepFunctionHandler(store, {
+                region: AWSRegion
+            })
+            await handler.exec(event)
+            await store.close()
         } catch (error) {
             throw error
         }

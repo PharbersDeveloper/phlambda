@@ -24,7 +24,7 @@ export default class GlueHandler {
             const subject = item?.Sns?.Subject || undefined
             const message = item?.Sns?.Message || undefined
             const attributes = item?.Sns?.MessageAttributes || undefined
-            if (message && attributes && subject === "glue") {
+            if (message && attributes && subject === "glueindex") {
                 switch (attributes.type.Value) {
                     case "database":
                         await this.syncDatabases(JSON.parse(message).name, attributes.action.Value)

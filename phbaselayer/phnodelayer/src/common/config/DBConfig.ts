@@ -26,7 +26,7 @@ export default class DBConfig extends Config {
         password = null,
         host = null,
         port = 0,
-        poolMax = 0,
+        poolMax = 1,
         ssl = false,
         idleTimeoutMs = 1000,
         connectionTimeoutMs = 1000
@@ -38,7 +38,7 @@ export default class DBConfig extends Config {
         password: string,
         host: string,
         port: number,
-        poolMax: number,
+        poolMax?: number,
         ssl?: boolean,
         idleTimeoutMs?: number,
         connectionTimeoutMs?: number

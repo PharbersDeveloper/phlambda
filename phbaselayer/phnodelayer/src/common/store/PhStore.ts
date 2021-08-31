@@ -25,7 +25,7 @@ export default class PhStore implements IStore {
         const config = register.getData(key) as DBConfig
         const record = new (this.getRecord(config.entity))()
         const option = Object.assign(
-            { adapter: [this.adapter.get(key), { connection: register.getData(key).toStructure() }] },
+            { adapter: [this.adapter.get(key), register.getData(key).toStructure()] },
             record.operations
         )
         this.store = fortune(record.model, option)

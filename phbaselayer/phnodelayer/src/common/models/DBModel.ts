@@ -1,4 +1,5 @@
 import BaseModel from "../models/BaseModel"
+import { StoreEnum } from "../enum/StoreEnum"
 
 export default class DBModel extends BaseModel {
     public name: string
@@ -53,6 +54,51 @@ export default class DBModel extends BaseModel {
     }
 
     toStructure(): any {
+        switch(this.name) {
+            case StoreEnum.POSTGRES:
+                return {
+                    connection: {
+                        name: this.name,
+                        database: this.database,
+                        user: this.user,
+                        password: this.password,
+                        host: this.host,
+                        port: this.port,
+                        ssl: this.ssl,
+                        max: this.max,
+                        idleTimeoutMillis: this.idleTimeoutMillis,
+                        connectionTimeoutMillis: this.connectionTimeoutMillis,
+                    }
+                }
+            case StoreEnum.REDIS:
+                return {
+                    name: this.name,
+                    host: this.host,
+                    port: this.port,
+                    options: {
+                        db: this.database,
+                        username: this.user,
+                        password: this.password,
+                        commandTimeout: this.idleTimeoutMillis,
+                        connectTimeout: this.connectionTimeoutMillis,
+                    }
+                }
+            case StoreEnum.MONGO:
+                return {
+                    connection: {
+                        name: this.name,
+                        database: this.database,
+                        user: this.user,
+                        password: this.password,
+                        host: this.host,
+                        port: this.port,
+                        ssl: this.ssl,
+                        max: this.max,
+                        idleTimeoutMillis: this.idleTimeoutMillis,
+                        connectionTimeoutMillis: this.connectionTimeoutMillis,
+                    }
+                }
+        }
         return {
             name: this.name,
             database: this.database,

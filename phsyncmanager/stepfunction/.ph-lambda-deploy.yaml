@@ -14,7 +14,7 @@ phsfnindex:
     package_name: phsfnindex-code.zip
     lambda_path: phsfnindex-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: phsfnindex
+    lambda_layers: phsfnindex,base-layer-node,lbdauth
     lambda_desc: 接收SNS消息触发Step Function索引操作入Postgresql
     lambda_timeout: 30
     lambda_memory_size: 128

@@ -14,12 +14,12 @@ const SNSCreateStepFunctionEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
-        stateMachineArn: "chemdata"
+        stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
     })
     event.Records[0].Sns.MessageAttributes = {
         action: {
             Type: "String",
-            Value: "update"
+            Value: "create"
         },
         type: {
             Type: "String",
@@ -33,7 +33,7 @@ const SNSDeleteStepFunctionEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
-        stateMachineArn: "chemdata"
+        stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
     })
     event.Records[0].Sns.MessageAttributes = {
         action: {
@@ -52,7 +52,7 @@ const SNSUpdateStepFunctionEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
-        stateMachineArn: "chemdata"
+        stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
     })
     event.Records[0].Sns.MessageAttributes = {
         action: {
@@ -71,8 +71,8 @@ const SNSCreateExecutionEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
-        stateMachineArn: "chemdata",
-        executionArn: ""
+        stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator",
+        executionArn: "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:execution_334950027216687104"
     })
     event.Records[0].Sns.MessageAttributes = {
         action: {
@@ -117,7 +117,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    })
+    }, 1000 * 5)
 
     test("SNS Update StepFunction", async () => {
         const event = new SNSUpdateStepFunctionEvent()
@@ -125,15 +125,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    })
-
-    test("SNS Delete StepFunction", async () => {
-        const event = new SNSDeleteStepFunctionEvent()
-        await store.open()
-        const handler = new StepFunctionHandler(store, config)
-        await handler.exec(event)
-        await store.close()
-    })
+    }, 1000 * 5)
 
     test("SNS Create Execution", async () => {
         const event = new SNSCreateExecutionEvent()
@@ -141,6 +133,13 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    })
-})
+    }, 1000 * 5)
 
+    test("SNS Delete StepFunction", async () => {
+        const event = new SNSDeleteStepFunctionEvent()
+        await store.open()
+        const handler = new StepFunctionHandler(store, config)
+        await handler.exec(event)
+        await store.close()
+    }, 1000 * 5)
+})

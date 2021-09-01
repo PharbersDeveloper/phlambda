@@ -129,11 +129,13 @@ export default class StepFunctionHandler {
                 await this.store.create("execution", createRecord)
                 break
             case "update":
+                const findProject = await this.store.find("project", null, { match: { arn: stateMachineArn }})
                 const updateRecord = {
                     id: executionId,
                     replace: {
                         arn: executionArn,
                         input: content.input,
+                        projectExecution: findProject.payload.records[0].id
                     }
                 }
                 await this.store.update("execution", updateRecord)

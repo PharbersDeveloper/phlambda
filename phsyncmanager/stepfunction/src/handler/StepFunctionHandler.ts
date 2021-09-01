@@ -28,8 +28,8 @@ export default class StepFunctionHandler {
                         await this.syncStepFunctions(JSON.parse(message).stateMachineArn, attributes.action.Value)
                         break
                     case "execution":
-                        const { stateMachineArn, executionArn } = JSON.parse(message)
-                        await this.syncExecutions(stateMachineArn, executionArn, attributes.action.Value)
+                        const { stateMachineArn, executionArn, executionId } = JSON.parse(message)
+                        await this.syncExecutions(stateMachineArn, executionArn, executionId, attributes.action.Value)
                         break
                 }
             }
@@ -70,7 +70,7 @@ export default class StepFunctionHandler {
 
         // execution index入库操作
         for (const item of executions) {
-            await this.syncExecutions(item.stateMachineArn, item.executionArn, "create")
+            await this.syncExecutions(item.stateMachineArn, item.executionArn, "", "create")
         }
     }
 
@@ -111,7 +111,7 @@ export default class StepFunctionHandler {
         }
     }
 
-    private async syncExecutions(stateMachineArn: string, executionArn: string, action: string) {
+    private async syncExecutions(stateMachineArn: string, executionArn: string, executionId: string, action: string) {
         const instance = new AWSStepFunction(this.config)
         const client = instance.getClient()
         const command = new DescribeExecutionCommand({
@@ -120,14 +120,23 @@ export default class StepFunctionHandler {
         const content = await client.send(command)
         switch (action) {
             case "create":
-                const project = await this.store.find("project", null, { match: { arn: stateMachineArn }})
-                const record = {
+                const createProject = await this.store.find("project", null, { match: { arn: stateMachineArn }})
+                const createRecord = {
                     arn: executionArn,
                     input: content.input,
-                    projectExecution: project.payload.records[0].id,
+                    projectExecution: createProject.payload.records[0].id,
                 }
-                await this.store.create("execution", record)
+                await this.store.create("execution", createRecord)
                 break
+            case "update":
+                const updateRecord = {
+                    id: executionId,
+                    replace: {
+                        arn: executionArn,
+                        input: content.input,
+                    }
+                }
+                await this.store.update("execution", updateRecord)
         }
     }
 }

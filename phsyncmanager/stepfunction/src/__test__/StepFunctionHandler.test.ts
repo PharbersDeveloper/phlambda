@@ -87,6 +87,27 @@ const SNSCreateExecutionEvent = jest.fn(() => {
     return event
 })
 
+const SNSUpdateExecutionEvent = jest.fn(() => {
+    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    event.Records[0].Sns.Subject = "functionindex"
+    event.Records[0].Sns.Message = JSON.stringify({
+        stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator",
+        executionArn: "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:execution_334950027216687104",
+        executionId: "PgcZbvHIW2_Uq5TnCwBy"
+    })
+    event.Records[0].Sns.MessageAttributes = {
+        action: {
+            Type: "String",
+            Value: "update"
+        },
+        type: {
+            Type: "String",
+            Value: "execution"
+        }
+    }
+    return event
+})
+
 describe("Step Function Test", () => {
     let store: IStore
     let config
@@ -102,14 +123,14 @@ describe("Step Function Test", () => {
         store.close()
     })
 
-    // test("Step Function All Index Sync To DB", async () => {
-    //     console.time("index")
-    //     await store.open()
-    //     const handler = new StepFunctionHandler(store, config)
-    //     await handler.syncAll()
-    //     await store.close()
-    //     console.timeEnd("index")
-    // }, 1000 * 60 * 100)
+    test("Step Function All Index Sync To DB", async () => {
+        console.time("index")
+        await store.open()
+        const handler = new StepFunctionHandler(store, config)
+        await handler.syncAll()
+        await store.close()
+        console.timeEnd("index")
+    }, 1000 * 60 * 100)
 
     test("SNS Create StepFunction", async () => {
         const event = new SNSCreateStepFunctionEvent()
@@ -129,6 +150,14 @@ describe("Step Function Test", () => {
 
     test("SNS Create Execution", async () => {
         const event = new SNSCreateExecutionEvent()
+        await store.open()
+        const handler = new StepFunctionHandler(store, config)
+        await handler.exec(event)
+        await store.close()
+    }, 1000 * 5)
+
+    test("SNS Update Execution", async () => {
+        const event = new SNSUpdateExecutionEvent()
         await store.open()
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)

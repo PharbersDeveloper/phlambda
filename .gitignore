@@ -135,6 +135,8 @@ $RECYCLE.BIN/
 
 # dist
 */dist
+*/*/dist
+*/*/*/dist
 
 # swp
 *.swp
@@ -158,3 +160,4 @@ phcatlog/.ph-lambda-deploy.yaml
 */yarn.lock
 
 *.lock
+

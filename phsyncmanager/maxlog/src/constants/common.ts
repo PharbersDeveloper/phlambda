@@ -17,8 +17,8 @@ export const PostgresConf: IPhConf = {
     database: "phmax",
     user: "pharbers",
     password: "Abcde196125",
-    // host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
-    host: "127.0.0.1",
+    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
+    // host: "127.0.0.1",
     port: 5432,
     poolMax: 2
 }

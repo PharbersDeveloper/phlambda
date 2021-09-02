@@ -139,7 +139,7 @@ export default class GlueHandler {
                 const db = await this.store.find("db", null, {match: {name: databaseName}})
                 const tableExists = await this.store.
                     find("table", null, {match: {name: tableName, database: databaseName}})
-                if (tableExists.payload.records.length === 0) {
+                if (tableExists.payload.records.length === 0 && db.payload.records.length > 0) {
                     await this.addPartitionCountToTableAttr(databaseName, tableName)
                     const createLastTable = await this.getTable(databaseName, tableName, client)
                     const record = {

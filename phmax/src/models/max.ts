@@ -5,7 +5,8 @@ class Max {
         project: {
             provider: String,
             time: Number,
-            actions: String
+            actions: String,
+            mapper: String,
         },
         jobLog: {
             provider: String,

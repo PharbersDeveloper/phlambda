@@ -7,7 +7,7 @@ import {
     paginateGetTableVersions,
     UpdateTableCommand
 } from "@aws-sdk/client-glue"
-import {IStore, Logger} from "phnodelayer"
+import {IStore} from "phnodelayer"
 import AWSGlue from "../utils/AWSGlue"
 
 export default class GlueHandler {
@@ -134,30 +134,31 @@ export default class GlueHandler {
     private async syncTables(databaseName: string, tableName: string, action: string) {
         const instance = new AWSGlue(this.config)
         const client = instance.getClient()
-        const pageContent = await paginateGetTableVersions({client}, {
-            DatabaseName: databaseName,
-            TableName: tableName
-        })
-        const lastTable = (await pageContent.next()).value.TableVersions[0]
         switch (action) {
             case "create":
-                await this.addPartitionCountToTableAttr(databaseName, tableName)
                 const db = await this.store.find("db", null, {match: {name: databaseName}})
-                const record = {
-                    name: tableName,
-                    version: lastTable.VersionId,
-                    database: databaseName,
-                    provider: lastTable.Table.Parameters?.provider || "pharbers",
-                    db: db.payload.records[0].id
+                const tableExists = await this.store.
+                    find("table", null, {match: {name: tableName, database: databaseName}})
+                if (tableExists.payload.records.length === 0) {
+                    // await this.addPartitionCountToTableAttr(databaseName, tableName)
+                    const createLastTable = await this.getTable(databaseName, tableName, client)
+                    const record = {
+                        name: tableName,
+                        version: createLastTable.VersionId,
+                        database: databaseName,
+                        provider: createLastTable.Table.Parameters?.provider || "pharbers",
+                        db: db.payload.records[0].id
+                    }
+                    await this.store.create("table", record)
                 }
-                await this.store.create("table", record)
                 break
             case "update":
                 await this.addPartitionCountToTableAttr(databaseName, tableName)
+                const updateLastTable = await this.getTable(databaseName, tableName, client)
                 const table = await this.store.find("table", null, {match: {database: databaseName, name: tableName}})
                 const updateRecord = {
                     id: table.payload.records[0].id,
-                    replace: {version: lastTable.VersionId}
+                    replace: {version: updateLastTable.VersionId}
                 }
                 await this.store.update("table", updateRecord)
                 break
@@ -166,5 +167,13 @@ export default class GlueHandler {
                 await this.store.delete("table", dt.payload.records[0].id)
                 break
         }
+    }
+
+    private async getTable(databaseName: string, tableName: string, client: any) {
+        const pageContent = await paginateGetTableVersions({client}, {
+            DatabaseName: databaseName,
+            TableName: tableName
+        })
+        return (await pageContent.next()).value.TableVersions[0]
     }
 }

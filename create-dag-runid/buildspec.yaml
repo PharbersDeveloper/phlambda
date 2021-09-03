@@ -1,0 +1,23 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  build:
+    commands:
+      - python3 -m pytest --junitxml=create-dag-runid-report-directory/create-dag-runid-report-file.xml
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/create-dag-runid/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-create-dag-runid-deploy --capabilities CAPABILITY_IAM
+artifacts:
+  files:
+    - src/**/**
+  type: zip
+  name: create-dag-runid-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/create-dag-runid/artifacts
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+    files:
+      - create-dag-runid-report-file.xml
+    base-directory: create-dag-runid-report-directory
+    file-format: JUNITXML

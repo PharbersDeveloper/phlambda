@@ -1,0 +1,23 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+        python: 3.8
+  build:
+    commands:
+      - python3 -m pytest --junitxml=phnoticeiot-report-directory/phnoticeiot-report-file.xml
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phnoticeiot/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phnotice-iot-deploy --capabilities CAPABILITY_IAM
+artifacts:
+  files:
+    - src/**/**
+  type: zip
+  name: phnoticeiot-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/phnoticeiot/artifacts
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+    files:
+      - phnoticeiot-report-file.xml
+    base-directory: phnoticeiot-report-directory
+    file-format: JUNITXML

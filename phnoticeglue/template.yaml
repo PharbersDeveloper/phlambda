@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda ph-notice-glue
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: phnotice-glue
+      Description: "发送时间到sns glue"
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
+      Timeout: 120
+

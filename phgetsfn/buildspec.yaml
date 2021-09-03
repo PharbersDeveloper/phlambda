@@ -1,0 +1,22 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+        python: 3.8
+#    commands:
+#      - aws ecr get-login-password --region cn-northwest-1 | docker login --username AWS --password-stdin 444603803904.dkr.ecr.cn-northwest-1.amazonaws.com.cn
+  build:
+    commands:
+      - aws cloudformation package --template-file template.yaml --s3-bucket ph-platform --output-template-file outputtemplate.yaml --s3-prefix 2020-11-11/cicd/phgetsfn/artifacts
+      - python3 -m pytest --junitxml=phgetsfn-report-directory/getsfn-report-file.xml
+artifacts:
+  type: zip
+  name: phgetsfn-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/phgetsfn/artifacts
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phgetsfn-project-phgetsfn-report-group:
+    files:
+      - getsfn-report-file.xml
+    base-directory: phgetsfn-report-directory
+    file-format: JUNITXML

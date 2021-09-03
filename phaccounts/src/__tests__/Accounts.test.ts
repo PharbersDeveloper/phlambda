@@ -1,12 +1,12 @@
 import * as fs from "fs"
-import { logger } from "phnodelayer"
+import { Logger } from "phnodelayer"
 import RandomCode from "../utils/randomCode"
 
 test("Send Message By Mail", async () => {
     const event = JSON.parse(fs.readFileSync("../events/event_act_send_msg.json", "utf8"))
     const app = require("../../app.js")
     const res = await app.lambdaHandler(event, undefined)
-    logger.info(res)
+    Logger.info(res)
 }, 1000 * 60 * 2)
 
 test("1000000 random", async () => {
@@ -21,19 +21,19 @@ test("Verify Code", async () => {
     const event = JSON.parse(fs.readFileSync("../events/event_act_verify_code.json", "utf8"))
     const app = require("../../app.js")
     const res = await app.lambdaHandler(event, undefined)
-    logger.info(res)
+    Logger.info(res)
 }, 1000 * 60 * 2)
 
 test("Verify Email", async () => {
     const event = JSON.parse(fs.readFileSync("../events/event_act_verify_email.json", "utf8"))
     const app = require("../../app.js")
     const res = await app.lambdaHandler(event, undefined)
-    logger.info(res)
+    Logger.info(res)
 }, 1000 * 60 * 2)
 
 test("Forgot Password", async () => {
     const event = JSON.parse(fs.readFileSync("../events/event_act_forgotPassword.json", "utf8"))
     const app = require("../../app.js")
     const res = await app.lambdaHandler(event, undefined)
-    logger.info(res)
+    Logger.info(res)
 }, 1000 * 60 * 2)

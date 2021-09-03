@@ -9,6 +9,10 @@ const CreateLogFunction = jest.fn(() => {
     return JSON.parse(fs.readFileSync("../events/max/event_create_log.json", "utf8"))
 })
 
+const UpdateLogFunction = jest.fn(() => {
+    return JSON.parse(fs.readFileSync("../events/max/event_update_log.json", "utf8"))
+})
+
 const rangeArray = (start, end) => Array(end - start + 1).fill(0).map((v, i) => i + start)
 const currentDate = new Date()
 const year = currentDate.getFullYear()
@@ -96,5 +100,21 @@ describe("Create Test", () => {
             const result = await app.lambdaHandler(event, undefined)
             expect(result.statusCode).toBe(201)
         }
-    })
+    }, 1000 * 60 * 100)
+
+    test("Update Log", async () => {
+        const event = new UpdateLogFunction()
+        event.body = JSON.stringify({
+            data: {
+                type: "job-logs",
+                id: "D5wTtNEcR51w52cOPpLq",
+                attributes: {
+                    jobDesc: "fail"
+                }
+            }
+        })
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(event, undefined)
+        expect(result.statusCode).toBe(204)
+    }, 1000 * 60 * 100)
 })

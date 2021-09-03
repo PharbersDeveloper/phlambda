@@ -1,21 +1,21 @@
-phmax:
+phglueindex:
   metadata:
-    name: phmax
+    name: phglueindex
     bucket: ph-platform
     runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
-    desc: Max项目逻辑层
+    desc: 接收SNS消息触发Glue索引操作如Postgresql
   layer:
     lib_path: node_modules
-    package_name: phmax-layer.zip
-    layer_path: phmax-layer.zip
-    layer_desc: Max项目逻辑层
+    package_name: phglueindex-layer.zip
+    layer_path: phglueindex-layer.zip
+    layer_desc: Glue 接收SNS消息触发索引操作
   lambda:
-    code_path: app.js,dist
-    package_name: phmax-code.zip
-    lambda_path: phmax-code.zip
+    code_path: dist,app.js
+    package_name: phglueindex-code.zip
+    lambda_path: phglueindex-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: phmax,base-layer-node,lbdauth
-    lambda_desc: Max项目逻辑层
+    lambda_layers: phglueindex,base-layer-node,lbdauth
+    lambda_desc: 接收SNS消息触发Glue索引操作如Postgresql
     lambda_timeout: 30
     lambda_memory_size: 512
     vpc_config:
@@ -32,5 +32,5 @@ phmax:
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
-    lambda_name: phmax
+    lambda_name: phglueindex
     alias_version: current

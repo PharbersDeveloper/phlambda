@@ -46,10 +46,12 @@ class Project {
         const stp = new StepFunctionHandler()
         switch (method) {
             case "create":
-                const {result, input} = await stp.startExecution(record.input)
-                record.arn = result.executionArn
-                record.input = input
-                break
+                if (record.input) {
+                    const {result, input} = await stp.startExecution(record.input)
+                    record.arn = result.executionArn
+                    record.input = input
+                }
+                return record
         }
         return record
     }

@@ -14,7 +14,7 @@ phmax:
     package_name: phmax-code.zip
     lambda_path: phmax-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: base-layer-node,lbdauth
+    lambda_layers: phmax,base-layer-node,lbdauth
     lambda_desc: Max项目逻辑层
     lambda_timeout: 30
     lambda_memory_size: 512

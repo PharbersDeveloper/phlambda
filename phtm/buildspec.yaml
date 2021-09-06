@@ -7,7 +7,7 @@ phases:
 
   pre_build:
     commands:
-      - cp -r /environment/node/code/phntm_node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
+      - cp -r /environment/node/code/phtm_node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
       - ls
 
   build:
@@ -15,25 +15,23 @@ phases:
       - npm run build
       - npm run test
       - mkdir lmdcode
-      - ls
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - ls lmdcode
   post_build:
     commands:
-      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phntm/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phntm-deploy --capabilities CAPABILITY_IAM
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phtm/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phtm-deploy --capabilities CAPABILITY_IAM
 
 reports:
   arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
-      - phntm-report-file.xml
-    base-directory: phntm-report-directory
+      - phtm-report-file.xml
+    base-directory: phtm-report-directory
 #    discard-paths: no | yes
     file-format: JUNITXML
 artifacts:
   files:
     - dist/**/*
-  name: phntm-$(date +%Y-%m-%d)
+  name: phtm-$(date +%Y-%m-%d)
   discard-paths: no
-  s3-prefix: 2020-11-11/cicd/phntm/artifacts/
+  s3-prefix: 2020-11-11/cicd/phtm/artifacts/

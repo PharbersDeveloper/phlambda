@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Outputs Hello World
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      AutoPublishAlias: Current
+      CodeUri: ./lmdcode
+      FunctionName: ph-project
+      Description: "phproject cloudformation create"
+      Timeout: 600
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

@@ -15,7 +15,7 @@
     "axios": "^0.19.2",
     "crypto-js": "^4.0.0",
     "moment": "^2.27.0",
-    "phnodelayer": "^2.0.3",
+    "phnodelayer": "^2.0.4",
     "typescript": "^3.3.1"
   }
 }

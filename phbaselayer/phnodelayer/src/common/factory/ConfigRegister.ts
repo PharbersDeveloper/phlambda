@@ -1,6 +1,7 @@
 import BaseModel from "../models/BaseModel"
 import Register from "./Register"
 import PhLogger from "../logger/phLogger"
+import GetCSInstance from "../../util/GetCSInstance"
 
 export default class ConfigRegister extends Register {
 
@@ -15,7 +16,7 @@ export default class ConfigRegister extends Register {
         }
         return ConfigRegister.instance
     }
-    
+
 
     register(model: BaseModel): void {
         PhLogger.info(`${model.name} Config Registering`)
@@ -23,6 +24,9 @@ export default class ConfigRegister extends Register {
     }
 
     getData(name: string): BaseModel {
+        if (this.typeAnalyzerMap.size === 0) {
+            return GetCSInstance.getInstance.getConfig(name)
+        }
         return this.typeAnalyzerMap.get(name)
     }
 

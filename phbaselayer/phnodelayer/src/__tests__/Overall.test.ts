@@ -35,7 +35,7 @@ const registerConfigs = jest.fn(() => {
         database: "0",
         user: "",
         password: "",
-        host: "192.168.100.50",
+        host: "127.0.0.1",
         port: 6379
     })
 
@@ -57,8 +57,8 @@ const throwError = jest.fn( () => {
 })
 
 test("JSONAPI Find", async () => {
-    const configs = new registerConfigs()
-    ServerRegisterConfig(configs)
+    // const configs = new registerConfigs()
+    // ServerRegisterConfig(configs)
     const result = await JSONAPI(StoreEnum.POSTGRES, new findEvent())
     expect(result.hasOwnProperty("outputData")).toBe(true)
     expect(typeof result.outputData[0].data).toEqual("string")
@@ -91,8 +91,6 @@ test("JSONAPI Delete", async () => {
 })
 
 test("set value to Redis", async () => {
-    const configs = new registerConfigs()
-    ServerRegisterConfig(configs)
     const redisStore = (Register.getInstance.getData(StoreEnum.REDIS) as IStore)
     redisStore.open()
     const store = redisStore.getStore()

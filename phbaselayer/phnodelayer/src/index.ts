@@ -27,7 +27,7 @@ const JSONAPI = async (jsonApiDB: StoreEnum, event: any) => {
     }
 }
 
-const ServerRegisterConfig = (configs: Config[]) => {
+const ServerRegisterConfig = (configs?: Config[]) => {
     // tslint:disable-next-line:no-unused-expression
     new BuildMaker(configs)
 }

@@ -3,20 +3,21 @@ phases:
   install:
     runtime-versions:
         python: 3.8
-#    commands:
-#      - aws ecr get-login-password --region cn-northwest-1 | docker login --username AWS --password-stdin 444603803904.dkr.ecr.cn-northwest-1.amazonaws.com.cn
   build:
     commands:
-      - aws cloudformation package --template-file template.yaml --s3-bucket ph-platform --output-template-file outputtemplate.yaml --s3-prefix 2020-11-11/cicd/phgetsfn/artifacts
-      - python3 -m pytest --junitxml=phgetsfn-report-directory/getsfn-report-file.xml
+      - python3 -m pytest --junitxml=$PROJECT_NAME-report-directory/$PROJECT_NAME-report-file.xml
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy --capabilities CAPABILITY_IAM
 artifacts:
+  files:
+    - src/**/**
   type: zip
-  name: phgetsfn-$(date +%Y-%m-%d)
-  s3-prefix: 2020-11-11/cicd/phgetsfn/artifacts
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
 
 reports:
-  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phgetsfn-project-phgetsfn-report-group:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
-      - getsfn-report-file.xml
-    base-directory: phgetsfn-report-directory
+      - $PROJECT_NAME-report-file.xml
+    base-directory: $PROJECT_NAME-report-directory
     file-format: JUNITXML

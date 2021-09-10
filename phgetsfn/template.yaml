@@ -1,15 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Outputs Hello World
+Description: phgetsfn codebuild
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src.main.lambda_handler
+      Handler: main.lambda_handler
       Runtime: python3.8
-      CodeUri: ./
-      FunctionName: phgetsfn
-      Description: "用于获取step_function的执行状态"
+      CodeUri: ./src
+      FunctionName: phgetsfnv2
+      Description: "用于获取step_function的执行状态codebuild"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 600
 

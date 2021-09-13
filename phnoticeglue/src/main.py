@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     MessageAttributes= {
         "action": {
             "DataType": "String",
-            "StringValue": "create"
+            "StringValue": "update"
         },
         "type": {
             "DataType": "String",
@@ -43,6 +43,7 @@ def lambda_handler(event, context):
             }
         ]
     }
+
 
     lmd_client = boto3.client("lambda")
     response = lmd_client.invoke(

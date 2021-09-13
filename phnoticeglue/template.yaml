@@ -10,7 +10,7 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       FunctionName: phnotice-glue
-      Description: "发送时间到sns glue"
+      Description: "更新table后 发送消息到指定的lambda"
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       Timeout: 120
 

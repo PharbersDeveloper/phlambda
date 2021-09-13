@@ -7,7 +7,7 @@ phases:
     commands:
       - python3 -m pytest --junitxml=phnoticeglue-report-directory/phnoticeglue-report-file.xml
       - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phnoticeglue/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phnotice-iot-deploy --capabilities CAPABILITY_IAM
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phnoticeglue-deploy --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - src/**/**

@@ -17,7 +17,31 @@ def lambda_handler(event, context):
         print("filename = " + key.split("/")[-1].strip(".xlsx"))
         return tags
 
-    def create_etl_parameters(tags, key):
+    def create_g_mapper(mapper_list):
+
+        g_mapper = []
+        for mapper in mapper_list:
+            mapper_tmp = {
+                "dim": "0",
+                "cat": "",
+                "src": [],
+                "des": ""
+            }
+            for key ,value in mapper.items():
+                if value:
+                    mapper_tmp["src"].append(value)
+                    mapper_tmp["des"] = key
+                    if value.lower() == key:
+                        mapper_tmp["cat"] = "normal"
+                    else:
+                        mapper_tmp["cat"] = "rename"
+                    g_mapper.append(mapper_tmp)
+                else:
+                    break
+
+        return g_mapper
+
+    def create_etl_parameters(tags, key,g_mapper):
         parameter = {}
         parameters = []
         parameter['table'] = key.split("/")[-2]
@@ -25,7 +49,7 @@ def lambda_handler(event, context):
         parameter['out_path'] = "ph-platform/2020-11-11/etl/temporary_csv/"
         parameter['file'] = key.split("/")[-1]
         parameter['sheet'] = tags['sheet']
-        parameter['header'] = "1"
+        parameter['header'] = "0"
         parameter['index_col'] = "0"
         parameter['provider'] = tags['provider']
         parameter['version'] = tags['version']
@@ -35,7 +59,13 @@ def lambda_handler(event, context):
         parameter['g_partition'] = "provider, version"
         parameter['g_filldefalut'] = "NONE"
         parameter['g_bucket'] = "NONE"
-        parameter['g_mapping'] = "NONE"
+
+        table_name = "prod_standard_tmp"
+        if g_mapper:
+            parameter['g_mapper'] = g_mapper
+            parameter['mapper_only'] = "true"
+        else:
+            parameter['mapper_only'] = "false"
         parameter['deal_content'] = "true"
         reg = ".xlsx"
 
@@ -44,7 +74,7 @@ def lambda_handler(event, context):
         else:
             output = re.sub(reg, "", key.split("/")[-1] + "_" + tags['sheet'] + "_" + tags['version'] + ".csv")
         p_input = "s3://" + "ph-platform" + "/2020-11-11/etl/temporary_csv/" + key.split("/")[-2] + "/" + output
-        p_output = "s3://" + "ph-platform" + "/2020-11-11/etl/etl_max_tmp/" + tags['provider'] + "_"+ tags['version'] + "_" + tags["time"]
+        p_output = "s3://" + "ph-platform" + "/2020-11-11/etl/readable_files/" + table_name
         parameter['p_input'] = p_input
         parameter['p_output'] = p_output
         parameters.append(parameter)
@@ -85,7 +115,7 @@ def lambda_handler(event, context):
     def send_msg_to_lmd(tags, executionArn):
         executionId = tags['executionId']
         executionArn = executionArn
-        stateMachineArn = "arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator"
+        stateMachineArn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
         Message = {
             "executionId": executionId,
             "executionArn": executionArn,
@@ -119,15 +149,20 @@ def lambda_handler(event, context):
         )
 
 
-    print(event)
     # 获取S3文件的具体路径
-    key = urllib.parse.unquote(event['Records'][0]['s3']['object']['key'])
+    if event.get("body"):
+        key = json.loads(event['body'])['key']
+        mapper_list = json.loads(event['body'])["mapper_list"]
+        g_mapper = create_g_mapper(mapper_list)
+    else:
+        key = urllib.parse.unquote(event['Records'][0]['s3']['object']['key'])
+        g_mapper = None
 
     # 1.根据key获取指定文件的tags
     tags = get_s3_tag(key)
 
     # 2.根据key和tags创建运行stepfunction的parameters
-    parameters = create_etl_parameters(tags, key)
+    parameters = create_etl_parameters(tags, key, g_mapper)
 
     # 3.传入parameters启动stepfuntion返回 executionArn
     executionArn = start_execution(parameters)
@@ -135,4 +170,15 @@ def lambda_handler(event, context):
     # 4.将指定参数提供给lmd写入数据库
     send_msg_to_lmd(tags, executionArn)
 
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST",
+        },
+        "body": json.dumps({
+            "executionArn": executionArn
 
+        })
+    }

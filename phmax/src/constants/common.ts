@@ -20,7 +20,7 @@ export const PostgresConf: IPhConf = {
     database: "phmax",
     user: "pharbers",
     password: "Abcde196125",
-    host: "ec2-52-83-42-124.cn-northwest-1.compute.amazonaws.com.cn",
+    host: "192.168.49.199",
     port: 5442,
     poolMax: 1,
     ssl: false,

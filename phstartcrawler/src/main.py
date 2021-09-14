@@ -8,6 +8,14 @@ def lambda_handler(event, context):
 
     p_output = event["parameters"][0]['p_output']
     S3TargetPath = "/".join(p_output.split("/")[:-1])
+    pathpart = S3TargetPath.split("/")[-1]
+    if pathpart =="readable_files":
+        database = "phdatacat"
+    elif pathpart =="etl_max_tmp":
+        database = "phetltemp"
+    elif pathpart =="temporary_files":
+        database = "phdatatemp"
+
     cfn_client = boto3.client("cloudformation")
     crawlerName = "crawler-" + ''.join(random.sample(string.ascii_letters, 10))
     print(type(crawlerName))
@@ -18,7 +26,7 @@ def lambda_handler(event, context):
         Parameters=[
             {
                 'ParameterKey': 'DatabaseName',
-                'ParameterValue': 'phetltemp',
+                'ParameterValue': database,
             },
             {
                 'ParameterKey': 'CrawlerName',

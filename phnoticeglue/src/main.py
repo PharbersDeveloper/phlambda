@@ -11,14 +11,14 @@ def lambda_handler(event, context):
     response = glue_client.get_crawlers()
     for crawler in response['Crawlers']:
         if crawler['Targets']['S3Targets'][0]['Path'] in p_output:
-            datebase = crawler['DatabaseName']
+            database = crawler['DatabaseName']
 
 
     table_name = p_output.split("/")[-1]
     Message = {
         "name": table_name,
         "Subject": "glueindex",
-        "datebase": datebase
+        "database": database
     }
     Message_str = json.dumps(Message, ensure_ascii=False)
     MessageAttributes= {

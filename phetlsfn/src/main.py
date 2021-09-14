@@ -56,7 +56,7 @@ def lambda_handler(event, context):
         parameter['owner'] = tags['owner']
         parameter['deal_content'] = 'false'
         parameter['type'] = "xlsx"
-        parameter['g_partition'] = "provider, version"
+        parameter['g_partition'] = "provider, version， owner"
         parameter['g_filldefalut'] = "NONE"
         parameter['g_bucket'] = "NONE"
 
@@ -149,23 +149,24 @@ def lambda_handler(event, context):
         )
 
 
+    print(event)
     # 获取S3文件的具体路径
-    if event.get("body"):
-        key = json.loads(event['body'])['key']
-        mapper_list = json.loads(event['body'])["mapper_list"]
-        g_mapper = create_g_mapper(mapper_list)
-    else:
-        key = urllib.parse.unquote(event['Records'][0]['s3']['object']['key'])
-        g_mapper = None
+    key = urllib.parse.unquote(event['Records'][0]['s3']['object']['key'])
 
     # 1.根据key获取指定文件的tags
     tags = get_s3_tag(key)
+
+    # 获取mapper_list 创建g_mapper
+    mapper_list = tags["mapper_list"]
+    g_mapper = create_g_mapper(mapper_list)
 
     # 2.根据key和tags创建运行stepfunction的parameters
     parameters = create_etl_parameters(tags, key, g_mapper)
 
     # 3.传入parameters启动stepfuntion返回 executionArn
     executionArn = start_execution(parameters)
+
+    # 启动钱ETL
 
     # 4.将指定参数提供给lmd写入数据库
     send_msg_to_lmd(tags, executionArn)

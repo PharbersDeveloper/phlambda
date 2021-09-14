@@ -1,10 +1,6 @@
 import AWS from "aws-sdk"
-import S3 from "aws-sdk/clients/s3"
-import fortune from "fortune"
 import * as fs from "fs"
-import { SF, Store } from "phnodelayer"
-import { ConfigRegistered, PostgresConfig } from "phnodelayer"
-// @ts-ignore
+import { IStore, Register, StoreEnum } from "phnodelayer"
 import R from "ramda"
 import uuidv4 from "uuid/v4"
 import XLSX = require("xlsx")
@@ -22,7 +18,7 @@ export async function exportsHandler(event: Map<string, any>) {
     const uid = body.uid
     let isReport = body.isReport
     // 连接数据库
-    const postgres = SF.getInstance.get(Store.Postgres)
+    const postgres = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
     await postgres.open()
     // console.log("curProject result")
     // const curProject = await postgres.find("project", null, { match: { projectId } }) rR9lwp8e55q9izZdHdQZ

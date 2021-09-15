@@ -41,7 +41,7 @@ def lambda_handler(event, context):
 
         return g_mapper
 
-    def create_etl_parameters(tags, key,g_mapper):
+    def create_etl_parameters(tags , key , g_mapper):
         parameter = {}
         parameters = []
         parameter['table'] = key.split("/")[-2]
@@ -113,6 +113,7 @@ def lambda_handler(event, context):
         return response['executionArn']
 
     def send_msg_to_lmd(tags, executionArn):
+
         executionId = tags['executionId']
         executionArn = executionArn
         stateMachineArn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
@@ -163,23 +164,8 @@ def lambda_handler(event, context):
     # 2.根据key和tags创建运行stepfunction的parameters
     parameters = create_etl_parameters(tags, key, g_mapper)
 
-    # 3.传入parameters启动stepfuntion返回 executionArn
+    # 3.传入parameters启动stepfunction返回 executionArn
     executionArn = start_execution(parameters)
-
-    # 启动钱ETL
 
     # 4.将指定参数提供给lmd写入数据库
     send_msg_to_lmd(tags, executionArn)
-
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST",
-        },
-        "body": json.dumps({
-            "executionArn": executionArn
-
-        })
-    }

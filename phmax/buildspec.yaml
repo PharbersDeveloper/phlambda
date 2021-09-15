@@ -7,7 +7,7 @@ phases:
 
   pre_build:
     commands:
-      - cp -r /environment/node/code/phmax_node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
+      - cp -r /environment/node/code/node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
       - ls
 
   build:
@@ -21,19 +21,19 @@ phases:
       - ls lmdcode
   post_build:
     commands:
-      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phmax/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phmax-deploy --capabilities CAPABILITY_IAM
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy --capabilities CAPABILITY_IAM
 
 reports:
   arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
-      - phmax-report-file.xml
-    base-directory: phmax-report-directory
+      - $PROJECT_NAME-report-file.xml
+    base-directory: $PROJECT_NAME-report-directory
 #    discard-paths: no | yes
     file-format: JUNITXML
 artifacts:
   files:
     - dist/**/*
-  name: phmax-$(date +%Y-%m-%d)
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
   discard-paths: no
-  s3-prefix: 2020-11-11/cicd/phmax/artifacts/
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts/

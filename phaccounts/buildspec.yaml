@@ -7,7 +7,7 @@ phases:
 
   pre_build:
     commands:
-      - cp -r /environment/node/code/phaccounts_node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
+      - cp -r /environment/node/code/node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
       - ls
 
   build:
@@ -22,19 +22,19 @@ phases:
       - ls lmdcode
   post_build:
     commands:
-      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phaccounts/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-ph-act-deploy --capabilities CAPABILITY_IAM
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-ph-$PROJECT_NAME-deploy --capabilities CAPABILITY_IAM
 
 reports:
   arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
-      - phaccounts-report-file.xml
-    base-directory: phaccounts-report-directory
+      - $PROJECT_NAME-report-file.xml
+    base-directory: $PROJECT_NAME-report-directory
 #    discard-paths: no | yes
     file-format: JUNITXML
-artifacts:
+artif$PROJECT_NAMEs:
   files:
     - dist/**/*
-  name: phaccounts-$(date +%Y-%m-%d)
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
   discard-paths: no
-  s3-prefix: 2020-11-11/cicd/phaccounts/artifacts/
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artif$PROJECT_NAMEs/

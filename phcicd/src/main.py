@@ -6,6 +6,7 @@ from git_python import GitRepository
 from package_code import zip_code, start_codebuild
 
 def lambda_handler(event, context):
+    # 测试cicd1548
     parse = Parse()
     print(event)
 

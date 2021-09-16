@@ -3,7 +3,7 @@ import os
 
 from parse_event import Parse
 from git_python import GitRepository
-from package_code import zip_code
+from package_code import zip_code, start_codebuild
 
 def lambda_handler(event, context):
     parse = Parse()
@@ -15,9 +15,13 @@ def lambda_handler(event, context):
         git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
         local_path_prefix = '/tmp'
         local_path = os.path.join(local_path_prefix, 'phlambda')
-        repo = GitRepository(local_path, git_url, branch='feature/PBDP-1782-codebuild-testreport')
+        repo = GitRepository(local_path, git_url, branch='PBDP-1871-lambda-directory-code-build')
 
+    # 打包上传代码
     zip_code()
+
+    # 启动所有项目的codebuild
+    start_codebuild()
 
     return {
         "statusCode": 200,

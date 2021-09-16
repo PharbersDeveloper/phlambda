@@ -5,19 +5,19 @@ phases:
       python: 3.8
   build:
     commands:
-      - python3 -m pytest --junitxml=$PROJECT_NAME-report-directory/$PROJECT_NAME-report-file.xml
-      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy --capabilities CAPABILITY_IAM
+      - python3 -m pytest --junitxml=phworkflow-report-directory/phworkflow-report-file.xml
+      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phworkflow/samtem
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phworkflow-deploy --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - src/**/**
   type: zip
-  name: $PROJECT_NAME-$(date +%Y-%m-%d)
-  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+  name: phworkflow-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/phworkflow/artifacts
 
 reports:
   arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
-      - $PROJECT_NAME-report-file.xml
-    base-directory: $PROJECT_NAME-report-directory
+      - phworkflow-report-file.xml
+    base-directory: phworkflow-report-directory
     file-format: JUNITXML

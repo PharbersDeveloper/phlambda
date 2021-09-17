@@ -2,6 +2,7 @@ import json
 import boto3
 import urllib.parse
 import re
+import psycopg2
 
 def lambda_handler(event, context):
 
@@ -149,8 +150,30 @@ def lambda_handler(event, context):
             Payload=json.dumps(etlsfnindex).encode()
         )
 
+    def get_mapper_from_databdase(id):
 
-    print(event)
+        # 192.168.49.199
+        # ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+        conn = psycopg2.connect(
+            database="phmax",
+            user="pharbers",
+            password="Abcde196125",
+            host="192.168.49.199",
+            port="5442")
+        print("Opened database successfully")
+        cur = conn.cursor()
+
+        cur.execute(
+            'SELECT message FROM "jobLog" WHERE ID= ' + '\'' + id +'\''
+        )
+        # WHERE id=YDbnBtbHN0N0G6GfLhHT
+        message = cur.fetchall()
+        print(message["mapper"])
+        return message["mapper"]
+
+
+
+
     # 获取S3文件的具体路径
     key = urllib.parse.unquote(event['Records'][0]['s3']['object']['key'])
 
@@ -158,7 +181,9 @@ def lambda_handler(event, context):
     tags = get_s3_tag(key)
 
     # 获取mapper_list 创建g_mapper
-    mapper_list = tags["mapper_list"]
+    # 根据Id从数据库获取mapper_list
+    id = tags["id"]
+    mapper_list = get_mapper_from_databdase(id)
     g_mapper = create_g_mapper(mapper_list)
 
     # 2.根据key和tags创建运行stepfunction的parameters

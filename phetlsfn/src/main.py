@@ -153,7 +153,7 @@ def lambda_handler(event, context):
     def get_mapper_from_databdase(id):
 
         # 192.168.49.199
-        # ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
+        # ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn  port 5432
         conn = psycopg2.connect(
             database="phmax",
             user="pharbers",
@@ -169,9 +169,8 @@ def lambda_handler(event, context):
         # WHERE id=YDbnBtbHN0N0G6GfLhHT
         message = cur.fetchall()
         print(message["mapper"])
+        conn.close()
         return message["mapper"]
-
-
 
 
     # 获取S3文件的具体路径
@@ -189,8 +188,10 @@ def lambda_handler(event, context):
     # 2.根据key和tags创建运行stepfunction的parameters
     parameters = create_etl_parameters(tags, key, g_mapper)
 
-    # 3.传入parameters启动stepfunction返回 executionArn
-    executionArn = start_execution(parameters)
+    # 如果tag里有mapper_list 才执行ETL流程
+    if mapper_list:
+        # 3.传入parameters启动stepfunction返回 executionArn
+        executionArn = start_execution(parameters)
 
-    # 4.将指定参数提供给lmd写入数据库
-    send_msg_to_lmd(tags, executionArn)
+        # 4.将指定参数提供给lmd写入数据库
+        send_msg_to_lmd(tags, executionArn)

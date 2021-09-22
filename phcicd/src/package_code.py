@@ -22,25 +22,15 @@ def start_codebuild():
             projectName="codebuild-manager-phnoticeemail-V77NNXP745NE",
         )
 
-def zip_code():
-
-    local_path_prefix = '/tmp'
-    local_path = os.path.join(local_path_prefix, 'phlambda')
-    print(os.listdir(local_path))
+def zip_code(local_path):
     for project_name in os.listdir(local_path):
-
         if project_name == "phnoticeemail":
-            # if project_name == "phpowerbi":
             code_path = local_path + "/" + project_name + "/"
-            # code_path = local_path + "/phgetsfn/"
             if os.path.isdir(code_path):
-
-
                 # 复制ph_get_execution_status下的代码到当前目录下
                 key_str = ""
                 for key in os.listdir(code_path):
-                    cp_cmd = "cp -r " + code_path + key + " " + local_path_prefix
-                    # key =  "/tmp/" + ke
+                    cp_cmd = "cp -r " + code_path + key + " /tmp"
                     os.popen(cp_cmd)
                     key_str = key_str + key + " "
 
@@ -53,7 +43,6 @@ def zip_code():
 
                 # 上传code到s3
                 upload_code(zip_name, project_name)
-    # os.system("ls /tmp")
 
 if __name__ == '__main__':
     upload_code()

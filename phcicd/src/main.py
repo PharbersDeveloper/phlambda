@@ -8,7 +8,7 @@ from package_code import zip_code, start_codebuild
 def lambda_handler(event, context):
     # 测试cicd1548
     parse = Parse()
-    # print(event)
+    print(event)
 
     git_event = parse.print_branch_information(event=event)
     print(git_event)

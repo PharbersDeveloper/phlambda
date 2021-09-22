@@ -18,9 +18,10 @@ def start_codebuild():
     )
 
     for project in response['projects']:
-        client.start_build(
-            projectName="codebuild-manager-phnoticeemail-V77NNXP745NE",
-        )
+        if project == "codebuild-manager-phnoticeemail-V77NNXP745NE":
+            client.start_build(
+                projectName=project,
+            )
 
 def zip_code(local_path):
     for project_name in os.listdir(local_path):

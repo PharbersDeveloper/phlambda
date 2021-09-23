@@ -12,7 +12,7 @@ def lambda_handler(event, context):
 
     git_event = parse.print_branch_information(event=event)
     print(git_event)
-    if git_event['operator_name'] == "hbzhao":
+    if git_event['operator_name'] == "hbzhao" and git_event.get("event_type") == "MERGED":
         git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
         local_path_prefix = '/tmp'
         local_path = os.path.join(local_path_prefix, 'phlambda')

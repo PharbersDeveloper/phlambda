@@ -28,7 +28,6 @@ class Parse:
         git_change_message["event_type"] = body["pullRequest"]["state"]
         git_change_message["time"] = body["date"]
         git_change_message["operator_name"] = body["actor"]["name"]
-        git_change_message["merge_description"] = body["pullRequest"]["description"]
         git_change_message["merge_repository_from"] = \
             body["pullRequest"]["fromRef"]["repository"]["name"]
         git_change_message["merge_branch_from"] = body["pullRequest"]["fromRef"]["displayId"]

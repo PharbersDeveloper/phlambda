@@ -7,7 +7,7 @@ def upload_code(zip_name, project_name):
     s3_client.upload_file(
         Bucket="ph-platform",
         Key="2020-11-11/cicd/"+ project_name +"/source/code.zip",
-        Filename="/tmp/" + zip_name
+        Filename="/tmp/" + project_name + "/" + zip_name
     )
 
 def start_codebuild():
@@ -44,8 +44,8 @@ def zip_code(local_path):
 
                 os.chdir("/tmp/" + project_name)
                 # 打包代码为code.zip
-                random_code = random.randint(10000,99999)
-                zip_name = "code" + str(random_code) + ".zip"
+
+                zip_name = "code.zip"
                 zip_cmd = "zip -r "+ zip_name +" " + key_str
                 os.system(zip_cmd)
 

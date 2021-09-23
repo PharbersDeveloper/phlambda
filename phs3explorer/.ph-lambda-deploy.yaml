@@ -1,21 +1,21 @@
-phmax:
+phs3explorer:
   metadata:
-    name: phmax
+    name: phs3explorer
     bucket: ph-platform
     runtime: nodejs14.x # lambda funciton 会按照第一个使用， layer 全使用
-    desc: Max项目逻辑层
+    desc: 异步调用函数处理S3 Tags
   layer:
     lib_path: node_modules
-    package_name: phmax-layer.zip
-    layer_path: phmax-layer.zip
-    layer_desc: Max项目逻辑层
+    package_name: phs3explorer-layer.zip
+    layer_path: phs3explorer-layer.zip
+    layer_desc: 异步调用函数处理S3 Tags
   lambda:
     code_path: app.js,dist
-    package_name: phmax-code.zip
-    lambda_path: phmax-code.zip
+    package_name: phs3explorer-code.zip
+    lambda_path: phs3explorer-code.zip
     lambda_handler: app.lambdaHandler
-    lambda_layers: phmax,base-layer-node,lbdauth
-    lambda_desc: Max项目逻辑层
+    lambda_layers: phs3explorer,base-layer-node,lbdauth
+    lambda_desc: 异步调用函数处理S3 Tags
     lambda_timeout: 30
     lambda_memory_size: 1024
     vpc_config:
@@ -26,11 +26,11 @@ phmax:
       - 'sg-058404c2ad02dcbb9'
       - 'sg-09f5205a1194149ab'
     lambda_env:
-      TEST: test
+      PATH_PREFIX: /mnt/tmp/
     lambda_tag:
       language: nodejs14.x
   gateway:
     rest_api_id: 2t69b7x032
     api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
-    lambda_name: phmax
+    lambda_name: phs3explorer
     alias_version: current

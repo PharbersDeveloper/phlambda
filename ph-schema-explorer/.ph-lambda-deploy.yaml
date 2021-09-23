@@ -1,0 +1,36 @@
+ph-schema-explorer:
+  metadata:
+    name: ph-schema-explorer
+    bucket: ph-platform
+    runtime: python3.8 # lambda funciton 会按照第一个使用， layer 全使用
+    desc: 根据前端传入excel获取schema与sample data 默认取出100行
+  layer:
+    lib_path: .venv/lib/python3.8/site-packages
+    package_name: ph-schema-explorer-layer.zip
+    layer_path: ph-schema-explorer-layer.zip
+    layer_desc: 使用openpyxl库 read only方式读取
+  lambda:
+    code_path: main.py
+    package_name: ph-schema-explorer-code.zip
+    lambda_path: ph-schema-explorer-code.zip
+    lambda_handler: main.lambda_handler
+    lambda_layers: ph-schema-explorer
+    lambda_desc: 根据前端传入excel获取schema与sample data 默认取出100行
+    lambda_timeout: 30
+    lambda_memory_size: 1024
+    # vpc_config:
+    #   SubnetIds:
+    #   - 'subnet-0260eab5acd58bc53'
+    #   - 'subnet-0e3daa88acef9b136'
+    #   SecurityGroupIds:
+    #   - 'sg-058404c2ad02dcbb9'
+    #   - 'sg-09f5205a1194149ab'
+    lambda_env:
+      PATH_PREFIX: /mnt/tmp/
+    lambda_tag:
+      language: python3.8
+  gateway:
+    rest_api_id: 2t69b7x032
+    api_template: s3://ph-platform/2020-08-10/template/python/phcli/lmd/jsonapi-openapi-template.yaml
+    lambda_name: ph-schema-explorer
+    alias_version: current

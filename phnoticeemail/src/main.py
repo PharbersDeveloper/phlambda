@@ -107,7 +107,7 @@ def lambda_handler(event, context):
     )
 
 if __name__ == '__main__':
-    # 测试 cicd中merge代码 打印下merge的参数1948
+    # 测试 cicd中merge代码 打印下merge的参数09231721
     phlogger.info("__main__")
     
     addressees = [

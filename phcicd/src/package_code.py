@@ -31,7 +31,8 @@ def update_version(git_commit_version):
     os.system(create_readme_file_cmd)
 
 
-def zip_code(local_path, git_commit_version):
+def zip_code(local_path, git_event):
+    git_commit_version = git_event["git_commit_version"]
     python3_lmd = ["phchdatasource", "phchupdatesql"]
     for project_name in os.listdir(local_path):
         if project_name in python3_lmd:

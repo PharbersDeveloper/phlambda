@@ -13,8 +13,8 @@ def lambda_handler(event, context):
     git_event = parse.print_branch_information(event=event)
     print(git_event)
     if git_event['operator_name'] == "hbzhao" and git_event.get("event_type") == "MERGED":
-        os.getenv("GIT_URL")
-        git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
+        git_url = os.getenv("GIT_URL")
+        # git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
         local_path_prefix = '/tmp'
         local_path = os.path.join(local_path_prefix, 'phlambda')
         # 从bitbucket下载代码 存放在local_path下
@@ -22,8 +22,8 @@ def lambda_handler(event, context):
 
         # 打包上传代码
         # 获取git commit 版版本
-        git_commit_version = git_event["git_commit_version"]
-        zip_code(local_path, git_commit_version)
+
+        zip_code(local_path, git_event)
 
         # 启动所有项目的codebuild
         start_codebuild()

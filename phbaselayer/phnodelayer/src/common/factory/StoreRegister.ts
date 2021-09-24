@@ -1,5 +1,6 @@
 import BaseModel from "../models/BaseModel"
 import Register from "./Register"
+import GetCSInstance from "../../util/GetCSInstance"
 
 export default class StoreRegister extends Register {
 
@@ -20,6 +21,9 @@ export default class StoreRegister extends Register {
     }
 
     getData(name: string): BaseModel {
+        if (this.typeAnalyzerMap.size === 0) {
+            return GetCSInstance.getInstance.getStore(name)
+        }
         return this.typeAnalyzerMap.get(name)
     }
 

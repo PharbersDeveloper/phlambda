@@ -4,12 +4,10 @@ import PhStore from "../common/store/PhStore"
 import Config from "../common/config/Config"
 
 export default class BuildMaker {
-    constructor(configs: Config[]) {
-        const configRegister = ConfigRegister.getInstance
-        const storeRegister = StoreRegister.getInstance
+    constructor(configs?: Config[]) {
         configs.forEach((item: Config) => {
-            configRegister.register(item)
-            storeRegister.register(new PhStore(item.name))
+            ConfigRegister.getInstance.register(item)
+            StoreRegister.getInstance.register(new PhStore(item.name))
         })
     }
 }

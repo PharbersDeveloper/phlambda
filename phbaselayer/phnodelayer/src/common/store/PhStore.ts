@@ -11,8 +11,8 @@ import DBConfig from "../config/DBConfig"
 
 export default class PhStore implements IStore {
     name: string
-    private store: any
-    private adapter: Map<string, any> = new Map<string, any>([
+    private readonly store: any
+    private readonly adapter: Map<string, any> = new Map<string, any>([
         [StoreEnum.POSTGRES, PostgresAdapter],
         [StoreEnum.REDIS, RedisAdapter],
         [StoreEnum.MONGO, MongoAdapter],
@@ -21,11 +21,11 @@ export default class PhStore implements IStore {
     // 处理Entity与store实例,其他的都不干
     constructor(key: string) {
         this.name = key
-        const register = ConfigRegister.getInstance
-        const config = register.getData(key) as DBConfig
+        const config = ConfigRegister.getInstance.getData(key) as DBConfig
         const record = new (this.getRecord(config.entity))()
+        const structure = config.toStructure()
         const option = Object.assign(
-            { adapter: [this.adapter.get(key), register.getData(key).toStructure()] },
+            { adapter: [this.adapter.get(key), structure] },
             record.operations
         )
         this.store = fortune(record.model, option)

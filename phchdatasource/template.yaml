@@ -14,5 +14,5 @@ Resources:
       FunctionName: phchdatasource-v2
       Description: "phchdatasource-v2"
       MemorySize: 512
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-lmd
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 120

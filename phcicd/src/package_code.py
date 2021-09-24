@@ -19,7 +19,7 @@ def start_codebuild():
     )
 
     for project in response['projects']:
-        if project == "codebuild-manager-phauthentication-Z3YDFXW8VEUW" or project == "codebuild-manager-phchupdatesql-GP33T7R3ZY2A":
+        if project == "codebuild-manager-phchdatasource-1K69LQYASIRS6" or project == "codebuild-manager-phchupdatesql-GP33T7R3ZY2A":
             client.start_build(
                 projectName=project,
             )

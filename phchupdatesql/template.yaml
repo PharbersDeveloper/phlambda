@@ -14,5 +14,5 @@ Resources:
       FunctionName: phchupdatesql-v2
       Description: "http proxy call chproxy execution to clickhouse"
       MemorySize: 512
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-lmd
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 120

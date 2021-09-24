@@ -1,7 +1,7 @@
 from src.sfn import Sfn
 
 def lambda_handler(event, context):
-    # 测试一个codebuild 创建多个lmd
+    # 测试merge操作 打包多个lmd0924 1017
     sfn = Sfn()
     if event['policy'] == 'CreateAndRun':
         create_response = sfn.create_sfn(event)

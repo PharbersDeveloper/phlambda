@@ -18,14 +18,14 @@ def start_codebuild():
     )
 
     for project in response['projects']:
-        if project == "codebuild-manager-phnoticeemail-V77NNXP745NE":
+        if project == "codebuild-manager-phnoticeemail-V77NNXP745NE" or project == "codebuild-manager-phworkflow-WQ1200XL11W5":
             client.start_build(
                 projectName=project,
             )
 
 def zip_code(local_path):
     for project_name in os.listdir(local_path):
-        if project_name == "phnoticeemail":
+        if project_name == "phnoticeemail" or project_name == "phworkflow":
             code_path = local_path + "/" + project_name + "/"
             if os.path.isdir(code_path):
                 # 创建文件夹

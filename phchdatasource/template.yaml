@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phclickhousesql
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+#      Layers:
+#        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+      FunctionName: phchdatasource-v2
+      Description: "phchdatasource-v2"
+      MemorySize: 512
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-lmd
+      Timeout: 120

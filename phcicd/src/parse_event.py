@@ -34,6 +34,7 @@ class Parse:
         git_change_message["merge_repository_to"] = body["pullRequest"]["toRef"]["repository"]["name"]
         git_change_message["merge_branch_to"] = body["pullRequest"]["toRef"]["displayId"]
         git_change_message["merge_request_user"] = body["pullRequest"]["author"]["user"]["name"]
+        git_change_message["git_commit_version"] = body["pullRequest"]["properties"]["mergeCommit"]["displayId"]
         reviewers = []
         for reviewer in body["pullRequest"]["reviewers"]:
             reviewers.append(reviewer["user"]["name"])

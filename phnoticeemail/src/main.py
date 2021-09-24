@@ -107,7 +107,7 @@ def lambda_handler(event, context):
     )
 
 if __name__ == '__main__':
-    # 测试merge操作 打包多个lmd0924 1017
+    # 测试lmd的sam部署通过一个cloudformation嵌套管理
     phlogger.info("__main__")
     
     addressees = [

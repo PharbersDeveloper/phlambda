@@ -10,6 +10,7 @@ def upload_code(zip_name, project_name):
         Filename="/tmp/" + project_name + "/" + zip_name
     )
 
+
 def start_codebuild():
     client = boto3.client('codebuild')
 
@@ -18,14 +19,22 @@ def start_codebuild():
     )
 
     for project in response['projects']:
-        if project == "codebuild-manager-phnoticeemail-V77NNXP745NE" or project == "codebuild-manager-phworkflow-WQ1200XL11W5":
+        if project == "codebuild-manager-phauthentication-Z3YDFXW8VEUW" or project == "codebuild-manager-phchupdatesql-GP33T7R3ZY2A":
             client.start_build(
                 projectName=project,
             )
 
-def zip_code(local_path):
+
+def update_version(git_commit_version):
+    # 修改README文件 填写版本号
+    create_readme_file_cmd = "sed -i s/{git_commit_version}/" + git_commit_version + "/ src/README.md"
+    os.system(create_readme_file_cmd)
+
+
+def zip_code(local_path, git_commit_version):
+    python3_lmd = ["phchdatasource", "phchupdatesql"]
     for project_name in os.listdir(local_path):
-        if project_name == "phnoticeemail" or project_name == "phworkflow":
+        if project_name in python3_lmd:
             code_path = local_path + "/" + project_name + "/"
             if os.path.isdir(code_path):
                 # 创建文件夹
@@ -41,12 +50,14 @@ def zip_code(local_path):
                         cp_cmd = "cp -r " + code_path + key + " /tmp/" + project_name + "/"
                     os.popen(cp_cmd)
                     key_str = key_str + key + " "
-
                 os.chdir("/tmp/" + project_name)
-                # 打包代码为code.zip
 
+                # 修改README文件 修改git_commit_version
+                update_version(git_commit_version)
+
+                # 打包代码为code.zip
                 zip_name = "code.zip"
-                zip_cmd = "zip -r "+ zip_name +" " + key_str
+                zip_cmd = "zip -r " + zip_name + " " + key_str
                 os.system(zip_cmd)
 
                 # 上传code到s3
@@ -54,4 +65,5 @@ def zip_code(local_path):
 
 if __name__ == '__main__':
     local_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda"
-    zip_code(local_path)
+    git_commit_version = "6814732cc39"
+    zip_code(local_path, git_commit_version)

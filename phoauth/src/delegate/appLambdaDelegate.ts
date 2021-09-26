@@ -19,8 +19,8 @@ export default class AppLambdaDelegate {
 
         ServerRegisterConfig(configs)
 
-        this.redis = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
-        this.postgres = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+        this.redis = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+        this.postgres = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
         await this.postgres.open()
         await this.redis.open()
 

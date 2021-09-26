@@ -1,4 +1,4 @@
-import { IStore, Register, StoreEnum } from "phnodelayer"
+import ObjectUtil from "../utils/ObjectUtil"
 
 class Max {
     model: any = {
@@ -42,6 +42,17 @@ class Max {
             return cloneObj
         }
         async function JobLogCreate() {
+            if ( record.jobCat === "mapper" ) {
+                const id = ObjectUtil.generateId()
+                record.id = id
+                let message = JSON.parse(record.message)
+                for (const item of message.tags) {
+                    if (item.Key === "mapper") {
+                        item.Value = id
+                    }
+                }
+                record.message = JSON.stringify(message)
+            }
             let createProject = await context.transaction.
                 find("project", null, { match: { provider: record.provider, time: record.time} })
             const cloneRecord = clone(record)

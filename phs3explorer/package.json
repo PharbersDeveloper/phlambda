@@ -1,7 +1,7 @@
 {
-  "name": "phmaxlog",
+  "name": "phs3explorer",
   "version": "0.0.1",
-  "description": "Max Log To Postgres",
+  "description": "异步调用函数处理S3 Tags",
   "main": "app.js",
   "author": "Alex",
   "license": "GPL3.0",
@@ -13,14 +13,17 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.31.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-sts": "^3.22.0",
     "@types/jest": "^26.0.23",
     "@types/node": "~14.17.3",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",
     "jest": "^26.6.0",
-    "phnodelayer": "2.0.3",
+    "phauthlayer": "^0.0.1",
+    "phnodelayer": "2.0.4",
     "prettier": "^2.1.2",
     "source-map-support": "^0.5.13",
     "ts-jest": "^26.4.1",

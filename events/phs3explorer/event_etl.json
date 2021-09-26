@@ -1,0 +1,97 @@
+{
+  "dag_name": "ETL_to_clickhouse",
+  "parameters": {
+    "puts3_event": {
+      "owner": "5UBSLZvV0w9zh7-lZQap",
+      "tempfile": "29538509ce17b6648f6635cb50a86f9d.xlsx",
+      "tags": [{"Key": "name", "Value": "钱鹏"}],
+      "asset": {
+        "fileName": "测试表",
+        "extension": "xlsx",
+        "size": 1000,
+        "labels": ["name", "Alex"],
+        "description": "测试表",
+        "type": "file"
+      }
+    },
+    "click_event": {
+      "file_path": "/mnt/tmp/29538509ce17b6648f6635cb50a86f9d.xlsx",
+      "sheet_name": "【辉致项目】2017-2018年6省",
+      "database_name": "tempdb",
+      "table_name": "import_data_2",
+      "batch": 10000,
+      "begin_line": 3,
+      "mapper_args": [
+        {
+          "年": "A"
+        },
+        {
+          "月份": "B"
+        },
+        {
+          "季度": ""
+        },
+        {
+          "省份": "d"
+        },
+        {
+          "城市": "e"
+        },
+        {
+          "区县": "ff"
+        },
+        {
+          "医院库类型": "F"
+        },
+        {
+          "医院级别": "g"
+        },
+        {
+          "医院名称": "h"
+        },
+        {
+          "通用名": "ai"
+        },
+        {
+          "药品名": "idd"
+        },
+        {
+          "匹配名": "ixx"
+        },
+        {
+          "商品名": "ffi"
+        },
+        {
+          "剂型": "iqq"
+        },
+        {
+          "规格": "ifdg"
+        },
+        {
+          "包装": "ddfg"
+        },
+        {
+          "生产企业": "i"
+        },
+        {
+          "价格": "j"
+        },
+        {
+          "数量": "k"
+        },
+        {
+          "金额": "l"
+        },
+        {
+          "价格转换比": "m"
+        },
+        {
+          "最小使用单位数量": "n"
+        },
+        {
+          "备注": "description"
+        }
+      ]
+    }
+  }
+}

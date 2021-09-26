@@ -1,0 +1,97 @@
+{
+  "resource": "/phmax/{type}",
+  "path": "/phmax/job-logs",
+  "httpMethod": "POST",
+  "body": "",
+  "queryStringParameters": {
+  },
+  "multiValueQueryStringParameters": {
+  },
+  "pathParameters": {
+    "type": "job-logs"
+  },
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Authorization": "2082614e9a9a7f96faae72113b004a0490350ecd4b41db9747caccfc94b4eb50",
+    "Cache-Control": "no-cache",
+    "Host": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
+    "Postman-Token": "370283fb-5ef5-44ab-a117-8f6919dc3829",
+    "User-Agent": "PostmanRuntime/7.26.5",
+    "X-Amzn-Trace-Id": "Root=1-5fbf368d-1b43165456def09a0fff1208",
+    "X-Forwarded-For": "221.219.246.98",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "*/*"
+    ],
+    "Accept-Encoding": [
+      "gzip, deflate, br"
+    ],
+    "Authorization": [
+      "2082614e9a9a7f96faae72113b004a0490350ecd4b41db9747caccfc94b4eb50"
+    ],
+    "Cache-Control": [
+      "no-cache"
+    ],
+    "Host": [
+      "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn"
+    ],
+    "Postman-Token": [
+      "370283fb-5ef5-44ab-a117-8f6919dc3829"
+    ],
+    "User-Agent": [
+      "PostmanRuntime/7.26.5"
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-5fbf368d-1b43165456def09a0fff1208"
+    ],
+    "X-Forwarded-For": [
+      "221.219.246.98"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "xqu3hx",
+    "authorizer": {
+      "principalId": "APqnkJ2TjdeYG-gsc9n8",
+      "integrationLatency": 0
+    },
+    "resourcePath": "/phmax/{type}",
+    "httpMethod": "GET",
+    "extendedRequestId": "WmV2DEBTZPgF2lQ=",
+    "requestTime": "26/Nov/2020:05:01:01 +0000",
+    "path": "/v0/phmax/job-logs",
+    "accountId": "444603803904",
+    "protocol": "HTTP/1.1",
+    "stage": "v0",
+    "domainPrefix": "2t69b7x032",
+    "requestTimeEpoch": 1606366861056,
+    "requestId": "5b3ecc62-ed24-42cc-a9a3-55ffe5c21263",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "221.219.246.98",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "PostmanRuntime/7.26.5",
+      "user": null
+    },
+    "domainName": "2t69b7x032.execute-api.cn-northwest-1.amazonaws.com.cn",
+    "apiId": "2t69b7x032"
+  },
+  "isBase64Encoded": false
+}

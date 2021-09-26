@@ -17,9 +17,16 @@ def start_codebuild():
     response = client.list_projects(
         sortOrder='ASCENDING'
     )
-    codebuild_project = []
+    codebuild_project = [
+        "codebuild-manager-phproject-52I197EZAXJI",
+        "codebuild-manager-phchupdatesql-GP33T7R3ZY2A",
+        "codebuild-manager-phmax-1IHQYCDB68QKE",
+        "codebuild-manager-phschemaexplorer-1KIBP193HKMD8",
+        "codebuild-manager-phchdatasource-1K69LQYASIRS6",
+        "codebuild-manager-phgetsfn-NOEYAZ5JRMF2"
+    ]
     for project in response['projects']:
-        if project == "codebuild-manager-phchdatasource-1K69LQYASIRS6" or project == "codebuild-manager-phchupdatesql-GP33T7R3ZY2A":
+        if project in codebuild_project:
             client.start_build(
                 projectName=project,
             )
@@ -33,7 +40,7 @@ def update_version(git_commit_version):
 
 def zip_code(local_path, git_event):
     git_commit_version = git_event["git_commit_version"]
-    python3_lmd = ["phproject", "phchupdatesql" ,"phmax" , "phxlsxtockhouse", "ph-schema-explorer" , "phchdatasource", "phgetsfn"]
+    python3_lmd = ["phproject", "phchupdatesql" ,"phmax" , "ph-schema-explorer" , "phchdatasource", "phgetsfn"]
     for project_name in os.listdir(local_path):
         if project_name in python3_lmd:
             code_path = local_path + "/" + project_name + "/"

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phclickhousesql
+Description: cicd lambda ph-schema-explorer-v2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -10,11 +10,14 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
 #      Layers:
-#        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
-      FunctionName: phchupdatesql-v2
-      Description: "http proxy call chproxy execution to clickhouse"
+#        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
+      FunctionName: ph-schema-explorer-v2
+      Description: "http proxy call chproxy execution to clickhouse "
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Environment:
+        Variables:
+          PATH_PREFIX: /mnt/tmp/
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:
@@ -23,4 +26,3 @@ Resources:
         SubnetIds:
           - subnet-0260eab5acd58bc53
           - subnet-0e3daa88acef9b136
-

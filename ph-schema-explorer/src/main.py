@@ -67,6 +67,6 @@ def lambda_handler(event, context):
 
 if __name__ == '__main__':
     os.environ[__PATH_PREFIX] = "/Users/qianpeng/Desktop/"
-    event = open("../events/ph-schema-explorer/event_find.json", 'r+').read()
+    event = open("../../events/ph-schema-explorer/event_find.json", 'r+').read()
     result = lambda_handler(json.loads(event), None)
     print(result)

@@ -13,6 +13,38 @@ const UpdateLogFunction = jest.fn(() => {
     return JSON.parse(fs.readFileSync("../events/max/event_update_log.json", "utf8"))
 })
 
+const CreateLogTriggerS3TagsFunction = jest.fn(() => {
+    const event = JSON.parse(fs.readFileSync("../events/max/event_create_log.json", "utf8"))
+    event.body = JSON.stringify(
+        {
+            data: {
+                type: "job-logs",
+                attributes: {
+                    provider: "UCB",
+                    owner: "5UBSLZvV0w9zh7-lZQap",
+                    showName: "钱鹏",
+                    version: "北京交付表.xlsx",
+                    code: 0,
+                    jobDesc: "success",
+                    jobCat: "mapper",
+                    comments: "测试数据",
+                    message: JSON.stringify({
+                        tags: [
+                            {Key: "name", Value: "Alex"},
+                            {Key: "mapper", Value: "Fuck"}
+                        ],
+                        bucket: "ph-origin-files",
+                        key: "user/北京交付表.xlsx"
+                    }),
+                    date: 1629869854734,
+                    time: 1617206400000
+                }
+            }
+        }
+    )
+    return event
+})
+
 const rangeArray = (start, end) => Array(end - start + 1).fill(0).map((v, i) => i + start)
 const currentDate = new Date()
 const year = currentDate.getFullYear()
@@ -100,7 +132,7 @@ describe("Create Test", () => {
             const result = await app.lambdaHandler(event, undefined)
             expect(result.statusCode).toBe(201)
         }
-    }, 1000 * 60 * 100)
+    }, 1000 * 60 * 5)
 
     test("Update Log", async () => {
         const event = new UpdateLogFunction()
@@ -116,5 +148,12 @@ describe("Create Test", () => {
         const app = require("../../app.js")
         const result = await app.lambdaHandler(event, undefined)
         expect(result.statusCode).toBe(204)
-    }, 1000 * 60 * 100)
+    }, 1000 * 60 * 5)
+
+    test("CreateLogTriggerS3TagsFunction", async () => {
+        const event = new CreateLogTriggerS3TagsFunction()
+        const app = require("../../app.js")
+        const result = await app.lambdaHandler(event, undefined)
+
+    })
 })

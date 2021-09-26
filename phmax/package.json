@@ -13,9 +13,10 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@aws-sdk/client-glue": "^3.22.0"
+    "@aws-sdk/client-lambda": "^3.31.0"
   },
   "devDependencies": {
+    "@aws-sdk/client-sts": "^3.22.0",
     "@types/jest": "^26.0.23",
     "@types/node": "~14.17.3",
     "eslint": "^6.5.1",

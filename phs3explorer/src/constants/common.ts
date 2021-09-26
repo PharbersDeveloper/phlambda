@@ -9,16 +9,25 @@ export interface IPhConf {
     readonly host: string
     readonly port: number
     readonly poolMax: number
+    readonly ssl: false,
+    readonly idleTimeoutMs: number,
+    readonly connectionTimeoutMs: number
 }
 
 export const PostgresConf: IPhConf = {
     name: StoreEnum.POSTGRES,
-    entity: "max",
-    database: "phmax",
+    entity: "entry",
+    database: "phentry",
     user: "pharbers",
     password: "Abcde196125",
-    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
-    // host: "127.0.0.1",
+    // host: "192.168.49.199",
+    // port: 5442,
+    host: "127.0.0.1",
     port: 5432,
-    poolMax: 2
+    poolMax: 1,
+    ssl: false,
+    idleTimeoutMs: 3000,
+    connectionTimeoutMs: 3000
 }
+
+export const AWSRegion = "cn-northwest-1"

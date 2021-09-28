@@ -55,7 +55,7 @@ class ExcelToClickHouse:
     def buildWriteSQL(self,ws,dim,mapper,title_row):
         adapted_mapper = self.mapperAdapter(ws, dim, mapper, title_row, col_start=None, col_end=None)
         static_col = ','.join(["measure","provider","version","owner"])
-        cols_description = 'id,'+','.join(col['des'] for col in adapted_mapper) + ',' + static_col
+        cols_description = 'id,pkc,'+','.join(col['des'] for col in adapted_mapper) + ',dt,' + static_col
         sql = 'INSERT INTO ' + self.table_name + ' (' + cols_description + ') ' + 'VALUES'
         return sql,adapted_mapper
 
@@ -110,8 +110,9 @@ def lambda_handler(event,context):
     provider = event["provider"]
     version = event["version"]
     owner = event["owner"]
-    static_key = ['measure','provider','version','owner']
-    static_value = ["0",str(provider),str(version),str(owner)]
+    dt = event["date"]
+    static_key = ['pkc','measure','provider','version','owner','dt']
+    static_value = ["","0",str(provider),str(version),str(owner),str(dt)]
     temp_dict = dict(zip(static_key,static_value))
     ExcelToClickHouse(host,file_name,sheet_name,mapper,des_table_name,temp_dict,title_row,g_batch_size).handle_stream_data()
     pass

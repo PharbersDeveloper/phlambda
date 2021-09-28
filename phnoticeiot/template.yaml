@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda ph-notice-iot
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: phnotice-iot
+      Description: "根据触发事件转发消息到 IOT"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 120
+

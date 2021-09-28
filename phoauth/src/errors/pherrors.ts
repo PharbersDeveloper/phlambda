@@ -1,4 +1,3 @@
-import { ServerResponse } from "http"
 
 interface IPhErrors {
     status: number
@@ -57,22 +56,20 @@ export const PhRecordLoss: IPhErrors = {
 }
 
 // 在未登录情况下无user_id会重定向到登入页面
-// TODO @钱鹏 这块儿需要对未曾认证无client_id的进行跳转登入，并且redirect_uri需要动态写入
 export const PhInvalidAuthorizationLogin: IPhErrors = {
     status: 302,
     code: -8,
     headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "location": "http://accounts.pharbers.com/welcome?redirect_uri=http://airflow.pharbers.com"
+        "location": ""
     },
     message: { message: "Invalid Authorization Login" },
 }
 
-export function errors2response(err: IPhErrors, response: ServerResponse) {
+export function errors2response(err: IPhErrors, response: any) {
     response.statusCode = err.status
-    // @ts-ignore
+    response.status = err.status
     response.headers = err.headers
-    // @ts-ignore
     response.body = err.message
 }

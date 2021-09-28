@@ -1,23 +1,31 @@
 import moment from "moment"
-import { dbFactory, logger, redis, store } from "phnodelayer"
+import { DBConfig, IStore, Logger, Register, ServerRegisterConfig, StoreEnum } from "phnodelayer"
+import { PostgresConf, RedisConf } from "../constants/common"
 import EmailFacade from "../facade/emailFacade"
 import RandomCode from "../utils/randomCode"
 
 export default class AppLambdaDelegate {
-    private rds: any = redis.getInstance
 
-    // @ts-ignore
-    public async exec(event: Map<string, any>) {
-        // @ts-ignore
+    private readonly pg: IStore
+    private readonly rds: IStore
+
+    public constructor() {
+        const configs = [
+            new DBConfig(PostgresConf),
+            new DBConfig(RedisConf)
+        ]
+        ServerRegisterConfig(configs)
+        this.pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+        this.rds = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+    }
+
+    public async exec(event: any) {
         if (event.pathParameters.type === "sendCode") {
             return await this.sendEmailCode(event)
-            // @ts-ignore
         } else if (event.pathParameters.type === "verifyCode") {
             return await this.verifyCode(event)
-            // @ts-ignore
         } else if (event.pathParameters.type === "verifyEmail") {
             return await this.verifyEmail(event)
-            // @ts-ignore
         } else if (event.pathParameters.type === "forgotPassword") {
             return await this.forgotPassword(event)
         }
@@ -57,7 +65,7 @@ export default class AppLambdaDelegate {
             await email.sendEmail(event.queryStringParameters.to, "", "text/plain", r)
             return this.response(200, "success")
         } catch (e) {
-            logger.error(e)
+            Logger.error(e)
             return this.response(500, "error")
         } finally {
             await this.rds.close()
@@ -77,7 +85,7 @@ export default class AppLambdaDelegate {
                 return this.response(404, "error")
             }
         } catch (e) {
-            logger.error(e)
+            Logger.error(e)
             return this.response(500, "error")
         } finally {
             await this.rds.close()
@@ -85,11 +93,11 @@ export default class AppLambdaDelegate {
     }
 
     private async forgotPassword(event: Map<string, string>) {
-        const dbIns = dbFactory.getInstance.getStore(store.Postgres)
         try {
+            await this.pg.open()
             // @ts-ignore
             const email = JSON.parse(event.body).email
-            const result = await dbIns.find("account", null, { match: { email } })
+            const result = await this.pg.find("account", null, { match: { email } })
             if (result.payload.records.length === 0) {
                 return this.response(404, "error")
             } else {
@@ -100,32 +108,32 @@ export default class AppLambdaDelegate {
                         replace: { password: JSON.parse(event.body).password }
                     }
                 ]
-                await dbIns.update("account", account)
+                await this.pg.update("account", account)
                 return this.response(200, "success")
             }
         } catch (e) {
-            logger.error(e)
+            Logger.error(e)
             return this.response(500, "error")
         } finally {
-            await dbIns.disconnect()
+            await this.pg.close()
         }
     }
 
     private async verifyEmail(event: Map<string, string>) {
-        const dbIns = dbFactory.getInstance.getStore(store.Postgres)
+        await this.pg.open()
         try {
             // @ts-ignore
             const email = event.queryStringParameters.email
-            const result = await dbIns.find("account", null, { match: { email } })
+            const result = await this.pg.find("account", null, { match: { email } })
             if (result.payload.records.length === 0) {
                 return this.response(404, "error")
             }
             return this.response(200, "success")
         } catch (e) {
-            logger.error(e)
+            Logger.error(e)
             return this.response(500, "error")
         } finally {
-            await dbIns.disconnect()
+            await this.pg.close()
         }
     }
 }

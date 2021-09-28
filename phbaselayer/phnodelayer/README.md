@@ -10,22 +10,81 @@
 3. 在项目中的src目录中添加model
 4. npm run build 编译
 
+### 新增功能
+```text
+2021/09/08:
+用户可以不用配置注册Config实体，直接在环境变量中设置指定参数即可，参数如下：
+evn key： configs
+env value: [
+    {
+        "name": "Postgres",
+        "entity": "实体类的文件名",
+        "database": "db",
+        "user": "user",
+        "password": "password",
+        "host": "127.0.0.1",
+        "port": 5432,
+        "poolMax": 1
+    },
+    {
+        "name": "Redis",
+        "entity": "实体类的文件名",
+        "database": "0",
+        "user": "",
+        "password": "",
+        "host": "127.0.0.1",
+        "port": 6379,
+        "poolMax": 1
+    }
+]
+删除注册Config的代码即可，如两者都存在将以Config注册中心的为主，以下是注册Config的代码：
+这下面的代码可以在项目中删除了
+const configs = [new DBConfig({
+    name: StoreEnum.POSTGRES, // 数据库类型
+    entity: "entry", // 序列化实体名（也就是文件名）
+    database: "phentry", // 数据库名称
+    user: "pharbers", // 连接用户 (非空必填)
+    password: "Abcde196125", // 连接密码 (非空必填)
+    host: "127.0.0.1", // host
+    port: 5432, // 端口
+    poolMax: 1 // 连接池 (默认1)
+})]
+ServerRegisterConfig(configs) 
+==============================================我是分割线===================================================
+
+```
+
 ## 具体使用
+```ts
+import { Logger, DBConfig, JSONAPI, StoreEnum, Register, IStore, ServerRegisterConfig } from "phnodelayer"
+```
 
 `src/delegate/appLambdaDelegate.ts`
 ```ts
-import { ConfigRegistered, Main, PostgresConfig } from "phnodelayer"
-
 export default class AppLambdaDelegate {
     public async exec(event: Map<string, any>) {
-            const pg = new PostgresConfig("Test", "postgres", "faiz", "127.0.0.1", 5432, "phtest")
-            ConfigRegistered.getInstance.registered(pg)
-            return await Main(event)
+            const configs = [new DBConfig({
+                name: StoreEnum.POSTGRES, // 数据库类型
+                entity: "entry", // 序列化实体名（也就是文件名）
+                database: "phentry", // 数据库名称
+                user: "pharbers", // 连接用户 (非空必填)
+                password: "Abcde196125", // 连接密码 (非空必填)
+                host: "127.0.0.1", // host
+                port: 5432, // 端口
+                poolMax: 1 // 连接池 (默认1)
+            })]
+            ServerRegisterConfig(configs) // 注册函数
+            /**
+             * JSONAPI监听函数
+             * 参数一：主数据库
+             * 参数二：event
+             */
+            return await JSONAPI(StoreEnum.POSTGRES, event)
         }
 }
 ```
 
-`src/models/test.ts`
+`src/models/entry.ts`
 ```ts
 class Test {
     public model: any = {
@@ -146,44 +205,76 @@ exports.lambdaHandler = async function (event, context) {
 
 ## 暴露出的Config接口
 ```ts
-import { ConfigRegistered, PostgresConfig, RedisConfig } from "phnodelayer"
+import { DBConfig, ServerRegisterConfig } from "phnodelayer"
 ```
-### Interface ConfigRegistered
+### Interface ServerRegisterConfig
 > 该接口只负责注册配置项并形成单例
 
 #### 使用方法
 ```ts
-// config参数为 暴露出的Config接口
-import { ConfigRegistered } from "phnodelayer"
-ConfigRegistered.getInstance.registered(config)
-
+/**
+ * config参数为 暴露出的Config接口
+ * 参数一：Array(Config)
+ */
+import { DBConfig, ServerRegisterConfig } from "phnodelayer"
+const configs = [
+    DBConfig(
+        {
+            name: StoreEnum.POSTGRES, // 数据库类型
+            entity: "entry", // 序列化实体名（也就是文件名）
+            database: "phentry", // 数据库名称
+            user: "pharbers", // 连接用户 (非空必填)
+            password: "Abcde196125", // 连接密码 (非空必填)
+            host: "127.0.0.1", // host
+            port: 5432, // 端口
+            poolMax: 1 // 连接池 (默认1)
+        }
+    ),
+    DBConfig(
+        {
+            name: StoreEnum.REDIS, // 数据库类型
+            entity: "redis", // 序列化实体名（也就是文件名）
+            database: "0", // 数据库名称
+            user: "", // 连接用户 (必填)
+            password: "", // 连接密码 (必填)
+            host: "127.0.0.1", // host
+            port: 6379, // 端口
+            poolMax: 1 // 连接池 (默认1)
+        }
+    )
+]
+ServerRegisterConfig(configs)
 ```
-### Interface PostgresConfig
-> 该接口只负责初始化Postgresql的链接参数
+
+### Interface Register
+> 该接口负责暴露已存在的Store实例
 
 #### 使用方法
 ```ts
-import { PostgresConfig } from "phnodelayer"
-const pg = new PostgresConfig("entry", "userName", "password", "host", port , "dbName")
-```
-
-### Interface RedisConfig
-> 该接口只负责初始化Redis的链接参数
-
-#### 使用方法
-```ts
-import { RedisConfig } from "phnodelayer"
-const redis = new RedisConfig("entry", "userName", "password", "host", port, "dbName")
-```
-### Interface SF
-> 该接口负责暴露已存在的Store初始化实例
-
-#### 使用方法
-```ts
-import {  SF, Store } from "phnodelayer"
-// 如需要获取Redis实例
-const rds: any = SF.getInstance.get(Store.Redis)
+import {  IStore, Register } from "phnodelayer"
+/**
+ * 获取注册的Store实例
+ */
+const rds: any = (Register.getInstance.getData(StoreEnum.REDIS) as IStore)
 rds.open()
+rds.find(...)
+rds.create(...)
+rds.update(...)
+rds.delete(...)
+// 这是过期时间的Set Example
+const adapterStore = rds.getStore()
+const data = {
+    name: "Alex",
+    age: 27
+}
+const createResult = await adapterStore.create("user", data)
+store.adapter.redis.set(
+    `user:${createResult.payload.records[0].id}`,
+    JSON.stringify(createResult.payload.records[0]),
+    "EX",
+    60,
+)
+
 rds.close()
 ```
 

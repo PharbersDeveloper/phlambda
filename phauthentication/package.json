@@ -13,20 +13,18 @@
         "lint": "tslint -p tsconfig.json"
     },
     "dependencies": {
-        "@types/aws-sdk": "^2.7.0",
-        "@types/js-yaml": "^3.12.1",
-        "aws-sdk": "^2.686.0",
-        "js-yaml": "^3.14.0",
-        "phnodelayer": "0.0.8"
     },
     "devDependencies": {
-        "@types/node": "~10.17.24",
-        "jest": "^26.6.0",
-        "prettier": "^2.1.2",
-        "ts-jest": "^26.4.1",
+        "@types/jest": "^26.0.23",
+        "@types/node": "~14.17.3",
         "eslint": "^6.5.1",
         "eslint-config-boss": "^1.0.6",
+        "jest": "^26.6.0",
+        "phnodelayer": "2.0.2",
+        "prettier": "^2.1.2",
         "source-map-support": "^0.5.13",
+        "ts-jest": "^26.4.1",
+        "ts-node": "^10.2.0",
         "tslint": "^5.18.0",
         "typedoc": "^0.14.2",
         "typescript": "^3.3.1"

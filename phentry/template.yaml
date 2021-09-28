@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Deploy lmd phentry
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      AutoPublishAlias: Current
+      CodeUri: ./lmdcode
+      FunctionName: phentry
+      Description: "entry逻辑层"
+      Timeout: 600
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

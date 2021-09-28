@@ -1,6 +1,6 @@
 {
 	"name": "phnodelayer",
-	"version": "1.0.3",
+	"version": "2.0.4",
 	"description": "",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
@@ -15,7 +15,7 @@
 		"config",
 		"custom"
 	],
-	"keywords": [],
+	"keywords": ["AWS Lambda", "JSONAPI", "Fortune", "TypeScript"],
 	"author": "Alfred",
 	"maintainer": "Alex",
 	"license": "GPL3.0",
@@ -23,27 +23,29 @@
 		"@types/jest": "^26.0.15",
 		"jest": "^26.6.0",
 		"prettier": "^2.1.2",
+		"source-map-support": "^0.5.13",
 		"ts-jest": "^26.4.1",
+		"ts-node": "^10.2.0",
 		"tslint": "^6.1.3",
 		"tslint-config-prettier": "^1.18.0",
-		"source-map-support": "^0.5.13",
 		"typedoc": "^0.14.2",
 		"typescript": "^3.3.1"
 	},
 	"dependencies": {
 		"@types/aws-sdk": "^2.7.0",
 		"@types/js-yaml": "^3.12.1",
-		"@types/node": "^14.14.9",
+		"@types/node": "^14.17.3",
 		"aws-sdk": "^2.686.0",
 		"busboy": "^0.3.1",
 		"clean-css": "^4.2.1",
 		"cookie": "^0.4.0",
+		"crypto-js": "^4.0.0",
 		"deep-equal": "^2.0.4",
 		"fast-crc32c": "^2.0.0",
 		"fortune": "^5.5.17",
 		"fortune-mongodb": "^1.3.2",
 		"fortune-mysql": "^1.6.4",
-		"fortune-postgres": "https://github.com/fortunejs/fortune-postgres",
+		"fortune-postgres": "https://github.com/Faiz2/fortune-postgres#fix-pg-dependency-bug",
 		"fortune-redis": "^2.1.0",
 		"i": "^0.3.6",
 		"inflection": "^1.12.0",
@@ -54,5 +56,8 @@
 		"pluralize": "0.0.11",
 		"simulacra": "^2.2.0",
 		"uri-templates": "^0.2.0"
+	},
+	"engines": {
+		"node": ">10.24.1 <15"
 	}
 }

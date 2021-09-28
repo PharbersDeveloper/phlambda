@@ -1,48 +1,46 @@
-import phLogger from "./logger/PhLogger"
-import App from "./delegate/appLambdaDelegate"
-import { StoreEnum } from "./common/StoreEnum"
-import StoreFactory from "./strategies/store/StoreFactory"
-import AWSReq from "./strategies/AwsRequest"
-import PostgresConf from "./config/PostgresConf"
-import RedisConf from "./config/RedisConf"
-import ConfRegistered from "./config/ConfRegistered"
+import AWSRequest from "./common/request/AWSRequest"
+import BuildMaker from "./build/BuildMaker"
+import Config from "./common/config/Config"
+import DBConfig from "./common/config/DBConfig"
+import IStore from "./common/store/IStore"
+import JSONAPIDelegate from "./delegate/JSONAPIDelegate"
+import PhLogger from "./common/logger/phLogger"
+import { StoreEnum } from "./common/enum/StoreEnum"
+import StoreRegister from "./common/factory/StoreRegister"
 
-export const Logger = phLogger
-export const Store = StoreEnum
-export const SF = StoreFactory
-export const AWSRequest = AWSReq
-export const ConfigRegistered = ConfRegistered
-export const PostgresConfig = PostgresConf
-export const RedisConfig = RedisConf
-
-export const Main = async (event: Map<string, any>, db: any = Store.Postgres) => {
-    let result = null
-    let del = null
+const JSONAPI = async (jsonApiDB: StoreEnum, event: any) => {
+    let result: any = null
+    let delegate: any = null
     try {
-        Logger.debug("进入初始化")
-        del = new App()
-        if (del.isFirstInit) {
-            Logger.debug("准备初始化数据开始")
-            del.prepare(db)
-            Logger.debug("准备初始化数据结束")
-            Logger.debug("开始连接数据库")
-            await del.store.open()
-            Logger.debug("连接数据库结束")
-        }
-        if (event !== null && event !== undefined) {
-            Logger.debug("开始执行请求")
-            result = await del.exec(event)
-            Logger.debug("执行请求结束")
+        delegate = new JSONAPIDelegate()
+        if (delegate.isFirstInit && event !== null && event !== undefined) {
+            await delegate.prepare(jsonApiDB)
+            result = await delegate.exec(event)
         }
         return result
-    } catch (e) {
-        throw e
+    } catch (error) {
+        throw error
     } finally {
-        if (del !== null) {
-            del.isFirstInit = true
-            Logger.debug("关闭数据库开始")
-            await del.store.close()
-            Logger.debug("关闭数据库结束")
+        if (delegate !== null) {
+            delegate.isFirstInit = true
         }
     }
 }
+
+const ServerRegisterConfig = (configs?: Config[]) => {
+    // tslint:disable-next-line:no-unused-expression
+    new BuildMaker(configs)
+}
+
+export {
+    AWSRequest,
+    PhLogger as Logger,
+    DBConfig,
+    IStore,
+    JSONAPI,
+    StoreEnum,
+    StoreRegister as Register,
+    ServerRegisterConfig,
+}
+
+

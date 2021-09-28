@@ -13,12 +13,13 @@
   },
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
+    "@types/jest": "^26.0.23",
     "aws-sdk": "^2.686.0",
     "axios": "^0.21.0",
-    "phnodelayer": "1.0.3",
     "typescript": "^3.3.1"
   },
   "devDependencies": {
+    "phnodelayer": "1.0.6",
     "@types/node": "~10.17.24",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",

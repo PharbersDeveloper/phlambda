@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phphxlsxtockhouse-v2
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda_clickhouse.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1
+      FunctionName: phxlsxtockhouse-v2
+      Description: "流式读取s3 xlsx文件, 流式写入 clickhosue "
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      MemorySize: 1024
+      Timeout: 120
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

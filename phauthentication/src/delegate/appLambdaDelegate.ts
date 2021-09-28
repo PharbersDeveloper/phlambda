@@ -1,17 +1,23 @@
-import * as fs from "fs"
-import * as yaml from "js-yaml"
-import {JsonConvert, ValueCheckingMode} from "json2typescript"
-import { logger, redis } from "phnodelayer"
-import { ServerConf } from "../configFactory/ServerConf"
+import { DBConfig, IStore, Logger, Register, ServerRegisterConfig, StoreEnum } from "phnodelayer"
+import { Permissions, PostgresConf, RedisConf } from "../constants/common"
 
 export default class AppLambdaDelegate {
-    public rds: any = redis.getInstance
-    private conf: ServerConf
+    private readonly pg: IStore
+    private readonly rds: IStore
 
-    public async exec(event: Map<string, any>) {
+    public constructor() {
+        const configs = [
+            new DBConfig(PostgresConf),
+            new DBConfig(RedisConf)
+        ]
+        ServerRegisterConfig(configs)
+        this.pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+        this.rds = Register.getInstance.getData(StoreEnum.REDIS) as IStore
+    }
+
+    public async exec(event: any) {
         try {
             await this.rds.open()
-            this.loadConfiguration()
             return await this.authHandler(event)
         } catch (e) {
             throw e
@@ -52,17 +58,16 @@ export default class AppLambdaDelegate {
     protected identify(arnRes: string[], scope: string) {
         const outerScope = scope.split("|")
         const scopes = outerScope[1].split(",")
-        const permissionsValues = this.conf.permissions.values
 
         function permissionFlag(permission) {
             // R => Read   W => R + Update + Create   X => R + Delete   A => 所有权限
             if (permission === "A") {
                 return true
             }
-            const pem = permissionsValues.map((item) => {
+            const pem = Permissions.map((item) => {
                 if (item[0] === "W" || item[0] === "X") {
-                    const read = permissionsValues.find((p) => p[0] === "R").substr(1)
-                    return permissionsValues.find((p) => p[0] === item[0]) + read
+                    const read = Permissions.find((p) => p[0] === "R").substr(1)
+                    return Permissions.find((p) => p[0] === item[0]) + read
                 } else {
                     return item
                 }
@@ -86,36 +91,6 @@ export default class AppLambdaDelegate {
             })
         }
         return resourceFlag()
-        // const resource = scopes[1]
-        // const permissions = scopes[2]
-        // const permissionsValues = this.conf.permissions.values
-        // logger.info("resource ==>", resource)
-        // logger.info("permissions ==>", permissions)
-        // function resourceFlag() {
-        //     if (resource === "*") {
-        //         return true
-        //     }
-        //     return resource.split("::").includes(arnRes[3])
-        // }
-        // function permissionFlag() {
-        //     // R => Read   W => R + Update + Create   X => R + Delete   A => 所有权限
-        //     if (permissions === "A") {
-        //         return true
-        //     }
-        //     const pem = permissionsValues.map((item) => {
-        //         if (item[0] === "W" || item[0] === "X") {
-        //             const read = permissionsValues.find((p) => p[0] === "R").substr(1)
-        //             return permissionsValues.find((p) => p[0] === item[0]) + read
-        //         } else {
-        //             return item
-        //         }
-        //     })
-        //     return pem
-        //         .find((item) => scopes[2] === item[0])
-        //         .split("::")
-        //         .includes(arnRes[2])
-        // }
-        // return resourceFlag() && permissionFlag()
     }
 
     protected generatePolicy(principalId, effect, resource) {
@@ -144,17 +119,4 @@ export default class AppLambdaDelegate {
         return authResponse
     }
 
-    private loadConfiguration() {
-        try {
-            const path = "config/server.yml"
-            const jsonConvert = new JsonConvert()
-            const doc = yaml.safeLoad(fs.readFileSync(path, "utf8"))
-            jsonConvert.ignorePrimitiveChecks = false // don't allow assigning number to string etc.
-            jsonConvert.valueCheckingMode = ValueCheckingMode.DISALLOW_NULL // never allow null
-            this.conf = jsonConvert.deserializeObject(doc, ServerConf)
-        } catch (e) {
-            logger.fatal( e as Error )
-            throw e
-        }
-    }
 }

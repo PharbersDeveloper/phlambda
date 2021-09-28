@@ -1,3 +1,4 @@
+
 class Entry {
     public model: any = {
         asset: {
@@ -66,6 +67,28 @@ class Entry {
             modified: Date,
             description: String,
         },
+    }
+
+    public operations = {
+        hooks: {
+            asset: [ this.hooksDate ]
+        }
+    }
+
+    public hooksDate(context: any, record: any, update: any) {
+        const { request: { method, meta: { language } } } = context
+        switch (method) {
+            case "create":
+                const date = new Date()
+                if (!record.created) {
+                    record.created = date
+                }
+                record.modified = date
+                return record
+            case "update":
+                update.replace.modified = new Date()
+                return update
+        }
     }
 }
 

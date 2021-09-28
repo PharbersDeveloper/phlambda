@@ -1,68 +1,80 @@
-import * as fortune from "fortune"
-import { Http } from "../common/http"
+import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Project {
-    public model: any = {
+    model: any = {
         project: {
+            arn: String,
             name: String,
-            owner: String,
-            created: Date,
-            modified: Date,
-            description: String,
-        },
-        trigger: {
-            dagId: String,
-            timeLeft: String,
-            timeRight: String,
-            molecule: String,
-            project: String,
-            atc: String,
-            outSuffix: String,
-            email: String,
+            projectName: String,
+            provider: String,
             version: String,
-            status: String,
+            executions: { link: "execution", isArray: true, inverse: "projectExecution"}
+        },
+        execution: {
+            projectExecution: { link: "project", inverse: "executions"},
+            arn: String,
+            input: String,
         }
     }
 
-    public operations = {
+    operations = {
         hooks: {
-            project: [ this.hooksDate ],
-            trigger: [ this.hooksDate ]
+            project: [null, this.hookProjectOutput],
+            execution: [this.hookExecutionInput, this.hookExecutionOutput]
         }
     }
 
-    protected async hooksDate(context, record, update) {
-        const { request: { method, type, meta: { language } } } = context
-        const { errors: { BadRequestError } } = fortune
+    protected async hookProjectOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findStepFunctions(record.arn)
+                    record.type = content.type
+                    record.created = content.creationDate.getTime()
+                    record.define = JSON.stringify(JSON.parse(content.definition))
+                }
+        }
+        return record
+
+    }
+
+    protected async hookExecutionInput(context, record) {
+        const { request: { method, type } } = context
+        const stp = new StepFunctionHandler()
         switch (method) {
             case "create":
-                if (type === "trigger") {
-                    const airflowRunDagUrl = `http://192.168.62.76:30086/api/v1/dags/${record.dagId}/dagRuns`
-                    const parm = {}
-                    for (const item of Object.keys(record)) {
-                        const key = item.replace(/([A-Z])/g, "_$1").toLowerCase()
-                        if (record[item] !== null && record[item] !== undefined) {
-                            parm[key] = record[item]
-                        }
-                    }
-                    const res =  await new Http().post(airflowRunDagUrl, {conf: parm})
-                    if (res.status !== 200) { throw new BadRequestError(res.statusText) }
-                    record.status = res.statusText
-                } else {
-                    const date = new Date()
-                    if (!record.created) {
-                        record.created = date
-                    }
-                    record.modified = date
+                if (record.input) {
+                    const {result, input} = await stp.startExecution(record.input)
+                    record.arn = result.executionArn
+                    record.input = input
                 }
                 return record
-            case "update":
-                if (type !== "trigger") {
-                    update.replace.modified = new Date()
-                }
-                return update
         }
+        return record
     }
+
+    protected async hookExecutionOutput(context, record) {
+        const { request: { method, type } } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findExecutions(record.arn)
+                    record.name = record.arn.split(":").slice(-1)[0]
+                    record.status = content.status
+                    record.startTime = content.startDate.getTime()
+                    record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()
+                    record.input = JSON.stringify(content.input)
+                }
+                break
+        }
+        return record
+
+    }
+
 }
 
 export default Project

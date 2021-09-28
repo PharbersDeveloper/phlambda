@@ -12,13 +12,13 @@ def lambda_handler(event, context):
 
     git_event = parse.print_branch_information(event=event)
     print(git_event)
-    if git_event.get("merge_branch_to") == "PBDP-1871-lambda-directory-code-build" and git_event.get("event_type") == "MERGED":
+    if git_event.get("merge_branch_to") == "master" and git_event.get("event_type") == "MERGED":
         git_url = os.getenv("GIT_URL")
         # git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
         local_path_prefix = '/tmp'
         local_path = os.path.join(local_path_prefix, 'phlambda')
         # 从bitbucket下载代码 存放在local_path下
-        repo = GitRepository(local_path, git_url, branch='PBDP-1871-lambda-directory-code-build')
+        repo = GitRepository(local_path, git_url, branch='master')
 
         # 打包上传代码
         # 获取git commit 版版本

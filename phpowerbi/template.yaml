@@ -9,7 +9,26 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: ph-powerbi
-      Description: "ph-powerbi cloudformation create"
-      Timeout: 600
+      FunctionName: phpowerbi-v2
+      Description: "Power BI获取Token"
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      MemorySize: 512
+        Layers:
+          - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpowerbi:2
+      Environment:
+        Variables:
+          CLIENTID: d05ed8c1-bb5d-4534-a7aa-1ffca7696a87
+          CLIENTSECRET: K0XsmQv.NX45~Zc1gU.19OWicrzE0BC~hU
+          EMBEDDEDURI: https://api.powerbi.cn/v1.0/myorg/groups/{gid}/reports/{rid}/GenerateToken
+          PARTNERID: 2a606eef-e7e9-41a4-8b05-9e1a4942d602
+          POWERBIURI: https://login.chinacloudapi.cn/{partnerId}/oauth2/token
+          RESOURCE: https://analysis.chinacloudapi.cn/powerbi/api
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
 

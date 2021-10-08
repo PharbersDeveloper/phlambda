@@ -18,6 +18,7 @@ phases:
       - ls
       - cp -r dist lmdcode
       - cp app.js lmdcode
+      - cp src/README.md lmdcode
       - ls lmdcode
   post_build:
     commands:

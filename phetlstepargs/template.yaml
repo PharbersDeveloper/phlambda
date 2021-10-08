@@ -10,7 +10,8 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       FunctionName: phetlstepargs
-      Description: "处理ETL StepFunction的参数"
+      Description: "ETL流程中 处理参数的步骤"
+      MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      Timeout: 120
+      Timeout: 30
 

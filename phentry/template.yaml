@@ -9,7 +9,23 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phentry
+      FunctionName: phentry-v2
       Description: "entry逻辑层"
-      Timeout: 600
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      MemorySize: 1024
+        Layers:
+          - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phact:3
+      Environment:
+        Variables:
+          TEST: test
+          AccessKeyId: AKIAWPBDTVEAI6LUCLPX
+          SecretAccessKey: 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
+          configs: '[ { "name": "Postgres", "entity": "entry", "database": "phentry", "user": "pharbers", "password": "Abcde196125", "host": "192.168.49.199", "port": 5440, "poolMax": 1 }, { "name": "Redis", "entity": "token", "database": "0", "user": "", "password": "", "host": "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", "port": 6379, "poolMax": 1 } ]'
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

@@ -9,7 +9,23 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: ph-catlog
+      FunctionName: phcatlog-v2
       Description: "数据目录查询"
-      Timeout: 600
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
+      MemorySize: 1024
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phcatlog:2
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lbdauth:5
+      Environment:
+        Variables:
+          TEST: test
+          configs: '[ { "name": "Postgres", "entity": "catlog", "database": "phentry", "user": "pharbers", "password": "Abcde196125", "host": "192.168.49.199", "port": 5440, "poolMax": 1 } ]'
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

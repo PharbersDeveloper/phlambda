@@ -16,6 +16,7 @@ phases:
       - npm run test
       - mkdir lmdcode
       - cp -r dist lmdcode
+      - cp src/README.md lmdcode
       - cp app.js lmdcode
   post_build:
     commands:

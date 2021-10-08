@@ -22,8 +22,8 @@ def lambda_handler(event, context):
 
         # 打包上传代码
         # 获取git commit 版版本
-
         zip_code(local_path, git_event)
+
 
         # 启动所有项目的codebuild
         start_codebuild()

@@ -12,33 +12,6 @@
 
 ### 新增功能
 ```text
-2021/09/08:
-用户可以不用配置注册Config实体，直接在环境变量中设置指定参数即可，参数如下：
-evn key： configs
-env value: [
-    {
-        "name": "Postgres",
-        "entity": "实体类的文件名",
-        "database": "db",
-        "user": "user",
-        "password": "password",
-        "host": "127.0.0.1",
-        "port": 5432,
-        "poolMax": 1
-    },
-    {
-        "name": "Redis",
-        "entity": "实体类的文件名",
-        "database": "0",
-        "user": "",
-        "password": "",
-        "host": "127.0.0.1",
-        "port": 6379,
-        "poolMax": 1
-    }
-]
-删除注册Config的代码即可，如两者都存在将以Config注册中心的为主，以下是注册Config的代码：
-这下面的代码可以在项目中删除了
 const configs = [new DBConfig({
     name: StoreEnum.POSTGRES, // 数据库类型
     entity: "entry", // 序列化实体名（也就是文件名）

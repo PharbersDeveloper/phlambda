@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phgluejob
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: phgluejob
+      Description: "运行ETLsfn时，如果传入的type为xlsx 则运行指定的gluejob对文件进行处理"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 120
+

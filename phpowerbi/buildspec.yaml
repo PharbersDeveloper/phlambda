@@ -8,15 +8,16 @@ phases:
   pre_build:
     commands:
       - cp -r /environment/node/code/node_modules ./node_modules # 优先使用cp，在efs中也能快一丢丢
-      - ls
 
   build:
     commands:
       - npm run build
       - npm run test
       - mkdir lmdcode
+      - ls
       - cp -r dist lmdcode
       - cp app.js lmdcode
+      - ls lmdcode
   post_build:
     commands:
       - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem

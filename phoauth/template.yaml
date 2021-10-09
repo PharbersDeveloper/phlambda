@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Deploy lmd phoauth
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      AutoPublishAlias: Current
+      CodeUri: ./lmdcode
+      FunctionName: phoauth
+      Description: "oauth核心逻辑 cloudformation"
+      Timeout: 600
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

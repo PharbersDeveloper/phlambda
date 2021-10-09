@@ -33,7 +33,7 @@ phases:
 #    file-format: JUNITXML
 artifacts:
   files:
-    - dist/**/*
+    - dist_1/**/*
   name: $PROJECT_NAME-$(date +%Y-%m-%d)
   discard-paths: no
   s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts/

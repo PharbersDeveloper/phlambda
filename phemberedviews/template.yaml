@@ -9,10 +9,10 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phapplyuser-V2
+      FunctionName: lmd-phemberedviews-V2
       Description: ""
       Timeout: 30
-      Role: arn:aws-cn:iam::444603803904:role/phjsonapi-role-exlyx1uy
+      Role: arn:aws-cn:iam::444603803904:role/service-role/phjsonapi-role-exlyx1uy
       MemorySize: 192
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:jsonapi-nodejs-layer:3

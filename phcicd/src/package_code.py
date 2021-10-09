@@ -74,7 +74,7 @@ def zip_code(local_path, git_event):
     git_commit_version = git_event["git_commit_version"]
     lmd_project_names = ["phaccounts",
                    "phapplyuser",
-                   "phmaphauthenticationx",
+                   "phauthentication",
                    "phcatlog",
                    "phchdatasource",
                    "phchupdatesql",

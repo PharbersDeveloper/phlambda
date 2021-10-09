@@ -14,8 +14,8 @@ Resources:
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       MemorySize: 512
-        Layers:
-          - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpowerbi:2
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpowerbi:2
       Environment:
         Variables:
           CLIENTID: d05ed8c1-bb5d-4534-a7aa-1ffca7696a87

@@ -14,8 +14,9 @@ Resources:
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       MemorySize: 1024
-        Layers:
-          - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phact:3
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:oauth:10
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14
       Environment:
         Variables:
           TEST: test

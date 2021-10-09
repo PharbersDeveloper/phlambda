@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phpowerbi-v2
+      FunctionName: lmd-phpowerbi-V2
       Description: "Power BI获取Token"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

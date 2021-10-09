@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phcommon-v2
+      FunctionName: lmd-phcommon-V2
       Description: "phcommon用户体系的增删改查操作"
       MemorySize: 1024
       Layers:

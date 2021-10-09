@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phreport-v2
+      FunctionName: lmd-phreport-V2
       Description: "reports逻图表逻辑层"
       MemorySize: 1024
       Layers:

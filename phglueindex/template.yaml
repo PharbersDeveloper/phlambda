@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phglueindex-v2
+      FunctionName: lmd-phglueindex-V2
       Description: "接收SNS消息触发Glue索引操作如Postgresql"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles

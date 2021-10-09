@@ -10,7 +10,7 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       #Layers:
-      FunctionName: phrollback
+      FunctionName: lmd-phrollback-V2
       Description: "数据回滚"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

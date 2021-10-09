@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phoffweb-v2
+      FunctionName: lmd-phoffweb-V2
       Description: "官网"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

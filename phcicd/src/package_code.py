@@ -18,18 +18,50 @@ def start_codebuild():
         sortOrder='ASCENDING'
     )
     codebuild_project = [
-        "codebuild-manager-phproject-52I197EZAXJI",
-        "codebuild-manager-phchupdatesql-GP33T7R3ZY2A",
-        "codebuild-manager-phmax-1IHQYCDB68QKE",
+        "codebuild-manager-phtmppsycopg-12PJ2Z17IMXBJ",
+        "codebuild-manager-phdagrunid-GISP8T92O80H",
         "codebuild-manager-phschemaexplorer-1KIBP193HKMD8",
+        "codebuild-manager-phcreatestepargs-1RGW6KBWOR4H4",
+        "codebuild-manager-phapplyuser-13JOYOH6XC9Z2",
+        "codebuild-manager-phemberedviews-VMN3MZNM5J5Q",
+        "codebuild-manager-phs3explorer-HE94WK61V5YL",
+        "codebuild-manager-phtm-10DGASKZWQXLQ",
+        "codebuild-manager-phjsonapi-QXELLIO9HMRM",
+        "codebuild-manager-phrollback-5BA01BBMUW47",
+        "codebuild-manager-phclickhousesql-T2WHY3VMGFQX",
+        "codebuild-manager-phauthentication-Z3YDFXW8VEUW",
+        "codebuild-manager-phchupdatesql-GP33T7R3ZY2A",
         "codebuild-manager-phchdatasource-1K69LQYASIRS6",
-        "codebuild-manager-phgetsfn-NOEYAZ5JRMF2"
+        "codebuild-manager-phxlsxtockhouse-A338SLQXVFO6",
+        "codebuild-manager-phpowerbi-183I3RBZ9OZ23",
+        "codebuild-manager-phoffweb-1AAVN6GTL925T",
+        "codebuild-manager-phetlstepargs-X18HDXYNPRJ8",
+        "codebuild-manager-phetlsfn-TQZQ34PKB5K6",
+        "codebuild-manager-phnoticeglue-1LMGBANNINAEF",
+        "codebuild-manager-phgetsfn-NOEYAZ5JRMF2",
+        "codebuild-manager-phreport-Q4MG0DGMDK7Q",
+        "codebuild-manager-phnoticeemail-V77NNXP745NE",
+        "codebuild-manager-phstartcrawler-MV0BLYXOJ14P",
+        "codebuild-manager-phcicd-646HTSFSVSV9",
+        "codebuild-manager-phaccounts-1EECDPT63XCA7",
+        "codebuild-manager-phcatlog-1DON0FZEHDD98",
+        "codebuild-manager-phmax-1IHQYCDB68QKE",
+        "codebuild-manager-phgluejob-LZ0PHHCPTX66",
+        "codebuild-manager-phstepfunctionindex-1UP6U77WVUA7Z",
+        "codebuild-manager-phnoticesms-10SXZ8JKPD9GB",
+        "codebuild-manager-phnoticeiot-7MBX1WD8N759",
+        "codebuild-manager-phworkflow-WQ1200XL11W5",
+        "codebuild-manager-phcommon-VE1YB7TUCPJW",
+        "codebuild-manager-phuseragent-5I8QRJOVNZD1",
+        "codebuild-manager-phoauth-1AYB08O06FG1E",
+        "codebuild-manager-phproject-52I197EZAXJI",
+        "codebuild-manager-phentry-15JV3GXDNS206",
+        "codebuild-manager-phglueindex-13NB41DGVPNKI",
     ]
     for project in response['projects']:
-        if project in codebuild_project:
-            client.start_build(
-                projectName=project,
-            )
+        client.start_build(
+            projectName=project,
+        )
 
 
 def update_version(git_commit_version):
@@ -40,9 +72,48 @@ def update_version(git_commit_version):
 
 def zip_code(local_path, git_event):
     git_commit_version = git_event["git_commit_version"]
-    python3_lmd = ["phproject", "phchupdatesql" ,"phmax" , "ph-schema-explorer" , "phchdatasource", "phgetsfn"]
+    lmd_project_names = ["phaccounts",
+                   "phapplyuser",
+                   "phmaphauthenticationx",
+                   "phcatlog",
+                   "phchdatasource",
+                   "phchupdatesql",
+                   "phcicd",
+                   "phclickhousesql",
+                   "phcommon",
+                   "phcreatestepargs",
+                   "phdagrunid",
+                   "phemberedviews",
+                   "phentry",
+                   "phetlsfn",
+                   "phetlstepargs",
+                   "phgetsfn",
+                   "phglueindex",
+                   "phgluejob",
+                   "phjsonapi",
+                   "phmax",
+                   "phnoticeemail",
+                   "phnoticeglue",
+                   "phnoticeiot",
+                   "phnoticesms",
+                   "phoauth",
+                   "phoffweb",
+                   "phpowerbi",
+                   "phproject",
+                   "phreport",
+                   "phrollback",
+                   "phs3explorer",
+                   "phschemaexplorer",
+                   "phstartcrawler",
+                   "phstepfunctionindex",
+                   "phtm",
+                   "phtmppsycopg",
+                   "phuseragent",
+                   "phworkflow",
+                   "phxlsxtockhouse"
+                   ]
     for project_name in os.listdir(local_path):
-        if project_name in python3_lmd:
+        if project_name in lmd_project_names:
             code_path = local_path + "/" + project_name + "/"
             if os.path.isdir(code_path):
                 # 创建文件夹

@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phact-v2
+      FunctionName: lmd-phact-V2
       Description: "phact负责用户的注册域忘记密码流程"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

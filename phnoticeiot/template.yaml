@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PH_NOTICE_IOT:7
-      FunctionName: phnotice-iot-v2
+      FunctionName: lmd-phnoticeiot-V2
       Description: "根据触发事件转发消息到 IOT"
       MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

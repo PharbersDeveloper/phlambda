@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phentry-v2
+      FunctionName: lmd-phentry-V2
       Description: "entry逻辑层"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

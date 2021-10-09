@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phuseragent
+      FunctionName: lmd-phuseragent-V2
       Description: "OAuth User Agent"
       MemorySize: 128
       Layers:

@@ -40,7 +40,7 @@ def lambda_handler(event, context):
             args = parameter
             next_step = "start_glue_job"
         else:
-            raise Exception("Job类型错误")
+            raise Exception("文件类型错误")
 
     return {
         "next_step": next_step,

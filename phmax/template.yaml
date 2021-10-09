@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phmax-v2
+      FunctionName: lmd-phmax-V2
       Description: "Max项目逻辑层"
       MemorySize: 1024
       Layers:

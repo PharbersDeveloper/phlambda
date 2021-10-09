@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: phchdatasource-v2
+      FunctionName: lmd-phchdatasource-V2
       Description: "phchdatasource-v2 "
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       #      Layers:
       #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: phgetsfn-v2
+      FunctionName: lmd-phgetsfn-V2
       Description: "获取Stepfunction的 执行状态"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

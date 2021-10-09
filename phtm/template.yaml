@@ -10,18 +10,17 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lbdauth:3
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phntm:4
-      VpcConfig:
-        SubnetIds:
-          - 'subnet-0260eab5acd58bc53'
-          - 'subnet-0e3daa88acef9b136'
-        SecurityGroupIds:
-          - 'sg-058404c2ad02dcbb9'
-          - 'sg-09f5205a1194149ab'
       Handler: app.lambdaHandler
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phntm # Lambda Name
+      FunctionName: lmd-phntm-v2 # Lambda Name
       Description: "ntm"
-      Timeout: 120
-
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

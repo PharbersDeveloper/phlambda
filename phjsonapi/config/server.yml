@@ -1,0 +1,68 @@
+project: "ntm"
+models:
+  - file: Proposal
+    reg: proposals
+  - file: UsableProposal
+    reg: usable-proposals
+  - file: Hospital
+    reg: hospitals
+  - file: Product
+    reg: products
+  - file: Resource
+    reg: resources
+  - file: Image
+    reg: images
+  - file: Policy
+    reg: policies
+  - file: Project
+    reg: projects
+  - file: Period
+    reg: periods
+  - file: Answer
+    reg: answers
+  - file: Requirement
+    reg: requirements
+  - file: Report
+    reg: reports
+  - file: Preset
+    reg: presets
+  - file: Result
+    reg: results
+  - file: Level
+    reg: levels
+  - file: Evaluation
+    reg: evaluations
+  - file: Validation
+    reg: validations
+  - file: Region
+    reg: regions
+  - file: Final
+    reg: finals
+mongo:
+  algorithm: mongodb
+  host: a0eb74da798af11ea934b02ff50af4f4-919388620.cn-northwest-1.elb.amazonaws.com.cn
+  port: 30010
+  username: "pharbers"
+  pwd: "Pharbers.84244216"
+  coll: "pharbers-ntm-client"
+  authSource: "admin"
+  auth: true
+env:
+  oauthHost: oauth.pharbers.com
+  oauthPort: ""
+  oauthApiNamespace: "v0"
+  kafkaBrokerList: "59.110.31.50:9092"
+  kafkaTopic: "test"
+  kafkaSecretsDir: "/Users/sunchenghao/secrets/"
+  kafkaPassword: "pharbers"
+  schemaRegisterHost: "59.110.31.50:8081"
+  httpCallUrl: "http://59.110.31.50:28888/spark/job/run"
+  httpCallRUrl: "http://59.110.31.50:9213/v1.0/job_reg"
+oss:
+  region: oss-cn-beijing
+  accessKeyId: LTAIEoXgk4DOHDGi
+  accessKeySecret: x75sK6191dPGiu9wBMtKE6YcBBh8EI
+  bucket: pharbers-sandbox
+kfk:
+  kafkaBrokerList: "http://pharbers.com:8082"
+  kafkaTopic: "alfredtest"

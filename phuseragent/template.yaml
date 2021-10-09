@@ -9,7 +9,21 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phuseragent
+      FunctionName: lmd-phuseragent-V2
       Description: "OAuth User Agent"
-      Timeout: 600
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      MemorySize: 128
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-useragent:3
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Environment:
+        Variables:
+          TEST: test
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+

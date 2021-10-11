@@ -14,7 +14,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phntm-v2 # Lambda Name
+      FunctionName: lmd-phntm-V2 # Lambda Name
       Description: "ntm"
       Timeout: 30
       VpcConfig:

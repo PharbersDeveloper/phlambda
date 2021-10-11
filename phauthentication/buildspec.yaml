@@ -16,7 +16,6 @@ phases:
       - mkdir lmdcode
       - ls
       - cp -r dist lmdcode
-      - cp -r config lmdcode
       - cp src/README.md lmdcode
       - cp app.js lmdcode
       - ls lmdcode

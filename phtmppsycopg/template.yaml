@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
-      FunctionName: lmd-phtmppsycopg-v2
+      FunctionName: lmd-phtmppsycopg-V2
       Description: "phtmp_psycopg"
       MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

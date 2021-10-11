@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phschemaexplorer-v2
+      FunctionName: lmd-phschemaexplorer-V2
       Description: "http proxy call chproxy execution to clickhouse "
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

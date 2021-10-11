@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phstepfunctionindex-v2
+      FunctionName: lmd-phstepfunctionindex-V2
       Description: "接收SNS消息触发Step Function索引操作入Postgresql"
       MemorySize: 1024
       Layers:

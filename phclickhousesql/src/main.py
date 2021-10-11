@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     def GetCreateTableSql(clickhouse_table, table_scheme):
         scheme_cols = reduce(lambda x,y: x+y, [f"`{i['Name']}` {i['Type'].capitalize()}," for i in table_scheme])
         scheme_cols = re.sub(",$", "", scheme_cols)
-        sql_content = f"CREATE TABLE IF NOT EXISTS {clickhouse_table['table']}({scheme_cols}) ENGINE = MergeTree ORDER BY {clickhouse_table['orderby']} SETTINGS index_granularity = 8192;"
+        sql_content = f"CREATE TABLE IF NOT EXISTS {clickhouse_table['table']}({scheme_cols}) ENGINE = MergeTree ORDER BY {clickhouse_table['orderby']} PARTITION BY {clickhouse_table['partitionby']} SETTINGS index_granularity = 8192;"
         return sql_content
 
     parameters = event['parameters']
@@ -33,3 +33,7 @@ def lambda_handler(event, context):
     # 在lmd内 '192.168.0.66'
     clickhouse_driver_client = Client(host='192.168.0.66')
     clickhouse_driver_client.execute(sql_content)
+    run_id = event['parameter']['run_id']
+    return {
+        "run_id" : run_id
+    }

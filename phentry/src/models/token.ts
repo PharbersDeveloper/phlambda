@@ -1,5 +1,5 @@
 class Token {
-    public model: any = {
+     model: any = {
         authorization: {
             uid: String,
             cid: String,

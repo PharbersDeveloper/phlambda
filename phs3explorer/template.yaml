@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phs3explorer-v2
+      FunctionName: lmd-phs3explorer-V2
       Description: "异步调用函数处理S3 Tags"
       MemorySize: 1024
       Layers:

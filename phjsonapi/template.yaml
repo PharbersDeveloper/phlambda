@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phapplyuser-V2
+      FunctionName: lmd-phjsonapi-V2
       Description: ""
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/service-role/phjsonapi-role-exlyx1uy

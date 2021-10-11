@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phcatlog-v2
+      FunctionName: lmd-phcatlog-V2
       Description: "数据目录查询"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles

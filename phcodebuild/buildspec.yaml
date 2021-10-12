@@ -1,0 +1,119 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  build:
+    commands:
+      - ls
+      - cd phworkflow
+      - ls
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+      - sed -i s/PROJECT_NAME/phworkflow/  ./python3cicd.sh
+      - ls
+      - sh python3cicd.sh
+      - cd ..
+      - cd phnoticesms
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+      - sed -i s/PROJECT_NAME/phnoticesms/  ./python3cicd.sh
+      - sh python3cicd.sh
+      - cd ..
+      - ls
+#      - cd phcicd
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phcicd/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phclickhousesql
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phclickhousesql/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phcreatestepargs
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phcreatestepargs/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phdagrunid
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phdagrunid/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phetlsfn
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phetlsfn/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phetlstepargs
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phetlstepargs/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phgetsfn
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phgetsfn/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phgluejob
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phgluejob/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phnoticeemail
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeemail/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phnoticeglue
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeglue/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phnoticeiot
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeiot/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phrollback
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phrollback/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phschemaexplorer
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phschemaexplorer/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phstartcrawler
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phstartcrawler/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phtmppsycopg
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phtmppsycopg/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phworkflow
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phworkflow/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#      - cd phxlsxtockhouse
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
+#      - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./python3cicd.sh
+#      - sh python3cicd.sh
+#      - cd ..
+#artifacts:
+#  files:
+#    - src/**/**
+#  type: zip
+#  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+#  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+#
+#reports:
+#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+#    files:
+#      - $PROJECT_NAME-report-file.xml
+#    base-directory: $PROJECT_NAME-report-directory
+#    file-format: JUNITXML

@@ -38,7 +38,7 @@ def handle_response(response,bucket_name,prefix_of_files,provider,version,owner)
     if isinstance(response,list) is True and len(response) == 1:
         item_key = list(response[0].keys())
         if 'Errors' in item_key and len(item_key) == 2 :
-            statusCode = 404
+            statusCode = 200
             response_info = {'message':list(map(lambda x: x['Message'],response[0]['Errors']))[0],
                               'date':current_time}
         else:
@@ -46,7 +46,7 @@ def handle_response(response,bucket_name,prefix_of_files,provider,version,owner)
             response_info = { 'message':'success',
                             'date':current_time}
     elif response == None:
-        statusCode = 404
+        statusCode = 200
         response_info = {'message':"file does not exist,please confirm the file name.",
                           'date': current_time}
     else:
@@ -56,7 +56,7 @@ def handle_response(response,bucket_name,prefix_of_files,provider,version,owner)
             response_info = {'message':'success',
                             'date':current_time}
         else:
-            statusCode = 404
+            statusCode = 200
             response_info = {'message':'fail',
                               'data':current_time}
     return statusCode,response_info

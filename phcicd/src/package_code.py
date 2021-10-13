@@ -47,23 +47,33 @@ def zip_code(local_path, git_event):
     codebuild_projects_name = ["python3",
                    "nodejs",
                    ]
+    # 删除.git文件
+    rm_cmd = "rm -rf /tmp/phlambda/.git"
+    os.system(rm_cmd)
     # 下载README.md
     README_s3_path = "2020-11-11/cicd/template/codebuild/README.md"
     README_file_path = "/tmp/README.md"
     download_resource(README_s3_path, README_file_path)
+    print("下载README.md成功")
     # 替换git版本
     update_version(git_commit_version)
-
+    print("替换git版本成功")
     for project in codebuild_projects_name:
+
         # 1下载对应buildspec.yaml
         buildsepc_s3_path = "2020-11-11/cicd/template/codebuild/" + project + "buildspec.yaml"
         buildsepc_file_path = "/tmp/" + project + "buildspec.yaml"
         download_resource(buildsepc_s3_path, buildsepc_file_path)
+        print("下载对应buildspec.yaml成功")
         # 2打包代码
-        zip_cmd = "zip -r " + project + "code.zip /tmp/phlambda /tmp/README.md /tmp/" + project + "buildspec.yaml"
+        os.chdir("/tmp")
+        zip_cmd = "zip -r " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
         os.system(zip_cmd)
+        print("2打包代码成功")
+
         # 3代码上传到s3
         zip_name = project + "code.zip"
         project_name = "lmd" + project
         upload_code(zip_name, project_name)
+        print("代码上传到s3成功")
 

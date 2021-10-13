@@ -8,101 +8,101 @@ phases:
       - ls
       - cd phworkflow
       - ls
-      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-      - sed -i s/PROJECT_NAME/phworkflow/  ./python3cicd.sh
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phworkflow/  ./samdeploylmd.sh
       - ls
-      - sh python3cicd.sh
+      - sh samdeploylmd.sh
       - cd ..
       - cd phnoticesms
-      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-      - sed -i s/PROJECT_NAME/phnoticesms/  ./python3cicd.sh
-      - sh python3cicd.sh
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phnoticesms/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
       - cd ..
       - ls
 #      - cd phcicd
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phcicd/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phcicd/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phclickhousesql
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phclickhousesql/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phclickhousesql/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phcreatestepargs
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phcreatestepargs/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phcreatestepargs/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phdagrunid
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phdagrunid/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phdagrunid/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phetlsfn
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phetlsfn/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phetlsfn/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phetlstepargs
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phetlstepargs/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phetlstepargs/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phgetsfn
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phgetsfn/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phgetsfn/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phgluejob
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phgluejob/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phgluejob/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phnoticeemail
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phnoticeemail/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeemail/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phnoticeglue
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phnoticeglue/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeglue/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phnoticeiot
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phnoticeiot/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phnoticeiot/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phrollback
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phrollback/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phrollback/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phschemaexplorer
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phschemaexplorer/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phschemaexplorer/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phstartcrawler
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phstartcrawler/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phstartcrawler/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phtmppsycopg
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phtmppsycopg/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phtmppsycopg/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phworkflow
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phworkflow/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phworkflow/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #      - cd phxlsxtockhouse
-#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o python3cicd.sh
-#      - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./python3cicd.sh
-#      - sh python3cicd.sh
+#      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/python3cicd.sh -o samdeploylmd.sh
+#      - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./samdeploylmd.sh
+#      - sh samdeploylmd.sh
 #      - cd ..
 #artifacts:
 #  files:

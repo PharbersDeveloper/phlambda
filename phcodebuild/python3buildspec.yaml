@@ -3,6 +3,12 @@ phases:
   install:
     runtime-versions:
       python: 3.8
+  pre_build:
+    commands:
+      - cd phlambda
+      - python3 -m pytest --junitxml=reportfile/python3report-file.xml
+      - cd ..
+
   build:
     commands:
       - cd phlambda
@@ -126,16 +132,16 @@ phases:
       - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
       - cd ..
-#artifacts:
-#  files:
-#    - src/**/**
-#  type: zip
-#  name: $PROJECT_NAME-$(date +%Y-%m-%d)
-#  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
-#
-#reports:
-#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
-#    files:
-#      - $PROJECT_NAME-report-file.xml
-#    base-directory: $PROJECT_NAME-report-directory
-#    file-format: JUNITXML
+artifacts:
+  files:
+    - phlambda/**/**
+  type: zip
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+    files:
+      - python3report-file.xml
+    base-directory: reportfile
+    file-format: JUNITXML

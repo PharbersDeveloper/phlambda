@@ -8,7 +8,7 @@ phases:
       - cd phlambda
       - cd phaccounts
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp ../../README.md lmdcode
@@ -30,7 +30,7 @@ phases:
       - cd ..
       - cd phauthentication
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp ../../README.md lmdcode
@@ -41,7 +41,7 @@ phases:
       - cd ..
       - cd phcatlog
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp ../../README.md lmdcode
@@ -52,7 +52,7 @@ phases:
       - cd ..
       - cd phcommon
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp ../../README.md lmdcode
@@ -73,7 +73,7 @@ phases:
       - cd ..
       - cd phentry
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
@@ -84,7 +84,7 @@ phases:
       - cd ..
       - cd phglueindex
       - mkdir lmdcode
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
@@ -105,7 +105,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phmax
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -116,7 +116,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phoauth
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -128,7 +128,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phoffweb
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -139,7 +139,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phpowerbi
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -150,7 +150,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phproject
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -161,7 +161,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phreport
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -172,7 +172,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phs3explorer
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -183,7 +183,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phstepfunctionindex
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -194,7 +194,7 @@ phases:
       - sh samdeploylmd.sh
       - cd ..
       - cd phtm
-      - cp -r /environment/node/code/node_modules ./node_modules
+      - ln -s /environment/node/code/node_modules node_modules
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
@@ -215,12 +215,12 @@ phases:
       - sed -i s/PROJECT_NAME/phuseragent/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
       - cd ..
-#artifacts:
-#  files:
-#    - src/**/**
-#  type: zip
-#  name: $PROJECT_NAME-$(date +%Y-%m-%d)
-#  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+artifacts:
+  files:
+    - phlambda/**/**
+  type: zip
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
 #
 #reports:
 #  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:

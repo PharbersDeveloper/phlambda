@@ -67,7 +67,7 @@ def zip_code(local_path, git_event):
         print("下载对应buildspec.yaml成功")
         # 2打包代码
         os.chdir("/tmp")
-        zip_cmd = "zip -r " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
+        zip_cmd = "zip -r -q " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
         os.system(zip_cmd)
         print("2打包代码成功")
 

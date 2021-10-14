@@ -11,7 +11,7 @@ phases:
       - cp -r /environment/node/code/node_modules ./node_modules
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phaccounts/  ./samdeploylmd.sh
@@ -22,7 +22,7 @@ phases:
       - cp -r dist_1 lmdcode/dist
       - cp -r config lmdcode
       - cp -r lib lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phapplyuser/  ./samdeploylmd.sh
@@ -33,7 +33,7 @@ phases:
       - cp -r /environment/node/code/node_modules ./node_modules
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phauthentication/  ./samdeploylmd.sh
@@ -44,7 +44,7 @@ phases:
       - cp -r /environment/node/code/node_modules ./node_modules
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phcatlog/  ./samdeploylmd.sh
@@ -55,7 +55,7 @@ phases:
       - cp -r /environment/node/code/node_modules ./node_modules
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phcommon/  ./samdeploylmd.sh
@@ -65,7 +65,7 @@ phases:
       - mkdir lmdcode
       - cp -r dist_1 lmdcode/dist
       - cp -r config lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phemberedviews/  ./samdeploylmd.sh
@@ -77,7 +77,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phentry/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -88,7 +88,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - ls lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phglueindex/  ./samdeploylmd.sh
@@ -98,7 +98,7 @@ phases:
       - mkdir lmdcode
       - cp -r dist_1 lmdcode/dist
       - cp -r config lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phjsonapi/  ./samdeploylmd.sh
@@ -109,7 +109,7 @@ phases:
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phmax/  ./samdeploylmd.sh
@@ -120,7 +120,7 @@ phases:
       - mkdir lmdcode
       - npm run build
       - cp -r dist lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - cp app.js lmdcode
       - ls lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
@@ -133,7 +133,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phoffweb/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -144,7 +144,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phpowerbi/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -155,7 +155,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phproject/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -166,7 +166,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phreport/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -177,7 +177,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phs3explorer/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -188,7 +188,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phstepfunctionindex/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -199,7 +199,7 @@ phases:
       - npm run build
       - cp -r dist lmdcode
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phtm/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
@@ -209,7 +209,7 @@ phases:
       - cp -r config lmdcode
       - cp -r dist_1 lmdcode/dist
       - cp app.js lmdcode
-      - cp src/README.md lmdcode
+      - cp ../../README.md lmdcode
       - ls lmdcode
       - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
       - sed -i s/PROJECT_NAME/phuseragent/  ./samdeploylmd.sh

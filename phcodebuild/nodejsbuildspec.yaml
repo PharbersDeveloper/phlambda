@@ -1,6 +1,6 @@
 version: 0.2
 phases:
-  install: # 利用efs 挂载了一个nodejs 的环境, 感觉挂载的方式必要性不高，效率不太慢
+  install: 
     runtime-versions:
       nodejs: 14
   build:

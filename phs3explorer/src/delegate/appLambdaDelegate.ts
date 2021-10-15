@@ -19,22 +19,6 @@ export default class AppLambdaDelegate {
                 process.env.PATH_PREFIX + tempfile,
                 tags.map(( item ) => `${item.Key}=${encodeURI(item.Value)}`).join("&"))
             await dbOP.PutAssetData(parameters.puts3_event)
-
-            // const body = event.body === "" ? {} : JSON.parse(event.body)
-            // const jobCat = body?.data?.attributes?.jobCat?.toLowerCase() || ""
-            // if (endpoint === "job-logs" && method === "post" && jobCat === "upload") {
-            //     const { tempfile, tags } = JSON.parse(body?.data?.attributes?.message)
-            //     const key = `user/${body?.data?.attributes?.owner}/${tempfile}`
-            //     const dbOP = new PutAssetDataHandler()
-            //     await s3.putFile("ph-origin-files", key, process.env.PATH_PREFIX + tempfile)
-            //     await s3.putTags("ph-origin-files", key, tags)
-            //     await dbOP.PutAssetData(body)
-            // } else if (endpoint === "job-logs" && method === "post" && jobCat === "mapper") {
-            //     const { tempfile, tags } = JSON.parse(body.message)
-            //     const key = `user/${body?.data?.attributes?.owner}/${tempfile}`
-            //     await s3.putFile("ph-origin-files", key, process.env.PATH_PREFIX + tempfile)
-            //     await s3.putTags("ph-origin-files", key, tags)
-            // }
         } catch (error) {
             Logger.error(error)
             throw error

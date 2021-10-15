@@ -1,9 +1,7 @@
 class Reports {
     public model: any = {
-        template: {
-            parent: { link: "template", isArray: true, inverse: "child" },
-            child: { link: "template", isArray: true, inverse: "parent" },
-            partnerTemplate: {link: "partner", inverse: "templates"},
+        diagram: {
+            partner: String,
             name: String,
             source: String,
             rid: String,
@@ -13,19 +11,12 @@ class Reports {
             description: String,
             created: Date,
             modified: Date
-        },
-        partner: {
-            pid: String,
-            templates: { link: "template", isArray: true, inverse: "partnerTemplate" },
-            created: Date,
-            modified: Date
         }
     }
 
     public operations = {
         hooks: {
-            template: [ this.hooksDate ],
-            partner: [ this.hooksDate ]
+            diagram: [ this.hooksDate ]
         }
     }
 

@@ -2,7 +2,7 @@ import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 class Project {
     model: any = {
-        project: {
+        stateMachine: {
             arn: String,
             name: String,
             projectName: String,
@@ -11,7 +11,7 @@ class Project {
             executions: { link: "execution", isArray: true, inverse: "projectExecution"}
         },
         execution: {
-            projectExecution: { link: "project", inverse: "executions"},
+            projectExecution: { link: "stateMachine", inverse: "executions"},
             arn: String,
             input: String,
         }
@@ -19,7 +19,7 @@ class Project {
 
     operations = {
         hooks: {
-            project: [null, this.hookProjectOutput],
+            stateMachine: [null, this.hookProjectOutput],
             execution: [this.hookExecutionInput, this.hookExecutionOutput]
         }
     }

@@ -143,5 +143,5 @@ reports:
   arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
     files:
       - python3report-file.xml
-    base-directory: reportfile
+    base-directory: phlambda/reportfile
     file-format: JUNITXML

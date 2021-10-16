@@ -9,8 +9,18 @@ const config = {
         "<rootDir>/node_modules/",
         "<rootDir>/app.js"
     ],
-    testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    roots: [
+        "<rootDir>/tests"
+    ],
+    testRegex: "(tests/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+    reporters: [
+        'default',
+        [ 'jest-junit', {
+            outputDirectory: './phplatform-report-directory',
+            outputName: 'phplatform-report-file.xml',
+        } ]
+    ],
     testTimeout: 1000 * 3
 };
 module.exports = config;

@@ -139,7 +139,7 @@ export default class Platform {
             actions: Array(String) // Link 一对多 DynamoDB
         },
         model: {
-            project: { link: "models", isArray: false, inverse: "models" },
+            project: { link: "project", isArray: false, inverse: "models" },
             name: String,
             type: String,
             location: String,
@@ -198,7 +198,6 @@ export default class Platform {
         dashBoard: {
             project: { link: "project", isArray: false, inverse: "dashBoards" },
             slides: { link: "slide", isArray: true, inverse: "dashBoard" },
-            reports: { link: "report", isArray: true, inverse: "dashBoard" }
         },
         slide: {
             dashBoard: { link: "dashBoard", isArray: false, inverse: "slides" },

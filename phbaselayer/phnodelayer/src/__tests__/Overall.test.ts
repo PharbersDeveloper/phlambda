@@ -57,8 +57,8 @@ const throwError = jest.fn( () => {
 })
 
 test("JSONAPI Find", async () => {
-    // const configs = new registerConfigs()
-    // ServerRegisterConfig(configs)
+    const configs = new registerConfigs()
+    ServerRegisterConfig(configs)
     const result = await JSONAPI(StoreEnum.POSTGRES, new findEvent())
     expect(result.hasOwnProperty("outputData")).toBe(true)
     expect(typeof result.outputData[0].data).toEqual("string")

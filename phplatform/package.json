@@ -7,7 +7,7 @@
   "license": "GPL3.0",
   "scripts": {
     "coverage": "open ./coverage/lcov-report/index.html",
-    "test": "jest --coverage",
+    "test": "yarn run build && jest --coverage",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"

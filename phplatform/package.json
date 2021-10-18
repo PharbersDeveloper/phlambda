@@ -12,7 +12,12 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@aws-sdk/client-glue": "~3.22.0",
+    "@aws-sdk/client-sts": "~3.22.0",
+    "@aws-sdk/client-sfn": "~3.22.0",
+    "@aws-sdk/client-ssm": "~3.22.0"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/node": "~14.17.3",

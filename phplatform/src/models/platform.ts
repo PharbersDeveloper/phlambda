@@ -1,3 +1,5 @@
+import GlueCatlogHandler from "../handler/GlueCatlogHandler"
+import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 export default class Platform {
     model: any = {
@@ -124,6 +126,7 @@ export default class Platform {
             concrets: Array(String), // Link To table or project Table ID（Logic）
         },
         project: {
+            provider: String,
             name: String,
             owner: String,
             created: Date,
@@ -216,7 +219,10 @@ export default class Platform {
 
     operations = {
         hooks: {
-            diagram: [ this.hooksDate ]
+            file: [this.hooksDate],
+            diagram: [this.hooksDate],
+            db: [null, this.hookDataBaseOutput],
+            table: [null, this.hookTableOutput],
         }
     }
 
@@ -235,4 +241,109 @@ export default class Platform {
                 return update
         }
     }
+
+    // CatLog Start
+    protected async hookDataBaseOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        switch (method) {
+            case "find":
+                const content = await GlueCatlogHandler.getInstance.findDatabase(record.name)
+                record.created = content.Database.CreateTime.getTime()
+                record.description = content.Database.Description || ""
+        }
+        return record
+    }
+
+    protected async hookTableOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        switch (method) {
+            case "find":
+                try {
+                    const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
+                    record.created = content.Table.CreateTime.getTime()
+                    record.updated = content.Table.UpdateTime.getTime()
+                    record.retention = content.Table.Retention
+                    record.columns = content.Table.StorageDescriptor.Columns
+                    record.location = content.Table.StorageDescriptor.Location
+                    record.inputFormat = content.Table.StorageDescriptor.InputFormat
+                    record.outputFormat = content.Table.StorageDescriptor.OutputFormat
+                    record.compressed = content.Table.StorageDescriptor.Compressed
+                    record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
+                    record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
+                    record.sortColumns = content.Table.StorageDescriptor.SortColumns
+                    record.parameters = content.Table.Parameters
+                    record.partitionKeys = content.Table.PartitionKeys
+                    record.tableType = content.Table.TableType
+                    record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
+                } catch (e) {
+                    if (e.name === "EntityNotFoundException") {
+                        record.state = "Removed"
+                    }
+                }
+        }
+        return record
+    }
+
+    // CatLog End
+
+    // State Machine Start
+    protected async hookProjectOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findStepFunctions(record.arn)
+                    record.type = content.type
+                    record.created = content.creationDate.getTime()
+                    record.define = JSON.stringify(JSON.parse(content.definition))
+                }
+        }
+        return record
+
+    }
+
+    protected async hookExecutionInput(context, record) {
+        const { request: { method, type } } = context
+        const stp = new StepFunctionHandler()
+        switch (method) {
+            case "create":
+                if (record.input) {
+                    const {result, input} = await stp.startExecution(record.input)
+                    record.arn = result.executionArn
+                    record.input = input
+                }
+                return record
+        }
+        return record
+    }
+
+    protected async hookExecutionOutput(context, record) {
+        const { request: { method, type } } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    try {
+                        const stp = new StepFunctionHandler()
+                        const content = await stp.findExecutions(record.arn)
+                        record.name = record.arn.split(":").slice(-1)[0]
+                        record.status = content.status
+                        record.startTime = content.startDate.getTime()
+                        record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()
+                        record.input = JSON.stringify(content.input)
+                    } catch (err) {
+                        record.name = "已过期"
+                        record.status = "remove"
+                        record.startTime = 0
+                        record.stopTime = 0
+                    }
+                }
+                break
+        }
+        return record
+    }
+    // State Machine End
 }

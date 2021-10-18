@@ -17,7 +17,7 @@ const config = {
     reporters: [
         "default",
         [ "jest-junit", {
-            outputDirectory: "./phplatform-report-directory",
+            outputDirectory: "../../phplatform-report-directory",
             outputName: "phplatform-report-file.xml",
         } ]
     ],

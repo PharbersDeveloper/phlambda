@@ -85,6 +85,7 @@ export default class Platform {
             name: String,
             owner: String,
             extension: String,
+            source: String,
             size: Number,
             version: String,
             labels: Array(String),

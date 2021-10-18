@@ -21,6 +21,6 @@ const config = {
             outputName: "phplatform-report-file.xml",
         } ]
     ],
-    testTimeout: 1000 * 2
+    testTimeout: 1000 * 60 * 60
 };
 module.exports = config;

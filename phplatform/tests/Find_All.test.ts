@@ -9,27 +9,17 @@ const FindTemplate = jest.fn(() =>
 describe("Find All Entity", () => {
 
     beforeAll(async () => {
-        // 因部分代码需要aws的角色权限，既：有了获取临时token的code
-        const sts = new AWSSts(
-            "AKIAWPBDTVEAI6LUCLPX",
-            "Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599",
-            AWSRegion)
-
-        const { region, credentials: { accessKeyId, secretAccessKey, sessionToken }} = await sts.assumeRole(
-            "Pharbers-ETL-Roles",
-            "arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles")
-
-        process.env.AWS_DEFAULT_REGION = region
-        process.env.AWS_ACCESS_KEY_ID = accessKeyId
-        process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey
-        process.env.AWS_SESSION_TOKEN = sessionToken
+        // process.env.AWS_ACCESS_KEY_ID = "AKIAWPBDTVEAPOX3QT6U"
+        process.env.AccessKeyId = "AKIAWPBDTVEAPOX3QT6U"
+        // process.env.AWS_SECRET_ACCESS_KEY = "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"
+        process.env.SecretAccessKey = "Vy7bMX1KCVK9Vow00ovt7r4VmMzhVlpKiE1Cbsor"
     })
 
-    // Tables
+    // Tables "dbs", "tables",这个2个表在本地测试，因线上code build不支持assume role
     const entities = [
         "activities", "images", "reports", "participants",
         "cooperations", "events", "zones", "files",
-        "diagrams", "dbs", "tables", "resources",
+        "diagrams", "resources",
         "projects", "models", "scripts", "datasets",
         "flows", "state-machines", "state-displays", "analysis",
         "notebooks", "dash-boards", "slides", "chats", "wikis"

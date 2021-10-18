@@ -13,24 +13,24 @@ phases:
   build:
     commands:
       - npm run build
-      - npm run test
       - mkdir lmdcode
       - ls
       - cp -r dist lmdcode
       - cp app.js lmdcode
+      - cp src/README.md lmdcode
       - ls lmdcode
   post_build:
     commands:
       - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy --capabilities CAPABILITY_IAM
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy-v2 --capabilities CAPABILITY_IAM
 
-reports:
-  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
-    files:
-      - $PROJECT_NAME-report-file.xml
-    base-directory: $PROJECT_NAME-report-directory
-#    discard-paths: no | yes
-    file-format: JUNITXML
+#reports:
+#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+#    files:
+#      - $PROJECT_NAME-report-file.xml
+#    base-directory: $PROJECT_NAME-report-directory
+##    discard-paths: no | yes
+#    file-format: JUNITXML
 artifacts:
   files:
     - dist/**/*

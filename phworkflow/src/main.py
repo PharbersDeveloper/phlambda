@@ -1,7 +1,7 @@
 from src.sfn import Sfn
 
 def lambda_handler(event, context):
-    # 测试lmd的sam部署通过一个cloudformation嵌套管理
+    # python3 lmd 部署
     sfn = Sfn()
     if event['policy'] == 'CreateAndRun':
         create_response = sfn.create_sfn(event)

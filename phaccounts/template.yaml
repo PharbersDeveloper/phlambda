@@ -9,7 +9,27 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: ph-accounts
+      FunctionName: lmd-phact-V2
       Description: "phact负责用户的注册域忘记密码流程"
-      Timeout: 600
-
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      MemorySize: 1024
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phact:3
+      Environment:
+        Variables:
+          TEST: test
+          ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
+          AIRFLOWURL: http://192.168.62.76:30086/api/v1/dags/email/dagRuns
+          ENDPOINT: https://sqs.cn-northwest-1.amazonaws.com.cn
+          MESSAGEBODY: SendEmailHandle
+          QUEUEURL: https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-notification.fifo
+          SECRETACCESSKEY: Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599
+          SUBJECT: Pharbers Code
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

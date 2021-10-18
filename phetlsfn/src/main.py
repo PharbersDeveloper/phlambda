@@ -61,7 +61,7 @@ def lambda_handler(event, context):
         parameter['g_filldefalut'] = "NONE"
         parameter['g_bucket'] = "NONE"
 
-        table_name = "prod_standard_tmp"
+        table_name = "clean_source"
         if g_mapper:
             parameter['g_mapper'] = g_mapper
             parameter['mapper_only'] = "true"
@@ -115,11 +115,11 @@ def lambda_handler(event, context):
 
     def send_msg_to_lmd(tags, executionArn):
 
-        executionId = tags['executionId']
+        # executionId = tags['executionId']
         executionArn = executionArn
         stateMachineArn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
         Message = {
-            "executionId": executionId,
+            "executionId": "",
             "executionArn": executionArn,
             "stateMachineArn": stateMachineArn
         }
@@ -153,7 +153,7 @@ def lambda_handler(event, context):
     def get_mapper_from_databdase(id):
 
         # 192.168.49.199
-        # ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn  port 5432
+        # ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn
         conn = psycopg2.connect(
             database="phmax",
             user="pharbers",
@@ -168,9 +168,10 @@ def lambda_handler(event, context):
         )
         # WHERE id=YDbnBtbHN0N0G6GfLhHT
         message = cur.fetchall()
-        print(message["mapper"])
+        message_dict = json.loads(list(message[0])[0])
+        print(message_dict.get("mapper",None))
         conn.close()
-        return message["mapper"]
+        return message_dict.get("mapper", None)
 
 
     # 获取S3文件的具体路径
@@ -181,7 +182,9 @@ def lambda_handler(event, context):
 
     # 获取mapper_list 创建g_mapper
     # 根据Id从数据库获取mapper_list
-    id = tags["id"]
+    id = tags.get("mapper", None)
+    # id=YDbnBtbHN0N0G6GfLhHT
+    print(id)
     mapper_list = get_mapper_from_databdase(id)
     g_mapper = create_g_mapper(mapper_list)
 

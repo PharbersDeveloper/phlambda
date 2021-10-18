@@ -7,7 +7,7 @@ def upload_code(zip_name, project_name):
     s3_client.upload_file(
         Bucket="ph-platform",
         Key="2020-11-11/cicd/"+ project_name +"/source/code.zip",
-        Filename="/tmp/" + project_name + "/" + zip_name
+        Filename="/tmp/"  + zip_name
     )
 
 
@@ -18,60 +18,62 @@ def start_codebuild():
         sortOrder='ASCENDING'
     )
     codebuild_project = [
-        "codebuild-manager-phproject-52I197EZAXJI",
-        "codebuild-manager-phchupdatesql-GP33T7R3ZY2A",
-        "codebuild-manager-phmax-1IHQYCDB68QKE",
-        "codebuild-manager-phschemaexplorer-1KIBP193HKMD8",
-        "codebuild-manager-phchdatasource-1K69LQYASIRS6",
-        "codebuild-manager-phgetsfn-NOEYAZ5JRMF2"
+        "lmd-python3-codebuild",
+        "lmd-nodejs-codebuild"
     ]
-    for project in response['projects']:
-        if project in codebuild_project:
-            client.start_build(
-                projectName=project,
-            )
+    for project in codebuild_project:
+        client.start_build(
+            projectName=project
+        )
 
 
-def update_version(git_commit_version):
+def  update_version(git_commit_version):
     # 修改README文件 填写版本号
-    create_readme_file_cmd = "sed -i s/{git_commit_version}/" + git_commit_version + "/ src/README.md"
+    create_readme_file_cmd = "sed -i s/{git_commit_version}/" + git_commit_version + "/ /tmp/README.md"
     os.system(create_readme_file_cmd)
+
+
+def download_resource(resource_path, download_path):
+    s3_client = boto3.client('s3')
+    s3_client.download_file(
+        Bucket="ph-platform",
+        Key=resource_path,
+        Filename=download_path
+    )
 
 
 def zip_code(local_path, git_event):
     git_commit_version = git_event["git_commit_version"]
-    python3_lmd = ["phproject", "phchupdatesql" ,"phmax" , "ph-schema-explorer" , "phchdatasource", "phgetsfn"]
-    for project_name in os.listdir(local_path):
-        if project_name in python3_lmd:
-            code_path = local_path + "/" + project_name + "/"
-            if os.path.isdir(code_path):
-                # 创建文件夹
-                mkdir_cmd = "mkdir /tmp/" + project_name
-                os.system(mkdir_cmd)
+    codebuild_projects_name = ["python3",
+                   "nodejs",
+                   ]
+    # 删除.git文件
+    rm_cmd = "rm -rf /tmp/phlambda/.git"
+    os.system(rm_cmd)
+    # 下载README.md
+    README_s3_path = "2020-11-11/cicd/template/codebuild/README.md"
+    README_file_path = "/tmp/README.md"
+    download_resource(README_s3_path, README_file_path)
+    print("下载README.md成功")
+    # 替换git版本
+    update_version(git_commit_version)
+    print("替换git版本成功")
+    for project in codebuild_projects_name:
 
-                # 复制ph_get_execution_status下的代码到当前目录下
-                key_str = ""
-                for key in os.listdir(code_path):
-                    if os.path.isdir(code_path + key):
-                        cp_cmd = "cp -r " + code_path + key + "/" + " /tmp/" + project_name + "/"
-                    else:
-                        cp_cmd = "cp -r " + code_path + key + " /tmp/" + project_name + "/"
-                    os.popen(cp_cmd)
-                    key_str = key_str + key + " "
-                os.chdir("/tmp/" + project_name)
+        # 1下载对应buildspec.yaml
+        buildsepc_s3_path = "2020-11-11/cicd/template/codebuild/" + project + "buildspec.yaml"
+        buildsepc_file_path = "/tmp/" + project + "buildspec.yaml"
+        download_resource(buildsepc_s3_path, buildsepc_file_path)
+        print("下载对应buildspec.yaml成功")
+        # 2打包代码
+        os.chdir("/tmp")
+        zip_cmd = "zip -r -q " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
+        os.system(zip_cmd)
+        print("2打包代码成功")
 
-                # 修改README文件 修改git_commit_version
-                update_version(git_commit_version)
+        # 3代码上传到s3
+        zip_name = project + "code.zip"
+        project_name = "lmd" + project
+        upload_code(zip_name, project_name)
+        print("代码上传到s3成功")
 
-                # 打包代码为code.zip
-                zip_name = "code.zip"
-                zip_cmd = "zip -r " + zip_name + " " + key_str
-                os.system(zip_cmd)
-
-                # 上传code到s3
-                upload_code(zip_name, project_name)
-
-if __name__ == '__main__':
-    local_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda"
-    git_commit_version = "6814732cc39"
-    zip_code(local_path, git_commit_version)

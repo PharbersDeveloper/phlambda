@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phproject-v2
+      FunctionName: lmd-phproject-V2
       Description: "Step Functions 展示"
       MemorySize: 1024
       Layers:

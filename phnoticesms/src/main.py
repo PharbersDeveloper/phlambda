@@ -88,6 +88,7 @@ def lambda_handler(event, context):
 
 
 if __name__ == '__main__':
+    # python3 项目 lmd
     phlogger.info("__main__")
     
     phone_number = "17643233157",

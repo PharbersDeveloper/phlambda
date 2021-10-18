@@ -40,25 +40,25 @@ def handle_response(response,bucket_name,prefix_of_files,provider,version,owner)
         if 'Errors' in item_key and len(item_key) == 2 :
             statusCode = 200
             response_info = {'message':list(map(lambda x: x['Message'],response[0]['Errors']))[0],
-                              'date':current_time}
+                             'date':current_time}
         else:
             statusCode = 200
             response_info = { 'message':'success',
-                            'date':current_time}
+                              'date':current_time}
     elif response == None:
         statusCode = 200
         response_info = {'message':"file does not exist,please confirm the file name.",
-                          'date': current_time}
+                         'date': current_time}
     else:
         process_delete,check_response = check_file_path(bucket_name,prefix_of_files,provider,version,owner)
         if check_response == None:
             statusCode = 200
             response_info = {'message':'success',
-                            'date':current_time}
+                             'date':current_time}
         else:
             statusCode = 200
             response_info = {'message':'fail',
-                              'data':current_time}
+                             'data':current_time}
     return statusCode,response_info
 
 def lambda_handler(event,context):
@@ -74,15 +74,14 @@ def lambda_handler(event,context):
     response = rollback(bucket_name,prefix_of_files,provider,version,owner)
     statusCode,response_info = handle_response(response,bucket_name,prefix_of_files,provider,version,owner)
     return {
-            'statusCode': statusCode,
-            "headers": {
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-            },
-            'body': json.dumps({
+        'statusCode': statusCode,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        },
+        'body': json.dumps({
             'ResponseMetadata': response_info,
-            })
-        }
-
+        })
+    }
 

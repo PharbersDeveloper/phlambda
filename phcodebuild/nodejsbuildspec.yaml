@@ -1,0 +1,230 @@
+version: 0.2
+phases:
+  install: 
+    runtime-versions:
+      nodejs: 14
+  build:
+    commands:
+      - cd phlambda
+      - cd phaccounts
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phaccounts/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phapplyuser
+      - mkdir lmdcode
+      - cp -r dist_1 lmdcode/dist
+      - cp -r config lmdcode
+      - cp -r lib lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phapplyuser/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phauthentication
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phauthentication/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phcatlog
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phcatlog/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phcommon
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phcommon/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phemberedviews
+      - mkdir lmdcode
+      - cp -r dist_1 lmdcode/dist
+      - cp -r config lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phemberedviews/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phentry
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phentry/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phglueindex
+      - mkdir lmdcode
+      - ln -s /environment/node/code/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - ls lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phglueindex/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phjsonapi
+      - mkdir lmdcode
+      - cp -r dist_1 lmdcode/dist
+      - cp -r config lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phjsonapi/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phmax
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phmax/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phoauth
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp ../../README.md lmdcode
+      - cp app.js lmdcode
+      - ls lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phoauth/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phoffweb
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phoffweb/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phpowerbi
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phpowerbi/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phproject
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phproject/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phreport
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phreport/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phs3explorer
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phs3explorer/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phstepfunctionindex
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phstepfunctionindex/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phtm
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phtm/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phuseragent
+      - mkdir lmdcode
+      - cp -r config lmdcode
+      - cp -r dist_1 lmdcode/dist
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - ls lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phuseragent/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+artifacts:
+  files:
+    - phlambda/**/**
+  type: zip
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+#
+#reports:
+#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+#    files:
+#      - $PROJECT_NAME-report-file.xml
+#    base-directory: $PROJECT_NAME-report-directory
+#    file-format: JUNITXML

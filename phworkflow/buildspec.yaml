@@ -7,7 +7,7 @@ phases:
     commands:
       - python3 -m pytest --junitxml=phworkflow-report-directory/phworkflow-report-file.xml
       - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phworkflow/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-phworkflow-deploy --capabilities CAPABILITY_IAM
+      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy-v2 --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - src/**/**

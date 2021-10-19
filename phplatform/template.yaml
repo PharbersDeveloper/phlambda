@@ -12,7 +12,7 @@ Resources:
       FunctionName: lmd-phplatform-V2
       Description: "JSONAPI Lambda cloudformation"
       Timeout: 600
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       MemorySize: 1024
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14

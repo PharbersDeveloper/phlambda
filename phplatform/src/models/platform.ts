@@ -130,6 +130,7 @@ export default class Platform {
             provider: String,
             name: String,
             owner: String,
+            type: String, // saas 无 Flow  pass有Flow
             created: Date,
             models: { link: "model", isArray: true, inverse: "project" }, // Link 一对多
             scripts: { link: "script", isArray: true, inverse: "project" }, // Link 一对多
@@ -140,7 +141,7 @@ export default class Platform {
             dashBoards: { link: "dashBoard", isArray: true, inverse: "project" }, // Link 一对多
             wikis: { link: "wiki", isArray: true, inverse: "project" }, // Link 一对多
             tasks: Array(String), // 暂时不做
-            actions: Array(String) // Link 一对多 DynamoDB
+            actions: Array(String) // 原样不动，详细的actions根据project id带入到DynamoDB中去查找
         },
         model: {
             project: { link: "project", isArray: false, inverse: "models" },

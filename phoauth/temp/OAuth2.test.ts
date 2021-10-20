@@ -49,37 +49,37 @@ const OAuth2ServerRefreshToken = jest.fn(() => {
 })
 
 test("OAuth2 Server Login Success", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerLoginSuccess(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)
 
 test("OAuth2 Server Authorize Success", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerAuthorizeSuccess(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)
 
 test("OAuth2 Server Token Success", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerTokenSuccess(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)
 
 test("OAuth2 Server Method Get User Info", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerMethodGetUserInfo(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)
 
 test("OAuth2 Server Method Post User Info", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerMethodPostUserInfo(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)
 
 test("OAuth2 Server Refresh Token", async () => {
-    const app = require("../../app.js")
+    const app = require("../app.js")
     const result = await app.lambdaHandler(new OAuth2ServerRefreshToken(), undefined)
     console.info(result)
 }, 1000 * 60 * 10)

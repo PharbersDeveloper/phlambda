@@ -1,4 +1,3 @@
-
 let response = {}
 
 const corsHeader =   {
@@ -6,28 +5,41 @@ const corsHeader =   {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
 }
-const phLogger = require("phnodelayer").logger
+const phLogger = require("phnodelayer").Logger
 const delegate = require("./dist/delegate/appLambdaDelegate").default
+const accessResponse = require("phauthlayer").Errors2response
 
 const app = new delegate()
 
 
 const formatResponse = (content) => {
     let objHeader = {}
-    response.statusCode = content.statusCode
-    response.headers = content.output[0]
-    response.body = String(content.output[1])
-
-    const resultOutput = content.output[0].split("\r\n")
-    for (let index = 0; index < resultOutput.length; index++) {
-        const element = resultOutput[index].split(":");
-        if (element.length === 2) {
-            objHeader[element[0]] = element[1]
+    let output = null
+    const cond = "output" in content || "outputData" in content
+    if (cond) {
+        output = content.output || content.outputData.map((item) => item.data)
+        const resultOutput = output[0].split("\r\n")
+        for (let index = 0; index < resultOutput.length; index++) {
+            const element = resultOutput[index].split(":");
+            if (element.length === 2) {
+                objHeader[element[0]] = element[1]
+            }
         }
+    } else {
+        objHeader = content.headers || content.getHeaders()
     }
 
     Object.assign(objHeader, corsHeader)
+    response.statusCode = content.statusCode || content.status
     response.headers = objHeader
+    // response.body = "output" in content ? String(content.output[1]) : content.message.message
+    if (cond) {
+        response.body = String(output[1])
+    } else {
+        accessResponse(content, response);
+        response.body = JSON.stringify(response.body)
+    }
+
 }
 /**
  *
@@ -46,7 +58,15 @@ exports.lambdaHandler = async function (event, context) {
         if (context && context.callbackWaitsForEmptyEventLoop) {
             context.callbackWaitsForEmptyEventLoop = false
         }
-
+        if ( !event.body ) {
+            event.body = ""
+        }
+        if ( !event.queryStringParameters ) {
+            event.queryStringParameters = {}
+        }
+        if ( !event.multiValueQueryStringParameters ) {
+            event.multiValueQueryStringParameters = {}
+        }
         const result = await app.exec(event)
         if (result) {
             formatResponse(result)

@@ -63,7 +63,7 @@ const AuthScopeError = jest.fn(() => {
 
 describe("OAuth Authorization Test", () => {
     test("OAuth Generate Authorization Code Access", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthAccessEvent(), undefined)
         expect(res.statusCode).toBe(200)
         expect(typeof res.body).toEqual("string")
@@ -71,7 +71,7 @@ describe("OAuth Authorization Test", () => {
     }, 5000)
 
     test("OAuth Generate Authorization Code UserId Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthAccountError(), undefined)
         expect(res.statusCode).toBe(302)
         expect(res.body).toEqual("{}")
@@ -79,7 +79,7 @@ describe("OAuth Authorization Test", () => {
     }, 5000)
 
     test("OAuth Generate Authorization Code ResponseType Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthResponseTypeError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")
@@ -87,7 +87,7 @@ describe("OAuth Authorization Test", () => {
     }, 5000 * 60)
 
     test("OAuth Generate Authorization Code ClientId Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthClientIdError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")
@@ -95,7 +95,7 @@ describe("OAuth Authorization Test", () => {
     }, 5000)
 
     test("OAuth Generate Authorization Code ClientId Expired Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthClientIdExpiredError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")
@@ -103,7 +103,7 @@ describe("OAuth Authorization Test", () => {
     }, 5000)
 
     test("OAuth Generate Authorization Code Scope Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new AuthScopeError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")

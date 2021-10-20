@@ -46,7 +46,7 @@ const OAuthGenerateGrantTypeError = jest.fn(() => {
 
 describe("OAuth Token Test", () => {
     test("OAuth Generate Token ClientId Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new OAuthGenerateClientIdError(), undefined)
         expect(res.statusCode).toBe(401)
         expect(typeof res.body).toEqual("string")
@@ -54,7 +54,7 @@ describe("OAuth Token Test", () => {
     }, 5000)
 
     test("OAuth Generate Token Code Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new OAuthGenerateCodeError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")
@@ -62,7 +62,7 @@ describe("OAuth Token Test", () => {
     }, 5000)
 
     test("OAuth Generate Token GrantType Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new OAuthGenerateGrantTypeError(), undefined)
         expect(res.statusCode).toBe(400)
         expect(typeof res.body).toEqual("string")
@@ -70,7 +70,7 @@ describe("OAuth Token Test", () => {
     }, 5000)
 
     test("OAuth Generate Token Access", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new OAuthAccess(), undefined)
         expect(res.statusCode).toBe(200)
         expect(typeof res.body).toEqual("string")

@@ -19,7 +19,8 @@ export const RedisConf: IPhConf = {
     database: "0",
     user: "",
     password: "",
-    host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
+    // host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
+    host: "127.0.0.1",
     port: 6379,
     poolMax: 2
 }
@@ -27,10 +28,11 @@ export const RedisConf: IPhConf = {
 export const PostgresConf: IPhConf = {
     name: StoreEnum.POSTGRES,
     entity: "db/oauth",
-    database: "phcommon",
+    database: "phplatform",
     user: "pharbers",
     password: "Abcde196125",
-    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
+    // host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
+    host: "127.0.0.1",
     port: 5432,
     poolMax: 2
 }

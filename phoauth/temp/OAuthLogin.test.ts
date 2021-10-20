@@ -22,7 +22,7 @@ const LoginPasswordErrorEvent = jest.fn(() => {
 
 describe("OAuth Login Test", () => {
     test("OAuth Login Access", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new LoginAccessEvent(), undefined)
         expect(res.statusCode).toBe(200)
         expect(typeof res.body).toEqual("string")
@@ -30,7 +30,7 @@ describe("OAuth Login Test", () => {
     }, 1000 * 60 * 2)
 
     test("OAuth Login Account Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new LoginAccountErrorEvent(), undefined)
         expect(res.statusCode).toBe(404)
         expect(typeof res.body).toEqual("string")
@@ -38,7 +38,7 @@ describe("OAuth Login Test", () => {
     }, 5000)
 
     test("OAuth Login Password Error", async () => {
-        const app = require("../../app.js")
+        const app = require("../app.js")
         const res = await app.lambdaHandler(new LoginPasswordErrorEvent(), undefined)
         expect(res.statusCode).toBe(403)
         expect(typeof res.body).toEqual("string")

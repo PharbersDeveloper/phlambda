@@ -23,9 +23,9 @@ export const RedisConf: IPhConf = {
 }
 
 export const PostgresConf: IPhConf = {
-    name: StoreEnum.REDIS,
+    name: StoreEnum.POSTGRES,
     entity: "common",
-    database: "phcommon",
+    database: "phplatform",
     user: "pharbers",
     password: "Abcde196125",
     host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",

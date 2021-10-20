@@ -81,6 +81,41 @@ export default class Platform {
             actAgendas: { link: "activity", inverse: "agendas" }
         },
         // 官网 结束
+        // 账户开始
+        account: {
+            name: String,
+            firstName: String,
+            lastName: String,
+            picture: String,
+            email: String,
+            password: String,
+            phoneNumber: String,
+            wechatOpenId: String,
+            created: Date,
+            notification: String,
+            modified: Date,
+            employer: { link: "partner", inverse: "employee" }
+        },
+        partner: {
+            name: String,
+            address: String,
+            phoneNumber: String,
+            web: String,
+            created: Date,
+            modified: Date,
+            employee: { link: "account", isArray: true, inverse: "employer" }
+        },
+        apply: {
+            company: String,
+            department: String,
+            email: String,
+            intention: String,
+            name: String,
+            phone: String,
+            position: String,
+            create: Date
+        },
+        // 账户结束
         file: {
             name: String,
             owner: String,

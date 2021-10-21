@@ -3,7 +3,7 @@ import * as fs from "fs"
 const LoginTemplate = jest.fn(() =>
     JSON.parse(fs.readFileSync("events/OAuth2_Login.json", "utf-8")))
 
-describe("Login Test", () => {
+describe("Login Tests", () => {
     let event
     beforeAll(() => event = new LoginTemplate())
 

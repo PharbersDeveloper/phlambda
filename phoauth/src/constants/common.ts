@@ -9,6 +9,9 @@ export interface IPhConf {
     readonly host: string
     readonly port: number
     readonly poolMax: number
+    readonly ssl: false,
+    readonly idleTimeoutMs: number,
+    readonly connectionTimeoutMs: number
 }
 
 export const MS_IN_S = 1_000
@@ -21,7 +24,10 @@ export const RedisConf: IPhConf = {
     password: "",
     host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
     port: 6379,
-    poolMax: 2
+    poolMax: 2,
+    ssl: false,
+    idleTimeoutMs: 3000,
+    connectionTimeoutMs: 300
 }
 
 export const PostgresConf: IPhConf = {
@@ -32,7 +38,10 @@ export const PostgresConf: IPhConf = {
     password: "Abcde196125",
     host: "192.168.49.199",
     port: 5439,
-    poolMax: 1
+    poolMax: 1,
+    ssl: false,
+    idleTimeoutMs: 3000,
+    connectionTimeoutMs: 300
 }
 
 export const AccountUri = {

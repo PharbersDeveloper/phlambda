@@ -256,11 +256,12 @@ export default class Platform {
         },
         stateMachine: {
             flow: { link: "flow", isArray: false, inverse: "stateMachines" },
-            arn: String,
-            name: String,
+            type: String, // 分为AirFlow或Step Function
+            // arn: String,
+            name: String, // 如果是AirFLow name = DAGName|StepFunction name = arn
             project: String, // 外链project id
             display: { link: "stateDisplay", isArray: false, inverse: "stateMachine" },
-            version: String,
+            // version: String,
         },
         stateDisplay: {
             stateMachine: { link: "stateMachine", isArray: false, inverse: "display" },

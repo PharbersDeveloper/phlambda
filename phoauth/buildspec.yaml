@@ -29,7 +29,7 @@ reports:
     files:
       - $PROJECT_NAME-report-file.xml
     base-directory: $PROJECT_NAME-report-directory
-#    discard-paths: no | yes
+    #    discard-paths: no | yes
     file-format: JUNITXML
 artifacts:
   files:

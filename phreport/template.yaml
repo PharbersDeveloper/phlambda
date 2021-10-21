@@ -9,7 +9,22 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: phreport
+      FunctionName: lmd-phreport-V2
       Description: "reports逻图表逻辑层"
-      Timeout: 600
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      MemorySize: 1024
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lbdauth:5
+      Timeout: 30
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Environment:
+        Variables:
+          TEST: test
+          configs: '[ { "name": "Postgres", "entity": "reports", "database": "phreports", "user": "pharbers", "password": "Abcde196125", "host": "192.168.49.199", "port": 5443, "poolMax": 1, "ssl": false, "idleTimeoutMs": 60000, "connectionTimeoutMs": 30000 }, { "name": "Redis", "entity": "token", "database": "0", "user": "", "password": "", "host": "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn", "port": 6379, "poolMax": 1 } ]'
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

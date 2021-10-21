@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
-      FunctionName: phchupdatesql-v2
+      FunctionName: lmd-phchupdatesql-V2
       Description: "http proxy call chproxy execution to clickhouse"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

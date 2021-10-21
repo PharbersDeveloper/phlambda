@@ -9,6 +9,9 @@ export interface IPhConf {
     readonly host: string
     readonly port: number
     readonly poolMax: number
+    readonly ssl: false,
+    readonly idleTimeoutMs: number,
+    readonly connectionTimeoutMs: number
 }
 
 export const MS_IN_S = 1_000
@@ -21,18 +24,24 @@ export const RedisConf: IPhConf = {
     password: "",
     host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
     port: 6379,
-    poolMax: 2
+    poolMax: 2,
+    ssl: false,
+    idleTimeoutMs: 3000,
+    connectionTimeoutMs: 300
 }
 
 export const PostgresConf: IPhConf = {
     name: StoreEnum.POSTGRES,
     entity: "db/oauth",
-    database: "phcommon",
+    database: "phplatform",
     user: "pharbers",
     password: "Abcde196125",
-    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
-    port: 5432,
-    poolMax: 2
+    host: "192.168.49.199",
+    port: 5439,
+    poolMax: 1,
+    ssl: false,
+    idleTimeoutMs: 3000,
+    connectionTimeoutMs: 300
 }
 
 export const AccountUri = {

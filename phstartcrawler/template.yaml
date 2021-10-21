@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: phstartcrawler
+      FunctionName: lmd-phstartcrawler-V2
       Description: "当上传xlsx格式文件到ph-origin-files后调用etl step function"
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       Timeout: 120

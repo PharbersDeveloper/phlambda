@@ -1,6 +1,6 @@
 {
   "name": "phbaselayer",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Pharbers Base Layer",
   "main": "app.js",
   "author": "Alex",
@@ -15,7 +15,7 @@
     "axios": "^0.19.2",
     "crypto-js": "^4.0.0",
     "moment": "^2.27.0",
-    "phnodelayer": "^2.0.4",
+    "phnodelayer": "~2.0.9",
     "typescript": "^3.3.1"
   }
 }

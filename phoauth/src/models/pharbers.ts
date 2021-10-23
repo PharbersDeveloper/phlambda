@@ -75,7 +75,7 @@ export class Pharbers implements Model {
             refreshTokenExpiresAt: record.refreshExpired,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 
@@ -110,7 +110,7 @@ export class Pharbers implements Model {
             redirectUri: record.redirectUri,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 
@@ -176,21 +176,9 @@ export class Pharbers implements Model {
             return user.scope.map((item: any) => item.value).join("#")
     }
 
-    async getUser(userId: string): Promise<User> {
+    async getUserById(userId: string): Promise<User> {
         const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
-        const flag = new RegExp(/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/).test(userId)
-        let result = {
-            payload: {
-                records: [],
-                count: 0,
-                include: {}
-            }
-        }
-        if (flag) {
-            result = await pg.find("account", null, { match: { email: userId}}, ["defaultRole", "scope"])
-        } else {
-            result = await pg.find("account", userId, null, ["defaultRole", "scope"])
-        }
+        const result = await pg.find("account", userId, null, ["defaultRole", "scope"])
         if (result.payload.count === 0) {
             return null
         }
@@ -211,6 +199,20 @@ export class Pharbers implements Model {
         }
     }
 
+    async getUser(username: string, password: string, thirdpartyType?: string,
+                  thirdpartyToken?: string, additionalOptions?: any): Promise<User> {
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+
+        const result = await pg.find("account",
+            null,
+            { match: { email: decodeURIComponent(username), password}},
+            ["defaultRole", "scope"])
+
+        if (result.payload.count === 0) {
+            return null
+        }
+        return this.getUserById(result.payload.records[0].id)
+    }
     // ---------------------RefreshTokenModel---------------------
     async getRefreshToken(refreshToken: string): Promise<RefreshToken> {
         // const redis = SF.getInstance.get(Store.Redis)
@@ -225,7 +227,7 @@ export class Pharbers implements Model {
             refreshTokenExpiresAt: record.refreshExpired,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 

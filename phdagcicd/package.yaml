@@ -8,7 +8,7 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
-      CodeUri: ./src
+      CodeUri: s3://ph-platform/2020-11-11/phdagcicd/phdagcicd/samtem/811d3e064ccc0f9eb382495cd47103df
       Environment:
         Variables:
           GIT_URL: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phmax.git
@@ -18,11 +18,10 @@ Resources:
           DAG_JOBS_PATH: 2020-11-11/jobs/python/phcli/
           LOCAL_PATH_PREFIX: /tmp
       Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhCICD:3
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lambda-git:3
+      - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhCICD:3
+      - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lambda-git:3
       FunctionName: lmd-phdagcicd-V2
       MemorySize: 1024
-      Description: "dag的cicd流程"
+      Description: "dag\u7684cicd\u6D41\u7A0B"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 600
-

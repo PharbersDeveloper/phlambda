@@ -3,7 +3,7 @@ import os
 
 from parse_event import Parse
 from git_python import GitRepository
-from package_code import upload_code
+from upload_dag import upload_code
 
 def lambda_handler(event, context):
     # 测试cicd1548
@@ -13,10 +13,8 @@ def lambda_handler(event, context):
     git_event = parse.print_branch_information(event=event)
     print(git_event)
     if git_event.get("event_type") == "UPDATE":
-
         git_url = os.getenv("GIT_URL")
-        local_path_prefix = '/tmp'
-        local_path = os.path.join(local_path_prefix, git_event.get("repository_name"))
+        local_path = os.path.join(os.getenv("LOCAL_PATH_PREFIX"), git_event.get("repository_name"))
         # 从bitbucket下载代码 存放在local_path下
         repo = GitRepository(local_path, git_url, branch=git_event.get("branch_name"))
 

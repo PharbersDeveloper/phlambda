@@ -19,7 +19,7 @@ class Parse:
         git_change_message["time"] = body["date"]
         git_change_message["operator_name"] = body["actor"]["name"]
         git_change_message["repository_name"] = body["repository"]["name"]
-        git_change_message["branch_namee"] = body["changes"][0]["ref"]["displayId"]
+        git_change_message["branch_name"] = body["changes"][0]["ref"]["displayId"]
         return git_change_message
 
     def branch_merge(self, body):

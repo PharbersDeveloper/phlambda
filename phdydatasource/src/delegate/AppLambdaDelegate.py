@@ -63,7 +63,7 @@ class AppLambdaDelegate:
         payload = dy_method(table, limit, expr, start_key)
 
         result = list(map(lambda item: self._convert_2_model(table, item), payload["data"]))
-        json_api_data = json.loads(Convert2JsonAPI(Execution).mc(many=True).dumps(result))
+        json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc(many=True).dumps(result))
         json_api_data["meta"] = {
             "start_key": payload["start_key"]
         }

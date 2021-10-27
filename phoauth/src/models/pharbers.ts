@@ -54,8 +54,8 @@ export class Pharbers implements Model {
         )
         token.client = client
         token.user = user
-        delete token.scope
-        delete token.user.scope
+        // delete token.scope
+        // delete token.user.scope
         return token
     }
 

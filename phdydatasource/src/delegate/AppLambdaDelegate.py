@@ -25,19 +25,20 @@ class AppLambdaDelegate:
         self.structure = {
             "query": self.dynamodb.queryTable,
             "scan": self.dynamodb.scanTable,
+            "put_item": self.dynamodb.putData,
             "execution": Execution,
             "step": Step,
             "action": Action
         }
 
-    def _convert_2_model(self, table, item):
-        return self.structure[table](item)
+    # def _convert_2_model(self, table, item):
+    #     return self.structure[table](item)
 
     def exec(self):
         method = self.event.get("httpMethod")
         type = self.event.get("pathParameters").get("type")
         body = json.loads(self.event.get("body"))
-        re_type = r"(^query$)|(^scan$)"
+        re_type = r"(^query$)|(^scan$)|($put_item&)"
         re_method = r"^post$"
         if bool(re.match(re_method, method)) & \
            bool(re.match(re_type, type)):
@@ -55,18 +56,32 @@ class AppLambdaDelegate:
 
         dy_method = self.structure[type]
         table = body["table"]
-        limit = body["limit"]
-        start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
-        conditions = body["conditions"]
+        # json_api_data = {}
+        if bool(re.match(r"(^query$)|(^scan$)", type)):
+            limit = body["limit"]
+            start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
+            conditions = body["conditions"]
 
-        expr = Expression().join_expr(type, conditions)
-        payload = dy_method(table, limit, expr, start_key)
+            expr = Expression().join_expr(type, conditions)
+            payload = dy_method({
+                "table_name": table,
+                "limit": limit,
+                "expression": expr,
+                "start_key": start_key
+            })
 
-        result = list(map(lambda item: self._convert_2_model(table, item), payload["data"]))
-        json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc(many=True).dumps(result))
-        json_api_data["meta"] = {
-            "start_key": payload["start_key"]
-        }
+            result = list(map(lambda item: self.structure[table](item), payload["data"]))
+            json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc(many=True).dumps(result))
+            json_api_data["meta"] = {
+                "start_key": payload["start_key"]
+            }
+        else:
+            payload = dy_method({
+                "table_name": table,
+                "item": body["item"]
+            })
+            result = self.structure[table](payload["data"])
+            json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc().dumps(result))
 
         return {
             "statusCode": 200,
@@ -83,9 +98,11 @@ class AppLambdaDelegate:
 #     app = AppLambdaDelegate(event={
 #         "httpMethod": "POST",
 #         "pathParameters": {
-#             "type": "scan"
+#             # "type": "scan"
+#             "type": "put_item"
 #         },
-#         "body": "{\"table\": \"execution\",\"conditions\": {\"smId\": \"0iveStO4gzwMuyZx\"},\"limit\": 10,\"start_key\": {}}",
+#         # "body": "{\"table\": \"execution\",\"conditions\": {\"smId\": \"0iveStO4gzwMuyZx\"},\"limit\": 10,\"start_key\": {}}",
+#         "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}"
 #     })
 #     a = app.exec()
 #     print(a)

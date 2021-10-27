@@ -1,5 +1,5 @@
 {
-  "body": "{\"table\": \"execution\",\"conditions\": {\"smId\": \"0iveStO4gzwMuyZx\"},\"limit\": 10,\"start_key\": {}}",
+  "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

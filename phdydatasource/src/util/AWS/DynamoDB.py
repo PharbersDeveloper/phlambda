@@ -1,8 +1,6 @@
 import boto3
 from constants.Common import Common
-# import base64
-# from boto3.dynamodb.conditions import Key, Attr
-# from src.util.AWS.STS import STS
+from src.util.GenerateID import GenerateID
 
 
 class DynamoDB:
@@ -21,7 +19,11 @@ class DynamoDB:
             return
         self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
 
-    def queryTable(self, table_name, limit, expression, start_key):
+    def queryTable(self, data):
+        table_name = data["table_name"]
+        limit = data["limit"]
+        expression = data["expression"]
+        start_key = data["start_key"]
         table = self.dynamodb_resource.Table(table_name)
         try:
             if len(start_key) == 0:
@@ -46,7 +48,11 @@ class DynamoDB:
                 "start_key": {}
             }
 
-    def scanTable(self, table_name, limit, expression, start_key):
+    def scanTable(self, data):
+        table_name = data["table_name"]
+        limit = data["limit"]
+        expression = data["expression"]
+        start_key = data["start_key"]
         table = self.dynamodb_resource.Table(table_name)
         try:
             if len(start_key) == 0:
@@ -71,13 +77,14 @@ class DynamoDB:
                 "start_key": {}
             }
 
-
-# if __name__ == '__main__':
-#     sts = STS().assume_role(
-#         base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-#         "Ph-Back-RW"
-#     )
-#
-#     dynamodb = DynamoDB(sts=sts)
-#     result = dynamodb.queryTable("step", 1000000, Key("id").eq("22D3MKI2A4NUjG0"), "")
-#     print(result)
+    def putData(self, data):
+        table_name = data["table_name"]
+        item = data["item"]
+        item["id"] = GenerateID.generate()
+        table = self.dynamodb_resource.Table(table_name)
+        table.put_item(
+            Item=item
+        )
+        return {
+            "data": item
+        }

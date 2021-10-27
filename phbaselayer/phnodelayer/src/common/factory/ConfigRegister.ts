@@ -19,8 +19,13 @@ export default class ConfigRegister extends Register {
 
 
     register(model: BaseModel): void {
-        PhLogger.info(`${model.name} Config Registering`)
-        this.typeAnalyzerMap.set(model.name, model)
+        if (this.typeAnalyzerMap.has(model.name)) {
+            PhLogger.info(`${model.name} Config Already Exists`)
+        } else {
+            PhLogger.info(`${model.name} Config Registering`)
+            this.typeAnalyzerMap.set(model.name, model)
+        }
+
     }
 
     getData(name: string): BaseModel {

@@ -1,3 +1,4 @@
+import * as fortune from "fortune"
 import GlueCatlogHandler from "../handler/GlueCatlogHandler"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
@@ -81,20 +82,42 @@ export default class Platform {
             actAgendas: { link: "activity", inverse: "agendas" }
         },
         // 官网 结束
-        // 账户开始
+
+        // 账户 开始
         account: {
             name: String,
             firstName: String,
             lastName: String,
-            picture: String,
             email: String,
             password: String,
             phoneNumber: String,
             wechatOpenId: String,
             created: Date,
-            notification: String,
             modified: Date,
-            employer: { link: "partner", inverse: "employee" }
+            notification: { link: "notification", isArray: false, inverse: "account" },
+            defaultRole: { link: "role", inverse: "accountRole" },
+            employer: { link: "partner", inverse: "employee" },
+        },
+        notification: {
+            notificationPolicy: String, // JSON String
+            notificationType: String,
+            account: { link: "account", isArray: false, inverse: "notification" }
+        },
+        role: {
+            name: String,
+            description: String,
+            created: Date,
+            modified: Date,
+            scope: { link: "scope", isArray: true, inverse: "owner" },
+            accountRole: { link: "account", isArray: true, inverse: "defaultRole" },
+        },
+        scope: {
+            name: String,
+            description: String,
+            scopePolicy: String,
+            created: Date,
+            modified: Date,
+            owner: { link: "role", isArray: true, inverse: "scope" },
         },
         partner: {
             name: String,
@@ -103,7 +126,27 @@ export default class Platform {
             web: String,
             created: Date,
             modified: Date,
-            employee: { link: "account", isArray: true, inverse: "employer" }
+            employee: { link: "account", isArray: true, inverse: "employer" },
+        },
+        client: {
+            name: String,
+            description: String,
+            secret: String,
+            created: Date,
+            expired: Date,
+            registerRedirectUri: Array(String),
+            domain: Array(String),
+            clientComponents: { link: "component", isArray: true, inverse: "client" },
+        },
+        component: {
+            name: String,
+            title: String,
+            description: String,
+            created: Date,
+            modified: Date,
+            hbs: String,
+            version: String,
+            client: { link: "client", isArray: true, inverse: "clientComponents" },
         },
         apply: {
             company: String,
@@ -115,7 +158,8 @@ export default class Platform {
             position: String,
             create: Date
         },
-        // 账户结束
+        // 账户 结束
+
         file: {
             name: String,
             owner: String,
@@ -212,11 +256,12 @@ export default class Platform {
         },
         stateMachine: {
             flow: { link: "flow", isArray: false, inverse: "stateMachines" },
-            arn: String,
-            name: String,
+            type: String, // 分为AirFlow或Step Function
+            // arn: String,
+            name: String, // 如果是AirFLow name = DAGName|StepFunction name = arn
             project: String, // 外链project id
             display: { link: "stateDisplay", isArray: false, inverse: "stateMachine" },
-            version: String,
+            // version: String,
         },
         stateDisplay: {
             stateMachine: { link: "stateMachine", isArray: false, inverse: "display" },
@@ -260,7 +305,17 @@ export default class Platform {
             diagram: [this.hooksDate],
             db: [null, this.hookDataBaseOutput],
             table: [null, this.hookTableOutput],
+            account: [ this.hookAccountInput, this.hookAccountOutput],
         }
+    }
+
+    verifyPassword(current: string, input: any): boolean {
+        if (!input.replace.password) {
+            return false
+        }
+        const spwd = input.replace.password.split("#")
+        input.replace.password = spwd[1]
+        return current === spwd[0]
     }
 
     protected hooksDate(context, record, update) {
@@ -383,4 +438,39 @@ export default class Platform {
         return record
     }
     // State Machine End
+
+    // Account Start
+    protected hookAccountInput(context, record, update) {
+        const { errors: { BadRequestError } } = fortune
+        const { request: { method } } = context
+        switch (method) {
+            case "create":
+                const date = new Date()
+                if (!record.created) {
+                    record.created = date
+                }
+                record.modified = date
+                if (!record.name) {
+                    record.name = record.email.split("@")[0]
+                }
+                if (!record.firstName || !record.lastName) {
+                    throw new BadRequestError("FirstName Or LastName Can Not Be Empty")
+                }
+                return record
+            case "update":
+                // 该操作为用户修改密码操作（登入系统后）
+                update.replace.modified = new Date()
+                if ("password" in update.replace && !this.verifyPassword(record.password, update)) {
+                    throw new BadRequestError("Entered passwords differ")
+                }
+                return update
+        }
+    }
+
+    protected hookAccountOutput(context, record) {
+        delete record.password
+        return record
+    }
+
+    // Account End
 }

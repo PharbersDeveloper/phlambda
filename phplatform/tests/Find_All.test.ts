@@ -35,7 +35,7 @@ describe("Find All Entity", () => {
             const result = await app.lambdaHandler(event, undefined)
             expect(result.statusCode).toBe(200)
         }
-    }, 1000 * 60)
+    })
 
     test("Find Limit Page Args", async () => {
         const limit = 10
@@ -50,5 +50,5 @@ describe("Find All Entity", () => {
             expect(result.statusCode).toBe(200)
             expect(JSON.parse(result.body).data.length).toBeLessThanOrEqual(10)
         }
-    }, 1000 * 60)
+    })
 })

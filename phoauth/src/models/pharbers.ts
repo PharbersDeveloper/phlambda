@@ -2,10 +2,10 @@
 import { IStore, Logger, Register, StoreEnum } from "phnodelayer"
 import Crypto from "../common/crypto"
 import {AuthorizationCode, Client, RefreshToken, Token, User} from "../interfaces"
-import { AuthorizationCodeModel } from "../interfaces/model.interface"
+import { AuthorizationCodeModel, Model } from "../interfaces/model.interface"
 import { Request } from "../request"
 
-export class Pharbers implements AuthorizationCodeModel {
+export class Pharbers implements Model {
     // -------------------BaseModel----------------------
     request: Request
 
@@ -25,7 +25,8 @@ export class Pharbers implements AuthorizationCodeModel {
             id: clientId,
             name: record.name,
             redirectUris: record.registerRedirectUri,
-            grants: ["authorizationCode", "authorization_code", "refreshToken", "refresh_token", "implicit"],
+            grants: ["authorizationCode", "authorization_code", "refreshToken",
+                "refresh_token", "implicit", "password"],
             secret: record.secret
         }
     }
@@ -74,7 +75,7 @@ export class Pharbers implements AuthorizationCodeModel {
             refreshTokenExpiresAt: record.refreshExpired,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 
@@ -109,7 +110,7 @@ export class Pharbers implements AuthorizationCodeModel {
             redirectUri: record.redirectUri,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 
@@ -175,11 +176,10 @@ export class Pharbers implements AuthorizationCodeModel {
             return user.scope.map((item: any) => item.value).join("#")
     }
 
-    async getUser(userId: string): Promise<User> {
-        // const pg = SF.getInstance.get(Store.Postgres)
+    async getUserById(userId: string): Promise<User> {
         const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
         const result = await pg.find("account", userId, null, ["defaultRole", "scope"])
-        if (result.payload.records.length === 0) {
+        if (result.payload.count === 0) {
             return null
         }
         const record = result.payload.records[0]
@@ -199,6 +199,20 @@ export class Pharbers implements AuthorizationCodeModel {
         }
     }
 
+    async getUser(username: string, password: string, thirdpartyType?: string,
+                  thirdpartyToken?: string, additionalOptions?: any): Promise<User> {
+        const pg = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
+
+        const result = await pg.find("account",
+            null,
+            { match: { email: decodeURIComponent(username), password}},
+            ["defaultRole", "scope"])
+
+        if (result.payload.count === 0) {
+            return null
+        }
+        return this.getUserById(result.payload.records[0].id)
+    }
     // ---------------------RefreshTokenModel---------------------
     async getRefreshToken(refreshToken: string): Promise<RefreshToken> {
         // const redis = SF.getInstance.get(Store.Redis)
@@ -213,7 +227,7 @@ export class Pharbers implements AuthorizationCodeModel {
             refreshTokenExpiresAt: record.refreshExpired,
             scope: record.scope,
             client: await this.getClient(record.cid),
-            user: await this.getUser(record.uid)
+            user: await this.getUserById(record.uid)
         }
     }
 
@@ -233,6 +247,11 @@ export class Pharbers implements AuthorizationCodeModel {
         const record = result.payload.records[0]
         result = await redis.delete("access", record.id)
         return result.payload.records.length !== 0
+    }
+
+    //
+    async getUserFromClient(client: Client): Promise<User> {
+        throw new Error("getUserFromClient is not Impl")
     }
 
     /**

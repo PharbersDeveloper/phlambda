@@ -9,8 +9,18 @@ const config = {
         "<rootDir>/node_modules/",
         "<rootDir>/app.js"
     ],
-    testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    roots: [
+        "<rootDir>/tests"
+    ],
+    testRegex: "(tests/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-    testTimeout: 1000 * 3
+    reporters: [
+        "default",
+        [ "jest-junit", {
+            outputDirectory: "../../phoauth-report-directory",
+            outputName: "phoauth-report-file.xml",
+        } ]
+    ],
+    testTimeout: 1000 * 60 * 60
 };
 module.exports = config;

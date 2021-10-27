@@ -260,6 +260,7 @@ export default class Platform {
             // arn: String,
             name: String, // 如果是AirFLow name = DAGName|StepFunction name = arn
             project: String, // 外链project id
+            displayName: String,
             display: { link: "stateDisplay", isArray: false, inverse: "stateMachine" },
             // version: String,
         },

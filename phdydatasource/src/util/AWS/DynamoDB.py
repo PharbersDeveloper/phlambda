@@ -1,6 +1,6 @@
 import boto3
 from constants.Common import Common
-from src.util.GenerateID import GenerateID
+from util.GenerateID import GenerateID
 
 
 class DynamoDB:

@@ -3,7 +3,7 @@ from models.Model import Model
 
 
 class Action(Model):
-    type = "action"
+    type = "actions"
     projectId = fields.Str()
     owner = fields.Str()
     showName = fields.Str()

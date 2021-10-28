@@ -6,6 +6,8 @@ from util.AWS.DynamoDB import DynamoDB
 from models.Execution import Execution
 from models.Step import Step
 from models.Action import Action
+from models.ProjectFile import ProjectFile
+from models.Partition import Partition
 
 
 class AppLambdaDelegate:
@@ -28,7 +30,9 @@ class AppLambdaDelegate:
             "put_item": self.dynamodb.putData,
             "execution": Execution,
             "step": Step,
-            "action": Action
+            "action": Action,
+            "project-file": ProjectFile,
+            "partition": Partition
         }
 
     # def _convert_2_model(self, table, item):

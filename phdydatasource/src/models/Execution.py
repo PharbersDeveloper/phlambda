@@ -4,10 +4,13 @@ from models.Model import Model
 
 class Execution(Model):
     type = "executions"
-    smId = fields.Str()
-    input = fields.Str()
-    owner = fields.Str()
-    startTime = fields.Int()
-    state = fields.Str()
-    endTime = fields.Int()
-    steps = fields.Str()
+    attributes = {
+        "smId": fields.Str(required=True),
+        "input": fields.Str(dump_default="unknown"),
+        "owner": fields.Str(dump_default="unknown"),
+        "startTime": fields.Int(dump_default=-1),
+        "state": fields.Str(dump_default="unknown"),
+        "endTime": fields.Int(dump_default=-1),
+        "steps": fields.Str()
+    }
+

@@ -24,19 +24,18 @@ class AppLambdaDelegate:
         # )
         # self.dynamodb = DynamoDB(sts=sts)
         self.dynamodb = DynamoDB()
-        self.structure = {
+        self.func_structure = {
             "query": self.dynamodb.queryTable,
             "scan": self.dynamodb.scanTable,
             "put_item": self.dynamodb.putData,
+        }
+        self.table_structure = {
             "execution": Execution,
             "step": Step,
             "action": Action,
-            "project-file": ProjectFile,
+            "project_files": ProjectFile,
             "partition": Partition
         }
-
-    # def _convert_2_model(self, table, item):
-    #     return self.structure[table](item)
 
     def exec(self):
         method = self.event.get("httpMethod")
@@ -58,34 +57,25 @@ class AppLambdaDelegate:
                 })
             }
 
-        dy_method = self.structure[type]
+        dy_method = self.func_structure[type]
         table = body["table"]
-        # json_api_data = {}
         if bool(re.match(r"(^query$)|(^scan$)", type)):
             limit = body["limit"]
             start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
             conditions = body["conditions"]
 
             expr = Expression().join_expr(type, conditions)
-            payload = dy_method({
-                "table_name": table,
-                "limit": limit,
-                "expression": expr,
-                "start_key": start_key
-            })
+            payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
 
-            result = list(map(lambda item: self.structure[table](item), payload["data"]))
-            json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc(many=True).dumps(result))
+            result = list(map(lambda item: self.table_structure[table](item), payload["data"]))
+            json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=True).build().dumps(result))
             json_api_data["meta"] = {
                 "start_key": payload["start_key"]
             }
         else:
-            payload = dy_method({
-                "table_name": table,
-                "item": body["item"]
-            })
-            result = self.structure[table](payload["data"])
-            json_api_data = json.loads(Convert2JsonAPI(self.structure[table]).mc().dumps(result))
+            payload = dy_method({"table_name": table,"item": body["item"]})
+            result = self.table_structure[table](payload["data"])
+            json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=True).build().dumps(result))
 
         return {
             "statusCode": 200,
@@ -102,11 +92,11 @@ class AppLambdaDelegate:
 #     app = AppLambdaDelegate(event={
 #         "httpMethod": "POST",
 #         "pathParameters": {
-#             # "type": "scan"
-#             "type": "put_item"
+#             "type": "scan"
+#             # "type": "put_item"
 #         },
-#         # "body": "{\"table\": \"execution\",\"conditions\": {\"smId\": \"0iveStO4gzwMuyZx\"},\"limit\": 10,\"start_key\": {}}",
-#         "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}"
+#         "body": "{\"table\": \"project_files\",\"conditions\": {\"smID\": \"Auto_max_refactor\"},\"limit\": 10,\"start_key\": {}}",
+#         # "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}"
 #     })
 #     a = app.exec()
 #     print(a)

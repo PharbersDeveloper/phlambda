@@ -80,7 +80,8 @@ class DynamoDB:
     def putData(self, data):
         table_name = data["table_name"]
         item = data["item"]
-        item["id"] = GenerateID.generate()
+        if "id" not in item.keys():
+            item["id"] = GenerateID.generate()
         table = self.dynamodb_resource.Table(table_name)
         table.put_item(
             Item=item

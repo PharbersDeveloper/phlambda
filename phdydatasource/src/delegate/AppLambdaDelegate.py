@@ -75,7 +75,7 @@ class AppLambdaDelegate:
         else:
             payload = dy_method({"table_name": table,"item": body["item"]})
             result = self.table_structure[table](payload["data"])
-            json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=True).build().dumps(result))
+            json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=False).build().dumps(result))
 
         return {
             "statusCode": 200,

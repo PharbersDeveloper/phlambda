@@ -7,6 +7,7 @@ class ProjectFile(Model):
     smID = fields.Str()
     name = fields.Str()
     status = fields.Str()
+    property = fields.Str()
     date = fields.Int()
     category = fields.Str()
     size = fields.Int()

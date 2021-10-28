@@ -3,7 +3,7 @@ from models.Model import Model
 
 
 class Partition(Model):
-    type = "partition"
+    type = "partitions"
     smID = fields.Str() # glue table name
     source = fields.Str() # Location
     schema = fields.Str()

@@ -12,6 +12,7 @@ describe("delete step and execution", () => {
     let backRWConfig
     let steps
     let executions
+    let projectFiles
     beforeAll(async () => {
         process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
         process.env.SecretAccessKey = "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"
@@ -23,6 +24,10 @@ describe("delete step and execution", () => {
         })
         const executionCmd = new ScanCommand({
             TableName: "execution"
+        })
+
+        const projectFilesCmd = new ScanCommand({
+            TableName: "project_files"
         })
         steps = (await dyClient.send(stepCmd)).Items.map((item) => {
             return {
@@ -36,9 +41,16 @@ describe("delete step and execution", () => {
                 smId: item.smId
             }
         })
+
+        projectFiles = (await dyClient.send(projectFilesCmd)).Items.map((item) => {
+            return {
+                id: item.id,
+                smId: item.smID
+            }
+        })
     })
 
-    test("step", async () => {
+    xtest("step", async () => {
         const dyClient = new AWSDynamoDB(backRWConfig).getClient()
         for (const item of steps) {
             const command = new DeleteItemCommand({
@@ -52,7 +64,7 @@ describe("delete step and execution", () => {
         }
     })
 
-    test("execution", async () => {
+    xtest("execution", async () => {
         const dyClient = new AWSDynamoDB(backRWConfig).getClient()
         for (const item of executions) {
             const command = new DeleteItemCommand({
@@ -60,6 +72,20 @@ describe("delete step and execution", () => {
                 Key: {
                     id: item.id,
                     smId: item.smId
+                }
+            })
+            await dyClient.send(command)
+        }
+    })
+
+    test("project_files", async () => {
+        const dyClient = new AWSDynamoDB(backRWConfig).getClient()
+        for (const item of projectFiles) {
+            const command = new DeleteItemCommand({
+                TableName: "project_files",
+                Key: {
+                    id: item.id,
+                    smID: item.smId
                 }
             })
             await dyClient.send(command)

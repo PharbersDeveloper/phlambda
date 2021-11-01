@@ -1,17 +1,16 @@
 import * as fs from "fs"
 import {DBConfig, IStore, Register, ServerRegisterConfig, StoreEnum} from "phnodelayer"
-import {AWSRegion, PostgresConf} from "../constants/common"
-import StepFunctionHandler from "../handler/StepFunctionHandler"
-import AWSSts from "../utils/AWSSts"
+import {AWSRegion, PostgresConf} from "../src/constants/common"
+import StepFunctionHandler from "../src/handler/StepFunctionHandler"
+import AWSSts from "../src/utils/AWSSts"
 
-const awsConfig = jest.fn(async () => {
-    const name = "Ph-Data-Resource-Admin"
+const awsConfig = jest.fn(async (name) => {
     const sts =  new AWSSts(process.env.AccessKeyId, process.env.SecretAccessKey, AWSRegion)
     return await sts.assumeRole(name, `arn:aws-cn:iam::444603803904:role/${name}`)
 })
 
 const SNSCreateStepFunctionEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("events/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
         stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
@@ -30,7 +29,7 @@ const SNSCreateStepFunctionEvent = jest.fn(() => {
 })
 
 const SNSDeleteStepFunctionEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("events/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
         stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
@@ -49,7 +48,7 @@ const SNSDeleteStepFunctionEvent = jest.fn(() => {
 })
 
 const SNSUpdateStepFunctionEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("events/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
         stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator"
@@ -68,7 +67,7 @@ const SNSUpdateStepFunctionEvent = jest.fn(() => {
 })
 
 const SNSCreateExecutionEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("events/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
         stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator",
@@ -88,7 +87,7 @@ const SNSCreateExecutionEvent = jest.fn(() => {
 })
 
 const SNSUpdateExecutionEvent = jest.fn(() => {
-    const event = JSON.parse(fs.readFileSync("../../events/syncmanger/sns_event.json", "utf8"))
+    const event = JSON.parse(fs.readFileSync("events/sns_event.json", "utf8"))
     event.Records[0].Sns.Subject = "functionindex"
     event.Records[0].Sns.Message = JSON.stringify({
         stateMachineArn: "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:ETL_Iterator",
@@ -114,7 +113,9 @@ describe("Step Function Test", () => {
     beforeAll(async () => {
         process.env.AccessKeyId = "AKIAWPBDTVEAI6LUCLPX"
         process.env.SecretAccessKey = "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"
-        config = await new awsConfig()
+
+        config = await new awsConfig("Ph-Data-Resource-Admin")
+
         ServerRegisterConfig([new DBConfig(PostgresConf)])
         store = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
     })
@@ -130,7 +131,7 @@ describe("Step Function Test", () => {
         await handler.syncAll()
         await store.close()
         console.timeEnd("index")
-    }, 1000 * 60 * 100)
+    })
 
     test("SNS Create StepFunction", async () => {
         const event = new SNSCreateStepFunctionEvent()
@@ -138,7 +139,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    }, 1000 * 5)
+    })
 
     test("SNS Update StepFunction", async () => {
         const event = new SNSUpdateStepFunctionEvent()
@@ -146,7 +147,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    }, 1000 * 5)
+    })
 
     test("SNS Create Execution", async () => {
         const event = new SNSCreateExecutionEvent()
@@ -154,7 +155,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    }, 1000 * 5)
+    })
 
     test("SNS Update Execution", async () => {
         const event = new SNSUpdateExecutionEvent()
@@ -162,7 +163,7 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    }, 1000 * 5)
+    })
 
     test("SNS Delete StepFunction", async () => {
         const event = new SNSDeleteStepFunctionEvent()
@@ -170,5 +171,5 @@ describe("Step Function Test", () => {
         const handler = new StepFunctionHandler(store, config)
         await handler.exec(event)
         await store.close()
-    }, 1000 * 5)
+    })
 })

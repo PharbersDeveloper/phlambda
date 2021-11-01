@@ -247,7 +247,7 @@ export class AuthorizeHandler {
     async getUser(request: Request, response: Response) {
         const userId = request.body.userId || request.body.user_id || request.query.user_id || request.query.userId
         if (request.query.hasOwnProperty("response_type") && request.query.response_type === "code" && userId) {
-            const u = await this.options.model.getUser(userId)
+            const u = await this.options.model.getUserById(userId)
             if (!u) {
                 throw new UnauthorizedRequestError(
                     "Unauthorized request: no authentication given",

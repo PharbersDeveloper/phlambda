@@ -9,8 +9,8 @@ import AWSStepFunction from "../utils/AWSStepFunction"
 
 export default class StepFunctionHandler {
 
-    private readonly store: IStore
-    private readonly config: any
+    protected readonly store: IStore
+    protected readonly config: any
 
     constructor(store: IStore, config: any) {
         this.store = store

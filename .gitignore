@@ -166,3 +166,7 @@ phcatlog/.ph-lambda-deploy.yaml
 
 
 phplatform/phplatform-report-directory/
+
+phdydatasource/package.yaml
+
+phsyncdyevent/package.yaml

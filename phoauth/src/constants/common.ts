@@ -24,10 +24,10 @@ export const RedisConf: IPhConf = {
     password: "",
     host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
     port: 6379,
-    poolMax: 2,
+    poolMax: 1,
     ssl: false,
-    idleTimeoutMs: 3000,
-    connectionTimeoutMs: 300
+    idleTimeoutMs: 10000,
+    connectionTimeoutMs: 5000
 }
 
 export const PostgresConf: IPhConf = {
@@ -40,8 +40,8 @@ export const PostgresConf: IPhConf = {
     port: 5439,
     poolMax: 1,
     ssl: false,
-    idleTimeoutMs: 3000,
-    connectionTimeoutMs: 300
+    idleTimeoutMs: 10000,
+    connectionTimeoutMs: 5000
 }
 
 export const AccountUri = {

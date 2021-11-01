@@ -72,8 +72,25 @@ def lambda_handler(event, context):
 
         sheets = wb.sheetnames if not body.get("sheet").strip() else [body.get("sheet")]
         out_number = int(body.get("out_number")) if int(body.get("out_number", 0)) > 0 else 20
-        return get_excel_data(wb, sheets, out_number)
+        result = get_excel_data(wb, sheets, out_number)
+        return {
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "statusCode": 200,
+            "body": json.dumps(result)
+        }
     except Exception as e:
         print(e)
         traceback.print_exc()
-        return []
+        return {
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "statusCode": 500,
+            "msg": e
+        }

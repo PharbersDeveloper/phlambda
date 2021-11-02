@@ -13,17 +13,18 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@aws-sdk/client-glue": "^3.26.0"
+    "@aws-sdk/client-glue": "~3.22.0",
+    "@aws-sdk/client-dynamodb": "~3.22.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-sts": "^3.22.0",
     "@types/jest": "^26.0.23",
     "@types/node": "~14.17.3",
     "eslint": "^6.5.1",
     "eslint-config-boss": "^1.0.6",
     "jest": "^26.6.0",
-    "phnodelayer": "2.0.8",
+    "jest-junit": "12.2.0",
     "phauthlayer": "^0.0.1",
+    "phnodelayer": "~2.0.9",
     "prettier": "^2.1.2",
     "source-map-support": "^0.5.13",
     "ts-jest": "^26.4.1",

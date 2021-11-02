@@ -10,8 +10,8 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
 #      FileSystemConfigs:
-#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-00f90a99b52493617
-#          LocalMountPath: /tmp/.
+#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+#          LocalMountPath: /mnt/tmp
       Environment:
         Variables:
           UPLOAD_PATH: "/mnt/tmp/max/tmp"

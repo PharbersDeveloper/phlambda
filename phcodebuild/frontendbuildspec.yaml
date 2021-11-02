@@ -1,0 +1,75 @@
+version: 0.2
+phases:
+  install: 
+    runtime-versions:
+      nodejs: 14
+  build:
+    commands:
+      - ls
+      - cd micro-frontend
+      - ls
+      - ember -v
+      - vue -V
+      - npm list
+      - npm info yam
+      - cd bpcatelogpage
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - ember build --environment production
+      - cp ../../README.md .
+      - ls
+      - cd ..
+      - cd max
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - ember build --environment production
+      - cp ../../README.md .
+      - ls
+      - cd ..
+      - cd pharbers-web
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - ember build --environment production
+      - cp ../../README.md .
+      - ls
+      - cd ..
+      - cd vue-web-components
+      - cd vue-basic-component
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - npm run build:component
+      - yarn link
+      - ls
+      - cd ..
+      - cd vue-catelog-component
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - yarn link "vue-components"
+      - npm run build:component
+      - ls
+      - cd ..
+      - cd vue-dag-component
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - yarn link "vue-components"
+      - npm run build:component
+      - ls
+      - cd ..
+      - cd vue-echarts-component
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - yarn link "vue-components"
+      - npm run build:component
+      - ls
+      - cd ..
+      - cd vue-excel-component
+      - ln -s /environment/node/code/web_node_modules node_modules
+      - yarn link "vue-components"
+      - npm run build:component
+      - ls
+artifacts:
+  files:
+    - micro-frontend/**/**
+  type: zip
+  name: offweb-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/offweb/artifacts
+#
+#reports:
+#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+#    files:
+#      - $PROJECT_NAME-report-file.xml
+#    base-directory: $PROJECT_NAME-report-directory
+#    file-format: JUNITXML

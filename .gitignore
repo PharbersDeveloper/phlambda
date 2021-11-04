@@ -166,3 +166,5 @@ phcatlog/.ph-lambda-deploy.yaml
 
 
 phplatform/phplatform-report-directory/
+
+.gradle

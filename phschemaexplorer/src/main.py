@@ -6,15 +6,10 @@ import traceback
 from time import perf_counter
 
 __PATH_PREFIX = "PATH_PREFIX"
-__HTTP_METHOD = "httpMethod"
-__PATH_PARAMETERS = "pathParameters"
-__BODY = "body"
 
 
 def __init_openpyxl(path):
-    # return xlrd.open_workbook(path)
     return openpyxl.load_workbook(filename=path, read_only=True, keep_links=False, data_only=True)
-    # return openpyxl.load_workbook(path, read_only=True)
 
 
 def get_excel_data(wb, sheets, out_number):
@@ -22,7 +17,7 @@ def get_excel_data(wb, sheets, out_number):
         ws = wb[sheet]
         data = []
         count = 0
-        rows = ws.iter_rows(min_row=1, max_row=out_number+1)
+        rows = ws.iter_rows(min_row=1, max_row=out_number + 1)
         for row in rows:
             if count == out_number:
                 break
@@ -67,9 +62,9 @@ def build_data(data):
 
 def lambda_handler(event, context):
     try:
-        body = event
-        original_file = body.get("original_file")
-        path = os.environ.get(__PATH_PREFIX) + body.get("tempfile")
+        body = json.loads(event["body"])
+        original_file = body.get("original_file", "")
+        path = os.environ.get(__PATH_PREFIX).format(project=body["project"]) + body["tempfile"]
         begin = perf_counter()
         wb = __init_openpyxl(path)
         end = perf_counter()
@@ -77,9 +72,26 @@ def lambda_handler(event, context):
         begin = end
 
         sheets = wb.sheetnames if not body.get("sheet").strip() else [body.get("sheet")]
-        out_number = int(body.get("out_number")) if int(body.get("out_number")) > 0 else 20
-        return get_excel_data(wb, sheets, out_number)
-    except Exception:
+        out_number = int(body.get("out_number")) if int(body.get("out_number", 0)) > 0 else 20
+        result = get_excel_data(wb, sheets, out_number)
+        return {
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "statusCode": 200,
+            "body": json.dumps(result)
+        }
+    except Exception as e:
+        print(e)
         traceback.print_exc()
-        return []
-
+        return {
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "statusCode": 500,
+            "msg": e
+        }

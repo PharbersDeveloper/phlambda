@@ -11,6 +11,6 @@ const config = {
     ],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-    testTimeout: 1000 * 3
+    testTimeout: 1000 * 60 * 60
 };
 module.exports = config;

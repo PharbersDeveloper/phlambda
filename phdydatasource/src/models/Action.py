@@ -3,14 +3,17 @@ from models.Model import Model
 
 
 class Action(Model):
-    type = "action"
-    projectId = fields.Str()
-    owner = fields.Str()
-    showName = fields.Str()
-    time = fields.Int()
-    code = fields.Str()
-    jobDesc = fields.Str()
-    jobCat = fields.Str()
-    comments = fields.Str()
-    message = fields.Str()
-    date = fields.Int()
+    type = "actions"
+    attributes = {
+        "projectId": fields.Str(required=True),
+        "owner": fields.Str(dump_default="unknown"),
+        "showName": fields.Str(dump_default="unknown"),
+        "time": fields.Int(dump_default=-1),
+        "code": fields.Str(dump_default="unknown"),
+        "jobDesc": fields.Str(dump_default="unknown"),
+        "jobCat": fields.Str(dump_default="unknown"),
+        "comments": fields.Str(dump_default="unknown"),
+        "message": fields.Str(dump_default="{}"),
+        "date": fields.Int(dump_default=-1)
+    }
+

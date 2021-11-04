@@ -9,15 +9,18 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-#      Layers:
-#        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
+#      FileSystemConfigs:
+#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+#          LocalMountPath: /mnt/tmp
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
       FunctionName: lmd-phschemaexplorer-V2
-      Description: "http proxy call chproxy execution to clickhouse "
-      MemorySize: 512
+      Description: "根据前端传入excel获取schema与sample data 默认取出100行"
+      MemorySize: 1024
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Environment:
         Variables:
-          PATH_PREFIX: /mnt/tmp/
+          PATH_PREFIX: /mnt/tmp/{project}/tmp/
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

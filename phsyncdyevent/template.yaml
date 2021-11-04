@@ -8,14 +8,18 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
-      CodeUri: s3://ph-platform/2020-11-11/cicd/phdydatasource/samtem/411feb4f46884494ae2abcffe6b30358
+      CodeUri: ./src
+#      FileSystemConfigs:
+#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+#          LocalMountPath: /mnt/tmp
       Environment:
         Variables:
-          GIT_URL: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git
+          UPLOAD_PATH: "/mnt/tmp/max/tmp"
       Layers:
-      - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-      FunctionName: lmd-phdydatasource-V2
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+      FunctionName: lmd-phsyncdyevent-V2
       MemorySize: 1024
-      Description: "DynamoDB\u6570\u636E\u67E5\u8BE2 "
+      Description: "DynamoDB Event Sync"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 600
+

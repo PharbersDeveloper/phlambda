@@ -7,12 +7,10 @@ export default class AppLambdaDelegate {
         try {
             ServerRegisterConfig([new DBConfig(PostgresConf)])
             const store = Register.getInstance.getData(StoreEnum.POSTGRES) as IStore
-            await store.open()
             const handler = new StepFunctionHandler(store, {
                 region: AWSRegion
             })
             await handler.exec(event)
-            await store.close()
         } catch (error) {
             throw error
         }

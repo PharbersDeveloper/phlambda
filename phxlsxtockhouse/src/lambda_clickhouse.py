@@ -116,4 +116,3 @@ def lambda_handler(event,context):
     temp_dict = dict(zip(static_key,static_value))
     ExcelToClickHouse(host,file_name,sheet_name,mapper,des_table_name,temp_dict,title_row,g_batch_size).handle_stream_data()
     pass
-

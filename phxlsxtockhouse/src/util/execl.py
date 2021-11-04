@@ -84,3 +84,11 @@ class Excel:
                 func(values, self.adapted_mapper)
                 values.clear()
                 batch_hit_time = batch_hit_time + 1
+
+    @staticmethod
+    def getSchema(path, sheet_name, skip_first):
+        wb = openpyxl.load_workbook(filename=path, read_only=True, keep_links=False, data_only=True)
+        ws = wb[sheet_name]
+        rows = ws.iter_rows(skip_first, skip_first)
+        for row in rows:
+            return [str(cell.value) for cell in row]

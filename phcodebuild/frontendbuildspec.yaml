@@ -96,7 +96,7 @@ artifacts:
   files:
     - micro-frontend/**/*
   type: zip
-  name: offweb-$(date +%Y-%m-%d).zip
+  name: offweb-$(date +%Y-%m-%d-%H-%m-%s)-V0.0.1.zip
   s3-prefix: 2020-11-11/cicd/offweb/artifacts
 #
 #reports:

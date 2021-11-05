@@ -1,0 +1,26 @@
+{
+  "name": "Bob",
+  "body": "{\"message\": \"hello world\"}",
+  "resource": "/{proxy+}",
+  "path": "/path/to/resource",
+  "httpMethod": "POST",
+  "isBase64Encoded": false,
+  "data":{
+      "id": "1qOFUge6QHf2XBhA",
+      "name": "pqian",
+      "age": 37,
+      "wechatOpenid": null,
+      "password": "Abcde196125",
+      "new_password": "99999..ffds9",
+      "phoneNumber": null,
+      "defaultRole": "ThhQTGXUcJwv8fd8I5oW",
+      "email": "pqian@pharbers.com",
+      "employer": "zudIcG_17yj8CEUoCTHg",
+      "created": "2020-12-14 15:06:32",
+      "modified": "2020-12-14 15:06:35",
+      "firstName": "好",
+      "lastName": "人",
+      "picture": null,
+      "notification": "0,0,0"
+}
+}

@@ -1,20 +1,30 @@
 # /usr/local/bin/python3
 
 import os
-import re
 import json
+import http.client
+import urllib.parse
 from util.execl import Excel
 from util.AWS.DynamoDB import DynamoDB
-from clickhouse_driver import Client
 
 __BATCH_SIZE = "BATCH_SIZE"
-__CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
-__CLICKHOUSE_PORT = "CLICKHOUSE_PORT"
+# __CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
+# __CLICKHOUSE_PORT = "CLICKHOUSE_PORT"
 __CLICKHOUSE_DB = "CLICKHOUSE_DB"
 __FILE_PATH = "PATH_PREFIX"
 __TYPE_STRUCTURE = {
     "String": str
 }
+
+
+def executeSql(sql, type):
+
+    conn = http.client.HTTPConnection(host="max.pharbers.com")
+    url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
+    conn.request(type, url)
+    res = conn.getresponse()
+    conn.close()
+    return res.read().decode("utf-8")
 
 
 def updateAction(item, dynamodb, state):
@@ -25,7 +35,7 @@ def updateAction(item, dynamodb, state):
     })
 
 
-def insertDataset(item, client, dynamodb):
+def insertDataset(item, dynamodb):
     message = json.loads(item["message"])
     title_row = message["skipValue"]
     file_name = message["fileId"]
@@ -45,7 +55,7 @@ def insertDataset(item, client, dynamodb):
             "version": version
         }
     })
-    write2Clickhouse(message, mapper, client)
+    write2Clickhouse(message, mapper)
 
 
 def getExcelMapper(file_name, sheet_name, skip_first):
@@ -53,7 +63,7 @@ def getExcelMapper(file_name, sheet_name, skip_first):
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
 
 
-def write2Clickhouse(message, mapper, client):
+def write2Clickhouse(message, mapper):
     title_row = message["skipValue"]
     skip_next = message["jumpValue"]
     version = message.get("version", "0.0.0")
@@ -68,10 +78,10 @@ def write2Clickhouse(message, mapper, client):
     create_table = "CREATE TABLE IF NOT EXISTS {0}.{1} ({2}) ENGINE=TinyLog" \
         .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
     print(create_table)
-    client.execute(create_table)
+    executeSql(create_table, "POST")
 
-    res = client.execute("select count(1) from {0} where version = '{1}'".format(des_table_name, version))
-    if res[0][0] > 0:
+    res = executeSql("select count(1) from {0} where version = '{1}'".format(des_table_name, version), "POST")
+    if int(res.replace("\n", "")) > 0:
         raise Exception("version already exist")
 
     # excel回调数据
@@ -87,10 +97,12 @@ def write2Clickhouse(message, mapper, client):
                 fieldType = __TYPE_STRUCTURE[mi["type"]]
                 item[x] = fieldType(item[x])
             item["version"] = version
-            return item
+            values = list(map(lambda v: "'{0}'".format(v), list(item.values())))
+            return "(" + ",".join(values) + ")"
 
-        excel_data = list(map(add_col, data))
-        client.execute(sql, excel_data)
+        excel_data = ",".join(list(map(add_col, data)))
+        sql = sql + " " + excel_data + ";"
+        executeSql(sql, "POST")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
                   sheet_name, title_row, skip_next, mapper,
@@ -101,7 +113,6 @@ def write2Clickhouse(message, mapper, client):
 def lambda_handler(event, context):
     records = event["Records"]
     dynamodb = DynamoDB()
-    client = Client(host=os.environ.get(__CLICKHOUSE_HOST), port=int(os.environ.get(__CLICKHOUSE_PORT)))
     # import base64
     # from util.AWS.STS import STS
     # from constants.Common import Common
@@ -127,10 +138,11 @@ def lambda_handler(event, context):
                 for item in data:
                     print(item)
                     history = item
-                    insertDataset(item, client, dynamodb)
+                    insertDataset(item, dynamodb)
                     updateAction(item, dynamodb, "created")
 
     except Exception as e:
+        print("error: \n")
         print(e)
         updateAction(history, dynamodb, "failed")
     return {}

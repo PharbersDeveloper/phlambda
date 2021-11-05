@@ -174,3 +174,5 @@ phsyncdyevent/package.yaml
 phschemaexplorer/package.yaml
 
 phschemaexplorer/buildspec.yaml
+
+phxlsxtockhouse/buildspec.yaml

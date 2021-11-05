@@ -40,7 +40,7 @@ def insertDataset(item, dynamodb):
     title_row = message["skipValue"]
     file_name = message["fileId"]
     sheet_name = message["fileSheet"]
-    label = message.get("label", "{}")
+    label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))

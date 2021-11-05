@@ -1,7 +1,8 @@
+import pytest
 import sys
 sys.path.insert(0, '../..')
 from phchangeuserpwd.src.main import Run
-import pytest
+
 
 
 class TestLmd:

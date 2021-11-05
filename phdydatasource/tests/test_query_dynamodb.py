@@ -14,7 +14,7 @@ class TestQueryDynamoDB:
             Execution({"id": "2", "state": "state", "input": "input",
                        "owner": "owner", "startTime": 222, "endTime": 444, "steps": "[]"})]
 
-        result = json.loads(Convert2JsonAPI(Execution).mc(many=True).dumps(data))
+        result = json.loads(Convert2JsonAPI(Execution, many=False).build().dumps(data))
         assert "data" in list(result.keys())
 
     def test_partition_query(self):
@@ -28,5 +28,9 @@ class TestQueryDynamoDB:
                 "partitions": [{"a": 1}, {"b": 2}]
             })
         ]
-        result = json.loads(Convert2JsonAPI(Partition).mc(many=True).dumps(data))
+        result = json.loads(Convert2JsonAPI(Partition, many=True).build().dumps(data))
         assert "data" in list(result.keys())
+
+
+if __name__ == '__main__':
+    pytest.main()

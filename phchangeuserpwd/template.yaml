@@ -16,6 +16,13 @@ Resources:
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 30
+      Environment:
+        Variables:
+          DBNAMe: "phplatform"
+          USER: "pharbers"
+          PASSWORD: "Abcde196125"
+          HOST: "192.168.49.199"
+          UPORT: "5439"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

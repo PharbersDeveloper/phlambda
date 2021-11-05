@@ -9,5 +9,6 @@ class DataSet(Model):
         "name": fields.Str(required=True),
         "schema": fields.Str(dump_default="unknown"),
         "version": fields.Str(required=True),
-        "label": fields.Str(dump_default="unknown")
+        "label": fields.Str(dump_default="unknown"),
+        "date": fields.Int(dump_default=-1)
     }

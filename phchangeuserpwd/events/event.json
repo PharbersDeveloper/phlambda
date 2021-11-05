@@ -1,26 +1,8 @@
 {
   "name": "Bob",
-  "body": "{\"message\": \"hello world\"}",
+  "body": "{\n      \"id\": \"5UBSLZvV0w9zh7-lZQap\",\n      \"password\": \"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582\",\n      \"new_password\": \"4c4cc360324690e719a628c83287201cb0a2e0e512b53c33d7135c7ba9dda9d6\"\n}",
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",
-  "isBase64Encoded": false,
-  "data":{
-      "id": "1qOFUge6QHf2XBhA",
-      "name": "pqian",
-      "age": 37,
-      "wechatOpenid": null,
-      "password": "Abcde196125",
-      "new_password": "99999..ffds9",
-      "phoneNumber": null,
-      "defaultRole": "ThhQTGXUcJwv8fd8I5oW",
-      "email": "pqian@pharbers.com",
-      "employer": "zudIcG_17yj8CEUoCTHg",
-      "created": "2020-12-14 15:06:32",
-      "modified": "2020-12-14 15:06:35",
-      "firstName": "好",
-      "lastName": "人",
-      "picture": null,
-      "notification": "0,0,0"
-}
+  "isBase64Encoded": false
 }

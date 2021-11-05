@@ -8,6 +8,7 @@ from models.Step import Step
 from models.Action import Action
 from models.ProjectFile import ProjectFile
 from models.Partition import Partition
+from models.DataSet import DataSet
 
 
 class AppLambdaDelegate:
@@ -15,6 +16,7 @@ class AppLambdaDelegate:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
+
         # import base64
         # from util.AWS.STS import STS
         # from constants.Common import Common
@@ -34,7 +36,8 @@ class AppLambdaDelegate:
             "step": Step,
             "action": Action,
             "project_files": ProjectFile,
-            "partition": Partition
+            "partition": Partition,
+            "dataset": DataSet
         }
 
     def exec(self):
@@ -86,17 +89,3 @@ class AppLambdaDelegate:
             },
             "body": json.dumps(json_api_data)
         }
-
-
-# if __name__ == '__main__':
-#     app = AppLambdaDelegate(event={
-#         "httpMethod": "POST",
-#         "pathParameters": {
-#             "type": "scan"
-#             # "type": "put_item"
-#         },
-#         "body": "{\"table\": \"project_files\",\"conditions\": {\"smID\": \"Auto_max_refactor\"},\"limit\": 10,\"start_key\": {}}",
-#         # "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}"
-#     })
-#     a = app.exec()
-#     print(a)

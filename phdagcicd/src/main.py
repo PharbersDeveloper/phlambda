@@ -3,7 +3,7 @@ import os
 
 from parse_event import Parse
 from git_python import GitRepository
-from package_code import zip_code, start_codebuild
+from upload_dag import upload_code
 
 def lambda_handler(event, context):
     # 测试cicd1548
@@ -12,21 +12,14 @@ def lambda_handler(event, context):
 
     git_event = parse.print_branch_information(event=event)
     print(git_event)
-    if git_event.get("merge_branch_to") == "master" and git_event.get("event_type") == "MERGED":
+    if git_event.get("event_type") == "UPDATE":
         git_url = os.getenv("GIT_URL")
-        # git_url = 'https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git'
-        local_path_prefix = '/tmp'
-        local_path = os.path.join(local_path_prefix, 'phlambda')
+        local_path = os.path.join(os.getenv("LOCAL_PATH_PREFIX"), git_event.get("repository_name"))
         # 从bitbucket下载代码 存放在local_path下
-        repo = GitRepository(local_path, git_url, branch='master')
+        repo = GitRepository(local_path, git_url, branch=git_event.get("branch_name"))
 
-        # 打包上传代码
-        # 获取git commit 版版本
-        zip_code(local_path, git_event)
-
-
-        # 启动所有项目的codebuild
-        start_codebuild()
+        # 打包上传代码到s3
+        upload_code(local_path, git_event)
 
         return {
             "statusCode": 200,
@@ -35,7 +28,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps("The git operation type must be merge")
+        "body": json.dumps("The git operation type is illegal")
     }
 
 if __name__ == '__main__':

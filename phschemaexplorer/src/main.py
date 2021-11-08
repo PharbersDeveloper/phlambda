@@ -1,4 +1,5 @@
 import openpyxl
+import xlrd
 import json
 import os
 import traceback

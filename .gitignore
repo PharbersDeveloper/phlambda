@@ -176,4 +176,6 @@ phschemaexplorer/package.yaml
 
 phschemaexplorer/buildspec.yaml
 
+phxlsxtockhouse/buildspec.yaml
+
 .gradle

@@ -1,20 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-v2
+Description: cicd lambda phphxlsxtockhouse-dev
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda_clickhouse.lambda_handler
+      Handler: app.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      Environment:
+        Variables:
+          PATH_PREFIX: /mnt/tmp/max/tmp/
+          BATCH_SIZE: 200
+          CLICKHOUSE_DB: default
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1
-      FunctionName: lmd-phxlsxtockhouse-V2
-      Description: "流式读取s3 xlsx文件, 流式写入 clickhosue "
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      FunctionName: lmd-phxlsxtockhouse-dev
+      Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 120
       VpcConfig:

@@ -86,8 +86,13 @@ export default class AppLambdaDelegate {
                 if (resource[2] !== "*" && arnRes.length >= 6) {
                     temp = arnRes[5] === resource[2]
                 }
-                return arnRes[3] === resource[0] &&
-                    resource[1].includes(arnRes[4]) && temp && permissionFlag(resource[resource.length - 1])
+                if (arnRes[4]){
+                    return arnRes[3] === resource[0] &&
+                        resource[1].includes(arnRes[4]) && temp && permissionFlag(resource[resource.length - 1])
+                } else {
+                    return arnRes[3] === resource[0] && temp && permissionFlag(resource[resource.length - 1])
+                }
+
             })
         }
         return resourceFlag()

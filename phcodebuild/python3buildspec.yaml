@@ -132,6 +132,18 @@ phases:
       - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
       - cd ..
+      - cd phdagcicd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phdagcicd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phdydatasource
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phdydatasource/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
 artifacts:
   files:
     - phlambda/**/**

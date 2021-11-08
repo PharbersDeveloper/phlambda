@@ -13,5 +13,5 @@ Resources:
       Description: "在ETL流程中时，如果传入的type为xlsx 则运行指定的gluejob对文件进行处理"
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       MemorySize: 128
-      Timeout: 30
+      Timeout: 240
 

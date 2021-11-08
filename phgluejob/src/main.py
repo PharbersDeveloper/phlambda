@@ -1,13 +1,19 @@
 import boto3
 import time
 import re
+import json
 
 def lambda_handler(event, context):
 
     glue_job_name = 'cols-modification'
     arguments = event['parameter']['args']
 
+    for key, value in arguments.items():
+        if type(value) == list:
+            arguments[key] = json.dumps(value)
+
     glue_client = boto3.client('glue')
+    print(arguments)
 
     run_response = glue_client.start_job_run(
         JobName=glue_job_name,
@@ -35,21 +41,28 @@ def lambda_handler(event, context):
         time.sleep(60)
 
     file = arguments['file']
-    bucket = arguments['bucket']
+    bucket = arguments['out_path'].split("/")[0]
     version = arguments['version']
     sheet = arguments['sheet']
     table = arguments['table']
     reg = ".xlsx"
 
-    if version == file.split(".")[0] + "_" + sheet:
-        output = re.sub(reg, "", file + "_" + sheet + ".csv")
+    if arguments.get('p_input', None) and arguments.get('p_output', None):
+        p_input = arguments['p_input']
+        p_output = arguments['p_output']
     else:
-        output = re.sub(reg, "", file + "_" + sheet + "_" + version + ".csv")
+        if version == file.split(".")[0] + "_" + sheet:
+            output = re.sub(reg, "", file + "_" + sheet + ".csv")
+        else:
+            output = re.sub(reg, "", file + "_" + sheet + "_" + version + ".csv")
 
-    p_input = "s3://" + bucket + "/2020-11-11/etl/temporary_csv/" + table + "/" + output
-    p_output = "s3://" + bucket + "/2020-11-11/etl/readable_files/" + table
+        p_input = "s3://" + bucket + "/2020-11-11/etl/temporary_csv/" + table + "/" + output
+        p_output = "s3://" + bucket + "/2020-11-11/etl/readable_files/" + table
 
-    parameter = {"p_input": "", "p_output": "", "g_partition": "provider, version", "g_filldefalut": "NONE", "g_bucket": "NONE", "g_mapping": "NONE"}
+
+    g_filldefalut = 'provider:'+ arguments['provider'] + ', version:'+ arguments['version'] + ', owner:' + arguments['owner']
+
+    parameter = {"p_input": "", "p_output": "", "g_partition": arguments['g_partition'], "g_filldefalut": g_filldefalut, "g_bucket": "NONE", "g_mapper":arguments['g_mapper'], "mapper_only":arguments['mapper_only']}
     parameter['p_input'] = p_input
     parameter['p_output'] = p_output
 
@@ -67,9 +80,6 @@ def lambda_handler(event, context):
             "s3://ph-platform/2020-11-11/jobs/python/phcli/readable/for_readable_move_to_readable/phmain.py",
             "--owner", "default_owner",
             "--dag_name", "readable",
-            "--run_id", "readable_" + time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()),
-            "--job_full_name", "for_readable_move_to_readable",
-            "--job_id", "not_implementation"
             ]
 
     for key in parameter.keys():

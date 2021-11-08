@@ -22,9 +22,8 @@ def lambda_handler(event, context):
         cells = row.split("\t")
 
         tmp = {}
-        for cell in cells:
-            index = cells.index(cell)
-            tmp[columns[index]] = cell
+        for index in range(len(cells)):
+            tmp[columns[index]] = cells[index]
 
         final_res.append(tmp)
 

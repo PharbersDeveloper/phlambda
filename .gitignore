@@ -175,3 +175,7 @@ phschemaexplorer/package.yaml
 
 phschemaexplorer/buildspec.yaml
 
+<<<<<<< developer
+.gradle
+=======
+>>>>>>> bugfix/PBDP-1932-songmengen

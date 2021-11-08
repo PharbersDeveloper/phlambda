@@ -16,7 +16,7 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phdydatasource-V2
       MemorySize: 1024
-      Description: "DynamoDB数据查询 "
+      Description: "DynamoDB数据查询"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 600
 

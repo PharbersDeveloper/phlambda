@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phetlsfn
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lambda-git:3
+      FunctionName: lmd-phuploadwebfile-V2
+      Description: "接收s3events 当offweb artifacts 上传时下载artifact分别上传file到指定位置"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 60
+      MemorySize: 1024

@@ -47,7 +47,7 @@ def build_data(data):
     sheet = content[0][0]
     schema = []
     for index, item in enumerate(content[0][1]):
-        if (item == "None"):
+        if item == "None":
             schema.append("col_{0}".format(index))
         else:
             schema.append(item)

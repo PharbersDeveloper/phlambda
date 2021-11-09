@@ -43,7 +43,13 @@ def insertDataset(item, dynamodb):
     label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
+    if title_row == 0:
+        title_row += 1
+    else:
+        title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))
+    print(mapper)
+
     dynamodb.putData({
         "table_name": "dataset",
         "item": {
@@ -59,8 +65,8 @@ def insertDataset(item, dynamodb):
     write2Clickhouse(message, mapper)
 
 
-def getExcelMapper(file_name, sheet_name, skip_first, skip_next=0):
-    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first, skip_next)
+def getExcelMapper(file_name, sheet_name, skip_first):
+    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first)
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
 
 
@@ -75,11 +81,17 @@ def write2Clickhouse(message, mapper):
 
     fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(item["des"], item["type"]), zipMapper)))
 
+    if title_row == 0:
+        title_row += 1
+    else:
+        title_row += 2
+
     # 创建表
     create_table = "CREATE TABLE IF NOT EXISTS {0}.{1} ({2}) ENGINE=MergeTree() PRIMARY KEY version" \
         .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
     print(create_table)
-    executeSql(create_table, "POST")
+    result = executeSql(create_table, "POST")
+    print(result)
 
     res = executeSql("select count(1) from {0} where version = '{1}'".format(des_table_name, version), "POST")
     if int(res.replace("\n", "")) > 0:

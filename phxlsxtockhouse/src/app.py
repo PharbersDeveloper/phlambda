@@ -2,6 +2,7 @@
 
 import os
 import json
+import time
 import http.client
 import urllib.parse
 from util.execl import Excel
@@ -19,11 +20,10 @@ __TYPE_STRUCTURE = {
 
 def executeSql(sql, type):
 
-    conn = http.client.HTTPConnection(host="max.pharbers.com")
+    conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
     url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
     conn.request(type, url)
     res = conn.getresponse()
-    conn.close()
     return res.read().decode("utf-8")
 
 
@@ -48,7 +48,8 @@ def insertDataset(item, dynamodb):
         "table_name": "dataset",
         "item": {
             "id": file_name,
-            "projectID": item["projectId"],
+            "projectId": item["projectId"],
+            "date": int(round(time.time() * 1000)),
             "name": des_table_name,
             "schema": json.dumps(mapper, ensure_ascii=False),
             "label": label,
@@ -58,8 +59,8 @@ def insertDataset(item, dynamodb):
     write2Clickhouse(message, mapper)
 
 
-def getExcelMapper(file_name, sheet_name, skip_first):
-    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first)
+def getExcelMapper(file_name, sheet_name, skip_first, skip_next=0):
+    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first, skip_next)
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
 
 
@@ -75,7 +76,7 @@ def write2Clickhouse(message, mapper):
     fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(item["des"], item["type"]), zipMapper)))
 
     # 创建表
-    create_table = "CREATE TABLE IF NOT EXISTS {0}.{1} ({2}) ENGINE=TinyLog" \
+    create_table = "CREATE TABLE IF NOT EXISTS {0}.{1} ({2}) ENGINE=MergeTree() PRIMARY KEY version" \
         .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
     print(create_table)
     executeSql(create_table, "POST")
@@ -102,6 +103,7 @@ def write2Clickhouse(message, mapper):
 
         excel_data = ",".join(list(map(add_col, data)))
         sql = sql + " " + excel_data + ";"
+        print(sql)
         executeSql(sql, "POST")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
@@ -116,7 +118,7 @@ def lambda_handler(event, context):
     # import base64
     # from util.AWS.STS import STS
     # from constants.Common import Common
-    #
+
     # sts = STS().assume_role(
     #     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
     #     "Ph-Back-RW"
@@ -126,6 +128,9 @@ def lambda_handler(event, context):
     try:
         data = []
         for record in records:
+            if record["eventName"].lower() != "insert":
+                continue
+
             new_image = record["dynamodb"]["NewImage"]
             if record["eventName"].lower() == "insert" and new_image["jobCat"]["S"] == "project_file_to_DS":
                 item = {}

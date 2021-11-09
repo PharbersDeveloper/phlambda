@@ -63,32 +63,37 @@ class Excel:
         return dim['left'] + str(index_range.start) + ":" + dim['right'] + str(index_range.stop - 1)
 
     def batchReader(self, func):
-        rows = self.ws.iter_rows(self.title_row + 1, max(self.step_indeies))
+        rows = self.ws.iter_rows(self.title_row + self.skip_next + 1 + 1, max(self.step_indeies)) # 多加一个1，因为是1-base
         batch_hit_time = 0
-        row_process_count = self.title_row
+        row_process_count = self.title_row + self.skip_next + 1 + 1
         count = 0
         values = []
         for row in rows:
             tmp = {}
             count += 1
-            if count == self.skip_next - 1:
-                row_process_count += 1
-                continue
-            else:
-                for col in self.adapted_mapper:
-                    value = row[col['column']].value
-                    tmp[col['des']] = "None" if not value else value
-                values.append(tmp)
+            for col in self.adapted_mapper:
+                value = row[col['column']].value
+                tmp[col['des']] = "None" if not value else value
+            values.append(tmp)
             row_process_count += 1
             if row_process_count == self.step_indeies[batch_hit_time] - 1:
                 func(values, self.adapted_mapper)
                 values.clear()
                 batch_hit_time = batch_hit_time + 1
+                if batch_hit_time == len(self.step_indeies):
+                    break
 
     @staticmethod
-    def getSchema(path, sheet_name, skip_first):
+    def getSchema(path, sheet_name, skip_first, skip_next=0):
         wb = openpyxl.load_workbook(filename=path, read_only=True, keep_links=False, data_only=True)
         ws = wb[sheet_name]
-        rows = ws.iter_rows(skip_first, skip_first)
+        rows = ws.iter_rows(skip_first, skip_first + 1 + skip_next)
+        cols = []
         for row in rows:
-            return [str(cell.value) for cell in row]
+            for idx, cell in enumerate(row):
+                if cell.value is None:
+                    cell = "col_" + str(idx)
+                    cols.append(cell)
+                else:
+                    cols.append(cell.value)
+        return cols

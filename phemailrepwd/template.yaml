@@ -9,8 +9,6 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
       FunctionName: lmd-phchangeuserpwd-DEV
       Description: "在未知密码情况下给用户发送邮件修改密码"
       MemorySize: 512
@@ -19,11 +17,13 @@ Resources:
       Environment:
         Variables:
           USER: "mesong@data-pharbers.com"
-          KEY: "{'Bucket': 'ph-platform', 'Key': '2020-11-11/template/email/email-forgetpwd.html' }"
-          PSWD: "song19980825"
+          BUCKET': "ph-platform"
+          KEY_PWD: "2020-11-11/template/email/email-forgetpwd.html"
+          KEY_FILE: "2020-11-11/template/email/email.html"
+          PSWD: "qiye@126"
           HOST: "smtp.ym.163.com"
           PORT: "465"
-          SENDER: "mesong@data-pharbers.com"
+          SENDER: "project@data-pharbers.com"
           SENDER_NAME: "法伯科技"
       VpcConfig:
         SecurityGroupIds:

@@ -113,9 +113,3 @@ def lambdaHandler(event, context):
     except Exception as e:
         return {"statusCode": 200, "body": json.dumps({"error": str(e)})}
     return result
-
-
-if __name__ == "__main__":
-    data = {
-        "body": "{\"content_type\": \"forget_password\", \"target_address\": [\"2091038466@qq.com\"],\n  \"subject\": \"密码修改\",\n  \"attachments\": [{\"file_name\": \"test1.yaml\",\n    \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]},\n    {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}"}
-    print(lambdaHandler(data, ' '))

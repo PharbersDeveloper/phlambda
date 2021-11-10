@@ -11,7 +11,7 @@ import boto3
 os_env = os.environ
 
 
-def sendEmail(target_address, content_type, html_content, attachments=None, content_style='plain'):
+def sendEmail(target_address, content_type, html_content, attachments=None, content_style='html'):
     status = {}
     for address in target_address:
         msg = MIMEMultipart()
@@ -45,7 +45,7 @@ def sendEmail(target_address, content_type, html_content, attachments=None, cont
         except:
             status = {"message": "file_send_failure"}
             return {
-                "statusCode": 200,
+                "statusCode": 500,
                 "body": json.dumps(status)
             }
         server = smtplib.SMTP_SSL(os_env['HOST'], os_env['PORT'])
@@ -66,18 +66,15 @@ def templateRead(bucket, key):
             Key=key,
         )
         content = response['Body'].read().decode()
-    except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
-        }
-    return {"content": content}
+        return [True, {"content": content}]
+    except:
+        return [False, {"statusCode": 500, "body": json.dumps({"error": "template_cant_request"})}]
 
 
 def typeChoice(event):
     if event['content_type'] == "forget_password":
-        html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
-        if len(html_content) == 1:
+        judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
+        if judge:
             html_content = html_content["content"].format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
@@ -87,8 +84,8 @@ def typeChoice(event):
         else:
             return html_content
     elif event['content_type'] == "test":
-        html_content = templateRead(os_env['BUCKET'], os_env['KEY_FILE'])
-        if len(html_content) == 1:
+        judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_FILE'])
+        if judge:
             html_content = html_content["content"].format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
@@ -110,6 +107,9 @@ def lambdaHandler(event, context):
         event = event['body']
         event = json.loads(event)
         result = typeChoice(event)
+        return result
     except Exception as e:
-        return {"statusCode": 200, "body": json.dumps({"error": str(e)})}
-    return result
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }

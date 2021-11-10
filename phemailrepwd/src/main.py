@@ -119,7 +119,3 @@ def lambdaHandler(event, context):  # 主函数入口
             "statusCode": 500,
             "body": json.dumps({"error": str(e)})
         }
-if __name__ == "__main__":
-    data = {
-        "body": "{\"content_type\": \"test\", \"target_address\": [\"2091038466@qq.com\"],\n  \"subject\": \"密码修改\",\n  \"attachments\": [{\"file_name\": \"test1.yaml\",\n    \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]},\n    {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}"}
-    print(lambdaHandler(data, ' '))

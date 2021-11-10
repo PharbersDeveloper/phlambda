@@ -66,7 +66,7 @@ def templateRead(bucket, key):
             Key=key,
         )
         content = response['Body'].read().decode()
-        return [True, {"content": content}]
+        return [True, content]
     except:
         return [False, {"statusCode": 500, "body": json.dumps({"error": "template_cant_request"})}]
 
@@ -75,7 +75,7 @@ def typeChoice(event):
     if event['content_type'] == "forget_password":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
         if judge:
-            html_content = html_content["content"].format(event["subject"])
+            html_content = html_content.format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -86,7 +86,7 @@ def typeChoice(event):
     elif event['content_type'] == "test":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_FILE'])
         if judge:
-            html_content = html_content["content"].format(event["subject"])
+            html_content = html_content.format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -97,7 +97,7 @@ def typeChoice(event):
             return html_content
     else:
         return {
-            "statusCode": 200,
+            "statusCode": 500,
             "body": json.dumps({"message": "no_this_content_type"})
         }
 

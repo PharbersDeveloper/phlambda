@@ -75,7 +75,7 @@ def typeChoice(event):
     if event['content_type'] == "forget_password":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
         if judge:
-            html_content = html_content.format(event["subject"])
+            html_content = html_content.format(event["subject"]).replace("$$$URL$$$", "111111").replace("$$$URL_ADDRESS$$$", "baidu.com")
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -86,7 +86,7 @@ def typeChoice(event):
     elif event['content_type'] == "test":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_FILE'])
         if judge:
-            html_content = html_content.format(event["subject"])
+            html_content = html_content.format(event["subject"]).replace("$$$URL$$$", "111111").replace("$$$URL_ADDRESS$$$", "baidu.com")
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,

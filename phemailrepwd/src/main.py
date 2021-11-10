@@ -11,7 +11,7 @@ import boto3
 os_env = os.environ
 
 
-def sendEmail(target_address, content_type, html_content, attachments=None, content_style='html'):
+def sendEmail(target_address, content_type, html_content, attachments=None, content_style='html'):  # 发送邮件
     status = {}
     for address in target_address:
         msg = MIMEMultipart()
@@ -39,11 +39,11 @@ def sendEmail(target_address, content_type, html_content, attachments=None, cont
                         att["Content-Type"] = 'application/octet-stream'
                         att["Content-Disposition"] = "'attachment; filename=" + attach_file['file_name'] + " '"
                         msg.attach(att)
-                status = {"message": "file_success"}
+                status = {"message": "send_test_file_success"}
             else:
-                status = {"message": "password_change_success"}
+                status = {"message": "send_repassword_email_success"}
         except:
-            status = {"message": "file_send_failure"}
+            status = {"message": "send_file_failure"}
             return {
                 "statusCode": 500,
                 "body": json.dumps(status)
@@ -58,7 +58,7 @@ def sendEmail(target_address, content_type, html_content, attachments=None, cont
     }
 
 
-def templateRead(bucket, key):
+def templateRead(bucket, key):  # 从s3读取html模板
     try:
         client = boto3.client('s3')
         response = client.get_object(
@@ -71,11 +71,15 @@ def templateRead(bucket, key):
         return [False, {"statusCode": 500, "body": json.dumps({"error": "template_cant_request"})}]
 
 
-def typeChoice(event):
+def typeChoice(event):  # 选择发送哪个邮件
+    url_name = {"forget_password": "修改密码请点击我", "test": "点击此处浏览官方网站"}
+    url_address = {"forget_password": "baidu.com", "test": "https://www.pharbers.com/"}
     if event['content_type'] == "forget_password":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
         if judge:
-            html_content = html_content.format(event["subject"]).replace("$$$URL$$$", "111111").replace("$$$URL_ADDRESS$$$", "baidu.com")
+            html_content = html_content.format(event["subject"])
+            html_content = html_content.replace("$$$URL$$$", url_name['forget_password'])  # 更改URL名字
+            html_content = html_content.replace("$$$URL_ADDRESS$$$", url_address["forget_password"])  # 更改URL路径
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -86,7 +90,9 @@ def typeChoice(event):
     elif event['content_type'] == "test":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_FILE'])
         if judge:
-            html_content = html_content.format(event["subject"]).replace("$$$URL$$$", "111111").replace("$$$URL_ADDRESS$$$", "baidu.com")
+            html_content = html_content.format(event["subject"])
+            html_content = html_content.replace("$$$URL$$$", url_name['test'])  # 更改URL名字
+            html_content = html_content.replace("$$$URL_ADDRESS$$$", url_address["test"])  # 更改URL路径
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -102,7 +108,7 @@ def typeChoice(event):
         }
 
 
-def lambdaHandler(event, context):
+def lambdaHandler(event, context):  # 主函数入口
     try:
         event = event['body']
         event = json.loads(event)
@@ -113,3 +119,7 @@ def lambdaHandler(event, context):
             "statusCode": 500,
             "body": json.dumps({"error": str(e)})
         }
+if __name__ == "__main__":
+    data = {
+        "body": "{\"content_type\": \"test\", \"target_address\": [\"2091038466@qq.com\"],\n  \"subject\": \"密码修改\",\n  \"attachments\": [{\"file_name\": \"test1.yaml\",\n    \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]},\n    {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}"}
+    print(lambdaHandler(data, ' '))

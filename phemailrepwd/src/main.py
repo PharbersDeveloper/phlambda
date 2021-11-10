@@ -12,7 +12,7 @@ os_env = os.environ
 
 
 def sendEmail(target_address, content_type,  html_content, attachments=None, content_style='plain'):
-    status = {"message": "password_change_sucess"}
+    status = {}
     for address in target_address:
         msg = MIMEMultipart()
         msg.attach(MIMEText(html_content, content_style, 'utf-8'))
@@ -40,6 +40,8 @@ def sendEmail(target_address, content_type,  html_content, attachments=None, con
                         att["Content-Disposition"] = "'attachment; filename=" + attach_file['file_name'] + " '"
                         msg.attach(att)
                 status = {"message": "file_success"}
+            else:
+                status = {"message": "password_change_success"}
         except:
             status = {"message": "file_send_failure"}
             return {
@@ -65,15 +67,18 @@ def s3Read(bucket, key):
         )
         content = response['Body'].read().decode()
         return content
-    except Exception as e:
-        return {"status": e}
+    except:
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"error": "S3_cant_request"})
+        }
 
 
 def typeChoice(event):
     if event['content_type'] == "forget_password":
         html_content = s3Read(os_env['BUCKET'], os_env['KEY_PWD'])
-        html_content = html_content.format(event["subject"])
         if type(html_content) == str:
+            html_content = html_content.format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -83,8 +88,8 @@ def typeChoice(event):
             return html_content
     elif event['content_type'] == "test":
         html_content = s3Read(os_env['BUCKET'], os_env['KEY_FILE'])
-        html_content = html_content.format(event["subject"])
         if type(html_content) == str:
+            html_content = html_content.format(event["subject"])
             email_status = sendEmail(target_address=event['target_address'],
                                      content_type=event['content_type'],
                                      html_content=html_content,
@@ -106,11 +111,11 @@ def lambdaHandler(event, context):
         event = json.loads(event)
         result = typeChoice(event)
     except Exception as e:
-        return e
+        return {"statusCode": 200, "body": json.dumps({"error": str(e)})}
     return result
 
 
 if __name__ == "__main__":
     data = {
-        "body": "{\"content_type\": \"test\", \"target_address\": [\"2091038466@qq.com\"],\n  \"subject\": \"密码修改\",\n  \"attachments\": [{\"file_name\": \"test1.yaml\",\n    \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]},\n    {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}"}
+        "body": "{\"content_type\": \"forget_password\", \"target_address\": [\"2091038466@qq.com\"],\n  \"subject\": \"密码修改\",\n  \"attachments\": [{\"file_name\": \"test1.yaml\",\n    \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]},\n    {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}"}
     print(lambdaHandler(data, ' '))

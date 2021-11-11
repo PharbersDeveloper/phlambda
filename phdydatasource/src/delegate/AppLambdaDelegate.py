@@ -1,14 +1,5 @@
 import json
 import re
-# from util.ExpressionUtil import Expression
-# from util.Convert2JsonAPI import Convert2JsonAPI
-# from util.AWS.DynamoDB import DynamoDB
-# from models.Execution import Execution
-# from models.Step import Step
-# from models.Action import Action
-# from models.ProjectFile import ProjectFile
-# from models.Partition import Partition
-# from models.DataSet import DataSet
 import handler.ExecHandler as ExecHandler
 
 
@@ -17,30 +8,6 @@ class AppLambdaDelegate:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
-
-        # import base64
-        # from util.AWS.STS import STS
-        # from constants.Common import Common
-        # sts = STS().assume_role(
-        #     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-        #     "Ph-Back-RW"
-        # )
-        # self.dynamodb = DynamoDB(sts=sts)
-        # self.dynamodb = DynamoDB()
-        # self.func_structure = {
-        #     "query": self.dynamodb.queryTable,
-        #     "scan": self.dynamodb.scanTable,
-        #     "put_item": self.dynamodb.putData,
-        #     "delete_item": self.dynamodb.deleteData,
-        # }
-        # self.table_structure = {
-        #     "execution": Execution,
-        #     "step": Step,
-        #     "action": Action,
-        #     "project_files": ProjectFile,
-        #     "partition": Partition,
-        #     "dataset": DataSet
-        # }
 
     def exec(self):
         method = self.event.get("httpMethod")
@@ -62,28 +29,9 @@ class AppLambdaDelegate:
                 })
             }
 
-        # dy_method = self.func_structure[type]
         table = body["table"]
 
         json_api_data = ExecHandler.makeData(table, body, type)
-
-        # if bool(re.match(r"(^query$)|(^scan$)", type)):
-        #     limit = body["limit"]
-        #     start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
-        #     conditions = body["conditions"]
-        #
-        #     expr = Expression().join_expr(type, conditions)
-        #     payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
-        #
-        #     result = list(map(lambda item: self.table_structure[table](item), payload["data"]))
-        #     json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=True).build().dumps(result))
-        #     json_api_data["meta"] = {
-        #         "start_key": payload["start_key"]
-        #     }
-        # else:
-        #     payload = dy_method({"table_name": table, "item": body["item"]})
-        #     result = self.table_structure[table](payload["data"])
-        #     json_api_data = json.loads(Convert2JsonAPI(self.table_structure[table], many=False).build().dumps(result))
 
         return {
             "statusCode": 200,

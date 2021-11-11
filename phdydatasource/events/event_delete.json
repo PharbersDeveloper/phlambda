@@ -1,5 +1,5 @@
 {
-  "body": "{\"table\":\"dataset\",\"conditions\":{\"projectId\":\"JfSmQBYUpyb4jsei\",\"label\":\"[\\\"测试Tag100\\\",\\\"测试Tag200\\\"]\",\"schema\":\"\",\"date\":100000,\"name\":\"测试不用管\"}}",
+  "body": "{\"table\":\"dataset\",\"conditions\":{\"id\":\"001\",\"projectId\":\"JfSmQBYUpyb4jsei\"}}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/delete_item",
   "httpMethod": "POST",

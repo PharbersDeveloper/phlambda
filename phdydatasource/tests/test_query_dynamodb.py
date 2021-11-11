@@ -3,26 +3,38 @@ import json
 from src.util.Convert2JsonAPI import Convert2JsonAPI
 from src.models.Execution import Execution
 from src.models.Partition import Partition
+import src.app as app
 
 
 class TestQueryDynamoDB:
 
     def test_dataset_query(self):
-        with open("../events/event_query.json") as file:
-            event = json.loads(file)
-            assert ""
+        with open("../events/event_query.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
 
     def test_dataset_scan(self):
-        with open("../events/event_scan.json") as file:
-            assert ""
+        with open("../events/event_scan.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
 
     def test_dataset_put(self):
-        with open("../events/event_put.json") as file:
-            assert ""
+        with open("../events/event_put.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
 
     def test_dataset_delete(self):
-        with open("../events/event_delete") as file:
-            assert ""
+        with open("../events/event_delete.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
 
     # def test_execution_query(self):
     #     data = [

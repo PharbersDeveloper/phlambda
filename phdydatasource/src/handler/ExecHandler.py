@@ -9,6 +9,14 @@ from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
 
+# import base64
+# from util.AWS.STS import STS
+# from constants.Common import Common
+# sts = STS().assume_role(
+#     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
+#     "Ph-Back-RW"
+# )
+# dynamodb = DynamoDB(sts=sts)
 dynamodb = DynamoDB()
 
 __dynamodb_func = {
@@ -34,7 +42,7 @@ def __queryData(table, body, type_name):
     start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
     conditions = body["conditions"]
 
-    expr = Expression().join_expr(type, conditions)
+    expr = Expression().join_expr(type_name, conditions)
     payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
 
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
@@ -55,7 +63,7 @@ def __putItem(table, body, type_name):
 
 def __deleteItem(table, body, type_name):
     dy_method = __dynamodb_func[type_name]
-    payload = dy_method({"table_name": table, "item": body["conditions"]})
+    payload = dy_method({"table_name": table, "conditions": body["conditions"]})
     return payload
 
 
@@ -68,4 +76,4 @@ __exec_func = {
 
 
 def makeData(table, body, type_name):
-    return __exec_func[type_name](table, body)
+    return __exec_func[type_name](table, body, type_name)

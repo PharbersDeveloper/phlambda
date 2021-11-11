@@ -23,7 +23,7 @@ export default class JSONAPIDelegate {
         this.listener = this.fortuneHTTP(this.store.getStore(), {
             serializers: [[this.jsonApiSerializer]]
         })
-        await this.store.open()
+        // await this.store.open()
     }
 
     public async exec(event: any) {
@@ -38,7 +38,7 @@ export default class JSONAPIDelegate {
         // @ts-ignore
         request._readableState.buffer = buffer
         await this.listener(request, response, buffer)
-        await this.store.close()
+        // await this.store.close()
         return response
     }
 

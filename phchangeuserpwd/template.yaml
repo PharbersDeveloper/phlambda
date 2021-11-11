@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phchdatasource-v2
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambdaHandler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
+      FunctionName: lmd-phchangeuserpwd-V2
+      Description: "在已知密码情况下修改用户密码"
+      MemorySize: 512
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Timeout: 30
+      Environment:
+        Variables:
+          DBNAME: "phplatform"
+          USER: "pharbers"
+          PASSWORD: "Abcde196125"
+          HOST: "192.168.49.199"
+          PORT: "5439"
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

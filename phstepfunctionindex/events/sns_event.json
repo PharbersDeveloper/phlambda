@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "EventSource": "aws:sns",
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "arn:aws:sns:ap-southeast-1:895301689821:PH_NOTICE_GLUE:745a7f18-d188-4f34-84ef-54575a844590",
+      "Sns": {
+        "Type": "Notification",
+        "MessageId": "4776b4bf-915c-5005-8e3d-ed1945dece9d",
+        "TopicArn": "arn:aws:sns:ap-southeast-1:895301689821:PH_NOTICE_GLUE",
+        "Subject": "",
+        "Message": "",
+        "Timestamp": "2021-08-30T12:42:42.382Z",
+        "SignatureVersion": "1",
+        "Signature": "KSUQYAOZWtP2UZRZRyKaJEXMOGpXmQbDfpy9o2wk7bf1VwURfNB2kqY6pnlIpommzNqHCHWMNVkEHctHKGqwE3pIurqA41aWi5c0EYqn9ICnrrtCBdlWMAfqQ8/7PPxuhFHusytsHnk+lhhK4aL+nI+QPBnVEcIlhdlF9lXOWm2ZyJJc+QYh2M4M5WzkK5nNoqsFPW1aFJG6663+BPvjiUsQ4kcb5WiKlMUeiq4CPZReq0QVWDGM/61dECqfYH8fAMFofuSf9h/yhIUxN0gzKi0Rzm/PEVNxoemvrsPOeVakHnScIs8qPzdNvY0rkjicJIwVgO38k1nYgUgE3td3iQ==",
+        "SigningCertUrl": "https://sns.ap-southeast-1.amazonaws.com/SimpleNotificationService-010a507c1833636cd94bdb98bd93083a.pem",
+        "UnsubscribeUrl": "https://sns.ap-southeast-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:ap-southeast-1:895301689821:PH_NOTICE_GLUE:745a7f18-d188-4f34-84ef-54575a844590",
+        "MessageAttributes": {}
+      }
+    }
+  ]
+}

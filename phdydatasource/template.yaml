@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Environment:
+        Variables:
+          GIT_URL: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+      FunctionName: lmd-phdydatasource-V2
+      MemorySize: 1024
+      Description: "DynamoDB数据查询"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Timeout: 600
+

@@ -1,20 +1,20 @@
-import {Logger} from "phnodelayer"
-
 class Index {
     model: any = {
+        stateMachine: {
+            type: String, // 分为AirFlow或Step Function
+            // arn: String,
+            name: String, // 如果是AirFLow name = DAGName|StepFunction name = arn
+            project: String, // 外链project id
+            displayName: String,
+            // version: String,
+        },
         project: {
-            arn: String,
-            name: String,
-            projectName: String,
             provider: String,
-            version: String,
-            executions: { link: "execution", isArray: true, inverse: "projectExecution"}
-        },
-        execution: {
-            projectExecution: { link: "project", inverse: "executions"},
-            arn: String,
-            input: String,
-        },
+            name: String,
+            owner: String,
+            type: String, // saas 无 Flow  pass有Flow
+            created: Date,
+        }
     }
 
     operations = {

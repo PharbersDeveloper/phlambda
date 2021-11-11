@@ -132,6 +132,60 @@ phases:
       - sed -i s/PROJECT_NAME/phxlsxtockhouse/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
       - cd ..
+      - cd phdagcicd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phdagcicd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phdydatasource
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phdydatasource/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phchangeuserpwd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phchangeuserpwd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phcheckversion
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phcheckversion/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phemailrepwd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phemailrepwd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phfrontendcicd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phfrontendcicd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phuploadwebfile
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phuploadwebfile/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phdagcicd
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phdagcicd/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
+      - cd phsyncdyevent
+      - cp ../../README.md src/
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phsyncdyevent/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
 artifacts:
   files:
     - phlambda/**/**

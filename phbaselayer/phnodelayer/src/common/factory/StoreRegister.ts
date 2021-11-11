@@ -1,6 +1,7 @@
 import BaseModel from "../models/BaseModel"
 import Register from "./Register"
 import GetCSInstance from "../../util/GetCSInstance"
+import PhLogger from "../logger/phLogger"
 
 export default class StoreRegister extends Register {
 
@@ -17,7 +18,11 @@ export default class StoreRegister extends Register {
     }
 
     register(model: BaseModel): void {
-        this.typeAnalyzerMap.set(model.name, model)
+        if (this.typeAnalyzerMap.has(model.name)) {
+            PhLogger.info(`${model.name} Config Already Exists`)
+        } else {
+            this.typeAnalyzerMap.set(model.name, model)
+        }
     }
 
     getData(name: string): BaseModel {

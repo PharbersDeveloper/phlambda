@@ -20,9 +20,9 @@ export const PostgresConf: IPhConf = {
     database: "phplatform",
     user: "pharbers",
     password: "Abcde196125",
-    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
-    port: 5432,
-    poolMax: 2,
+    host: "192.168.49.199",
+    port: 5439,
+    poolMax: 1,
     ssl: false,
     idleTimeoutMs: 3000,
     connectionTimeoutMs: 3000

@@ -1,5 +1,3 @@
-import {Logger} from "phnodelayer"
-
 class Index {
     model: any = {
         db: {

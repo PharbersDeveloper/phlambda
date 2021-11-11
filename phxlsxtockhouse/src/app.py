@@ -2,6 +2,7 @@
 
 import os
 import json
+import time
 import http.client
 import urllib.parse
 from util.execl import Excel
@@ -42,12 +43,19 @@ def insertDataset(item, dynamodb):
     label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
+    if title_row == 0:
+        title_row += 1
+    else:
+        title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))
+    print(mapper)
+
     dynamodb.putData({
         "table_name": "dataset",
         "item": {
             "id": file_name,
             "projectId": item["projectId"],
+            "date": int(round(time.time() * 1000)),
             "name": des_table_name,
             "schema": json.dumps(mapper, ensure_ascii=False),
             "label": label,
@@ -73,11 +81,17 @@ def write2Clickhouse(message, mapper):
 
     fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(item["des"], item["type"]), zipMapper)))
 
+    if title_row == 0:
+        title_row += 1
+    else:
+        title_row += 2
+
     # 创建表
     create_table = "CREATE TABLE IF NOT EXISTS {0}.{1} ({2}) ENGINE=MergeTree() PRIMARY KEY version" \
         .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
     print(create_table)
-    executeSql(create_table, "POST")
+    result = executeSql(create_table, "POST")
+    print(result)
 
     res = executeSql("select count(1) from {0} where version = '{1}'".format(des_table_name, version), "POST")
     if int(res.replace("\n", "")) > 0:
@@ -127,7 +141,6 @@ def lambda_handler(event, context):
     try:
         data = []
         for record in records:
-            print(record)
             if record["eventName"].lower() != "insert":
                 continue
 

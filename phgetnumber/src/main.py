@@ -1,36 +1,25 @@
-import os
 import json
-import psycopg2
-import boto3
-
-
-def getDsCount():
-
-    return 0
-
-
-# 暂时不做
-def getFlowCount(tableName, projectId):
-    return 0
-
-
-# 暂时不做
-def getScriptCount():
-    return 0
-
-
-__func_dict = {
-    "ds_count": getDsCount,
-    # "flow_count": getFlowCount,
-    # "script_count": getScriptCount
-}
+from phgetnumber.src.util.AWS.DynamoDB import DynamoDB
 
 
 def lambda_handler(event, context):
-
-    return {}
-    # return {
-    #     'statusCode': 200,
-    #     'headers': {'Access-Control-Allow-Origin': '*'},
-    #     'body': json.dumps(final_res, ensure_ascii=False)
-    # }
+    try:
+        body = eval(event["body"])
+        dynamodb = DynamoDB()
+        result = dynamodb.getTableCount(body["tableName"], body["projectId"])
+    except Exception as e:
+        return {
+            "statusCode": 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": {"message": str(e)}})
+        }
+    else:
+        return {
+            "statusCode": 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": result})
+        }

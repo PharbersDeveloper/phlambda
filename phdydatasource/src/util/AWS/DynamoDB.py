@@ -89,3 +89,14 @@ class DynamoDB:
         return {
             "data": item
         }
+
+    def deleteData(self, data):
+        table_name = data["table_name"]
+        keys = data["conditions"]
+        table = self.dynamodb_resource.Table(table_name)
+        table.delete_item(
+            Key=keys
+        )
+        return {
+            "status": "complete"
+        }

@@ -1,13 +1,13 @@
 {
-  "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}",
+  "body": "{\"table\":\"dataset\",\"item\":{\"projectId\":\"JfSmQBYUpyb4jsei\",\"label\":\"[\\\"测试Tag100\\\",\\\"测试Tag200\\\"]\",\"schema\":\"\",\"date\":100000,\"name\":\"测试不用管\"}}",
   "resource": "/phdydatasource/{type}",
-  "path": "/phdydatasource/query",
+  "path": "/phdydatasource/put_item",
   "httpMethod": "POST",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "type": "scan"
+    "type": "put_item"
   },
   "stageVariables": {
     "baz": "qux"

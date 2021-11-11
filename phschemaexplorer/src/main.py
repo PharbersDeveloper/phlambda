@@ -81,7 +81,7 @@ def lambda_handler(event, context):
         out_number = int(body.get("out_number")) if int(body.get("out_number", 0)) > 0 else 20
         result = {
             "sheets": wb.sheetnames,
-            "body": get_excel_data(wb, sheets, out_number, skip_first, skip_next)
+            "body": get_excel_data(wb, sheets, out_number, 0 if skip_first < 0 else skip_first, 0 if skip_next < 0 else skip_next)
         }
 
         return {

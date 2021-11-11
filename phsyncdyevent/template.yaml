@@ -22,4 +22,11 @@ Resources:
       Description: "DynamoDB Event Sync"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 600
+      Events:
+        Type: DynamoDB
+        Properties:
+          Stream: arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files
+          StartingPosition: TRIM_HORIZON
+          BatchSize: 1
+          Enabled: No
 

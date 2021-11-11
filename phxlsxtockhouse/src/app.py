@@ -65,8 +65,8 @@ def insertDataset(item, dynamodb):
     write2Clickhouse(message, mapper)
 
 
-def getExcelMapper(file_name, sheet_name, skip_first):
-    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first)
+def getExcelMapper(file_name, sheet_name, skip_first, skip_next=0):
+    result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first, skip_next)
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
 
 
@@ -125,6 +125,7 @@ def write2Clickhouse(message, mapper):
 
 
 def lambda_handler(event, context):
+    print(event)
     records = event["Records"]
     dynamodb = DynamoDB()
     # import base64

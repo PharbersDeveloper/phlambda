@@ -109,7 +109,7 @@ class Excel:
                     break
 
     @staticmethod
-    def getSchema(path, sheet_name, skip_first):
+    def getSchema(path, sheet_name, skip_first, skip_next=0):
         wb = openpyxl.load_workbook(filename=path, read_only=True, keep_links=False, data_only=True)
         ws = wb[sheet_name]
         rows = ws.iter_rows(min_row=skip_first, max_row=skip_first)

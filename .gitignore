@@ -167,6 +167,7 @@ phcatlog/.ph-lambda-deploy.yaml
 
 phplatform/phplatform-report-directory/
 
+
 phdydatasource/package.yaml
 
 phsyncdyevent/package.yaml
@@ -176,3 +177,5 @@ phschemaexplorer/package.yaml
 phschemaexplorer/buildspec.yaml
 
 phxlsxtockhouse/buildspec.yaml
+
+.gradle

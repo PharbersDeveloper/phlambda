@@ -45,8 +45,8 @@ def download_resource(resource_path, download_path):
 def zip_code(local_path, git_event):
     git_commit_version = git_event["git_commit_version"]
     codebuild_projects_name = ["python3",
-                   "nodejs",
-                   ]
+                               "nodejs",
+                               ]
     # 删除.git文件
     rm_cmd = "rm -rf /tmp/phlambda/.git"
     os.system(rm_cmd)
@@ -67,7 +67,7 @@ def zip_code(local_path, git_event):
         print("下载对应buildspec.yaml成功")
         # 2打包代码
         os.chdir("/tmp")
-        zip_cmd = "zip -r -q " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
+        zip_cmd = "zip -r " + project + "code.zip phlambda README.md " + project + "buildspec.yaml"
         os.system(zip_cmd)
         print("2打包代码成功")
 

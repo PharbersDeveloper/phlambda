@@ -36,7 +36,7 @@ def finishingEventData(record):
 
 
 def cleanClickHouseData(tableName):
-    sql = "DROP TABLE {0}".format(tableName)
+    sql = "DROP TABLE `{0}`".format(tableName)
     result = executeSql(sql, "POST")
     return 0 if result else 1
 

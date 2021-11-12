@@ -1,10 +1,12 @@
 import boto3
-from constants.Common import Common
+from phgetnumber.src.constants.Common import Common
+from boto3.dynamodb.conditions import Attr
 
 
 class DynamoDB:
 
     def __init__(self, **kwargs):
+        print("init")
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:
@@ -18,7 +20,10 @@ class DynamoDB:
             return
         self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
 
-    def getTableCount(self, tableName):
-        result = self.dynamodb_resource.describe_table(tableName)
-        print(result)
-        return 0
+    def getTableCount(self, tableName, projectId):
+        result = self.dynamodb_resource.Table(tableName)
+        result = result.scan(
+            Select='COUNT',
+            FilterExpression=Attr("projectId").eq(projectId)
+        )
+        return result.get("Count", 0)

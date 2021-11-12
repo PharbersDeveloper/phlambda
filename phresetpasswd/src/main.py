@@ -11,8 +11,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # 1. first thing is to connect db, we use redis as tmp store
-r = redis.StrictRedis(host='pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn', port=6379, db=0)
-# r = redis.StrictRedis(host='localhost', port=6379, db=1)
+r = redis.StrictRedis(host='pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn', port=6379, db=1)
 
 # 2. other version
 g_sender_name = os.environ("SENDER_NAME")
@@ -76,7 +75,7 @@ def sendEmail(address, content_type, html_content, attachments=None, content_sty
 
 def forgetPwdFunc(ctx, address):
     tmp = ''.join([random.randint(1, 9) for i in range(6)])
-    r.set(address, tmp)
+    r.setex(address, value=tmp, time=3600)
     return ctx.replace("%%%%URL%%%%", tmp)
 
 

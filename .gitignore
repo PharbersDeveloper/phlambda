@@ -177,3 +177,10 @@ phschemaexplorer/package.yaml
 phschemaexplorer/buildspec.yaml
 
 .gradle
+phgetnumber/src/constants/__pycache__/
+
+phgetnumber/src/util/__pycache__/__init__.cpython-38.pyc
+
+phgetnumber/src/util/AWS/__pycache__/__init__.cpython-38.pyc
+
+phgetnumber/src/util/AWS/__pycache__/

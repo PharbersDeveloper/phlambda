@@ -7,6 +7,7 @@ from email.header import Header
 from email.mime.base import MIMEBase
 from email import encoders
 import boto3
+import random
 
 os_env = os.environ
 
@@ -46,6 +47,11 @@ def sendEmail(target_address, content_type, html_content, attachments=None, cont
             status = {"message": "send_file_failure"}
             return {
                 "statusCode": 500,
+                "headers": {
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+                },
                 "body": json.dumps(status)
             }
         server = smtplib.SMTP_SSL(os_env['HOST'], os_env['PORT'])
@@ -54,6 +60,11 @@ def sendEmail(target_address, content_type, html_content, attachments=None, cont
         server.quit
     return {
         "statusCode": 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        },
         "body": json.dumps(status)
     }
 
@@ -68,16 +79,23 @@ def templateRead(bucket, key):  # 从s3读取html模板
         content = response['Body'].read().decode()
         return [True, content]
     except:
-        return [False, {"statusCode": 500, "body": json.dumps({"error": "template_cant_request"})}]
+        return [False, {"statusCode": 500,
+                        "headers": {
+                            "Access-Control-Allow-Headers": "Content-Type",
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+                        },
+                        "body": json.dumps({"error": "template_cant_request"})}]
 
 
 def typeChoice(event):  # 选择发送哪个邮件
     url_name = {"forget_password": "修改密码请点击我", "test": "点击此处浏览官方网站"}
-    url_address = {"forget_password": "baidu.com", "test": "https://www.pharbers.com/"}
+    url_address = {"forget_password": "https://www.accounts.pharbers.com:4200/resetPasswordPage/", "test": "https://www.pharbers.com/"}
     if event['content_type'] == "forget_password":
         judge, html_content = templateRead(os_env['BUCKET'], os_env['KEY_PWD'])
         if judge:
             html_content = html_content.format(event["subject"])
+            html_content = html_content.replace("$$$验证码$$$", str(random.randint(100000, 1000000)))
             html_content = html_content.replace("$$$URL$$$", url_name['forget_password'])  # 更改URL名字
             html_content = html_content.replace("$$$URL_ADDRESS$$$", url_address["forget_password"])  # 更改URL路径
             email_status = sendEmail(target_address=event['target_address'],
@@ -104,6 +122,11 @@ def typeChoice(event):  # 选择发送哪个邮件
     else:
         return {
             "statusCode": 500,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
             "body": json.dumps({"message": "no_this_content_type"})
         }
 
@@ -117,5 +140,10 @@ def lambdaHandler(event, context):  # 主函数入口
     except Exception as e:
         return {
             "statusCode": 500,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
             "body": json.dumps({"error": str(e)})
         }

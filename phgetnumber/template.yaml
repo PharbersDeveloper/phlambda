@@ -14,7 +14,7 @@ Resources:
       FunctionName: lmd-phgetnumber-dev
       Description: "获取DS、Script、Model、IDE、Analysis等数量"
       MemorySize: 1024
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
       Tags:
         - Key: edition

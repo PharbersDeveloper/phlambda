@@ -1,12 +1,11 @@
 import boto3
-from phgetnumber.src.constants.Common import Common
+from src.constants.Common import Common
 from boto3.dynamodb.conditions import Attr
 
 
 class DynamoDB:
 
     def __init__(self, **kwargs):
-        print("init")
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:

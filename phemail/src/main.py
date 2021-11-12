@@ -12,7 +12,6 @@ from email import encoders
 
 # 1. first thing is to connect db, we use redis as tmp store
 r = redis.StrictRedis(host='pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn', port=6379, db=1)
-# r = redis.StrictRedis(host='localhost', port=6379, db=1)
 
 # 2. other version
 g_sender_name = os.environ("SENDER_NAME")

@@ -215,16 +215,28 @@ phases:
       - sed -i s/PROJECT_NAME/phuseragent/  ./samdeploylmd.sh
       - sh samdeploylmd.sh
       - cd ..
+      - cd phplatform
+      - ln -s /environment/node/code/node_modules node_modules
+      - mkdir lmdcode
+      - npm run build
+      - npm run test
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+      - cp ../../README.md lmdcode
+      - curl https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/samdeploylmd.sh -o samdeploylmd.sh
+      - sed -i s/PROJECT_NAME/phplatform/  ./samdeploylmd.sh
+      - sh samdeploylmd.sh
+      - cd ..
 artifacts:
   files:
     - phlambda/**/**
   type: zip
   name: $PROJECT_NAME-$(date +%Y-%m-%d)
   s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
-#
-#reports:
-#  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
-#    files:
-#      - $PROJECT_NAME-report-file.xml
-#    base-directory: $PROJECT_NAME-report-directory
-#    file-format: JUNITXML
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+    files:
+      - phplatform-report-file.xml
+    base-directory: phplatform-report-directory
+    file-format: JUNITXML

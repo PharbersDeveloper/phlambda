@@ -1,13 +1,13 @@
 {
-  "body": "{\"table\": \"action\",\"item\": {\"projectId\": \"xx1ioq\", \"owner\": \"qq\", \"showName\": \"alex\", \"time\": 1635338830187, \"code\": \"1\", \"jobDesc\": \"test\", \"jobCat\": \"aaaa\", \"comments\": \"aaa\", \"message\": \"dadas\", \"date\":1635338845343}}",
+  "body": "{\"table\":\"dataset\",\"conditions\":{\"id\":\"001\",\"projectId\":\"JfSmQBYUpyb4jsei\"}}",
   "resource": "/phdydatasource/{type}",
-  "path": "/phdydatasource/query",
+  "path": "/phdydatasource/delete_item",
   "httpMethod": "POST",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "type": "scan"
+    "type": "delete_item"
   },
   "stageVariables": {
     "baz": "qux"

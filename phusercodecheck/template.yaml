@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phusercodecheck-DEV
+Description: cicd lambda phusercodecheck-v2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-      FunctionName: lmd-phusercodecheck-DEV
+      FunctionName: lmd-phusercodecheck-V2
       Description: "判断用户发送的验证码是否正确"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

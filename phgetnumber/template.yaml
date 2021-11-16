@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phgetnumber-V2
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
+      FunctionName: lmd-phgetnumber-V2
+      Description: "获取DS、Script、Model、IDE、Analysis等数量"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Timeout: 30
+      Tags:
+        - Key: edition
+          Value: dev
+        - Key: owner
+          Value: pqian
+        - Key: version
+          Value: Alpha # Beta 0.0.1-Release
+        - Key: api
+          Value: v1
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

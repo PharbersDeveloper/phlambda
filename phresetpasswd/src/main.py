@@ -48,17 +48,18 @@ def lambdaHandler(event, context):  # 主函数入口
         event = json.loads(event["body"])
         for address in event["target_address"]:
             code = redisSetCode(address)
-            url_tokens = 'https://www.accounts.pharbers.com:4200/resetPasswordPage/' + "?token=" + creat_token(address)  # 生成token加在url里
+            # url_tokens = 'https://www.accounts.pharbers.com:4200/resetPasswordPage/' + "?token=" + creat_token(address)  # 生成token加在url里
             events = {
                 "body": json.dumps({
                     "address": address,
                     "code": code,
-                    "url_tokens": url_tokens,
+                    # "url_tokens": url_tokens,
                     "content_type": event["content_type"],
                     "subject": event["subject"],
                     "attachments": event["attachments"]
                 })
             }
+
             lmd_client = boto3.client("lambda")
             response = lmd_client.invoke(  # 调用phemail发送邮件lambda函数
                 FunctionName='lmd-phemail-dev',

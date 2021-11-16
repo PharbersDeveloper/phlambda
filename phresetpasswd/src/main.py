@@ -61,7 +61,7 @@ def lambdaHandler(event, context):  # 主函数入口
             }
             lmd_client = boto3.client("lambda")
             response = lmd_client.invoke(  # 调用phemail发送邮件lambda函数
-                FunctionName='lmd-phemail-V2',
+                FunctionName='lmd-phemail-dev',
                 Payload=json.dumps(events).encode()
             )
         result_message = {

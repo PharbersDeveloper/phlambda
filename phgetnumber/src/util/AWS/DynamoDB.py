@@ -1,5 +1,5 @@
 import boto3
-from src.constants.Common import Common
+from phgetnumber.src.constants.Common import Common
 from boto3.dynamodb.conditions import Attr
 
 

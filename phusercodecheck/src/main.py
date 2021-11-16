@@ -33,16 +33,12 @@ def lambdaHandler(event, context):  # 主函数入口
     except redis.exceptions.ConnectionError as e:
         result_message = {
                 "status": "error",
-                "error": {
-                    "message": "redis false:" + str(e)
-                }
+                "message": "redis false:" + str(e)
             }
     except Exception as e:
         result_message = {
             "status": "error",
-            "error": {
-                "message": str(e)
-            }
+            "message": str(e)
         }
     if result_message["status"] == "error":
         status_code = 503

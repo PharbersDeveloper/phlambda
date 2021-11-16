@@ -8,6 +8,7 @@ import urllib.parse
 from util.execl import Excel
 from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key, Attr
+from util.GenerateID import GenerateID
 
 __BATCH_SIZE = "BATCH_SIZE"
 # __CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
@@ -74,6 +75,32 @@ def insertDataset(item, dynamodb):
         }
     })
     write2Clickhouse(message, mapper)
+
+    print("Alex Notification =>>>>>> \n")
+    print(item)
+    # TODO： 硬code + 无防御，有机会重构
+    dynamodb.putData({
+        "table_name": "notification",
+        "item": {
+            "id": item["id"],
+            "projectId": item["projectId"],
+            "code": 0,
+            "comments": "",
+            "date": int(round(time.time() * 1000)),
+            "jobCat": "notification",
+            "jobDesc": "success",
+            "message": json.dumps({
+                "type": "operation",
+                "opname": item["owner"],
+                "opgroup": message.get("opgroup", "0"),
+                "cnotification": {
+                    "status": "project_file_to_DS_succeed"
+                }
+            }),
+            "owner": item["owner"],
+            "showName": item["showName"]
+        }
+    })
 
 
 def getExcelMapper(file_name, sheet_name, skip_first):

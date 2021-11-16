@@ -8,6 +8,7 @@ from models.Action import Action
 from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
+from models.Notification import Notification
 
 # import base64
 # from util.AWS.STS import STS
@@ -32,7 +33,8 @@ __table_structure = {
     "action": Action,
     "project_files": ProjectFile,
     "partition": Partition,
-    "dataset": DataSet
+    "dataset": DataSet,
+    "notification": Notification
 }
 
 
@@ -77,3 +79,24 @@ __exec_func = {
 
 def makeData(table, body, type_name):
     return __exec_func[type_name](table, body, type_name)
+
+
+# if __name__ == '__main__':
+#     # result = Expression().join_expr("scan", {"name": ["=", "alex"], "id": ["in", ["001", "002"]]})
+#     # print(result)
+#     import base64
+#     from util.AWS.STS import STS
+#     from constants.Common import Common
+#
+#     sts = STS().assume_role(
+#         base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
+#         "Ph-Back-RW"
+#     )
+#     dynamodb = DynamoDB(sts=sts)
+#     result = dynamodb.scanTable({
+#         "table_name": "notification",
+#         "limit": 100,
+#         "expression":  Expression().join_expr("scan", {"id": ["in", ["3a3fee85d91cfaad226efe98f01c1c9e.xlsx", "d69a88e8bc94a2b67149f2c1a3663f08.xlsx"]]}),
+#         "start_key": ""
+#     })
+#     print(result)

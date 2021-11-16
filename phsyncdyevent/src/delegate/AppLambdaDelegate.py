@@ -47,6 +47,7 @@ class AppLambdaDelegate:
                 item["size"] = size
                 item["status"] = "upload_succeed"
                 print("Alex ====> \n")
+                print(item)
                 propertys = json.loads(item["property"])
 
                 self.dynamodb.putData({
@@ -55,9 +56,9 @@ class AppLambdaDelegate:
                 })
                 # TODO： 硬code + 无防御，有机会重构
                 self.dynamodb.putData({
-                    "table_name": "action",
+                    "table_name": "notification",
                     "item": {
-                        "id": GenerateID.generate(),
+                        "id": id,
                         "projectId": propertys["projectId"],
                         "code": 0,
                         "comments": "",
@@ -69,17 +70,15 @@ class AppLambdaDelegate:
                             "opname": propertys["opname"],
                             "opgroup": propertys["opgroup"],
                             "cnotification": {
-                                "status": "upload_succeed",
-                                "file": id
+                                "status": "upload_succeed"
                             }
                         }),
-                        "owner": propertys["opname"],
+                        "owner": propertys["owner"],
                         "showName": propertys["showName"]
                     }
                 })
 
         except Exception as e:
-            print(e)
             return {
                 "statusCode": 500,
                 "body": json.dumps({

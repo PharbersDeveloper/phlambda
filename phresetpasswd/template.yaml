@@ -17,3 +17,10 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phjwt:1
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

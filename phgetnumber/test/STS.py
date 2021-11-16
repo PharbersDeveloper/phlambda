@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import boto3
 import botocore.exceptions
-from util.AWS.PhAWS import PhAWS
-from constants.Common import Common
+from phgetnumber.test.PhAWS import PhAWS
+from phgetnumber.src.constants.Common import Common
 
 
 class STS(PhAWS):

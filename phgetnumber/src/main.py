@@ -1,5 +1,5 @@
 import json
-from util.AWS.DynamoDB import DynamoDB
+from phgetnumber.src.util.AWS.DynamoDB import DynamoDB
 
 
 def lambda_handler(event, context):
@@ -9,7 +9,7 @@ def lambda_handler(event, context):
         result = dynamodb.getTableCount(body["tableName"], body["projectId"])
     except Exception as e:
         return {
-            "statusCode": 200,
+            "statusCode": 503,
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
@@ -23,4 +23,3 @@ def lambda_handler(event, context):
             },
             "body": json.dumps({"message": result})
         }
-

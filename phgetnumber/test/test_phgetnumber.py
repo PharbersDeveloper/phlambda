@@ -1,8 +1,6 @@
 import pytest
 import json
-
-
-from src.main import lambda_handler
+from phgetnumber.src.main import lambda_handler
 
 
 class TestLmd:
@@ -11,8 +9,7 @@ class TestLmd:
             event = json.load(f)
         result = lambda_handler(event, " ")
         result = json.loads(result["body"])
-        print(result)
-        assert result["message"] == 3
+        assert result["message"] == 7
 
     def test_lmd_false(self):
         with open("../events/test_lmd_false.json") as f:

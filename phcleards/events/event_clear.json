@@ -1,0 +1,68 @@
+{
+  "Records": [
+    {
+      "eventID": "8f24769b99ce83c69076964fe784839e",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1636696845,
+        "Keys": {
+          "id": {
+            "S": "eULKK6I-KdrD6nj"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "NewImage": {
+          "date": {
+            "N": "1636010256565"
+          },
+          "owner": {
+            "S": "000"
+          },
+          "jobCat": {
+            "S": "clear_DS_data"
+          },
+          "code": {
+            "N": "0"
+          },
+          "comments": {
+            "S": "测试"
+          },
+          "showName": {
+            "S": "alfred"
+          },
+          "id": {
+            "S": "eULKK6I-KdrD6nj"
+          },
+          "message": {
+            "M": {
+              "dsid": {
+                "S": "1f6e029418b3b1de40eeba956210b846.xlsx"
+              },
+              "destination": {
+                "S": "fdgsgsb"
+              },
+              "version": {
+                "S": "a"
+              }
+            }
+          },
+          "jobDesc": {
+            "S": "running"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "SequenceNumber": "100493600000000003337009385",
+        "SizeBytes": 253,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729"
+    }
+  ]
+}

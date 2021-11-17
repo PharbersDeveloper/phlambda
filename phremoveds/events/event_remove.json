@@ -1,0 +1,110 @@
+{
+  "Records": [
+    {
+      "eventID": "648a41ba76caca4b5c6f8d2a9bdd5c20",
+      "eventName": "MODIFY",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1636707471,
+        "Keys": {
+          "id": {
+            "S": "irT8VuP6oupvfMB"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "NewImage": {
+          "date": {
+            "N": "1636707467859"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "remove_DS"
+          },
+          "code": {
+            "N": "0"
+          },
+          "comments": {
+            "S": "delete_dataset"
+          },
+          "showName": {
+            "S": "张璐"
+          },
+          "id": {
+            "S": "irT8VuP6oupvfMB"
+          },
+          "message": {
+            "M": {
+              "dsid": {
+                "S": "f090233436165f91cd74c0270022599c.xlsx"
+              },
+              "destination": {
+                "S": "dst_422"
+              },
+              "version": {
+                "S": ""
+              }
+            }
+          },
+          "jobDesc": {
+            "S": "success"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "OldImage": {
+          "date": {
+            "N": "1636706941038"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "remove_DS"
+          },
+          "code": {
+            "N": "0"
+          },
+          "comments": {
+            "S": "delete_dataset"
+          },
+          "showName": {
+            "S": "张璐"
+          },
+          "id": {
+            "S": "irT8VuP6oupvfMB"
+          },
+          "message": {
+            "M": {
+              "dsid": {
+                "S": "f090233436165f91cd74c0270022599c.xlsx"
+              },
+              "destination": {
+                "S": "dst_422"
+              },
+              "version": {
+                "S": ""
+              }
+            }
+          },
+          "jobDesc": {
+            "S": "running"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "SequenceNumber": "100679000000000002022142948",
+        "SizeBytes": 530,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729"
+    }
+  ]
+}

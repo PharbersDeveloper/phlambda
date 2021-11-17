@@ -8,46 +8,46 @@ from email.header import Header
 from email.mime.base import MIMEBase
 from email import encoders
 
-# 1. first thing is to connect db, we use redis as tmp store
-
-# 2. other version
 g_sender_name = os.getenv("SENDER_NAME")
 g_host = os.getenv("HOST")
 g_port = os.getenv("PORT")
 g_username = os.getenv("USER")
 g_pwd = os.getenv("PSWD")
 g_sender = os.getenv("SENDER")
-g_bucket = os.getenv("BUCKET")  # "ph-platform"
-# g_key = "ph-platform"
+g_bucket = os.getenv("BUCKET")
+g_key_pwd = os.getenv("KEY_PWD")
+g_key_test = os.getenv("KEY_TEST")
 
-# 3. global email ssl
 server = smtplib.SMTP_SSL(g_host, g_port)
 server.login(g_username, g_pwd)
 
 
-def loadContent(ttype, code):
-    type_key = {
-        "forget_password": os.getenv("KEY_PWD"),
-        "test": os.getenv("KEY_FILE")
-    }
-    func = {
-        "forget_password": forgetPwdFunc,
-        "test": testFunc
-    }
+def forgetPassword(html_content, code, url_tokens):  # 忘记密码html页面处理
+    url = url_tokens
+    html_content = html_content.replace("$$$验证码$$$", code)
+    html_content = html_content.replace("$$$URL_ADDRESS$$$", url)
+    html_content = html_content.replace("$$$URL$$$", "点击我修改密码")
+    return html_content
 
+
+def tes(html_content, code):
+    pass
+
+
+def loadContent(code, tokens, content_type):  # 选择获取哪个存储桶内容， 并处理网页内容
+    func = {"forget_password": forgetPassword, "test": tes}
+    key_choice = {"forget_password": g_key_pwd, "test": g_key_test}
     client = boto3.client('s3')
-    response = client.get_object(
-        Bucket=g_bucket,
-        Key=type_key[ttype]
-    )
-    return func[ttype](response['Body'].read().decode(), code)
+    response = client.get_object(Bucket=g_bucket, Key=key_choice[content_type])['Body'].read().decode()
+    html_content = func[content_type](response, code, tokens)
+    return html_content
 
 
 def sendEmail(address, subject, html_content, attachments=[], content_style='html'):  # 发送邮件
     msg = MIMEMultipart()
     msg.attach(MIMEText(html_content, content_style, 'utf-8'))
-    msg['From'] = Header(g_sender_name)
-    msg['To'] = Header(address, "utf-8")
+    msg['From'] = Header(g_sender_name, 'utf-8')
+    msg['To'] = Header(address, 'utf-8')
     msg['Subject'] = Header(subject, "utf-8")
     for attach_file in attachments:
         if attach_file['file_name'].endswith('png'):
@@ -70,14 +70,6 @@ def sendEmail(address, subject, html_content, attachments=[], content_style='htm
     server.sendmail(g_sender, address, msg.as_string())
 
 
-def forgetPwdFunc(ctx, tmp):
-    return ctx.replace("$$$URL$$$", tmp)
-
-
-def testFunc(ctx):
-    return ctx
-
-
 def lambdaHandler(event, context):  # 主函数入口
     result_code = 200
     result_message = {}
@@ -85,12 +77,11 @@ def lambdaHandler(event, context):  # 主函数入口
         event = event['body']
         if type(event) == str:
             event = json.loads(event)
-
-        sendEmail(address=event['address'],
-                  subject=event['subject'],
-                  html_content=loadContent(event['content_type'], event['code']),
-                  attachments=event['attachments'],
-                  content_style="html")
+        sendEmail(address=event["address"],
+                  subject=event["subject"],
+                  html_content=loadContent(event["code"], event["url_tokens"], event["content_type"]),
+                  attachments=event["attachments"],
+                  )
         result_message = {
             "status": "ok",
             "data": {
@@ -114,20 +105,18 @@ def lambdaHandler(event, context):  # 主函数入口
     except Exception as e:
         result_message = {
             "status": "error",
-            "error": {
-                "message": "Unknown Error"
+            "data": {
+                "message": "email send failure: " + str(e)
             }
         }
-
     if result_message["status"] == "error":
         result_code = 503
-
     return {
         "statusCode": result_code,
         "headers": {
             "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
         },
         "body": json.dumps(result_message)
     }

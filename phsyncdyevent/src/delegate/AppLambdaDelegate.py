@@ -1,7 +1,8 @@
 import os
 import json
 from util.AWS.DynamoDB import DynamoDB
-
+from util.GenerateID import GenerateID
+import time
 
 class AppLambdaDelegate:
 
@@ -45,31 +46,43 @@ class AppLambdaDelegate:
                 size = self.size_format(os.path.getsize(path + id))
                 item["size"] = size
                 item["status"] = "upload_succeed"
-                print(item)
+                print("Alex ====> \n")
+                propertys = json.loads(item["property"])
+
                 self.dynamodb.putData({
                     "table_name": "project_files",
                     "item": item
                 })
+                # TODO： 硬code + 无防御，有机会重构
+                self.dynamodb.putData({
+                    "table_name": "action",
+                    "item": {
+                        "id": GenerateID.generate(),
+                        "projectId": propertys["projectId"],
+                        "code": 0,
+                        "comments": "",
+                        "date": int(round(time.time() * 1000)),
+                        "jobCat": "notification",
+                        "jobDesc": "success",
+                        "message": json.dumps({
+                            "type": "notification",
+                            "opname": propertys["opname"],
+                            "opgroup": propertys["opgroup"],
+                            "cnotification": {
+                                "status": "upload_succeed",
+                                "file": id
+                            }
+                        }),
+                        "owner": propertys["opname"],
+                        "showName": propertys["showName"]
+                    }
+                })
 
         except Exception as e:
+            print(e)
             return {
                 "statusCode": 500,
-                "headers": {
-                    "Access-Control-Allow-Headers": "Content-Type",
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-                },
                 "body": json.dumps({
                     "message": "server error;" + e
                 })
             }
-
-        # return {
-        #     "statusCode": 200,
-        #     "headers": {
-        #         "Access-Control-Allow-Headers": "Content-Type",
-        #         "Access-Control-Allow-Origin": "*",
-        #         "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-        #     },
-        #     "body": json.dumps(json_api_data)
-        # }

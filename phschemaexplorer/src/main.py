@@ -16,7 +16,7 @@ def get_excel_data(wb, sheets, out_number, skip_first, skip_next):
     def get_sheet(sheet):
         ws = wb[sheet]
         excel_data = []
-        rows = ws.iter_rows(min_row=skip_first + 1 if skip_first == 0 else skip_first + 2 , max_row=skip_first + out_number + 1)
+        rows = ws.iter_rows(min_row=skip_first + 1 if skip_first > 0 else skip_first, max_row=skip_first + out_number + 1)
         for row in rows:
             cells = [str(cell.value) for cell in row]
             none_set = "".join(list(set(cells)))

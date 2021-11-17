@@ -179,3 +179,7 @@ phschemaexplorer/buildspec.yaml
 phxlsxtockhouse/buildspec.yaml
 
 .gradle
+
+phcleards/buildspec.yaml
+
+phremoveds/buildspec.yaml

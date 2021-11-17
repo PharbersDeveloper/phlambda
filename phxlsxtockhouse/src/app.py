@@ -38,6 +38,35 @@ def updateAction(item, dynamodb, state):
     })
 
 
+def insterNotification(item, dynamodb, state, error):
+    print("Alex Notification =>>>>>> \n")
+    print(item)
+    message = json.loads(item["message"])
+    # TODO： 硬code + 无防御，有机会重构
+    dynamodb.putData({
+        "table_name": "notification",
+        "item": {
+            "id": item["id"],
+            "projectId": item["projectId"],
+            "code": 0,
+            "comments": "",
+            "date": int(round(time.time() * 1000)),
+            "jobCat": "notification",
+            "jobDesc": state,
+            "message": json.dumps({
+                "type": "operation",
+                "opname": item["owner"],
+                "opgroup": message.get("opgroup", "0"),
+                "cnotification": {
+                    "status": "project_file_to_DS_{}".format(state),
+                    "error": error
+                }
+            }),
+            "owner": item["owner"],
+            "showName": item["showName"]
+        }
+    })
+
 def insertDataset(item, dynamodb):
     message = json.loads(item["message"])
     title_row = message["skipValue"]
@@ -75,32 +104,6 @@ def insertDataset(item, dynamodb):
         }
     })
     write2Clickhouse(message, mapper)
-
-    print("Alex Notification =>>>>>> \n")
-    print(item)
-    # TODO： 硬code + 无防御，有机会重构
-    dynamodb.putData({
-        "table_name": "notification",
-        "item": {
-            "id": item["id"],
-            "projectId": item["projectId"],
-            "code": 0,
-            "comments": "",
-            "date": int(round(time.time() * 1000)),
-            "jobCat": "notification",
-            "jobDesc": "success",
-            "message": json.dumps({
-                "type": "operation",
-                "opname": item["owner"],
-                "opgroup": message.get("opgroup", "0"),
-                "cnotification": {
-                    "status": "project_file_to_DS_succeed"
-                }
-            }),
-            "owner": item["owner"],
-            "showName": item["showName"]
-        }
-    })
 
 
 def getExcelMapper(file_name, sheet_name, skip_first):
@@ -195,9 +198,11 @@ def lambda_handler(event, context):
                     history = item
                     insertDataset(item, dynamodb)
                     updateAction(item, dynamodb, "created")
+                    insterNotification(item, dynamodb, "succeed", "")
 
     except Exception as e:
         print("error: \n")
         print(e)
         updateAction(history, dynamodb, "failed")
+        insterNotification(item, dynamodb, "failed", str(e))
     return {}

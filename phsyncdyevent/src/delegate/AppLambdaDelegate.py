@@ -4,6 +4,7 @@ from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 import time
 
+
 class AppLambdaDelegate:
 
     def __init__(self, **kwargs):
@@ -21,12 +22,53 @@ class AppLambdaDelegate:
         # self.dynamodb = DynamoDB(sts=sts)
 
     def size_format(self, size):
-        return '%.0f' % round(float(size/1024))
+        return '%.0f' % round(float(size / 1024))
+
+    def insertNotification(self, item, state, error):
+        propertys = json.loads(item["property"])
+        # TODO： 硬code + 无防御，有机会重构
+        self.dynamodb.putData({
+            "table_name": "notification",
+            "item": {
+                "id": item["id"],
+                "projectId": propertys["projectId"],
+                "code": 0,
+                "comments": "",
+                "date": int(round(time.time() * 1000)),
+                "jobCat": "notification",
+                "jobDesc": state,
+                "message": json.dumps({
+                    "type": "notification",
+                    "opname": propertys["opname"],
+                    "opgroup": propertys["opgroup"],
+                    "cnotification": {
+                        "status": "upload_{}".format(state),
+                        "error": error
+                    }
+                }),
+                "owner": propertys["owner"],
+                "showName": propertys["showName"]
+            }
+        })
+
+    def insterProjectFile(self, item, state):
+        path = os.getenv("UPLOAD_PATH")
+        size = self.size_format(os.path.getsize(path + item["id"]))
+        item["size"] = size
+        item["status"] = "upload_{}".format(state)
+
+        print("Alex ====> \n")
+        print(item)
+
+        self.dynamodb.putData({
+            "table_name": "project_files",
+            "item": item
+        })
 
     def exec(self):
         event = self.event
         records = event["Records"]
-        path = os.getenv("UPLOAD_PATH")
+        history = {}
         try:
             data = []
             for record in records:
@@ -42,46 +84,10 @@ class AppLambdaDelegate:
                     data.append(item)
 
             for item in data:
-                id = item["id"]
-                size = self.size_format(os.path.getsize(path + id))
-                item["size"] = size
-                item["status"] = "upload_succeed"
-                print("Alex ====> \n")
-                print(item)
-                propertys = json.loads(item["property"])
-
-                self.dynamodb.putData({
-                    "table_name": "project_files",
-                    "item": item
-                })
-                # TODO： 硬code + 无防御，有机会重构
-                self.dynamodb.putData({
-                    "table_name": "notification",
-                    "item": {
-                        "id": id,
-                        "projectId": propertys["projectId"],
-                        "code": 0,
-                        "comments": "",
-                        "date": int(round(time.time() * 1000)),
-                        "jobCat": "notification",
-                        "jobDesc": "success",
-                        "message": json.dumps({
-                            "type": "notification",
-                            "opname": propertys["opname"],
-                            "opgroup": propertys["opgroup"],
-                            "cnotification": {
-                                "status": "upload_succeed"
-                            }
-                        }),
-                        "owner": propertys["owner"],
-                        "showName": propertys["showName"]
-                    }
-                })
+                history = item
+                self.insterProjectFile(item, "succeed")
+                self.insertNotification(item, "succeed", "")
 
         except Exception as e:
-            return {
-                "statusCode": 500,
-                "body": json.dumps({
-                    "message": "server error;" + e
-                })
-            }
+            self.insterProjectFile(history, "failed")
+            self.insertNotification(history, "failed", str(e))

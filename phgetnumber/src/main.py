@@ -1,5 +1,5 @@
 import json
-from phgetnumber.src.util.AWS.DynamoDB import DynamoDB
+from util.AWS.DynamoDB import DynamoDB
 
 
 def lambda_handler(event, context):

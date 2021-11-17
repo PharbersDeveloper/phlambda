@@ -89,3 +89,33 @@ class DynamoDB:
         return {
             "data": item
         }
+
+    def updateData(self, data):
+        table = self.dynamodb_resource.Table("dag")
+        partition_key = data["partition_key"]
+        sort_key = data["sort_key"]
+        key = {}
+        key.update(partition_key)
+        key.update(sort_key)
+        table.update_item(
+            Key={
+                "projectId": "123",
+                "representId": "321"
+            },
+            AttributeUpdates={
+                "cat": {
+                    "Value": "2",
+                    "Action": "PUT"
+                },
+                "cmessage": {
+                    "Value": "messsssss",
+                    "Action": "PUT"
+                },
+                "ctyoe": {
+                    "Value": "node",
+                    "Action": "PUT"
+                }
+
+            }
+        )
+

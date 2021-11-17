@@ -1,6 +1,6 @@
 import json
 import pytest
-from phresetpwd.src.main_bk import lambdaHandler
+from phemail.src.main_bk import lambdaHandler
 
 
 class TestLmd:

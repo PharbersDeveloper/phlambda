@@ -1,6 +1,6 @@
 import json
 import pytest
-from phresetpasswd.src.main import lambdaHandler
+from phresetpwd.src.main import lambdaHandler
 
 
 class TestLmd:

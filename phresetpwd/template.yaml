@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phresetpasswd-v2
+Description: cicd lambda phresetpwd-v2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresetpasswd-V2
+      FunctionName: lmd-phresetpwd-V2
       Description: "在未知密码情况下给用户发送邮件修改密码"
       MemorySize: 512
       Layers:

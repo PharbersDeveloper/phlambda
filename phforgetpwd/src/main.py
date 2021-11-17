@@ -10,7 +10,7 @@ r = redis.StrictRedis(host='pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.
 
 def redisSetCode(address):  # 生成六位随机数
     code = ''.join([str(random.randint(1, 9)) for i in range(6)])
-    r.setex(address, value=code, time=300)
+    r.setex(address, value=code, time=600)
     return code
 
 

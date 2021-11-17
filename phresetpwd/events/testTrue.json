@@ -1,5 +1,5 @@
 {
-  "body": "{\"email\": \"2091038466@qq.com\",\"password\": \"4c4cc360324690e719a628c83287201cb0a2e0e512b53c33d7135c7ba9dda9d6\"}",
+  "body": "{\"email\": \"test@pharbers.com\",\"password\": \"4c4cc360324690e719a628c83287201cb0a2e0e512b53c33d7135c7ba9dda9d6\"}",
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",

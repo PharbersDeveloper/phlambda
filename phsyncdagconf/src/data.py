@@ -1,21 +1,27 @@
 dag               dagconf
 
 projectId   -->   projectId
-representId -->   随机生成
-cat         -->   if inputs,outputs == job else dataset
+representId -->   job(job_Id) ds(dsI)  link(link_id)
+cat         -->   ds job
 cmessage    -->   inputs,outputs,sourceId,targerId
-ctype       -->   link if cmessage.get(inputs, outputs) == None else node
-name        -->   flow_version + job_name + job_version
-                  runtime
-
+ctype       -->   node link
+name        -->   job dag_name + flow_version + job_name + job_version
+                  ds ds_name
+                  link link_name
+position    -->   x,y,z
+level       -->   1,2,3,4,5
 
 dagconf
 
+
+dag_name      -->  dag_name
 flow_version  -->  branch_name
 job_name      -->  file_name
-inputs        -->  inputs
+job_id        -->  job_id
+inputs        -->  inputs(dsID, dsName)
 outputs       -->  outputs
 job_version   -->  job_version
-projectId     -->  project_name
+projectId     -->  projectId
 timeout       -->  timeout
 runtime       -->  python3,R,pyspark,sparkR
+

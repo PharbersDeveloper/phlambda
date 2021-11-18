@@ -1,5 +1,5 @@
 {
-  "body": "{\"id\": \"qtaGDePl1OrSFEgm\",\"phoneNumber\": \"110\",\"defaultRole\": \"aaa\",\"employer\":\"111\",\"email\": \"test@pharbers.com\",\"password\": \"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582\"}",
+  "body": "{\"account\": {\"email\": \"test@pharbers.com\",\"password\": \"1cd7fc9d631b3541354d5119236bae5f668e02e7c9472d9f0f56f83ccf2bc582\",\"firstName\": \"song\",\"lastName\": \"mengen\"},\"tenant\": {\"name\": \"pharbers\"}}",
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",

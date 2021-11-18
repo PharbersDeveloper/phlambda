@@ -1,0 +1,51 @@
+{
+  "Records": [
+    {
+      "eventID": "87563f81d6d1c910c01481b779844bea",
+      "eventName": "MODIFY",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1637145448.0,
+        "Keys": {
+          "projectId": {
+            "S": "123"
+          },
+          "representId": {
+            "S": "321"
+          }
+        },
+        "NewImage": {
+          "ctype": {
+            "S": "1834"
+          },
+          "cmessage": {
+            "S": "qwasgtyawegyhawgahaehh"
+          },
+          "projectId": {
+            "S": "123"
+          },
+          "representId": {
+            "S": "321"
+          }
+        },
+        "OldImage": {
+          "ctype": {
+            "S": "1834"
+          },
+          "projectId": {
+            "S": "123"
+          },
+          "representId": {
+            "S": "321"
+          }
+        },
+        "SequenceNumber": "30680000000000002083584334",
+        "SizeBytes": 126,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/dag/stream/2021-11-17T10:28:05.834"
+    }
+  ]
+}

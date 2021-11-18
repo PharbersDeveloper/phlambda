@@ -3,5 +3,6 @@ from delegate.AppLambdaDelegate import AppLambdaDelegate
 
 
 def lambda_handler(event, context):
+    print(event)
     app = AppLambdaDelegate(event=event, context=context)
-    return app.exec()
+    app.exec()

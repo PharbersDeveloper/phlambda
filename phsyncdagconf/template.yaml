@@ -9,15 +9,9 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-#      FileSystemConfigs:
-#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
-#          LocalMountPath: /mnt/tmp
-      Environment:
-        Variables:
-          UPLOAD_PATH: "/mnt/tmp/max/tmp"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-      FunctionName: lmd-phsyncdyevent-V2
+      FunctionName: lmd-phsyncdagconf-dev
       MemorySize: 1024
       Description: "DynamoDB Event Sync"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

@@ -1,9 +1,9 @@
 import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
+from util.AWS.STS import STS
 
-
-class DynamoDB:
+class DynamoDB(object):
 
     def __init__(self, **kwargs):
         self.access_key = kwargs.get("access_key", None)
@@ -80,8 +80,6 @@ class DynamoDB:
     def putData(self, data):
         table_name = data["table_name"]
         item = data["item"]
-        if "id" not in item.keys():
-            item["id"] = GenerateID.generate()
         table = self.dynamodb_resource.Table(table_name)
         table.put_item(
             Item=item
@@ -90,32 +88,39 @@ class DynamoDB:
             "data": item
         }
 
-    def updateData(self, data):
+    def updateData(self):
         table = self.dynamodb_resource.Table("dag")
-        partition_key = data["partition_key"]
-        sort_key = data["sort_key"]
-        key = {}
-        key.update(partition_key)
-        key.update(sort_key)
-        table.update_item(
+        # partition_key = data["partition_key"]
+        # sort_key = data["sort_key"]
+        # key = {}
+        # key.update(partition_key)
+        # key.update(sort_key)
+        res = table.update_item(
             Key={
                 "projectId": "123",
                 "representId": "321"
             },
             AttributeUpdates={
-                "cat": {
-                    "Value": "2",
-                    "Action": "PUT"
-                },
+                # "cat": {
+                #     "Value": "3",
+                #     "Action": "PUT"
+                # },
                 "cmessage": {
-                    "Value": "messsssss",
+                    "Value": "qwasgtyawegyhawgahaehh",
                     "Action": "PUT"
                 },
-                "ctyoe": {
-                    "Value": "node",
+                "ctype": {
+                    "Value": "1834",
                     "Action": "PUT"
                 }
 
             }
         )
+        print(res)
 
+
+if __name__ == '__main__':
+    auth = STS()
+    sts = auth.assume_role(Common.ASSUME_ROLE_ARN, Common.ASSUME_ROLE_ARN)
+    dy = DynamoDB(sts=sts)
+    dy.updateData()

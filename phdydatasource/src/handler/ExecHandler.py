@@ -25,6 +25,7 @@ __dynamodb_func = {
     "scan": dynamodb.scanTable,
     "put_item": dynamodb.putData,
     "delete_item": dynamodb.deleteData,
+    "batch_get_item": dynamodb.batchGetItem
 }
 
 __table_structure = {
@@ -40,12 +41,27 @@ __table_structure = {
 
 def __queryData(table, body, type_name):
     dy_method = __dynamodb_func[type_name]
-    limit = body["limit"]
-    start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
+    limit = body.get("limit", 0)
+    start_key = "" if len(body.get("start_key", "")) == 0 else body.get("start_key", "")
     conditions = body["conditions"]
 
     expr = Expression().join_expr(type_name, conditions)
     payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
+
+    result = list(map(lambda item: __table_structure[table](item), payload["data"]))
+    json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
+    json_api_data["meta"] = {
+        "start_key": payload["start_key"]
+    }
+    return json_api_data
+
+
+def __batch_get_items(table, body, type_name):
+    dy_method = __dynamodb_func[type_name]
+    conditions = body["conditions"]
+
+    expr = Expression().assemble_batch_item_keys(conditions)
+    payload = dy_method({"table_name": table, "expression": expr})
 
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
     json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
@@ -73,30 +89,10 @@ __exec_func = {
     "query": __queryData,
     "scan": __queryData,
     "put_item": __putItem,
-    "delete_item": __deleteItem
+    "delete_item": __deleteItem,
+    "batch_get_item": __batch_get_items
 }
 
 
 def makeData(table, body, type_name):
     return __exec_func[type_name](table, body, type_name)
-
-
-# if __name__ == '__main__':
-#     # result = Expression().join_expr("scan", {"name": ["=", "alex"], "id": ["in", ["001", "002"]]})
-#     # print(result)
-#     import base64
-#     from util.AWS.STS import STS
-#     from constants.Common import Common
-#
-#     sts = STS().assume_role(
-#         base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-#         "Ph-Back-RW"
-#     )
-#     dynamodb = DynamoDB(sts=sts)
-#     result = dynamodb.scanTable({
-#         "table_name": "notification",
-#         "limit": 100,
-#         "expression":  Expression().join_expr("scan", {"id": ["in", ["3a3fee85d91cfaad226efe98f01c1c9e.xlsx", "d69a88e8bc94a2b67149f2c1a3663f08.xlsx"]]}),
-#         "start_key": ""
-#     })
-#     print(result)

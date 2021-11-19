@@ -4,36 +4,32 @@ import json
 import time
 from src.util.GenerateID import GenerateID
 
-os.environ['DBNAME'] = "phlatform"
-os.environ['USER'] = "pharbers"
-os.environ['PASSWORD'] = "Abcde196125"
-# os.environ['HOST'] = "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
-os.environ['HOST'] = "localhost"
-os.environ['PORT'] = "5432"
 conn = psycopg2.connect(dbname=os.environ['DBNAME'], user=os.environ['USER'], password=os.environ['PASSWORD'],
                         host=os.environ['HOST'], port=os.environ['PORT'])
 cur = conn.cursor()
 
 
 def partnerSql(id, name, employer, created):
-    sql = "INSERT INTO partner(id, name, employee, created, modified) SELECT 'ID','NAME','{EMPLOYEE}','CREATED','CREATED' " \
-          "WHERE NOT EXISTS(SELECT name FROM partner WHERE name='NAME')"
-    sql = sql.replace("ID", id)
-    sql = sql.replace("NAME", name)
-    sql = sql.replace("EMPLOYEE", employer)
-    sql = sql.replace("CREATED", created)
+    sql = "INSERT INTO partner(id, name, employee, created, modified) SELECT '{id}','{name}','{{employee}}','{created}','{created}' " \
+          "WHERE NOT EXISTS(SELECT name FROM partner WHERE name='{name}')"
+    sql = sql.format(
+        id=id,
+        name=name,
+        created=created,
+        employer=employer
+    )
     cur.execute(sql)
     result = bool(cur.rowcount)
-    print(result)
+    print("partner:"+str(result))
     return result
 
 
 def roleSql(id):
-    sql = "update role set \"accountRole\" = \"accountRole\"||'{ID}' where id='ThhQTGXUcJwv8fd8I5oW'"
+    sql = "UPDATE role SET \"accountRole\" = \"accountRole\"||'{ID}' WHERE id='ThhQTGXUcJwv8fd8I5oW'"
     sql = sql.replace("ID", id)
     cur.execute(sql)
     result = bool(cur.rowcount)
-    print(result)
+    print("role:"+str(result))
     return result
 
 
@@ -54,7 +50,7 @@ def accountSql(id, email, password, firstName, lastName, created, modified, defa
     )
     cur.execute(sql)
     result = bool(cur.rowcount)
-    print(result)
+    print('account'+str(result))
     return result
 
 
@@ -99,6 +95,7 @@ def lambdaHandler(event, context):
         defaultRole = "ThhQTGXUcJwv8fd8I5oW"
         tenant_id = getid.generate()
         account_id = getid.generate()
+
         partner_result = partnerSql(tenant_id, name, account_id, created)
         role_result = roleSql(account_id)
         account_result = accountSql(
@@ -132,9 +129,3 @@ def lambdaHandler(event, context):
         },
         "body": json.dumps(result)
     }
-
-
-if __name__ == "__main__":
-    with open("../events/success_register.json") as f:
-        event = json.load(f)
-    print(lambdaHandler(event, " "))

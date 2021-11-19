@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phuserregister-dev
+Description: cicd lambda phuserregister-v2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
-      FunctionName: lmd-phuserregister-dev
+      FunctionName: lmd-phuserregister-V2
       Description: "用户注册"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

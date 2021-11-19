@@ -2,7 +2,7 @@ import os
 import psycopg2
 import json
 import time
-from src.util.GenerateID import GenerateID
+from util.GenerateID import GenerateID
 
 conn = psycopg2.connect(dbname=os.environ['DBNAME'], user=os.environ['USER'], password=os.environ['PASSWORD'],
                         host=os.environ['HOST'], port=os.environ['PORT'])
@@ -10,14 +10,14 @@ cur = conn.cursor()
 
 
 def partnerSql(id, name, employer, created):
-    sql = "INSERT INTO partner(id, name, employee, created, modified) SELECT '{id}','{name}','{{employee}}','{created}','{created}' " \
+    sql = "INSERT INTO partner(id, name, employee, created, modified) SELECT '{id}','{name}','{{EMPLOYER}}','{created}','{created}' " \
           "WHERE NOT EXISTS(SELECT name FROM partner WHERE name='{name}')"
     sql = sql.format(
         id=id,
         name=name,
-        created=created,
-        employer=employer
+        created=created
     )
+    sql = sql.replace("EMPLOYER", employer)
     cur.execute(sql)
     result = bool(cur.rowcount)
     print("partner:"+str(result))
@@ -79,7 +79,7 @@ def errorStatus(type, e):
 
 
 def lambdaHandler(event, context):
-    # 数据库全部字段id,name,wechatOpenId,password,phoneNumber,defaultRole,email,employer,created,modified,firstName,lastName,picture,notification
+    # account表全部字段id,name,wechatOpenId,password,phoneNumber,defaultRole,email,employer,created,modified,firstName,lastName,picture,notification
     statusCode = 200
     try:
         if type(event["body"]) == str:

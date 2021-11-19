@@ -58,6 +58,22 @@ def accountSql(id, email, password, firstName, lastName, created, modified, defa
     return result
 
 
+def commitTrue():
+    print("提交")
+    conn.commit()
+    return {"status": "ok",
+            "data": {
+                "message": "account creat success"
+            }}
+
+
+def commitFalse():
+    return {"status": "failure",
+            "data": {
+                "message": "account creat failure"
+            }}
+
+
 def errorStatus(type, e):
     return {"status": "error",
             "data": {
@@ -96,18 +112,9 @@ def lambdaHandler(event, context):
             defaultRole=defaultRole,
             employer=tenant_id
         )
-        if (partner_result and role_result and account_result):
-            conn.commit()
-            result = {"status": "ok",
-                      "data": {
-                          "message": "account creat success"
-                      }}
-        else:
-            result = {"status": "failure",
-                      "data": {
-                          "message": "account creat failure"
-                      }}
-        print(result)
+        sql_judgment = {"True": commitTrue, "False": commitFalse}
+        sql_status = str(partner_result and role_result and account_result)
+        result = sql_judgment[sql_status]()
     except psycopg2.OperationalError as e:
         result = errorStatus("PostgreSqlError: ", e)
     except KeyError as e:

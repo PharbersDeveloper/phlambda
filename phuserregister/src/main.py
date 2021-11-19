@@ -25,6 +25,7 @@ def partnerSql(id, name, employer, created):
 
 
 def roleSql(id):
+    # role表中权限为租户的id为ThhQTGXUcJwv8fd8I5oW，因为本功能对应单一接口，为role角色accountRole插入account的id
     sql = "UPDATE role SET \"accountRole\" = \"accountRole\"||'{ID}' WHERE id='ThhQTGXUcJwv8fd8I5oW'"
     sql = sql.replace("ID", id)
     cur.execute(sql)
@@ -92,9 +93,9 @@ def lambdaHandler(event, context):
         lastName = event["account"]["lastName"]
         created = localtime
         modified = localtime
-        defaultRole = "ThhQTGXUcJwv8fd8I5oW"
-        tenant_id = getid.generate()
-        account_id = getid.generate()
+        defaultRole = "ThhQTGXUcJwv8fd8I5oW"  # role表中对应租户的id
+        tenant_id = getid.generate()  # 生成tenant的id
+        account_id = getid.generate()  # 生成account的id
 
         partner_result = partnerSql(tenant_id, name, account_id, created)
         role_result = roleSql(account_id)

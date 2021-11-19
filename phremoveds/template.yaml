@@ -16,11 +16,11 @@ Resources:
           CLICK_DB: default
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-      FunctionName: lmd-phremoveds-dev
+      FunctionName: lmd-phremoveds-V2
       MemorySize: 1024
       Description: "DynamoDB Action Table Event 触发删除对应DS和ClickHouse数据"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
-      Timeout: 600
+      Timeout: 30
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

@@ -185,3 +185,7 @@ phcleards/buildspec.yaml
 phremoveds/buildspec.yaml
 
 phdydatasource/buildspec.yaml
+
+phcleards/package.yaml
+
+phremoveds/package.yaml

@@ -1,5 +1,5 @@
 {
-  "body": "{\"address\": \"2091038466@qq.com\", \"code\": \"486221\", \"content_type\": \"forget_password\", \"subject\": \"密码修改\", \"attachments\": [{\"file_name\": \"test1.yaml\", \"file_context\": [\"PH_NOTICE_EMAIL:\", \"metadata:\", \"name: PH_NOTICE_EMAIL\"]}, {\"file_name\": \"test2.txt\", \"file_context\": [\"xxxxxxxxxxxxxxxxxx\"]}]}",
+  "body": "{\"tableName\":\"dataset\",\"projectId\":\"JfSmQBYUpyb4jsei\"}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

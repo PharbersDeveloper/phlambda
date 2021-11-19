@@ -8,6 +8,7 @@ import urllib.parse
 from util.execl import Excel
 from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key, Attr
+from util.GenerateID import GenerateID
 
 __BATCH_SIZE = "BATCH_SIZE"
 # __CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
@@ -36,6 +37,36 @@ def updateAction(item, dynamodb, state):
         "item": item
     })
 
+
+def insterNotification(item, dynamodb, data, state, error):
+    print("Alex Notification =>>>>>> \n")
+    print(item)
+    message = json.loads(item["message"])
+    # TODO： 硬code + 无防御，有机会重构
+    dynamodb.putData({
+        "table_name": "notification",
+        "item": {
+            "id": item["id"],
+            "projectId": item["projectId"],
+            "code": 0,
+            "comments": "",
+            "date": int(round(time.time() * 1000)),
+            "jobCat": "notification",
+            "jobDesc": state,
+            "message": json.dumps({
+                "type": "operation",
+                "opname": item["owner"],
+                "opgroup": message.get("opgroup", "0"),
+                "cnotification": {
+                    "status": "project_file_to_DS_{}".format(state),
+                    "data": json.dumps(data),
+                    "error": error
+                }
+            }),
+            "owner": item["owner"],
+            "showName": item["showName"]
+        }
+    })
 
 def insertDataset(item, dynamodb):
     message = json.loads(item["message"])
@@ -73,7 +104,7 @@ def insertDataset(item, dynamodb):
             "version": version
         }
     })
-    write2Clickhouse(message, mapper)
+    write2Clickhouse(message, mapper, item, dynamodb)
 
 
 def getExcelMapper(file_name, sheet_name, skip_first):
@@ -81,7 +112,7 @@ def getExcelMapper(file_name, sheet_name, skip_first):
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
 
 
-def write2Clickhouse(message, mapper):
+def write2Clickhouse(message, mapper, item, dynamodb):
     title_row = message["skipValue"]
     skip_next = message["jumpValue"]
     version = message.get("version", "0.0.0")
@@ -102,6 +133,7 @@ def write2Clickhouse(message, mapper):
         .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
     print(create_table)
     result = executeSql(create_table, "POST")
+    print("Create Table ========> \n")
     print(result)
 
     res = executeSql("select count(1) from `{0}` where version = '{1}'".format(des_table_name, version), "POST")
@@ -109,7 +141,7 @@ def write2Clickhouse(message, mapper):
         raise Exception("version already exist")
 
     # excel回调数据
-    def callBack(data, adapted_mapper):
+    def callBack(data, adapted_mapper, batch_size, hit_count):
         cols_description = list(map(lambda col: "`{0}`".format(col['des']), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
@@ -128,6 +160,11 @@ def write2Clickhouse(message, mapper):
         sql = sql + " " + excel_data + ";"
         print(sql)
         executeSql(sql, "POST")
+
+        hit_value = 100 / batch_size
+        progress = round(float(hit_count * hit_value), 2)
+        print("==========> {} \n".format(progress))
+        insterNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
                   sheet_name, title_row, skip_next, mapper,
@@ -173,4 +210,5 @@ def lambda_handler(event, context):
         print("error: \n")
         print(e)
         updateAction(history, dynamodb, "failed")
+        insterNotification(history, dynamodb, {"progress": -1}, "failed", str(e))
     return {}

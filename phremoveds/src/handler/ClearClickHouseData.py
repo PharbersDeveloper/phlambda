@@ -1,8 +1,10 @@
 import time
+import json
 import http.client
 import urllib.parse
 from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key, Attr
+from util.GenerateID import GenerateID
 
 dynamodb = DynamoDB()
 # import base64
@@ -52,7 +54,7 @@ def removeDynamoDBData(tableName, id, projectId):
     return 1
 
 
-def updateActionData(tableName, id):
+def updateActionData(tableName, id, state):
     result = dynamodb.queryTable({
         "table_name": tableName,
         "limit": 1000,
@@ -60,13 +62,45 @@ def updateActionData(tableName, id):
         "start_key": ""
     })["data"]
     if len(result) > 0:
-        result[0]["jobDesc"] = "success"
+        result[0]["jobDesc"] = state
         result[0]["date"] = int(round(time.time() * 1000))
         dynamodb.putData({
             "table_name": tableName,
             "item": result[0]
         })
-    return 1
+
+
+def insertNotification(actionId, state, error):
+    result = dynamodb.queryTable({
+        "table_name": "action",
+        "limit": 1000,
+        "expression": Key('id').eq(actionId),
+        "start_key": ""
+    })["data"]
+    message = json.loads(result[0]["message"])
+    dynamodb.putData({
+        "table_name": "notification",
+        "item": {
+            "id": actionId,
+            "projectId": result[0]["projectId"],
+            "code": 0,
+            "comments": "",
+            "date": int(round(time.time() * 1000)),
+            "jobCat": "notification",
+            "jobDesc": state,
+            "message": json.dumps({
+                "type": "operation",
+                "opname": result[0]["owner"],
+                "opgroup": message.get("opgroup", "0"),
+                "cnotification": {
+                    "status": "remove_DS_{}".format(state),
+                    "error": error
+                }
+            }),
+            "owner": result[0]["owner"],
+            "showName": result[0]["showName"]
+        }
+    })
 
 
 def default(data):
@@ -81,9 +115,21 @@ __func_dict = {
 def run(eventName, jobCat, record):
     item = __func_dict.get(eventName + ":" + jobCat, default)(record)
     if item is not None:
-        message = finishingEventData(item["message"])
-        print(item)
-        result = cleanClickHouseData(message["destination"]) & \
-        removeDynamoDBData("dataset", message["dsid"], item["projectId"]) & \
-        updateActionData("action", item["id"])
-        print(result)
+        try:
+            print("Alex ==> \n")
+            print(item)
+            print(type(item))
+            message = json.loads(item["message"])
+            print(type(message))
+            updateActionData("action", item["id"], "succeed")
+            insertNotification(item["id"], "succeed", "")
+            result = cleanClickHouseData(message["destination"]) & \
+                     removeDynamoDBData("dataset", message["dsid"], item["projectId"])
+            print(result)
+        except Exception as e:
+            print("error ====> \n")
+            print(str(e))
+            updateActionData("action", item["id"], "failed")
+            insertNotification(item["id"], "failed", str(e))
+    else:
+        print("未命中")

@@ -13,14 +13,10 @@ class AppLambdaDelegate:
         for record in records:
             print('EventID: ' + record['eventID'])
             print('EventName: ' + record['eventName'])
-
-            new_image = record["dynamodb"]["NewImage"]
             eventName = record["eventName"].lower()
-            jobCat = new_image["jobCat"]["S"]
-
-            CD.run(eventName, jobCat, new_image)
-        # try:
-        #
-        #
-        # except Exception as e:
-        #     print(e)
+            if eventName == "insert":
+                new_image = record["dynamodb"]["NewImage"]
+                jobCat = new_image["jobCat"]["S"]
+                CD.run(eventName, jobCat, new_image)
+            else:
+                continue

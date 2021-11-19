@@ -44,7 +44,7 @@
     },
     {
       "eventID": "15ac5a09a97d61cf74589776e001ed8a",
-      "eventName": "MODIFY",
+      "eventName": "INSERT",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "cn-northwest-1",
@@ -63,7 +63,7 @@
             "S": "87sydfh78sdggsd7"
           },
           "message": {
-            "S": "{\"file\":{},\"message\":{\"message\":\"File uploaded successfully\",\"tmpname\":\"beec6e8a922266c85bc1f0bcd01fe8a2.xlsx\",\"filename\":\"MAPPING_to_QLX3.xlsx\",\"statusCode\":200},\"property\":{\"dataID\":\"data01\",\"dataset\":\"dst_550\",\"type\":\"createDataset\"},\"projectId\":\"JfSmQBYUpyb4jsei\",\"projectName\":\"ETL_Iterator\"}"
+            "S": "{\"dagName\": \"test_dag2\",\"flowVersion\": \"developer2\",\"jobName\": \"test_job_a2\",\"jobId\": \"1qaz3edc\",\"inputs\": {\"TEst0000\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\",\"TEst111\": \"f1c06c818ec5a31ceb7dfee1623a6afd.xlsx\"},\"outputs\": {\"at1\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"},\"jobVersion\": \"job_version2\",\"projectId\": \"max\",\"timeout\": \"1000\",\"runtime\": \"python3\"}"
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"

@@ -3,12 +3,10 @@
 import os
 import json
 import time
-import http.client
-import urllib.parse
 from util.execl import Excel
 from util.AWS.DynamoDB import DynamoDB
-from boto3.dynamodb.conditions import Key, Attr
-from util.GenerateID import GenerateID
+from boto3.dynamodb.conditions import Attr
+from util.ClieckHouse import ClickHouse
 
 __BATCH_SIZE = "BATCH_SIZE"
 # __CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
@@ -18,16 +16,13 @@ __FILE_PATH = "PATH_PREFIX"
 __TYPE_STRUCTURE = {
     "String": str
 }
+client = ClickHouse(host="192.168.16.117", port="9000").getClient()
 
 
-def executeSql(sql, type):
-
-    conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
-    url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
-    print(url)
-    conn.request(type, url)
-    res = conn.getresponse()
-    return res.read().decode("utf-8")
+def executeChDriverSql(sql):
+    result = client.execute(sql)
+    print(result)
+    return result
 
 
 def updateAction(item, dynamodb, state):
@@ -38,7 +33,7 @@ def updateAction(item, dynamodb, state):
     })
 
 
-def insterNotification(item, dynamodb, data, state, error):
+def insetNotification(item, dynamodb, data, state, error):
     print("Alex Notification =>>>>>> \n")
     print(item)
     message = json.loads(item["message"])
@@ -68,6 +63,7 @@ def insterNotification(item, dynamodb, data, state, error):
         }
     })
 
+
 def insertDataset(item, dynamodb):
     message = json.loads(item["message"])
     title_row = message["skipValue"]
@@ -86,17 +82,22 @@ def insertDataset(item, dynamodb):
     result = dynamodb.scanTable({
         "table_name": "dataset",
         "limit": 100000,
-        "expression": Attr("name").eq(des_table_name),
+        "expression": Attr("name").eq(des_table_name) & Attr("projectId").eq(item["projectId"]),
         "start_key": ""
     })
     print("Alex DynamoDB =>>>>>> \n")
-    print(result)
-
+    data = result["data"]
+    if len(data) > 0:
+        schema = set(map(lambda key: key["des"], json.loads(data[0]["schema"])))
+        fileSchema = set(map(lambda key: key["des"], mapper))
+        if len(schema - fileSchema) != 0:
+            raise Exception("Schema Not Matched")
+    dsId = data[0]["id"] if len(data) > 0 else file_name
     dynamodb.putData({
         "table_name": "dataset",
         "item": {
-            "id": result["data"][0]["id"] if len(result["data"]) > 0 else file_name,
-            "projectId":  result["data"][0]["projectId"] if len(result["data"]) > 0 else item["projectId"],
+            "id": dsId,
+            "projectId": item["projectId"],
             "date": int(round(time.time() * 1000)),
             "name": des_table_name,
             "schema": json.dumps(mapper, ensure_ascii=False),
@@ -129,15 +130,19 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         title_row += 2
 
     # 创建表
-    create_table = "CREATE TABLE IF NOT EXISTS {0}.`{1}` ({2}) ENGINE=MergeTree() PRIMARY KEY version" \
-        .format(os.environ.get(__CLICKHOUSE_DB), des_table_name, fields)
+    create_table = f"CREATE TABLE IF NOT EXISTS " \
+                   f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+                   f"({fields}) ENGINE=MergeTree() PRIMARY KEY version"
     print(create_table)
-    result = executeSql(create_table, "POST")
+    result = executeChDriverSql(create_table)
     print("Create Table ========> \n")
     print(result)
 
-    res = executeSql("select count(1) from `{0}` where version = '{1}'".format(des_table_name, version), "POST")
-    if int(res.replace("\n", "")) > 0:
+    countSql = f"SELECT COUNT(1) FROM " \
+               f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+               f"WHERE version = '{version}'"
+    count = list(executeChDriverSql(countSql).pop()).pop()
+    if count > 0:
         raise Exception("version already exist")
 
     # excel回调数据
@@ -145,8 +150,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         cols_description = list(map(lambda col: "`{0}`".format(col['des']), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
-        sql = 'INSERT INTO `' + des_table_name + '` (' + cols_description + ') ' + 'VALUES'
-
+        sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` ({cols_description}) VALUES"
         def add_col(item):
             for x in list(item.keys()):
                 mi = list(filter(lambda mapperItem: mapperItem["des"] == x, mapper))[0]
@@ -158,13 +162,12 @@ def write2Clickhouse(message, mapper, item, dynamodb):
 
         excel_data = ",".join(list(map(add_col, data)))
         sql = sql + " " + excel_data + ";"
-        print(sql)
-        executeSql(sql, "POST")
+        executeChDriverSql(sql)
 
         hit_value = 100 / batch_size
         progress = round(float(hit_count * hit_value), 2)
         print("==========> {} \n".format(progress))
-        insterNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
+        insetNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
                   sheet_name, title_row, skip_next, mapper,
@@ -210,5 +213,5 @@ def lambda_handler(event, context):
         print("error: \n")
         print(e)
         updateAction(history, dynamodb, "failed")
-        insterNotification(history, dynamodb, {"progress": -1}, "failed", str(e))
+        insetNotification(history, dynamodb, {"progress": -1}, "failed", str(e))
     return {}

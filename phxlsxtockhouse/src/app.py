@@ -16,7 +16,7 @@ __FILE_PATH = "PATH_PREFIX"
 __TYPE_STRUCTURE = {
     "String": str
 }
-client = ClickHouse(host="localhost", port="19000").getClient()
+client = ClickHouse(host="192.168.16.117", port="9000").getClient()
 
 
 def executeChDriverSql(sql):

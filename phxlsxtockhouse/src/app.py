@@ -96,7 +96,7 @@ def insertDataset(item, dynamodb):
         schema = set(map(lambda key: key["des"], json.loads(data[0]["schema"])))
         fileSchema = set(map(lambda key: key["des"], converted_mapper))
         if len(schema - fileSchema) != 0:
-            raise Exception("Schema Not Matched")
+            raise Exception("Schema Not Matched,请使用高级映射！")
     dsId = data[0]["id"] if len(data) > 0 else file_name
     dynamodb.putData({
         "table_name": "dataset",
@@ -126,9 +126,8 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     sheet_name = message["fileSheet"]
     des_table_name = message["destination"]
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
-
-    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(item["des"], item["type"]), zipMapper)))
-
+    reg = "[\n\t\s（），+()-./\"'\\\\]"
+    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
     if title_row == 0:
         title_row += 1
     else:
@@ -152,7 +151,6 @@ def write2Clickhouse(message, mapper, item, dynamodb):
 
     # excel回调数据
     def callBack(data, adapted_mapper, batch_size, hit_count):
-        reg = "[\n\t\s（），+()-./\"'\\\\]"
         cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)

@@ -1,51 +1,88 @@
 {
-  "Records": [
-    {
-      "eventID": "87563f81d6d1c910c01481b779844bea",
-      "eventName": "MODIFY",
-      "eventVersion": "1.1",
-      "eventSource": "aws:dynamodb",
-      "awsRegion": "cn-northwest-1",
-      "dynamodb": {
-        "ApproximateCreationDateTime": 1637145448.0,
-        "Keys": {
-          "projectId": {
-            "S": "123"
-          },
-          "representId": {
-            "S": "321"
-          }
+  "Records": [{
+    "eventID": "0d6bc667b19e7226d733986c1a45b742",
+    "eventName": "INSERT",
+    "eventVersion": "1.1",
+    "eventSource": "aws:dynamodb",
+    "awsRegion": "cn-northwest-1",
+    "dynamodb": {
+      "ApproximateCreationDateTime": 1637570025.0,
+      "Keys": {
+        "id": {
+          "S": "BQgx7ctYlS-lsCh"
         },
-        "NewImage": {
-          "ctype": {
-            "S": "1834"
-          },
-          "cmessage": {
-            "S": "qwasgtyawegyhawgahaehh"
-          },
-          "projectId": {
-            "S": "123"
-          },
-          "representId": {
-            "S": "321"
-          }
-        },
-        "OldImage": {
-          "ctype": {
-            "S": "1834"
-          },
-          "projectId": {
-            "S": "123"
-          },
-          "representId": {
-            "S": "321"
-          }
-        },
-        "SequenceNumber": "30680000000000002083584334",
-        "SizeBytes": 126,
-        "StreamViewType": "NEW_AND_OLD_IMAGES"
+        "projectId": {
+          "S": "JfSmQBYUpyb4jqwe"
+        }
       },
-      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/dag/stream/2021-11-17T10:28:05.834"
-    }
-  ]
+      "NewImage": {
+        "date": {
+          "N": "1637570024973"
+        },
+        "owner": {
+          "S": "000"
+        },
+        "jobCat": {
+          "S": "clear_DS_data"
+        },
+        "code": {
+          "N": "0"
+        },
+        "comments": {
+          "S": "测试"
+        },
+        "showName": {
+          "S": "hbzhao"
+        },
+        "id": {
+          "S": "BQgx7ctYlS-lsCh"
+        },
+        "message": {
+          "S": "{\"dagName\": \"test_dag2\",\"flowVersion\": \"developer2\",\"jobName\": \"test_job_b\",\"jobId\": \"1qaz3edc\",\"inputs\": {\"TEst0000\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\",\"at1\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"},\"outputs\": {\"at2\": \"5184c6d4db1fb7bd815db40482984ded.xlsx\"},\"jobVersion\": \"job_version2\",\"projectId\": \"max\",\"timeout\": \"1000\",\"runtime\": \"python3\"}"
+        },
+        "jobDesc": {
+          "S": "failed"
+        },
+        "projectId": {
+          "S": "JfSmQBYUpyb4jqwe"
+        }
+      },
+      "OldImage": {
+        "date": {
+          "N": "1637570024945"
+        },
+        "owner": {
+          "S": "000"
+        },
+        "jobCat": {
+          "S": "clear_DS_data"
+        },
+        "code": {
+          "N": "0"
+        },
+        "comments": {
+          "S": "测试"
+        },
+        "showName": {
+          "S": "hbzhao"
+        },
+        "id": {
+          "S": "BQgx7ctYlS-lsCh"
+        },
+        "message": {
+          "S": "{\"dagName\": \"test_dag2\",\"flowVersion\": \"developer2\",\"jobName\": \"test_job_b\",\"jobId\": \"1qaz3edc\",\"inputs\": {\"TEst0000\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\",\"at1\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"},\"outputs\": {\"at2\": \"5184c6d4db1fb7bd815db40482984ded.xlsx\"},\"jobVersion\": \"job_version2\",\"projectId\": \"max\",\"timeout\": \"1000\",\"runtime\": \"python3\"}"
+        },
+        "jobDesc": {
+          "S": "succeed"
+        },
+        "projectId": {
+          "S": "JfSmQBYUpyb4jqwe"
+        }
+      },
+      "SequenceNumber": "148686000000000003112261713",
+      "SizeBytes": 1019,
+      "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729"
+  }]
 }

@@ -18,6 +18,8 @@ class CreateDagConf:
             dag_conf.update({"outputs": json.dumps(dag_conf.get("outputs"))})
 
             data.update({"item": dag_conf})
+            print("dagconf =======================================")
+            print(data)
             # self.dynamodb.putData(data)
             dag_conf_list.append(dag_conf)
         return dag_conf_list

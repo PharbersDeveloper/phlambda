@@ -4,6 +4,7 @@ from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 from createDag import CreateDag
 from createDagConf import CreateDagConf
+from updateAction import UpdateAction
 
 class AppLambdaDelegate:
 
@@ -38,6 +39,8 @@ class AppLambdaDelegate:
                     item[item_key] = value[item_value]
                 item_list.append(item)
         return item_list
+
+
     #
     # def insert_dagconf(self, item_list):
     #     # 传递进item_list 包含所有此次event
@@ -186,16 +189,22 @@ class AppLambdaDelegate:
 
     def exec(self):
 
+        # 处理event
         item_list = self.process_insert_event()
+        # 插入dagconf信息
         dag_conf_list = self.insert_dagconf(item_list)
+        # 插入dag信息
         self.create_dag(dag_conf_list)
 
 
 if __name__ == '__main__':
-    with open("../events/event.json") as f:
+    with open("../events/modify_db.json") as f:
         event = json.load(f)
+
     app = AppLambdaDelegate(event=event)
     item_list = app.process_insert_event()
-    dag_conf_list = CreateDagConf().insert_dagconf(item_list)
-    print(dag_conf_list)
-    CreateDag().create_dag(dag_conf_list)
+    UpdateAction().updateItem(item_list)
+
+    # dag_conf_list = CreateDagConf().insert_dagconf(item_list)
+    # print(dag_conf_list)
+    # CreateDag().create_dag(dag_conf_list)

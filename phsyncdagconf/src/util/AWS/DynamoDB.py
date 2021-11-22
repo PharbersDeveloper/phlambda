@@ -2,6 +2,7 @@ import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
 from util.AWS.STS import STS
+from boto3.dynamodb.conditions import Key, Attr
 
 class DynamoDB(object):
 
@@ -20,33 +21,17 @@ class DynamoDB(object):
         self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
 
     def queryTable(self, data):
-        table_name = data["table_name"]
-        limit = data["limit"]
-        expression = data["expression"]
-        start_key = data["start_key"]
-        table = self.dynamodb_resource.Table(table_name)
-        try:
-            if len(start_key) == 0:
-                result = table.query(
-                    KeyConditionExpression=expression,
-                    Limit=limit,
-                )
-            else:
-                result = table.query(
-                    KeyConditionExpression=expression,
-                    Limit=limit,
-                    ExclusiveStartKey=start_key
-                )
-            return {
-                "data": result.get("Items"),
-                "start_key": result.get("LastEvaluatedKey", "{}")
-            }
-        except Exception as e:
-            print(e)
-            return {
-                "data": [],
-                "start_key": {}
-            }
+        table_name = data.get("table_name")
+        partition_key = data["partition_key"]
+        partition_value = data["partition_value"]
+        ds_table = self.dynamodb_resource.Table(table_name)
+        res = ds_table.query(
+            # AttributesToGet=[
+            #     "level"
+            # ],
+            KeyConditionExpression=Key(partition_key).eq(partition_value)
+        )
+        return res
 
     def scanTable(self, data):
         table_name = data["table_name"]
@@ -88,35 +73,30 @@ class DynamoDB(object):
             "data": item
         }
 
-    def updateData(self):
-        table = self.dynamodb_resource.Table("dag")
-        # partition_key = data["partition_key"]
-        # sort_key = data["sort_key"]
-        # key = {}
-        # key.update(partition_key)
-        # key.update(sort_key)
+    def updateData(self, data):
+        table_name = data.get("table_name")
+        key = data.get("Key")
+        attributeUpdates = data.get("AttributeUpdates")
+        table = self.dynamodb_resource.Table(table_name)
         res = table.update_item(
-            Key={
-                "projectId": "123",
-                "representId": "321"
-            },
-            AttributeUpdates={
-                # "cat": {
-                #     "Value": "3",
-                #     "Action": "PUT"
-                # },
-                "cmessage": {
-                    "Value": "qwasgtyawegyhawgahaehh",
-                    "Action": "PUT"
-                },
-                "ctype": {
-                    "Value": "1834",
-                    "Action": "PUT"
-                }
-
-            }
+            Key=key,
+            AttributeUpdates=attributeUpdates
         )
         print(res)
+
+    def getItem(self, data):
+        table_name = data.get("table_name")
+        key = data.get("key")
+        table = self.dynamodb_resource.Table("dag")
+        res = table.get_item(
+            Key=key,
+            # AttributeToGet=[
+            #     "level",
+            #     "ctype"
+            # ]
+        )
+
+        return res
 
 
 if __name__ == '__main__':

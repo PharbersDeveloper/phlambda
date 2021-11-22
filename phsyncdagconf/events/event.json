@@ -44,7 +44,7 @@
     },
     {
       "eventID": "15ac5a09a97d61cf74589776e001ed8a",
-      "eventName": "INSERT",
+      "eventName": "MODIFY",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "cn-northwest-1",

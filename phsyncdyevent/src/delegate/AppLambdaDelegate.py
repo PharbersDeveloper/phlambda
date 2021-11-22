@@ -52,11 +52,13 @@ class AppLambdaDelegate:
         })
 
     def insterProjectFile(self, item, state):
-        path = os.getenv("UPLOAD_PATH")
-        size = self.size_format(os.path.getsize(path + item["id"]))
-        item["size"] = size
+        if state != "failed":
+            path = os.getenv("UPLOAD_PATH")
+            size = self.size_format(os.path.getsize(path + item["id"]))
+            item["size"] = size
+        else:
+            item["size"] = -1
         item["status"] = "upload_{}".format(state)
-
         print("Alex ====> \n")
         print(item)
 
@@ -89,5 +91,7 @@ class AppLambdaDelegate:
                 self.insertNotification(item, "succeed", "")
 
         except Exception as e:
+            print("Alex =====> \n")
+            print(history)
             self.insterProjectFile(history, "failed")
             self.insertNotification(history, "failed", str(e))

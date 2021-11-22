@@ -1,5 +1,5 @@
 # /usr/local/bin/python3
-
+import re
 import os
 import json
 import time
@@ -77,7 +77,12 @@ def insertDataset(item, dynamodb):
     else:
         title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))
-    print(mapper)
+    reg = "[\n\t\s（），+()-./\"'\\\\]"
+    converted_mapper = list(map(lambda item: {
+        "src": re.sub(reg, "_", item["src"]),
+        "des": re.sub(reg, "_", item["des"]),
+        "type": item["type"]
+    }, mapper))
 
     result = dynamodb.scanTable({
         "table_name": "dataset",
@@ -89,7 +94,7 @@ def insertDataset(item, dynamodb):
     data = result["data"]
     if len(data) > 0:
         schema = set(map(lambda key: key["des"], json.loads(data[0]["schema"])))
-        fileSchema = set(map(lambda key: key["des"], mapper))
+        fileSchema = set(map(lambda key: key["des"], converted_mapper))
         if len(schema - fileSchema) != 0:
             raise Exception("Schema Not Matched")
     dsId = data[0]["id"] if len(data) > 0 else file_name
@@ -100,7 +105,7 @@ def insertDataset(item, dynamodb):
             "projectId": item["projectId"],
             "date": int(round(time.time() * 1000)),
             "name": des_table_name,
-            "schema": json.dumps(mapper, ensure_ascii=False),
+            "schema": json.dumps(converted_mapper, ensure_ascii=False),
             "label": label,
             "version": version
         }
@@ -147,10 +152,12 @@ def write2Clickhouse(message, mapper, item, dynamodb):
 
     # excel回调数据
     def callBack(data, adapted_mapper, batch_size, hit_count):
-        cols_description = list(map(lambda col: "`{0}`".format(col['des']), adapted_mapper))
+        reg = "[\n\t\s（），+()-./\"'\\\\]"
+        cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
         sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` ({cols_description}) VALUES"
+
         def add_col(item):
             for x in list(item.keys()):
                 mi = list(filter(lambda mapperItem: mapperItem["des"] == x, mapper))[0]

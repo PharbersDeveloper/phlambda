@@ -9,6 +9,7 @@ from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
 from models.Notification import Notification
+from models.Dag import Dag
 
 # import base64
 # from util.AWS.STS import STS
@@ -35,7 +36,8 @@ __table_structure = {
     "project_files": ProjectFile,
     "partition": Partition,
     "dataset": DataSet,
-    "notification": Notification
+    "notification": Notification,
+    "dag": Dag
 }
 
 

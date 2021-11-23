@@ -43,6 +43,13 @@ class TestQueryDynamoDB:
             print(result)
             assert result["statusCode"] == 200
 
+    def test_begins_with_item(self):
+        with open("../events/event_query_begins_with.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
+
     # def test_execution_query(self):
     #     data = [
     #         Execution({"id": "1", "state": "state", "input": "input",

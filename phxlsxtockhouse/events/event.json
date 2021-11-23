@@ -36,7 +36,7 @@
             "S": "creating"
           },
           "message": {
-            "S": "{\"skipValue\":1,\"jumpValue\":2,\"fileType\":\"xlsx\",\"fileSheet\":\"Sheet1\",\"fileId\":\"1234.xlsx\",\"fileName\":\"MAPPING_to QLX\",\"isAppend\":false,\"destination\":\"是最大\"}"
+            "S": "{\"skipValue\":0,\"jumpValue\":0,\"fileType\":\"xlsx\",\"fileSheet\":\"订单明细\",\"fileId\":\"LLP 2020年2月出单收支明细.xlsx\",\"fileName\":\"MAPPING_to QLX\",\"isAppend\":false,\"destination\":\"是最大\"}"
           },
           "date": {
             "N": "1636010256565"

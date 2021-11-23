@@ -1,5 +1,5 @@
 # /usr/local/bin/python3
-
+import re
 import os
 import json
 import time
@@ -72,12 +72,19 @@ def insertDataset(item, dynamodb):
     label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
-    if title_row == 0:
-        title_row += 1
-    else:
-        title_row += 2
-    mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))
-    print(mapper)
+    # if title_row == 0:
+    #     title_row += 1
+    # else:
+    #     title_row += 2
+    mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row + 1))
+    reg = "[\n\t\s（），+()-./\"'\\\\]"
+    converted_mapper = list(map(lambda item: {
+        "src": re.sub(reg, "_", item["src"]),
+        "des": re.sub(reg, "_", item["des"]),
+        "type": item["type"]
+    }, mapper)) + [{"src": "version", "des": "version", "type": "String"}]
+    print("Mapper   =>>>> \n")
+    print(converted_mapper)
 
     result = dynamodb.scanTable({
         "table_name": "dataset",
@@ -86,12 +93,13 @@ def insertDataset(item, dynamodb):
         "start_key": ""
     })
     print("Alex DynamoDB =>>>>>> \n")
+    print(result)
     data = result["data"]
     if len(data) > 0:
         schema = set(map(lambda key: key["des"], json.loads(data[0]["schema"])))
-        fileSchema = set(map(lambda key: key["des"], mapper))
+        fileSchema = set(map(lambda key: key["des"], converted_mapper))
         if len(schema - fileSchema) != 0:
-            raise Exception("Schema Not Matched")
+            raise Exception("Schema Not Matched,请使用高级映射！")
     dsId = data[0]["id"] if len(data) > 0 else file_name
     dynamodb.putData({
         "table_name": "dataset",
@@ -100,7 +108,7 @@ def insertDataset(item, dynamodb):
             "projectId": item["projectId"],
             "date": int(round(time.time() * 1000)),
             "name": des_table_name,
-            "schema": json.dumps(mapper, ensure_ascii=False),
+            "schema": json.dumps(converted_mapper, ensure_ascii=False),
             "label": label,
             "version": version
         }
@@ -114,24 +122,28 @@ def getExcelMapper(file_name, sheet_name, skip_first):
 
 
 def write2Clickhouse(message, mapper, item, dynamodb):
+    print("Alex =====> write2Clickhouse \n")
     title_row = message["skipValue"]
     skip_next = message["jumpValue"]
     version = message.get("version", "0.0.0")
     file_name = message["fileId"]
     sheet_name = message["fileSheet"]
     des_table_name = message["destination"]
+    tableName = item["projectId"] + "_" + des_table_name
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
+    reg = "[\n\t\s（），+()-./\"'\\\\]"
+    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
+    # if title_row == 0:
+    #     title_row += 1
+    # else:
+    #     title_row += 2
 
-    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(item["des"], item["type"]), zipMapper)))
-
-    if title_row == 0:
-        title_row += 1
-    else:
-        title_row += 2
+    print("fields ====> \n")
+    print(fields)
 
     # 创建表
     create_table = f"CREATE TABLE IF NOT EXISTS " \
-                   f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+                   f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                    f"({fields}) ENGINE=MergeTree() PRIMARY KEY version"
     print(create_table)
     result = executeChDriverSql(create_table)
@@ -139,7 +151,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     print(result)
 
     countSql = f"SELECT COUNT(1) FROM " \
-               f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+               f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                f"WHERE version = '{version}'"
     count = list(executeChDriverSql(countSql).pop()).pop()
     if count > 0:
@@ -147,10 +159,11 @@ def write2Clickhouse(message, mapper, item, dynamodb):
 
     # excel回调数据
     def callBack(data, adapted_mapper, batch_size, hit_count):
-        cols_description = list(map(lambda col: "`{0}`".format(col['des']), adapted_mapper))
+        cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
-        sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` ({cols_description}) VALUES"
+        sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` ({cols_description}) VALUES"
+
         def add_col(item):
             for x in list(item.keys()):
                 mi = list(filter(lambda mapperItem: mapperItem["des"] == x, mapper))[0]
@@ -170,7 +183,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         insetNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
-                  sheet_name, title_row, skip_next, mapper,
+                  sheet_name, title_row + 1, skip_next, mapper,
                   int(os.environ.get(__BATCH_SIZE)))
     excel.batchReader(callBack)
 

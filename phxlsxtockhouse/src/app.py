@@ -72,17 +72,19 @@ def insertDataset(item, dynamodb):
     label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
-    if title_row == 0:
-        title_row += 1
-    else:
-        title_row += 2
-    mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row))
+    # if title_row == 0:
+    #     title_row += 1
+    # else:
+    #     title_row += 2
+    mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row + 1))
     reg = "[\n\t\s（），+()-./\"'\\\\]"
     converted_mapper = list(map(lambda item: {
         "src": re.sub(reg, "_", item["src"]),
         "des": re.sub(reg, "_", item["des"]),
         "type": item["type"]
     }, mapper))
+    print("Mapper   =>>>> \n")
+    print(converted_mapper)
 
     result = dynamodb.scanTable({
         "table_name": "dataset",
@@ -119,6 +121,7 @@ def getExcelMapper(file_name, sheet_name, skip_first):
 
 
 def write2Clickhouse(message, mapper, item, dynamodb):
+    print("Alex =====> write2Clickhouse \n")
     title_row = message["skipValue"]
     skip_next = message["jumpValue"]
     version = message.get("version", "0.0.0")
@@ -128,10 +131,13 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
     reg = "[\n\t\s（），+()-./\"'\\\\]"
     fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
-    if title_row == 0:
-        title_row += 1
-    else:
-        title_row += 2
+    # if title_row == 0:
+    #     title_row += 1
+    # else:
+    #     title_row += 2
+
+    print("fields ====> \n")
+    print(fields)
 
     # 创建表
     create_table = f"CREATE TABLE IF NOT EXISTS " \
@@ -175,7 +181,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         insetNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
 
     excel = Excel("{0}{1}".format(os.environ.get(__FILE_PATH), file_name),
-                  sheet_name, title_row, skip_next, mapper,
+                  sheet_name, title_row + 1, skip_next, mapper,
                   int(os.environ.get(__BATCH_SIZE)))
     excel.batchReader(callBack)
 

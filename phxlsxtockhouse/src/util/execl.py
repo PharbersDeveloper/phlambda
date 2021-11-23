@@ -27,6 +27,10 @@ class Excel:
         # print(self.adapted_mapper)
         # print(adapted_mapper)
         # 这里判断，判断输入的参数是不是在你的数据dim之内
+        print("Excel DIMS ===> \n")
+        print(dim_mapper)
+        print(adapted_mapper)
+
         if len(dim_mapper - adapted_mapper) != 0:
             raise Exception("DIM Don't match")
         self.data_rows_count = self.calDataRowsCount(self.dim)

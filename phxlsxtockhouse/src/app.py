@@ -82,7 +82,7 @@ def insertDataset(item, dynamodb):
         "src": re.sub(reg, "_", item["src"]),
         "des": re.sub(reg, "_", item["des"]),
         "type": item["type"]
-    }, mapper))
+    }, mapper)) + [{"src": "version", "des": "version", "type": "String"}]
     print("Mapper   =>>>> \n")
     print(converted_mapper)
 
@@ -93,6 +93,7 @@ def insertDataset(item, dynamodb):
         "start_key": ""
     })
     print("Alex DynamoDB =>>>>>> \n")
+    print(result)
     data = result["data"]
     if len(data) > 0:
         schema = set(map(lambda key: key["des"], json.loads(data[0]["schema"])))
@@ -128,6 +129,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     file_name = message["fileId"]
     sheet_name = message["fileSheet"]
     des_table_name = message["destination"]
+    tableName = item["projectId"] + "_" + des_table_name
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
     reg = "[\n\t\s（），+()-./\"'\\\\]"
     fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
@@ -141,7 +143,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
 
     # 创建表
     create_table = f"CREATE TABLE IF NOT EXISTS " \
-                   f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+                   f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                    f"({fields}) ENGINE=MergeTree() PRIMARY KEY version"
     print(create_table)
     result = executeChDriverSql(create_table)
@@ -149,7 +151,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     print(result)
 
     countSql = f"SELECT COUNT(1) FROM " \
-               f"{os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` " \
+               f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                f"WHERE version = '{version}'"
     count = list(executeChDriverSql(countSql).pop()).pop()
     if count > 0:
@@ -160,7 +162,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
-        sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{des_table_name}` ({cols_description}) VALUES"
+        sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` ({cols_description}) VALUES"
 
         def add_col(item):
             for x in list(item.keys()):

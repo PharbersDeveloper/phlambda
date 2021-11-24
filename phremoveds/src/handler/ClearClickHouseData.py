@@ -37,7 +37,7 @@ def finishingEventData(record):
     return item
 
 
-def cleanClickHouseData(tableName):
+def removeClickHouseData(tableName):
     sql = "DROP TABLE `{0}`".format(tableName)
     result = executeSql(sql, "POST")
     return 0 if result else 1
@@ -121,10 +121,10 @@ def run(eventName, jobCat, record):
             print(type(item))
             message = json.loads(item["message"])
             print(type(message))
+            result = removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
+                     removeDynamoDBData("dataset", message["dsid"], item["projectId"])
             updateActionData("action", item["id"], "succeed")
             insertNotification(item["id"], "succeed", "")
-            result = cleanClickHouseData(message["destination"]) & \
-                     removeDynamoDBData("dataset", message["dsid"], item["projectId"])
             print(result)
         except Exception as e:
             print("error ====> \n")

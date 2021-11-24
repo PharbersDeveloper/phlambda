@@ -40,6 +40,7 @@ def finishingEventData(record):
 def cleanClickHouseData(tableName, version):
     sql = "ALTER TABLE `{0}` DELETE WHERE 1 = 1 {1}".format(tableName,
                                                             " and version = {0}".format(version) if version else "")
+    print("Alex Sql \n")
     print(sql)
     result = executeSql(sql, "POST")
     return 0 if result else 1
@@ -134,11 +135,10 @@ def run(eventName, jobCat, record):
             print("message ==> \n")
             print(message)
             print(type(message))
+            result = cleanClickHouseData(item["projectId"] + "_" + message["destination"], message["version"]) & \
+                     cleanDynamoDBDSData("dataset", message["dsid"])
             updateActionData("action", item["id"], "succeed")
             insertNotification(item["id"], "succeed", "")
-            result = cleanClickHouseData(message["destination"], message["version"]) & \
-                     cleanDynamoDBDSData("dataset", message["dsid"])
-
             print(result)
         except Exception as e:
             print("Error ====> \n")

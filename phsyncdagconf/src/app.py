@@ -1,8 +1,8 @@
 from __future__ import print_function
-from delegate.AppLambdaDelegate import AppLambdaDelegate
+from delegate.SyncDagConfToDynamoDB import SyncDagConfToDynamoDB
 
 
 def lambda_handler(event, context):
     print(event)
-    app = AppLambdaDelegate(event=event, context=context)
+    app = SyncDagConfToDynamoDB(event=event, context=context)
     app.exec()

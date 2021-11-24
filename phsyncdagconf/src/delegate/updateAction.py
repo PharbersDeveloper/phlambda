@@ -9,7 +9,6 @@ class UpdateAction:
 
     def updateItem(self, item_list, status="dag_conf insert success"):
         for item in item_list:
-            print(item)
             item.update({"jobCat": status})
             Key = {
                 "id": item.get("id"),
@@ -32,6 +31,4 @@ class UpdateAction:
                 "Key": Key,
                 "AttributeUpdates": AttributeUpdates
             }
-            print(data)
-            self.dynamodb.updateData(data)
-        pass
+            # self.dynamodb.updateData(data)

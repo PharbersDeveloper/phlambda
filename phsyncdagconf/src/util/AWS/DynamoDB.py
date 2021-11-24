@@ -1,3 +1,5 @@
+import json
+
 import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
@@ -87,7 +89,7 @@ class DynamoDB(object):
     def getItem(self, data):
         table_name = data.get("table_name")
         key = data.get("key")
-        table = self.dynamodb_resource.Table("dag")
+        table = self.dynamodb_resource.Table(table_name)
         res = table.get_item(
             Key=key,
             # AttributeToGet=[
@@ -98,6 +100,19 @@ class DynamoDB(object):
 
         return res
 
+    def delete_item(self, data):
+        table_name = data.get("table_name")
+        key = data.get("name")
+        table = self.dynamodb.Table(table_name)
+        try:
+            res = table.delete_item(
+                Key=key,
+                # ReturnValues="ALL_OLD",
+                # ConditionExpression=Attr("projectId").eq("max") & Attr("dagName").eq("test_dag3")
+            )
+            return "删除成功"
+        except Exception as e:
+            return "删除失败:" + json.loads(str(e))
 
 if __name__ == '__main__':
     auth = STS()

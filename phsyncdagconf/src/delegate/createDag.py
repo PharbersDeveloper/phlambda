@@ -14,7 +14,6 @@ class CreateDag:
         data["partition_key"] = partition_key
         data["partition_value"] = partition_value
         res = self.dynamodb.queryTable(data)
-        print(res)
         items = res.get("Items")
         level_list = []
         for item in items:
@@ -22,14 +21,14 @@ class CreateDag:
             if type(level) == str:
                 level_list.append(int(level))
 
-        print("level_list ====================================")
-        print(level_list)
+        # print("level_list ====================================")
+        # print(level_list)
         if len(level_list) == 0:
             max_level = 0
         else:
             max_level = max(level_list)
-        print("max_level ====================================")
-        print(max_level)
+        # print("max_level ====================================")
+        # print(max_level)
 
         return max_level
 
@@ -60,6 +59,7 @@ class CreateDag:
         :return: 创建link成功后返回一条消息
         """
         def put_link_to_database(messages):
+            link_list = []
             for message in messages:
                 represent_id = GenerateID.generate()
                 data = {}
@@ -76,34 +76,39 @@ class CreateDag:
                 data.update({"item": item})
                 data.update({"position": None})
                 data.update({"level": None})
-                print("dag link ========================================")
-                print(data)
-                self.dynamodb.putData(data)
+                # print("dag link ========================================")
+                # print(data)
+                # self.dynamodb.putData(data)
+                link_list.append(data)
 
-        def create_source_target_map(represent_ids, dag_conf):
+            return link_list
+
+        def create_source_target_map(dag_conf):
             job_id = dag_conf.get("jobId")
+            job_name = dag_conf.get("jobName")
             id_maps = []
-            for key, value in represent_ids.items():
-                if key == "source_dataset_ids":
-                    for source_id in value:
-                        id_map = {}
-                        id_map.update({"sourceId": source_id})
-                        id_map.update({"targetId": job_id})
-                        id_maps.append(id_map)
-                else:
-                    for target_id in value:
-                        id_map = {}
-                        id_map.update({"sourceId": job_id})
-                        id_map.update({"targetId": target_id})
-                        id_maps.append(id_map)
+            for key, value in json.loads(dag_conf.get("inputs")).items():
+                id_map = {}
+                id_map.update({"sourceId": value})
+                id_map.update({"sourceName": key})
+                id_map.update({"targetId": job_id})
+                id_map.update({"targetName": job_name})
+                id_maps.append(id_map)
+            for key, value in json.loads(dag_conf.get("outputs")).items():
+                id_map = {}
+                id_map.update({"sourceId": job_id})
+                id_map.update({"sourceName": job_name})
+                id_map.update({"targetId": value})
+                id_map.update({"targetName": key})
+                id_maps.append(id_map)
+
             return id_maps
 
+        # represent_ids = self.get_dataset_represent_id(dag_conf)
+        messages = create_source_target_map(dag_conf)
+        link_list = put_link_to_database(messages)
 
-        represent_ids = self.get_dataset_represent_id(dag_conf)
-        messages = create_source_target_map(represent_ids, dag_conf)
-        put_link_to_database(messages)
-
-        return "create link success"
+        return link_list
 
     def create_job_node(self, dag_conf, level_maps):
         """
@@ -111,11 +116,12 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         :return: 创建job_node成功后返回一条消息
         """
-
+        job_node_list = []
         project_id = dag_conf.get("projectId")
         represent_id = dag_conf.get("jobId")
         cat = "job"
         ctype = "node"
+        job_name = dag_conf.get("jobName")
         name = dag_conf.get("dagName") \
                + "_" + dag_conf.get("flowVersion") \
                + "_" + dag_conf.get("jobName") \
@@ -126,20 +132,28 @@ class CreateDag:
         dag_item = {}
         dag_item.update({"projectId": project_id})
         dag_item.update({"representId": represent_id})
-        dag_item.update({"cmessage": name})
+        dag_item.update({"cmessage": job_name})
         dag_item.update({"flowVersion": dag_conf.get("flowVersion")})
         dag_item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + represent_id})
         dag_item.update({"cat": cat})
         dag_item.update({"ctype": ctype})
-        dag_item.update({"name": name})
+        dag_item.update({"name": job_name})
         dag_item.update({"level": str(level)})
-        dag_item.update({"position": "(0,0,0,0,0)"})
+        position = {
+            "x": "0",
+            "y": "0",
+            "z": "0",
+            "w": "0",
+            "h": "0",
+        }
+        dag_item.update({"position": json.dumps(position)})
         data.update({"item": dag_item})
-        print("job node ====================================")
-        print(data)
-        self.dynamodb.putData(data)
+        # print("job node ====================================")
+        # print(data)
+        # self.dynamodb.putData(data)
+        job_node_list.append(data)
 
-        return "create job_node success"
+        return job_node_list
 
     def determine_node_level(self, dag_conf):
 
@@ -208,8 +222,8 @@ class CreateDag:
                 else:
                     # 如果没有获取到Item 则说明没有dataset 设置 level 为joblevel -1
                     input_level = job_level - 1
-                print(input_value)
-                print(job_level)
+                # print(input_value)
+                # print(job_level)
                 if input_level >= job_level:
                     raise Exception("输入参数大于输出参数")
                 inputs_level_map = {
@@ -225,16 +239,11 @@ class CreateDag:
 
         # 3 确定 input level 如果有继续使用
         # 如果没有 则为 job level -1
-
-
         outputs_level_maps = determine_output_level(dag_conf)
-        print(outputs_level_maps)
 
         job_level_map = determine_job_level(outputs_level_maps)
-        print(job_level_map)
 
         inputs_level_maps = determine_input_level(dag_conf, job_level_map)
-        print(inputs_level_maps)
 
         level_map = {
             "outputs_level_maps": outputs_level_maps,
@@ -251,6 +260,7 @@ class CreateDag:
         :return: 创建dataset_node成功后返回一条消息
         """
         def create_dataset_node(data, item, dag_conf, ds_type, level_maps):
+            dataset_node_list = []
             for key, value in json.loads(dag_conf.get(ds_type)).items():
                 level_map = level_maps.get(ds_type + "_level_maps")
                 level = level_map.get(value)
@@ -260,10 +270,11 @@ class CreateDag:
                 item.update({"name": key})
                 item.update({"level": str(level)})
                 data.update({"item": item})
-                print("dataset node ===============================================")
-                print(data)
-                self.dynamodb.putData(data)
-
+                # print("dataset node ===============================================")
+                # print(data)
+                # self.dynamodb.putData(data)
+                dataset_node_list.append(data)
+            return dataset_node_list
 
         data = {}
         item = {}
@@ -271,12 +282,19 @@ class CreateDag:
         item.update({"projectId": dag_conf.get("projectId")})
         item.update({"cat": "dataset"})
         item.update({"ctype": "node"})
-        item.update({"position": "(0,0,0,0,0)"})
-        create_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
-        create_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
+        position = {
+            "x": "0",
+            "y": "0",
+            "z": "0",
+            "w": "0",
+            "h": "0",
+        }
+        item.update({"position": json.dumps(position)})
+        output_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
+        input_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
 
-
-        return "create dataset node success"
+        output_dataset_node_list.extend(input_dataset_node_list)
+        return output_dataset_node_list
 
     def create_node(self, dag_conf, level_maps):
         """
@@ -284,10 +302,13 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         """
         # 创建dataset的node
-        self.create_dataset_node(dag_conf, level_maps)
-        # 创建job的node
-        self.create_job_node(dag_conf, level_maps)
+        dataset_node_list = self.create_dataset_node(dag_conf, level_maps)
 
+        # 创建job的node
+        job_node_list = self.create_job_node(dag_conf, level_maps)
+
+        job_node_list.extend(dataset_node_list)
+        return job_node_list
     def create_dag(self, dag_conf_list):
         """
         创建 dag link
@@ -295,9 +316,13 @@ class CreateDag:
         """
         for dag_conf in dag_conf_list:
             level_maps = self.determine_node_level(dag_conf)
-            print(level_maps)
 
             # 根据创建 event 下所有的dag_conf 创建link
-            self.create_link(dag_conf)
+            link_list = self.create_link(dag_conf)
 
-            self.create_node(dag_conf, level_maps)
+            # 根据dag_conf 和 level_maps 创建dataset
+            node_list = self.create_node(dag_conf, level_maps)
+            link_list.extend(node_list)
+
+            return link_list
+

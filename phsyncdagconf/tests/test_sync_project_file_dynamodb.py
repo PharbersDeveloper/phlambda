@@ -1,14 +1,15 @@
 import pytest
 import json
-import src.app as app
+from phlambda.phsyncdagconf.src.delegate.SyncDagConfToDynamoDB import SyncDagConfToDynamoDB
 
 
 class TestSync:
 
     def test_sync(self):
-        with open("../events/event.json", "r", encoding="utf8") as fp:
-            event = json.load(fp)
-            app.lambda_handler(event, None)
+        with open("../events/event.json") as f:
+            event = json.load(f)
+            app = SyncDagConfToDynamoDB(event=event)
+            app.exec()
 
 
 if __name__ == "__main__":

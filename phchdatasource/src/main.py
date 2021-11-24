@@ -19,32 +19,33 @@ response = client.get_parameter(
     Name='projects_args',
     WithDecryption=True|False
 )
+ssm_dict = json.loads(response.get('Parameter').get('Value'))
 
 # redis cli
 redis = {
-    'host': os.environ.get('HOST', '127.0.0.1'),
-    'port': os.environ.get('PORT', 6379)
+    'host': os.environ.get('HOST'),
+    'port': os.environ.get('PORT')
 }
 pool = ConnectionPool(**redis, max_connections=10, decode_responses=True)
 rediscli:Redis = Redis(connection_pool=pool)
 
 commends = {
-    'a1': adapter_list_of_dict,
-    'a2': adapter_list_of_list
+    'adapter_dict': adapter_list_of_dict,
+    'adapter_list': adapter_list_of_list
 }
-default_list = ['default', "max"]
+default_list = ssm_dict.keys()
 
 
 def lambda_handler(event, context):
-    default = event.get('def')
+    args = eval(event['body'])
+    default = args.get('default')
     is_default = default if default in default_list else None
 
     if is_default and rediscli.setnx(f'{app_name}', time.time()):
         rediscli.expire(f'{app_name}', 60)
-        url = json.loads(response.get('Parameter').get('Value')).get(is_default)
+        url = ssm_dict.get(is_default)
 
         # 直接转proxy转发
-        args = eval(event['body'])
         sql_query = { "query": args['query'] }
 
         res = urllib.request.urlopen(urllib.request.Request(

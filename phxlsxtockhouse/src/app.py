@@ -25,6 +25,10 @@ def executeChDriverSql(sql):
     return result
 
 
+def insertData(sql, values):
+    return client.execute(sql, values)
+
+
 def updateAction(item, dynamodb, state):
     item["jobDesc"] = state
     dynamodb.putData({
@@ -132,7 +136,8 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     tableName = item["projectId"] + "_" + des_table_name
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
     reg = "[\n\t\s（），+()-./\"'\\\\]"
-    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
+    fields = ", ".join(
+        list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
     # if title_row == 0:
     #     title_row += 1
     # else:
@@ -170,14 +175,17 @@ def write2Clickhouse(message, mapper, item, dynamodb):
                 fieldType = __TYPE_STRUCTURE[mi["type"]]
                 item[x] = re.sub("[']", "", fieldType(item[x]))
             item["version"] = version
-            values = list(map(lambda v: "'{0}'".format(v), list(item.values())))
-            return "(" + ",".join(values) + ")"
+            return item
+            # values = list(map(lambda v: "'{0}'".format(v), list(item.values())))
+            # return "(" + ",".join(values) + ")"
 
-        excel_data = ",".join(list(map(add_col, data)))
-        sql = sql + " " + excel_data + ";"
-        print("sql ====> \n")
-        print(sql)
-        executeChDriverSql(sql)
+        # excel_data = ",".join(list(map(add_col, data)))
+        # sql = sql + " " + excel_data + ";"
+        # print("sql ====> \n")
+        # print(sql)
+        # executeChDriverSql(sql)
+        execl_data = list(map(add_col, data))
+        insertData(sql, execl_data)
 
         hit_value = 100 / batch_size
         progress = round(float(hit_count * hit_value), 2)

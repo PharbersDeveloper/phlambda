@@ -176,14 +176,8 @@ def write2Clickhouse(message, mapper, item, dynamodb):
                 item[x] = re.sub("[']", "", fieldType(item[x]))
             item["version"] = version
             return item
-            # values = list(map(lambda v: "'{0}'".format(v), list(item.values())))
-            # return "(" + ",".join(values) + ")"
-
-        # excel_data = ",".join(list(map(add_col, data)))
-        # sql = sql + " " + excel_data + ";"
-        # print("sql ====> \n")
-        # print(sql)
-        # executeChDriverSql(sql)
+        print("sql ====> \n")
+        print(sql)
         execl_data = list(map(add_col, data))
         insertData(sql, execl_data)
 

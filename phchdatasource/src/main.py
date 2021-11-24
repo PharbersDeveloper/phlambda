@@ -38,7 +38,7 @@ default_list = ssm_dict.keys()
 
 def lambda_handler(event, context):
     args = eval(event['body'])
-    default = args.get('default')
+    default = args.get('default', 'default')
     is_default = default if default in default_list else None
 
     if is_default and rediscli.setnx(f'{app_name}', time.time()):
@@ -57,8 +57,8 @@ def lambda_handler(event, context):
         # 这里没有任何的错误处理
         logger.info(args)
         columns = args['schema']
+        commend = args.get('adapter')
 
-        commend = event.get('adapter')
         if commend in commends.keys():
             final_res = commends[commend](rows=rows, columns=columns)
 

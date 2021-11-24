@@ -7,7 +7,7 @@ class UpdateAction:
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
 
-    def updateItem(self, item_list, status="dag_conf insert success"):
+    def updateItem(self, item_list, table_name, status="dag_conf insert success"):
         for item in item_list:
             item.update({"jobCat": status})
             Key = {
@@ -27,7 +27,7 @@ class UpdateAction:
             del AttributeUpdates["projectId"]
             del AttributeUpdates["id"]
             data = {
-                "table_name": "action",
+                "table_name": table_name,
                 "Key": Key,
                 "AttributeUpdates": AttributeUpdates
             }

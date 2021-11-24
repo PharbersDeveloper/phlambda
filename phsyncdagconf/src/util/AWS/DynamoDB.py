@@ -35,6 +35,21 @@ class DynamoDB(object):
         )
         return res
 
+    def queryTableBeginWith(self, data):
+        table_name = data.get("table_name")
+        partition_key = data["partition_key"]
+        partition_value = data["partition_value"]
+        sort_key = data["sort_key"]
+        sort_value = data["sort_value"]
+        ds_table = self.dynamodb_resource.Table(table_name)
+        res = ds_table.query(
+            # AttributesToGet=[
+            #     "level"
+            # ],
+            KeyConditionExpression=Key(partition_key).eq(partition_value) & Key(sort_key).begins_with(sort_value)
+        )
+        return res
+
     def scanTable(self, data):
         table_name = data["table_name"]
         limit = data["limit"]

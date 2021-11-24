@@ -6,6 +6,7 @@ from createDag import CreateDag
 from createDagConf import CreateDagConf
 from updateAction import UpdateAction
 from rollBack import RollBack
+from uploadAirflow import Airflow
 
 class SyncDagConfToDynamoDB:
 
@@ -18,6 +19,7 @@ class SyncDagConfToDynamoDB:
         self.createDagConf = CreateDagConf()
         self.updateAction = UpdateAction()
         self.rollBack = RollBack()
+        self.airflow = Airflow()
 
     def process_insert_event(self):
         # 获取新插入item的 partition_key, sort_key, message
@@ -42,29 +44,35 @@ class SyncDagConfToDynamoDB:
         try:
             # 插入dagconf信息
             dag_conf_list = self.createDagConf.insert_dagconf(item_list)
+            print(dag_conf_list)
+            for dag_conf in dag_conf_list:
+            self.airflow.airflow(dag_conf_list)
         except Exception as e:
             # TODO 此处添加回滚功能
             # 对已经插入的item 进行回滚
             # self.rollBack.dag_conf_rollback(dag_conf_list)
-            raise Exception("插入dag_conf时错误:") + json.dumps(str(e))
+            raise Exception("插入dag_conf时错误:" + json.dumps(str(e)))
         else:
             # 更新action 中job cat为 dag_conf insert success
             status = "dag_conf insert success"
             # 插入dag_conf 成功后更新action 信息
-            self.updateAction.updateItem(item_list, status)
+            self.updateAction.updateItem(item_list, "action", status)
+            self.updateAction.updateItem(item_list, "notification", status)
 
         try:
             # 插入dag信息
             dag_item_list = self.createDag.create_dag(dag_conf_list)
+            print(item_list)
         except Exception as e:
             # TODO 此处添加回滚功能
             # self.rollBack.dag_rollback(dag_item_list)
-            raise Exception("插入dag时错误:") + json.dumps(str(e))
+            raise Exception("插入dag时错误:" + json.dumps(str(e)))
         else:
             # 更新action 中job cat为 dag insert success
             status = "dag insert success"
             # 插入dag成功后更新action 信息
-            self.updateAction.updateItem(item_list, status)
+            self.updateAction.updateItem(item_list, "action", status)
+            self.updateAction.updateItem(item_list, "notification", status)
 
 
 if __name__ == '__main__':

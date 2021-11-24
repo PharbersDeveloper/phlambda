@@ -17,12 +17,18 @@ class CreateDagConf:
             dag_conf.update({"inputs": json.dumps(dag_conf.get("inputs"))})
             dag_conf.update({"outputs": json.dumps(dag_conf.get("outputs"))})
             data.update({"item": dag_conf})
-            job_full_name = dag_conf.get("projectId") + "_" + \
+            job_full_name = dag_conf.get("jobId") + "_" + \
+                            dag_conf.get("projectId") + "_" + \
+                            dag_conf.get("dagName") + "_" + \
+                            dag_conf.get("flowVersion") + "_" + \
+                            dag_conf.get("jobName")
+            job_display_full_name = dag_conf.get("projectId") + "_" + \
                             dag_conf.get("dagName") + "_" + \
                             dag_conf.get("flowVersion") + "_" + \
                             dag_conf.get("jobName") + "_" + \
                             dag_conf.get("jobId")
             dag_conf.update({"jobName": job_full_name })
+            dag_conf.update({"jobDisplayName": job_display_full_name })
             # print("dagconf =======================================")
             # print(data)
             # self.dynamodb.putData(data)

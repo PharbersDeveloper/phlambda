@@ -55,7 +55,7 @@ class CreateDag:
     def create_link(self, dag_conf):
         """
         根据 dag_conf 的列表 分別创建每个dag_conf对应的link
-        :param dag_conf_list: dag的详细参数的列表
+        :param dag_conf: dag的详细参数的列表
         :return: 创建link成功后返回一条消息
         """
         def put_link_to_database(messages):
@@ -85,21 +85,23 @@ class CreateDag:
 
         def create_source_target_map(dag_conf):
             job_id = dag_conf.get("jobId")
-            job_name = dag_conf.get("jobName")
+            job_name = dag_conf.get("jobDisplayName")
             id_maps = []
-            for key, value in json.loads(dag_conf.get("inputs")).items():
+            for input in json.loads(dag_conf.get("inputs")):
+            # for key, value in json.loads(dag_conf.get("inputs")).items():
                 id_map = {}
-                id_map.update({"sourceId": value})
-                id_map.update({"sourceName": key})
+                id_map.update({"sourceId": input.get("id")})
+                id_map.update({"sourceName": input.get("name")})
                 id_map.update({"targetId": job_id})
                 id_map.update({"targetName": job_name})
                 id_maps.append(id_map)
-            for key, value in json.loads(dag_conf.get("outputs")).items():
+            for output in json.loads(dag_conf.get("outputs")):
+            # for key, value in json.loads(dag_conf.get("outputs")).items():
                 id_map = {}
                 id_map.update({"sourceId": job_id})
                 id_map.update({"sourceName": job_name})
-                id_map.update({"targetId": value})
-                id_map.update({"targetName": key})
+                id_map.update({"targetId": output.get("id")})
+                id_map.update({"targetName": output.get("name")})
                 id_maps.append(id_map)
 
             return id_maps
@@ -121,12 +123,12 @@ class CreateDag:
         represent_id = dag_conf.get("jobId")
         cat = "job"
         ctype = "node"
-        job_name = dag_conf.get("jobName")
-        name = dag_conf.get("dagName") \
-               + "_" + dag_conf.get("flowVersion") \
-               + "_" + dag_conf.get("jobName") \
-               + "_" + dag_conf.get("jobVersion")
-        level = level_maps["job_level_map"].get(name)
+        job_name = dag_conf.get("jobDisplayName")
+        # name = dag_conf.get("dagName") \
+        #        + "_" + dag_conf.get("flowVersion") \
+        #        + "_" + dag_conf.get("jobDisplayName") \
+        #        + "_" + dag_conf.get("jobVersion")
+        level = level_maps["job_level_map"].get(job_name)
         data = {}
         data.update({"table_name": "dag"})
         dag_item = {}
@@ -161,13 +163,15 @@ class CreateDag:
         def determine_output_level(dag_conf):
             outputs_level_maps = {}
             outputs = json.loads(dag_conf.get("outputs"))
-            for output_key, output_value in outputs.items():
+            for output in outputs:
+
+            # for output_key, output_value in outputs.items():
                 projectId = dag_conf.get("projectId")
                 get_data = {
                     "table_name": "dag",
                     "key": {
                         "projectId": projectId,
-                        "sortVersion": dag_conf.get("flowVersion") + "_" + output_value
+                        "sortVersion": dag_conf.get("flowVersion") + "_" + output.get("id")
                     }
                 }
                 res = self.dynamodb.getItem(get_data)
@@ -179,7 +183,7 @@ class CreateDag:
                     max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
                     output_level = max_level + 2
                 output_level_map = {
-                    output_value : output_level
+                    output.get("id") : output_level
                 }
                 outputs_level_maps.update(output_level_map)
             return outputs_level_maps
@@ -189,30 +193,33 @@ class CreateDag:
             for key, value in outputs_level_maps.items():
                 output_level_lists.append(value)
             job_level = int(min(output_level_lists)) - 1
-            name = dag_conf.get("dagName") \
-                   + "_" + dag_conf.get("flowVersion") \
-                   + "_" + dag_conf.get("jobName") \
-                   + "_" + dag_conf.get("jobVersion")
+            # name = dag_conf.get("dagName") \
+            #        + "_" + dag_conf.get("flowVersion") \
+            #        + "_" + dag_conf.get("jobDisplayName") \
+            #        + "_" + dag_conf.get("jobVersion")
+            name = dag_conf.get("jobDisplayName")
             job_level_map = {
                 name: job_level
             }
             return job_level_map
 
         def determine_input_level(dag_conf, job_level_map):
-            name = dag_conf.get("dagName") \
-                   + "_" + dag_conf.get("flowVersion") \
-                   + "_" + dag_conf.get("jobName") \
-                   + "_" + dag_conf.get("jobVersion")
+            # name = dag_conf.get("dagName") \
+            #        + "_" + dag_conf.get("flowVersion") \
+            #        + "_" + dag_conf.get("jobDisplayName") \
+            #        + "_" + dag_conf.get("jobVersion")
+            name = dag_conf.get("jobDisplayName")
             job_level = job_level_map.get(name)
             inputs_level_maps = {}
             inputs = json.loads(dag_conf.get("inputs"))
-            for input_key, input_value in inputs.items():
+            for input in inputs:
+            # for input_key, input_value in inputs.items():
                 projectId = dag_conf.get("projectId")
                 get_data = {
                     "table_name": "dag",
                     "key": {
                         "projectId": projectId,
-                        "sortVersion": dag_conf.get("flowVersion") + "_" + input_value
+                        "sortVersion": dag_conf.get("flowVersion") + "_" + input.get("id")
                     }
                 }
                 res = self.dynamodb.getItem(get_data)
@@ -227,7 +234,7 @@ class CreateDag:
                 if input_level >= job_level:
                     raise Exception("输入参数大于输出参数")
                 inputs_level_map = {
-                    input_value: input_level
+                    input.get("id"): input_level
                 }
                 inputs_level_maps.update(inputs_level_map)
             return inputs_level_maps
@@ -261,13 +268,15 @@ class CreateDag:
         """
         def create_dataset_node(data, item, dag_conf, ds_type, level_maps):
             dataset_node_list = []
-            for key, value in json.loads(dag_conf.get(ds_type)).items():
+            for ds in json.loads(dag_conf.get(ds_type)):
+
+            # for key, value in json.loads(dag_conf.get(ds_type)).items():
                 level_map = level_maps.get(ds_type + "_level_maps")
-                level = level_map.get(value)
-                item.update({"representId": value})
+                level = level_map.get(ds.get("id"))
+                item.update({"representId": ds.get("id")})
                 item.update({"flowVersion": dag_conf.get("flowVersion")})
-                item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + value})
-                item.update({"name": key})
+                item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + ds.get("id")})
+                item.update({"name": ds.get("name")})
                 item.update({"level": str(level)})
                 data.update({"item": item})
                 # print("dataset node ===============================================")
@@ -320,7 +329,7 @@ class CreateDag:
             # 根据创建 event 下所有的dag_conf 创建link
             link_list = self.create_link(dag_conf)
 
-            # 根据dag_conf 和 level_maps 创建dataset
+            # # 根据dag_conf 和 level_maps 创建dataset
             node_list = self.create_node(dag_conf, level_maps)
             link_list.extend(node_list)
 

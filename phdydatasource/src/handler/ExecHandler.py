@@ -10,6 +10,7 @@ from models.Partition import Partition
 from models.DataSet import DataSet
 from models.Notification import Notification
 from models.Dag import Dag
+from models.DagConf import DagConf
 
 # import base64
 # from util.AWS.STS import STS
@@ -37,7 +38,8 @@ __table_structure = {
     "partition": Partition,
     "dataset": DataSet,
     "notification": Notification,
-    "dag": Dag
+    "dag": Dag,
+    "dagconf": DagConf
 }
 
 

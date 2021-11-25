@@ -17,7 +17,7 @@ __TYPE_STRUCTURE = {
     "String": str
 }
 client = ClickHouse(host="192.168.16.117", port="9000").getClient()
-
+reg = "[\n\t\s（），+()-./\"'\\\\]"
 
 def executeChDriverSql(sql):
     result = client.execute(sql)
@@ -81,7 +81,6 @@ def insertDataset(item, dynamodb):
     # else:
     #     title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row + 1))
-    reg = "[\n\t\s（），+()-./\"'\\\\]"
     converted_mapper = list(map(lambda item: {
         "src": re.sub(reg, "_", item["src"]),
         "des": re.sub(reg, "_", item["des"]),
@@ -135,7 +134,6 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     des_table_name = message["destination"]
     tableName = item["projectId"] + "_" + des_table_name
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
-    reg = "[\n\t\s（），+()-./\"'\\\\]"
     fields = ", ".join(
         list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
     # if title_row == 0:
@@ -170,12 +168,13 @@ def write2Clickhouse(message, mapper, item, dynamodb):
         sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` ({cols_description}) VALUES"
 
         def add_col(item):
+            value = {}
             for x in list(item.keys()):
                 mi = list(filter(lambda mapperItem: mapperItem["des"] == x, mapper))[0]
                 fieldType = __TYPE_STRUCTURE[mi["type"]]
-                item[x] = re.sub("[']", "", fieldType(item[x]))
-            item["version"] = version
-            return item
+                value[re.sub(reg, "_", x)] = re.sub("[']", "", fieldType(item[x]))
+            value["version"] = version
+            return value
         print("sql ====> \n")
         print(sql)
         execl_data = list(map(add_col, data))

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from phcli.define_value import *
 
 CLI_VERSION = "2020-11-11"
 

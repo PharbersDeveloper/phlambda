@@ -1,0 +1,46 @@
+{
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "id": {
+            "S": "Zz4OaNcwWn1moae"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          },
+          "message": {
+            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_d\",\"jobId\": \"1qaz4rfv\",\"inputs\": [{\"name\": \"TEst0000\", \"id\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\"}, {\"name\": \"TEst111\", \"id\": \"f1c06c818ec5a31ceb7dfee1623a6afd.xlsx\"}],\"outputs\": [{\"name\": \"at1\", \"id\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+          },
+          "property": {
+            "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
+          },
+          "id": {
+            "S": "Zz4OaNcwWn1moae"
+          },
+          "category": {
+            "S": "csv"
+          },
+          "status": {
+            "S": "creating"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
+}

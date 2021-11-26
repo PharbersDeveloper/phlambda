@@ -78,7 +78,7 @@ class CreateDag:
                 data.update({"level": None})
                 # print("dag link ========================================")
                 # print(data)
-                # self.dynamodb.putData(data)
+                self.dynamodb.putData(data)
                 link_list.append(data)
 
             return link_list
@@ -152,7 +152,7 @@ class CreateDag:
         data.update({"item": dag_item})
         # print("job node ====================================")
         # print(data)
-        # self.dynamodb.putData(data)
+        self.dynamodb.putData(data)
         job_node_list.append(data)
 
         return job_node_list
@@ -281,7 +281,7 @@ class CreateDag:
                 data.update({"item": item})
                 # print("dataset node ===============================================")
                 # print(data)
-                # self.dynamodb.putData(data)
+                self.dynamodb.putData(data)
                 dataset_node_list.append(data)
             return dataset_node_list
 

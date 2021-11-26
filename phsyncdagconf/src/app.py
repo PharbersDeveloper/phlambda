@@ -3,6 +3,7 @@ from delegate.SyncDagConfToDynamoDB import SyncDagConfToDynamoDB
 
 
 def lambda_handler(event, context):
+    # 11261502
     print(event)
     app = SyncDagConfToDynamoDB(event=event, context=context)
     app.exec()

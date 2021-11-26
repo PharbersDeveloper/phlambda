@@ -10,15 +10,15 @@ class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
         self.phdynamodb = DynamoDB()
-        self.job_path_prefix = "/mnt/phjobs/"
+        self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/tmp/max/airlow/dags"
+        self.operator_path = "/mnt/tmp/max/airlow/dags"
         pass
 
     def create_init(self, dag_conf, path=None):
         # lmd中默认创建到tmp下的phjobs /tmp/phjobs/
 
-        dag_name = dag_conf.get("projectId") + \
+        dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
 
@@ -32,7 +32,7 @@ class Airflow:
         # if not path:
         #     path = self.job_path + "/arg.properties"
         # subprocess.call(["touch", path])
-        dag_name = dag_conf.get("projectId") + \
+        dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
 
@@ -55,7 +55,7 @@ class Airflow:
 
     def create_phmain(self, dag_conf, path=None):
         if not path:
-            dag_name = dag_conf.get("projectId") + \
+            dag_name = dag_conf.get("projectName") + \
                        "_" + dag_conf.get("dagName") + \
                        "_" + dag_conf.get("flowVersion")
 
@@ -115,7 +115,7 @@ class Airflow:
         # 1. /__init__.py file
         # self.create_init()
 
-        dag_name = dag_conf.get("projectId") + \
+        dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
 
@@ -131,12 +131,9 @@ class Airflow:
 
             file.write("""
     result_path_prefix = kwargs["result_path_prefix"]
+    spark = kwargs["spark"]()
     depends_path = kwargs["depends_path"]
 
-    logger.info(kwargs["a"])
-    logger.info(kwargs["b"])
-    logger.info(kwargs["c"])
-    logger.info(kwargs["d"])
     return {}
 """)
 
@@ -147,7 +144,7 @@ class Airflow:
 
     def upload_phjob_files(self, dag_conf):
 
-        dag_name = dag_conf.get("projectId") + \
+        dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
         operator_dir_path = self.job_path_prefix + dag_name + "/" + dag_conf.get("jobDisplayName")
@@ -169,7 +166,7 @@ class Airflow:
                     "partition_key": "flowVersion",
                     "partition_value": dag_conf.get("flowVersion"),
                     "sort_key": "jobName",
-                    "sort_value": targetJobId + "_" + dag_conf.get("projectId")
+                    "sort_value": targetJobId + "_" + dag_conf.get("projectName")
                 }
                 res = self.phdynamodb.queryTableBeginWith(data)
                 if res.get("Items"):
@@ -233,7 +230,7 @@ class Airflow:
 
         # 判断dag的operator是否存在 存在则直接添加
         # 如果没有则根据模板创建
-        dag_name = dag_conf.get("projectId") + \
+        dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
         operator_file_name = "ph_dag_" + dag_name + ".py"

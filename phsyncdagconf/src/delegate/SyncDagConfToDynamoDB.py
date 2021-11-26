@@ -2,11 +2,11 @@ import os
 import json
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-from createDag import CreateDag
-from createDagConf import CreateDagConf
-from updateAction import UpdateAction
-from rollBack import RollBack
-from uploadAirflow import Airflow
+from delegate.createDag import CreateDag
+from delegate.createDagConf import CreateDagConf
+from delegate.updateAction import UpdateAction
+from delegate.rollBack import RollBack
+from delegate.uploadAirflow import Airflow
 
 class SyncDagConfToDynamoDB:
 
@@ -45,12 +45,11 @@ class SyncDagConfToDynamoDB:
             # 插入dagconf信息
             dag_conf_list = self.createDagConf.insert_dagconf(item_list)
             print(dag_conf_list)
-            for dag_conf in dag_conf_list:
             self.airflow.airflow(dag_conf_list)
         except Exception as e:
             # TODO 此处添加回滚功能
             # 对已经插入的item 进行回滚
-            # self.rollBack.dag_conf_rollback(dag_conf_list)
+            self.rollBack.dag_conf_rollback(dag_conf_list)
             raise Exception("插入dag_conf时错误:" + json.dumps(str(e)))
         else:
             # 更新action 中job cat为 dag_conf insert success
@@ -58,11 +57,9 @@ class SyncDagConfToDynamoDB:
             # 插入dag_conf 成功后更新action 信息
             self.updateAction.updateItem(item_list, "action", status)
             self.updateAction.updateItem(item_list, "notification", status)
-
         try:
             # 插入dag信息
             dag_item_list = self.createDag.create_dag(dag_conf_list)
-            print(item_list)
         except Exception as e:
             # TODO 此处添加回滚功能
             # self.rollBack.dag_rollback(dag_item_list)
@@ -76,7 +73,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event.json") as f:
+    with open("../events/event_a.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

@@ -1,3 +1,4 @@
+import json
 from Context import Context
 from XlsxStrategy import XlsxStrategy
 from CsvStrategy import CsvStrategy
@@ -17,16 +18,16 @@ class ChoiceMain:
         pass
 
     def choice(self, data) -> None:
-        category = data.get("category", "").lower()
+        body = json.loads(data.get('body'))
+        category = body.get("category", "").lower()
         method = self.strategy_fun.get(category, None)
         if method is not None:
             ctx = Context(method())
-            ctx.run(data)
+            return ctx.run(body)
 
 
 if __name__ == "__main__":
-    ChoiceMain().choice({
-        "category": "Xlsx",
-        "sql": "SELECT `通用名称`, `商品名称`, `生产企业`, `剂型`, `规格`, `包装数量`, `包装单位`, `PACKCODE`, `项目`, `version` FROM default.`测试analyze` WHERE 1 = 1 LIMIT 200 OFFSET 0",
-        "schema": ["通用名称", "商品名称", "生产企业", "剂型", "规格", "包装数量", "包装单位", "PACKCODE", "项目", "version"]
-    })
+    ChoiceMain().choice({"category": "parquet",
+                         "sql": "SELECT `id`, `name`, `gender`, `test` FROM default.`student`",
+                         "schema": ["id", "name", "gender", "test"],
+                         "file_name": "test23.parquet"})

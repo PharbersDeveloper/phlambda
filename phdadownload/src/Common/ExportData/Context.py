@@ -1,4 +1,5 @@
-from Strategy import Strategy
+# from Strategy import Strategy
+from __init__ import Strategy
 
 
 class Context:
@@ -15,4 +16,4 @@ class Context:
         self._strategy = strategy
 
     def run(self, data) -> None:
-        self._strategy.do_exec(data)
+        return self._strategy.run(**data)

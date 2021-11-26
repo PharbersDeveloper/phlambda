@@ -17,6 +17,8 @@ class DagConf(Model):
         "projectId": fields.Str(dump_default="unknown"),
         "runtime": fields.Str(dump_default="unknown"),
         "targetJobId": fields.Str(dump_default="unknown"),
-        "timeout": fields.Str(dump_default="unknown")
+        "timeout": fields.Str(dump_default="unknown"),
+        "labels": fields.Str(dump_default="unknown"),
+        "projectName": fields.Str(dump_default="unknown")
     }
 

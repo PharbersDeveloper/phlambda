@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phchdatasource-v2
+Description: cicd lambda phchdatasource-dev
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,11 +11,16 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phchdatasource-V2
+      FunctionName: lmd-phchdatasource-dev
       Description: "phchdatasource-v2 "
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 5
+      Environment:
+        Variables:
+          HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
+          PORT: "6379"
+          APP_NAME: "phchdatasource"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

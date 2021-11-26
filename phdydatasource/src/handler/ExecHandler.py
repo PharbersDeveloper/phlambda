@@ -8,6 +8,8 @@ from models.Action import Action
 from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
+from models.Notification import Notification
+from models.Dag import Dag
 
 # import base64
 # from util.AWS.STS import STS
@@ -24,6 +26,7 @@ __dynamodb_func = {
     "scan": dynamodb.scanTable,
     "put_item": dynamodb.putData,
     "delete_item": dynamodb.deleteData,
+    "batch_get_item": dynamodb.batchGetItem
 }
 
 __table_structure = {
@@ -32,18 +35,35 @@ __table_structure = {
     "action": Action,
     "project_files": ProjectFile,
     "partition": Partition,
-    "dataset": DataSet
+    "dataset": DataSet,
+    "notification": Notification,
+    "dag": Dag
 }
 
 
 def __queryData(table, body, type_name):
     dy_method = __dynamodb_func[type_name]
-    limit = body["limit"]
-    start_key = "" if len(body["start_key"]) == 0 else body["start_key"]
+    limit = body.get("limit", 0)
+    start_key = "" if len(body.get("start_key", "")) == 0 else body.get("start_key", "")
     conditions = body["conditions"]
 
     expr = Expression().join_expr(type_name, conditions)
     payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
+
+    result = list(map(lambda item: __table_structure[table](item), payload["data"]))
+    json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
+    json_api_data["meta"] = {
+        "start_key": payload["start_key"]
+    }
+    return json_api_data
+
+
+def __batch_get_items(table, body, type_name):
+    dy_method = __dynamodb_func[type_name]
+    conditions = body["conditions"]
+
+    expr = Expression().assemble_batch_item_keys(conditions)
+    payload = dy_method({"table_name": table, "expression": expr})
 
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
     json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
@@ -71,7 +91,8 @@ __exec_func = {
     "query": __queryData,
     "scan": __queryData,
     "put_item": __putItem,
-    "delete_item": __deleteItem
+    "delete_item": __deleteItem,
+    "batch_get_item": __batch_get_items
 }
 
 

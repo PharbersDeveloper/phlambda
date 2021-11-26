@@ -27,6 +27,10 @@ class Excel:
         # print(self.adapted_mapper)
         # print(adapted_mapper)
         # 这里判断，判断输入的参数是不是在你的数据dim之内
+        print("Excel DIMS ===> \n")
+        print(dim_mapper)
+        print(adapted_mapper)
+
         if len(dim_mapper - adapted_mapper) != 0:
             raise Exception("DIM Don't match")
         self.data_rows_count = self.calDataRowsCount(self.dim)
@@ -102,14 +106,14 @@ class Excel:
             values.append(tmp)
             row_process_count += 1
             if row_process_count == self.step_indeies[batch_hit_time] - 1:
-                func(values, self.adapted_mapper)
-                values.clear()
                 batch_hit_time = batch_hit_time + 1
+                func(values, self.adapted_mapper, len(self.step_indeies), batch_hit_time)
+                values.clear()
                 if batch_hit_time == len(self.step_indeies):
                     break
 
     @staticmethod
-    def getSchema(path, sheet_name, skip_first, skip_next=0):
+    def getSchema(path, sheet_name, skip_first):
         wb = openpyxl.load_workbook(filename=path, read_only=True, keep_links=False, data_only=True)
         ws = wb[sheet_name]
         rows = ws.iter_rows(min_row=skip_first, max_row=skip_first)

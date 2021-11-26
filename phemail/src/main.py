@@ -22,11 +22,8 @@ server = smtplib.SMTP_SSL(g_host, g_port)
 server.login(g_username, g_pwd)
 
 
-def forgetPassword(html_content, code, url_tokens):  # 忘记密码html页面处理
-    url = url_tokens
+def forgetPassword(html_content, code):  # 忘记密码html页面处理
     html_content = html_content.replace("$$$验证码$$$", code)
-    html_content = html_content.replace("$$$URL_ADDRESS$$$", url)
-    html_content = html_content.replace("$$$URL$$$", "点击我修改密码")
     return html_content
 
 
@@ -34,12 +31,12 @@ def tes(html_content, code):
     pass
 
 
-def loadContent(code, tokens, content_type):  # 选择获取哪个存储桶内容， 并处理网页内容
+def loadContent(code, content_type):  # 选择获取哪个存储桶内容， 并处理网页内容
     func = {"forget_password": forgetPassword, "test": tes}
     key_choice = {"forget_password": g_key_pwd, "test": g_key_test}
     client = boto3.client('s3')
     response = client.get_object(Bucket=g_bucket, Key=key_choice[content_type])['Body'].read().decode()
-    html_content = func[content_type](response, code, tokens)
+    html_content = func[content_type](response, code)
     return html_content
 
 
@@ -79,7 +76,7 @@ def lambdaHandler(event, context):  # 主函数入口
             event = json.loads(event)
         sendEmail(address=event["address"],
                   subject=event["subject"],
-                  html_content=loadContent(event["code"], event["url_tokens"], event["content_type"]),
+                  html_content=loadContent(event["code"],  event["content_type"]),
                   attachments=event["attachments"],
                   )
         result_message = {

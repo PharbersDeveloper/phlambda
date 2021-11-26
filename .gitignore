@@ -185,3 +185,13 @@ phxlsxtockhouse/buildspec.yaml
 phcleards/buildspec.yaml
 
 phremoveds/buildspec.yaml
+
+phdydatasource/buildspec.yaml
+
+phcleards/package.yaml
+
+phremoveds/package.yaml
+
+phdadatasource/package.yaml
+
+phdadatasource/buildspec.yaml

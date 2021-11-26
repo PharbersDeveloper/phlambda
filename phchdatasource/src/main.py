@@ -11,6 +11,11 @@ from returen_data_type import adapter_list_of_dict, adapter_list_of_list
 
 # app_name = 'phchdatasource'
 app_name = os.environ.get('APP_NAME')
+redis = {
+    'host': os.environ.get('HOST'),
+    'port': os.environ.get('PORT')
+}
+
 logger = logging.getLogger(f'{app_name}')
 
 # ssm get url
@@ -22,10 +27,6 @@ response = client.get_parameter(
 ssm_dict = json.loads(response.get('Parameter').get('Value'))
 
 # redis cli
-redis = {
-    'host': os.environ.get('HOST'),
-    'port': os.environ.get('PORT')
-}
 pool = ConnectionPool(**redis, max_connections=10, decode_responses=True)
 rediscli:Redis = Redis(connection_pool=pool)
 

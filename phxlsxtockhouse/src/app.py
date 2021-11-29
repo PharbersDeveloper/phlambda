@@ -73,9 +73,11 @@ def insertDataset(item, dynamodb):
     title_row = message["skipValue"]
     file_name = message["fileId"]
     sheet_name = message["fileSheet"]
-    label = message.get("label", "[]")
+    # label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
+    print("message =====> \n")
+    print(message)
     # if title_row == 0:
     #     title_row += 1
     # else:
@@ -104,6 +106,7 @@ def insertDataset(item, dynamodb):
         if len(schema - fileSchema) != 0:
             raise Exception("Schema Not Matched,请使用高级映射！")
     dsId = data[0]["id"] if len(data) > 0 else file_name
+    label = data[0]["label"] if len(data) > 0 else "[]"
     dynamodb.putData({
         "table_name": "dataset",
         "item": {
@@ -156,12 +159,16 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     countSql = f"SELECT COUNT(1) FROM " \
                f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                f"WHERE version = '{version}'"
+    print("count sql ======> \n")
+    print(countSql)
     count = list(executeChDriverSql(countSql).pop()).pop()
     if count > 0:
         raise Exception("version already exist")
 
     # excel回调数据
     def callBack(data, adapted_mapper, batch_size, hit_count):
+        print("data ===> \n")
+        print(data)
         cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
@@ -230,4 +237,3 @@ def lambda_handler(event, context):
         print(e)
         updateAction(history, dynamodb, "failed")
         insetNotification(history, dynamodb, {"progress": -1}, "failed", str(e))
-    return {}

@@ -7,9 +7,9 @@ class UpdateAction:
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
 
-    def updateItem(self, item_list, table_name, status="dag_conf insert success"):
+    def updateItem(self, item_list, table_name, status=" "):
         for item in item_list:
-            item.update({"jobCat": status})
+            item.update({"jobDesc": status})
             Key = {
                 "id": item.get("id"),
                 "projectId": item.get("projectId")
@@ -31,4 +31,17 @@ class UpdateAction:
                 "Key": Key,
                 "AttributeUpdates": AttributeUpdates
             }
-            # self.dynamodb.updateData(data)
+            print(data)
+            self.dynamodb.updateData(data)
+
+    def update_notification(self, item_list, table_name, status=" "):
+        message = {
+            "type": "notification",
+            "opname": "c89b8123-a120-498f-963c-5be102ee9082",
+            "opgroup": "zudIcG_17yj8CEUoCTHg",
+            "cnotification": {
+                "status": "upload_succeed",
+                "error": ""
+            }
+        }
+        pass

@@ -49,7 +49,7 @@ class SyncDagConfToDynamoDB:
         except Exception as e:
             # TODO 此处添加回滚功能
             # 对已经插入的item 进行回滚
-            self.rollBack.dag_conf_rollback(dag_conf_list)
+            # self.rollBack.dag_conf_rollback(dag_conf_list)
             raise Exception("插入dag_conf时错误:" + json.dumps(str(e)))
         else:
             # 更新action 中job cat为 dag_conf insert success

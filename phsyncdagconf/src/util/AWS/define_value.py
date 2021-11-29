@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+S3_PREFIX = "s3://"
 CLI_VERSION = "2020-11-11"
 
 ASSUME_ROLE_ARN = 'YXJuOmF3cy1jbjppYW06OjQ0NDYwMzgwMzkwNDpyb2xlL1BoLUNsaS1NYXhBdXRv'

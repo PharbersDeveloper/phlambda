@@ -10,7 +10,7 @@
         "ApproximateCreationDateTime": 1635485706,
         "Keys": {
           "id": {
-            "S": "Zz4OaNcwWn1moae"
+            "S": "79NXLQ3qlNobiod"
           },
           "projectId": {
             "S": "JfSmQBYUpyb4jsei"
@@ -21,19 +21,28 @@
             "S": "JfSmQBYUpyb4jsei"
           },
           "message": {
-            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_d\",\"jobId\": \"1qaz4rfv\",\"inputs\": [{\"name\": \"TEst0000\", \"id\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\"}, {\"name\": \"TEst111\", \"id\": \"f1c06c818ec5a31ceb7dfee1623a6afd.xlsx\"}],\"outputs\": [{\"name\": \"at1\", \"id\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_a\",\"jobId\": \"1qaz4rfv\",\"inputs\": [{\"name\": \"at1\", \"id\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"}],\"outputs\": [{\"name\": \"at2\", \"id\": \"6284c6d4db1fbqweagsa40482984ded.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
           },
-          "property": {
-            "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
+          "code": {
+            "S": "0"
           },
           "id": {
-            "S": "Zz4OaNcwWn1moae"
+            "S": "79NXLQ3qlNobiod"
           },
-          "category": {
-            "S": "csv"
+          "date": {
+            "S": "1637756524405"
           },
-          "status": {
-            "S": "creating"
+          "jobDesc": {
+            "S": "succeed"
+          },
+          "comments": {
+            "S": "clear_dataset_tags"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "clear_DS_data"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

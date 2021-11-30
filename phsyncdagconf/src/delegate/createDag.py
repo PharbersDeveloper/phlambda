@@ -72,7 +72,7 @@ class CreateDag:
                 item.update({"ctype": "link"})
                 item.update({"cat": None})
                 item.update({"name": None})
-                item.update({"cmessage": json.dumps(message)})
+                item.update({"cmessage": json.dumps(message, ensure_ascii=False)})
                 data.update({"item": item})
                 data.update({"position": None})
                 data.update({"level": None})

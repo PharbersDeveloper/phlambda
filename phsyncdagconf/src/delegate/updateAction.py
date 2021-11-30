@@ -31,7 +31,7 @@ class UpdateAction:
             "AttributeUpdates": AttributeUpdates
         }
         print(data)
-        # self.dynamodb.updateData(data)
+        self.dynamodb.updateData(data)
 
     def updateNotification(self, item, table_name, dag_conf, status=" "):
         message = {
@@ -66,6 +66,30 @@ class UpdateAction:
             "Key": Key,
             "AttributeUpdates": AttributeUpdates
         }
-        # self.dynamodb.updateData(data)
+        self.dynamodb.updateData(data)
 
-    def updata_targetId(self, item, table_name, jobId):
+    def updateDagConf(self, item):
+
+
+        Key = {
+            "projectId": item.get("projectId"),
+            "jobName": item.get("jobName")
+        }
+
+        AttributeUpdates={}
+        for key, value in item.items():
+            update = {
+                key: {
+                    "Value": value,
+                    "Action": "PUT"
+                }
+            }
+            AttributeUpdates.update(update)
+        del AttributeUpdates["projectId"]
+        del AttributeUpdates["jobName"]
+        data = {
+            "table_name": "dagconf",
+            "Key": Key,
+            "AttributeUpdates": AttributeUpdates
+        }
+        self.dynamodb.updateData(data)

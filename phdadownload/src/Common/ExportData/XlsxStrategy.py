@@ -1,6 +1,6 @@
 
 import pandas as pd
-from __init__ import Strategy
+from Common.ExportData.__init__ import Strategy
 
 
 class XlsxStrategy(Strategy):

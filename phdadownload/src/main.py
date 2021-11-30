@@ -1,14 +1,24 @@
+# import json
+# from Common.ExportData.ChoiceMain import ChoiceMain
+#
+#
+# def lambda_handler(event, context):
+#
+#     return {
+#         "statusCode": 200,
+#         "headers": {"Access-Control-Allow-Origin": "*"},
+#         "body": ChoiceMain().choice(event)
+#     }
+# ssm get url
+
+
 import json
-from Common.ExportData.ChoiceMain import ChoiceMain
-# TODO 差获取ClickHouse数据通过Panda是写入临时目录 （Lambda）
-# TODO 通过写入临时目录的文件上传到S3的指定目录下
-# TODO 根据S3指定的目录文件生成signed-url返回给前端
+import boto3
 
-
-def lambda_handler(event, context):
-
-    return {
-        "statusCode": 200,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": ChoiceMain().choice(event)
-    }
+ssm_client = boto3.client('ssm', region='cn-northwest-1')
+response = ssm_client.get_parameter(
+    Name='projects_driver_args',
+    WithDecryption=True|False
+)
+ssm_dict = json.loads(response.get('Parameter').get('Value'))
+print(ssm_dict)

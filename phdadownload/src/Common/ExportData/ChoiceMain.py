@@ -1,8 +1,8 @@
 import json
-from Context import Context
-from XlsxStrategy import XlsxStrategy
-from CsvStrategy import CsvStrategy
-from ParquetStrategy import ParquetStrategy
+from Common.ExportData.Context import Context
+from Common.ExportData.XlsxStrategy import XlsxStrategy
+from Common.ExportData.CsvStrategy import CsvStrategy
+from Common.ExportData.ParquetStrategy import ParquetStrategy
 
 
 class ChoiceMain:
@@ -21,6 +21,7 @@ class ChoiceMain:
         body = json.loads(data.get('body'))
         category = body.get("category", "").lower()
         method = self.strategy_fun.get(category, None)
+
         if method is not None:
             ctx = Context(method())
             return ctx.run(body)

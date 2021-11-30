@@ -1,5 +1,5 @@
 # from Strategy import Strategy
-from __init__ import Strategy
+from Common.ExportData.__init__ import Strategy
 
 
 class Context:

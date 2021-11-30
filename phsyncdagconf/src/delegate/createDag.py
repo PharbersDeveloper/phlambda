@@ -318,20 +318,19 @@ class CreateDag:
 
         job_node_list.extend(dataset_node_list)
         return job_node_list
-    def create_dag(self, dag_conf_list):
+    def create_dag(self, dag_conf):
         """
         创建 dag link
         :param dag_conf_list: dag的详细参数的列表
         """
-        for dag_conf in dag_conf_list:
-            level_maps = self.determine_node_level(dag_conf)
+        level_maps = self.determine_node_level(dag_conf)
 
-            # 根据创建 event 下所有的dag_conf 创建link
-            link_list = self.create_link(dag_conf)
+        # 根据创建 event 下所有的dag_conf 创建link
+        link_list = self.create_link(dag_conf)
 
-            # # 根据dag_conf 和 level_maps 创建dataset
-            node_list = self.create_node(dag_conf, level_maps)
-            link_list.extend(node_list)
+        # # 根据dag_conf 和 level_maps 创建dataset
+        node_list = self.create_node(dag_conf, level_maps)
+        link_list.extend(node_list)
 
-            return link_list
+        return link_list
 

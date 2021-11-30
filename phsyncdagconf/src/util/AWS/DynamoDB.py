@@ -115,6 +115,16 @@ class DynamoDB(object):
 
         return res
 
+    def query_attribute(self, data):
+        table_name= data.get("table_name")
+        attribute_key = data["attribute"].get("key")
+        attribute_value = data["attribute"].get("value")
+        table = self.dynamodb_resource.Table(table_name)
+        res = table.scan(
+            FilterExpression=Attr(attribute_key).eq(attribute_value),
+        )
+        return res
+
     def delete_item(self, data):
         table_name = data.get("table_name")
         key = data.get("name")

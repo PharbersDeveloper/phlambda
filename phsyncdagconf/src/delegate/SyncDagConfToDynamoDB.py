@@ -41,35 +41,43 @@ class SyncDagConfToDynamoDB:
         # 处理event
         item_list = self.process_insert_event()
 
-        try:
-            # 插入dagconf信息
-            dag_conf_list = self.createDagConf.insert_dagconf(item_list)
-            print(dag_conf_list)
-            self.airflow.airflow(dag_conf_list)
-        except Exception as e:
-            # TODO 此处添加回滚功能
-            # 对已经插入的item 进行回滚
-            # self.rollBack.dag_conf_rollback(dag_conf_list)
-            raise Exception("插入dag_conf时错误:" + json.dumps(str(e)))
-        else:
-            # 更新action 中job cat为 dag_conf insert success
-            status = "dag_conf insert success"
-            # 插入dag_conf 成功后更新action 信息
-            self.updateAction.updateItem(item_list, "action", status)
-            self.updateAction.updateItem(item_list, "notification", status)
-        try:
-            # 插入dag信息
-            dag_item_list = self.createDag.create_dag(dag_conf_list)
-        except Exception as e:
-            # TODO 此处添加回滚功能
-            # self.rollBack.dag_rollback(dag_item_list)
-            raise Exception("插入dag时错误:" + json.dumps(str(e)))
-        else:
-            # 更新action 中job cat为 dag insert success
-            status = "dag insert success"
-            # 插入dag成功后更新action 信息
-            self.updateAction.updateItem(item_list, "action", status)
-            self.updateAction.updateItem(item_list, "notification", status)
+        for item in item_list:
+            try:
+                # 插入dagconf信息
+                dag_conf = self.createDagConf.insert_dagconf(item)
+                # print(dag_conf)
+                # self.airflow.airflow(dag_conf)
+            except Exception as e:
+                # TODO 此处添加回滚功能
+                # 对已经插入的item 进行回滚
+                # self.rollBack.dag_conf_rollback(dag_conf_list)
+                status = "插入dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
+                raise Exception(status)
+            else:
+                # 更新action 中job cat为 dag_conf insert success
+                status = "dag_conf insert success"
+            finally:
+                # 更新action 信息
+                print(1)
+            #     self.updateAction.updateItem(item, "action", status)
+            #     if not status == "dag_conf insert success":
+            #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+            #     else:
+            #         self.updateAction.updateNotification(item, "notification", dag_conf, status)
+            #
+            # try:
+            #     # 插入dag信息
+            #     dag_item = self.createDag.create_dag(dag_conf)
+            # except Exception as e:
+            #     # TODO 此处添加回滚功能
+            #     # self.rollBack.dag_rollback(dag_item_list)
+            #     raise Exception("插入dag时错误:" + json.dumps(str(e)))
+            # else:
+            #     # 更新action 中job cat为 dag insert success
+            #     status = "dag insert success"
+            #     # 插入dag成功后更新action 信息
+            #     self.updateAction.updateItem(item, "action", status)
+            #     self.updateAction.updateNotification(item, "notification", dag_conf, status)
 
 
 if __name__ == '__main__':

@@ -234,18 +234,17 @@ class Airflow:
         # 根据 dag_name 添加箭头指向 到dag operator.py文件
 
 
-    def airflow(self, dag_conf_list):
+    def airflow(self, dag_conf):
 
-        for dag_conf in dag_conf_list:
-            # 创建args_properties
-            # TODO 把dag_conf 创建成整个类的变量
-            self.create_init(dag_conf)
-            self.cerate_args_properties(dag_conf)
-            self.create_phmain(dag_conf)
-            self.create_phjobs(dag_conf)
+        # 创建args_properties
+        # TODO 把dag_conf 创建成整个类的变量
+        self.create_init(dag_conf)
+        self.cerate_args_properties(dag_conf)
+        self.create_phmain(dag_conf)
+        self.create_phjobs(dag_conf)
 
-            # 创建或者更新airflow operator 文件
-            self.airflow_operator_file(dag_conf)
+        # 创建或者更新airflow operator 文件
+        self.airflow_operator_file(dag_conf)
 
-            # 上传phjob文件
-            self.upload_phjob_files(dag_conf)
+        # 上传phjob文件
+        self.upload_phjob_files(dag_conf)

@@ -7,41 +7,65 @@ class UpdateAction:
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
 
-    def updateItem(self, item_list, table_name, status=" "):
-        for item in item_list:
-            item.update({"jobDesc": status})
-            Key = {
-                "id": item.get("id"),
-                "projectId": item.get("projectId")
-            }
+    def updateItem(self, item, table_name, status=" "):
+        item.update({"jobDesc": status})
+        Key = {
+            "id": item.get("id"),
+            "projectId": item.get("projectId")
+        }
 
-            AttributeUpdates={}
-            for key, value in item.items():
-                update = {
-                    key: {
-                        "Value": value,
-                        "Action": "PUT"
-                    }
+        AttributeUpdates={}
+        for key, value in item.items():
+            update = {
+                key: {
+                    "Value": value,
+                    "Action": "PUT"
                 }
-                AttributeUpdates.update(update)
-            del AttributeUpdates["projectId"]
-            del AttributeUpdates["id"]
-            data = {
-                "table_name": table_name,
-                "Key": Key,
-                "AttributeUpdates": AttributeUpdates
             }
-            print(data)
-            self.dynamodb.updateData(data)
+            AttributeUpdates.update(update)
+        del AttributeUpdates["projectId"]
+        del AttributeUpdates["id"]
+        data = {
+            "table_name": table_name,
+            "Key": Key,
+            "AttributeUpdates": AttributeUpdates
+        }
+        print(data)
+        # self.dynamodb.updateData(data)
 
-    def update_notification(self, item_list, table_name, status=" "):
+    def updateNotification(self, item, table_name, dag_conf, status=" "):
         message = {
             "type": "notification",
-            "opname": "c89b8123-a120-498f-963c-5be102ee9082",
-            "opgroup": "zudIcG_17yj8CEUoCTHg",
+            "opname": item.get("owner"),
             "cnotification": {
-                "status": "upload_succeed",
+                "jobId": dag_conf.get("jobId"),
+                "status": status,
                 "error": ""
             }
         }
-        pass
+        item.update({"jobDesc": status})
+        item.update({"message": json.dumps(message,  ensure_ascii=False)})
+        Key = {
+            "id": item.get("id"),
+            "projectId": item.get("projectId")
+        }
+
+        AttributeUpdates={}
+        for key, value in item.items():
+            update = {
+                key: {
+                    "Value": value,
+                    "Action": "PUT"
+                }
+            }
+            AttributeUpdates.update(update)
+        del AttributeUpdates["projectId"]
+        del AttributeUpdates["id"]
+        data = {
+            "table_name": table_name,
+            "Key": Key,
+            "AttributeUpdates": AttributeUpdates
+        }
+        # self.dynamodb.updateData(data)
+
+    def updata_targetId(self, item, table_name, jobId):

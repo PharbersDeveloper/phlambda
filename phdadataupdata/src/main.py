@@ -32,7 +32,7 @@ def run(timespan, **kwargs):
         return 'timespan error'
 
 
-def lambdaHandler(event, context):
+def lambda_handler(event, context):
 
     return {
         "statusCode": 200,

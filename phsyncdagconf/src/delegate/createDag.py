@@ -21,14 +21,10 @@ class CreateDag:
             if type(level) == str:
                 level_list.append(int(level))
 
-        # print("level_list ====================================")
-        # print(level_list)
         if len(level_list) == 0:
             max_level = 0
         else:
             max_level = max(level_list)
-        # print("max_level ====================================")
-        # print(max_level)
 
         return max_level
 
@@ -76,9 +72,10 @@ class CreateDag:
                 data.update({"item": item})
                 data.update({"position": None})
                 data.update({"level": None})
+                data.update({"runtime": None})
                 # print("dag link ========================================")
                 # print(data)
-                # self.dynamodb.putData(data)
+                self.dynamodb.putData(data)
                 link_list.append(data)
 
             return link_list
@@ -88,7 +85,6 @@ class CreateDag:
             job_name = dag_conf.get("jobDisplayName")
             id_maps = []
             for input in json.loads(dag_conf.get("inputs")):
-            # for key, value in json.loads(dag_conf.get("inputs")).items():
                 id_map = {}
                 id_map.update({"sourceId": input.get("id")})
                 id_map.update({"sourceName": input.get("name")})
@@ -96,7 +92,6 @@ class CreateDag:
                 id_map.update({"targetName": job_name})
                 id_maps.append(id_map)
             for output in json.loads(dag_conf.get("outputs")):
-            # for key, value in json.loads(dag_conf.get("outputs")).items():
                 id_map = {}
                 id_map.update({"sourceId": job_id})
                 id_map.update({"sourceName": job_name})
@@ -138,6 +133,7 @@ class CreateDag:
         dag_item.update({"flowVersion": dag_conf.get("flowVersion")})
         dag_item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + represent_id})
         dag_item.update({"cat": cat})
+        dag_item.update({"runtime": dag_conf.get("runtime")})
         dag_item.update({"ctype": ctype})
         dag_item.update({"name": job_name})
         dag_item.update({"level": str(level)})
@@ -152,7 +148,7 @@ class CreateDag:
         data.update({"item": dag_item})
         # print("job node ====================================")
         # print(data)
-        # self.dynamodb.putData(data)
+        self.dynamodb.putData(data)
         job_node_list.append(data)
 
         return job_node_list
@@ -275,8 +271,27 @@ class CreateDag:
             "job_level_map": job_level_map,
             "inputs_level_maps": process_inputs_level_maps
         }
-        print(level_map)
         return level_map
+
+    def create_dataset_data(self, ds, ds_type, level_maps, item, data, dag_conf):
+        level_map = level_maps.get(ds_type + "_level_maps")
+        level = level_map.get(ds.get("id"))
+        item.update({"representId": ds.get("id")})
+        item.update({"flowVersion": dag_conf.get("flowVersion")})
+        item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + ds.get("id")})
+        item.update({"name": ds.get("name")})
+        item.update({"level": str(level)})
+        data.update({"item": item})
+        return data
+
+    def put_dataset_node(self, node_data, item, dag_conf, ds_type, level_maps):
+        dataset_node_list = []
+        for ds in json.loads(dag_conf.get(ds_type)):
+            node_data = self.create_dataset_data(ds, ds_type, level_maps, item, node_data, dag_conf)
+            # print("dataset node ===============================================")
+            # print(node_data)
+            self.dynamodb.putData(node_data)
+        return dataset_node_list
 
     def create_dataset_node(self, dag_conf, level_maps):
         """
@@ -284,23 +299,6 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         :return: 创建dataset_node成功后返回一条消息
         """
-        def create_dataset_node(data, item, dag_conf, ds_type, level_maps):
-            dataset_node_list = []
-            for ds in json.loads(dag_conf.get(ds_type)):
-                level_map = level_maps.get(ds_type + "_level_maps")
-                level = level_map.get(ds.get("id"))
-                item.update({"representId": ds.get("id")})
-                item.update({"flowVersion": dag_conf.get("flowVersion")})
-                item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + ds.get("id")})
-                item.update({"name": ds.get("name")})
-                item.update({"level": str(level)})
-                data.update({"item": item})
-                # print("dataset node ===============================================")
-                # print(data)
-                # self.dynamodb.putData(data)
-                dataset_node_list.append(data)
-            # print(dataset_node_list)
-            return dataset_node_list
 
         data = {}
         item = {}
@@ -308,6 +306,7 @@ class CreateDag:
         item.update({"projectId": dag_conf.get("projectId")})
         item.update({"cat": "dataset"})
         item.update({"ctype": "node"})
+        item.update({"runtime": None})
         position = {
             "x": "0",
             "y": "0",
@@ -316,11 +315,12 @@ class CreateDag:
             "h": "0",
         }
         item.update({"position": json.dumps(position)})
-        output_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
-        input_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
-        print(output_dataset_node_list)
+        output_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
+        input_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
+        # print(output_dataset_node_list)
+        # print(input_dataset_node_list)
         output_dataset_node_list.extend(input_dataset_node_list)
-        print(output_dataset_node_list)
+        # print(output_dataset_node_list)
         return output_dataset_node_list
 
     def create_node(self, dag_conf, level_maps):

@@ -80,7 +80,7 @@ class CreateDagConf:
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行outputs检查
-        # self.check_outputs(dag_conf)
+        self.check_outputs(dag_conf)
         self.update_targetId(dag_conf)
         targetJobId = self.get_targetId(dag_conf)
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
@@ -113,5 +113,5 @@ class CreateDagConf:
         data.update({"item": dag_conf})
         # print("dagconf =======================================")
         # print(data)
-        # self.dynamodb.putData(data)
+        self.dynamodb.putData(data)
         return dag_conf

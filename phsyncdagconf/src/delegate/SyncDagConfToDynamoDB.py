@@ -45,13 +45,12 @@ class SyncDagConfToDynamoDB:
             print("操作不是INSERT")
         else:
             if json.loads(item_list[0].get("message")).get("dagName"):
-                self.airflow.airflow(item_list)
+                # self.airflow.airflow(item_list)
                 for item in item_list:
                     if json.loads(item.get("message")).get("dagName"):
                         try:
                             # 插入dagconf信息
                             dag_conf = self.createDagConf.insert_dagconf(item)
-                            print(dag_conf)
                         except Exception as e:
                             # TODO 此处添加回滚功能
                             # 对已经插入的item 进行回滚
@@ -63,11 +62,12 @@ class SyncDagConfToDynamoDB:
                             status = "dag_conf insert success"
                         finally:
                             # 更新action 信息
-                            self.updateAction.updateItem(item, "action", status)
-                            if not status == "dag_conf insert success":
-                                self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            else:
-                                self.updateAction.updateNotification(item, "notification", dag_conf, status)
+                            pass
+                            # self.updateAction.updateItem(item, "action", status)
+                            # if not status == "dag_conf insert success":
+                            #     self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            # else:
+                            #     self.updateAction.updateNotification(item, "notification", dag_conf, status)
 
                         try:
                             # 插入dag信息
@@ -81,12 +81,13 @@ class SyncDagConfToDynamoDB:
                             # 更新action 中job cat为 dag insert success
                             status = "dag insert success"
                         finally:
+                            pass
                             # 插入dag成功后更新action 信息
-                            self.updateAction.updateItem(item, "action", status)
-                            if not status == "dag insert success":
-                                self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            else:
-                                self.updateAction.updateNotification(item, "notification", dag_conf, status)
+                            # self.updateAction.updateItem(item, "action", status)
+                            # if not status == "dag insert success":
+                            #     self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            # else:
+                            #     self.updateAction.updateNotification(item, "notification", dag_conf, status)
             else:
                 print("message消息不符合规范")
 

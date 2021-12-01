@@ -78,7 +78,7 @@ class CreateDag:
                 data.update({"level": None})
                 # print("dag link ========================================")
                 # print(data)
-                self.dynamodb.putData(data)
+                # self.dynamodb.putData(data)
                 link_list.append(data)
 
             return link_list
@@ -152,7 +152,7 @@ class CreateDag:
         data.update({"item": dag_item})
         # print("job node ====================================")
         # print(data)
-        self.dynamodb.putData(data)
+        # self.dynamodb.putData(data)
         job_node_list.append(data)
 
         return job_node_list
@@ -183,16 +183,14 @@ class CreateDag:
                     max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
                     output_level = max_level + 2
                 output_level_map = {
-                    output.get("id") : output_level
+                    output.get("id"): output_level
                 }
                 outputs_level_maps.update(output_level_map)
+
             return outputs_level_maps
 
-        def determine_job_level(outputs_level_maps):
-            output_level_lists = []
-            for key, value in outputs_level_maps.items():
-                output_level_lists.append(value)
-            job_level = int(min(output_level_lists)) - 1
+        def determine_job_level(max_input_value):
+            job_level = max_input_value + 1
             # name = dag_conf.get("dagName") \
             #        + "_" + dag_conf.get("flowVersion") \
             #        + "_" + dag_conf.get("jobDisplayName") \
@@ -203,13 +201,12 @@ class CreateDag:
             }
             return job_level_map
 
-        def determine_input_level(dag_conf, job_level_map):
+        def determine_input_level(dag_conf):
             # name = dag_conf.get("dagName") \
             #        + "_" + dag_conf.get("flowVersion") \
             #        + "_" + dag_conf.get("jobDisplayName") \
             #        + "_" + dag_conf.get("jobVersion")
             name = dag_conf.get("jobDisplayName")
-            job_level = job_level_map.get(name)
             inputs_level_maps = {}
             inputs = json.loads(dag_conf.get("inputs"))
             for input in inputs:
@@ -227,37 +224,58 @@ class CreateDag:
                     # 如果获取到Item 则说明在dag中有dataset 所以只需要获取level
                     input_level = int(res["Item"].get("level"))
                 else:
-                    # 如果没有获取到Item 则说明没有dataset 设置 level 为joblevel -1
-                    input_level = job_level - 1
+                    # 如果没有获取到Item 则说明没有dataset 设置 默认为0
+                    input_level = 0
                 # print(input_value)
                 # print(job_level)
-                if input_level >= job_level:
-                    raise Exception("输入参数大于输出参数")
                 inputs_level_map = {
                     input.get("id"): input_level
                 }
                 inputs_level_maps.update(inputs_level_map)
             return inputs_level_maps
 
+        def get_max_input_level(inputs_level_maps):
+            max_input_level = 0
+            for key, value in inputs_level_maps.items():
+                if value > max_input_level:
+                    max_input_level = value
+            return max_input_level
+
+        def process_inputs_level_maps(inputs_level_maps, max_input_value):
+            for key, value in inputs_level_maps.items():
+                if value == 0:
+                    inputs_level_maps.update({key: max_input_value})
+
+            return inputs_level_maps
+
+        def judge_level_is_legal(outputs_level_maps, job_level_map):
+            for name, output_level in  outputs_level_maps.items():
+                if job_level_map.get(dag_conf.get("jobDisplayName")) >= output_level:
+                    raise Exception("输入参数level大于输出参数level")
+
         # 1 确定 output level 如果dag中有，继续使用
-        # 如果没有最大input 加2
+        # 如果没有最大 level 加2
 
-        # 2 确定job node等级 为output - 1
+        # 2 确定 input level 如果有继续使用
+        # 如果第一次创建 并且没有其他input 默认创建level为0
+        # 如果有其他已经被使用的input 则第一次使用的和max input level相同
 
-        # 3 确定 input level 如果有继续使用
-        # 如果没有 则为 job level -1
+        # 3 确定job node等级 input levels 中 max input level + 1
         outputs_level_maps = determine_output_level(dag_conf)
+        inputs_level_maps = determine_input_level(dag_conf)
+        max_input_value = get_max_input_level(inputs_level_maps)
+        # 把为0的input level处理成 max input level
+        process_inputs_level_maps = process_inputs_level_maps(inputs_level_maps, max_input_value)
+        job_level_map = determine_job_level(max_input_value)
+        # 判断job_level是否大于等于 output level
 
-        job_level_map = determine_job_level(outputs_level_maps)
-
-        inputs_level_maps = determine_input_level(dag_conf, job_level_map)
 
         level_map = {
             "outputs_level_maps": outputs_level_maps,
             "job_level_map": job_level_map,
-            "inputs_level_maps": inputs_level_maps
+            "inputs_level_maps": process_inputs_level_maps
         }
-
+        print(level_map)
         return level_map
 
     def create_dataset_node(self, dag_conf, level_maps):
@@ -269,8 +287,6 @@ class CreateDag:
         def create_dataset_node(data, item, dag_conf, ds_type, level_maps):
             dataset_node_list = []
             for ds in json.loads(dag_conf.get(ds_type)):
-
-            # for key, value in json.loads(dag_conf.get(ds_type)).items():
                 level_map = level_maps.get(ds_type + "_level_maps")
                 level = level_map.get(ds.get("id"))
                 item.update({"representId": ds.get("id")})
@@ -281,8 +297,9 @@ class CreateDag:
                 data.update({"item": item})
                 # print("dataset node ===============================================")
                 # print(data)
-                self.dynamodb.putData(data)
+                # self.dynamodb.putData(data)
                 dataset_node_list.append(data)
+            # print(dataset_node_list)
             return dataset_node_list
 
         data = {}
@@ -301,8 +318,9 @@ class CreateDag:
         item.update({"position": json.dumps(position)})
         output_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
         input_dataset_node_list = create_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
-
+        print(output_dataset_node_list)
         output_dataset_node_list.extend(input_dataset_node_list)
+        print(output_dataset_node_list)
         return output_dataset_node_list
 
     def create_node(self, dag_conf, level_maps):
@@ -312,7 +330,6 @@ class CreateDag:
         """
         # 创建dataset的node
         dataset_node_list = self.create_dataset_node(dag_conf, level_maps)
-
         # 创建job的node
         job_node_list = self.create_job_node(dag_conf, level_maps)
 

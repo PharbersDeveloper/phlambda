@@ -99,7 +99,6 @@ class DynamoDB(object):
             Key=key,
             AttributeUpdates=attributeUpdates
         )
-        print(res)
 
     def getItem(self, data):
         table_name = data.get("table_name")

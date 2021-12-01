@@ -19,6 +19,7 @@ __TYPE_STRUCTURE = {
 client = ClickHouse(host="192.168.16.117", port="9000").getClient()
 reg = "[\n\t\s（），+()-./\"'\\\\]"
 
+
 def executeChDriverSql(sql):
     result = client.execute(sql)
     print(result)
@@ -122,6 +123,41 @@ def insertDataset(item, dynamodb):
     write2Clickhouse(message, mapper, item, dynamodb)
 
 
+def insertDag(item, dynamodb):
+    message = json.loads(item["message"])
+    des_table_name = message["destination"]
+    file_name = message["fileId"]
+    result = dynamodb.scanTable({
+        "table_name": "dataset",
+        "limit": 100000,
+        "expression": Attr("name").eq(des_table_name) & Attr("projectId").eq(item["projectId"]),
+        "start_key": ""
+    })
+    print("Alex DynamoDB DAG =>>>>>> \n")
+    print(result)
+    data = result["data"]
+    dsId = data[0]["id"] if len(data) > 0 else file_name
+    dynamodb.putData({
+        "table_name": "dag",
+        "item": {
+            "id": "",
+            "projectId": item["projectId"],
+            "sortVersion": f"developer_{dsId}",
+            "cat": "dataset",
+            "cmessage": "",
+            "ctype": "node",
+            "flowVersion": "developer",
+            "level": "-99999",
+            "name": des_table_name,
+            "position": """{"x": "0", "y": "0", "z": "0", "w": "0", "h": "0"}""",
+            "representId": dsId,
+            "runtime": "uploaded"
+        }
+    })
+
+    pass
+
+
 def getExcelMapper(file_name, sheet_name, skip_first):
     result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first)
     return list(map(lambda item: {"src": item, "des": item, "type": "String"}, result))
@@ -182,6 +218,7 @@ def write2Clickhouse(message, mapper, item, dynamodb):
                 value[re.sub(reg, "_", x)] = re.sub("[']", "", fieldType(item[x]))
             value["version"] = version
             return value
+
         print("sql ====> \n")
         print(sql)
         execl_data = list(map(add_col, data))
@@ -230,6 +267,7 @@ def lambda_handler(event, context):
                     print(item)
                     history = item
                     insertDataset(item, dynamodb)
+                    insertDag(item, dynamodb)
                     updateAction(item, dynamodb, "created")
 
     except Exception as e:

@@ -174,6 +174,12 @@ class CreateDag:
                 if res.get("Item"):
                     # 如果获取到Item 则说明在dag中有dataset 所以只需要获取level
                     output_level = int(res["Item"].get("level"))
+                    if output_level < (-9999):
+                        max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
+                        if max_level < (-9999):
+                            output_level = 2
+                        else:
+                            output_level = max_level + 2
                 else:
                     # 如果没有获取到Item 则说明没有dataset 获取 level 最大值 +2
                     max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
@@ -219,11 +225,11 @@ class CreateDag:
                 if res.get("Item"):
                     # 如果获取到Item 则说明在dag中有dataset 所以只需要获取level
                     input_level = int(res["Item"].get("level"))
+                    if input_level < (-9999):
+                        input_level = 0.1
                 else:
                     # 如果没有获取到Item 则说明没有dataset 设置 默认为0
-                    input_level = 0
-                # print(input_value)
-                # print(job_level)
+                    input_level = 0.1
                 inputs_level_map = {
                     input.get("id"): input_level
                 }
@@ -235,11 +241,13 @@ class CreateDag:
             for key, value in inputs_level_maps.items():
                 if value > max_input_level:
                     max_input_level = value
+            if max_input_level == 0.1:
+                max_input_level = 0
             return max_input_level
 
         def process_inputs_level_maps(inputs_level_maps, max_input_value):
             for key, value in inputs_level_maps.items():
-                if value == 0:
+                if value == 0.1:
                     inputs_level_maps.update({key: max_input_value})
 
             return inputs_level_maps
@@ -262,8 +270,10 @@ class CreateDag:
         max_input_value = get_max_input_level(inputs_level_maps)
         # 把为0的input level处理成 max input level
         process_inputs_level_maps = process_inputs_level_maps(inputs_level_maps, max_input_value)
+
         job_level_map = determine_job_level(max_input_value)
         # 判断job_level是否大于等于 output level
+        judge_level_is_legal(outputs_level_maps, job_level_map)
 
 
         level_map = {
@@ -271,6 +281,7 @@ class CreateDag:
             "job_level_map": job_level_map,
             "inputs_level_maps": process_inputs_level_maps
         }
+        print(level_map)
         return level_map
 
     def create_dataset_data(self, ds, ds_type, level_maps, item, data, dag_conf):
@@ -306,7 +317,7 @@ class CreateDag:
         item.update({"projectId": dag_conf.get("projectId")})
         item.update({"cat": "dataset"})
         item.update({"ctype": "node"})
-        item.update({"runtime": None})
+        item.update({"runtime": "intermediate"})
         position = {
             "x": "0",
             "y": "0",
@@ -317,10 +328,8 @@ class CreateDag:
         item.update({"position": json.dumps(position)})
         output_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
         input_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
-        # print(output_dataset_node_list)
-        # print(input_dataset_node_list)
         output_dataset_node_list.extend(input_dataset_node_list)
-        # print(output_dataset_node_list)
+
         return output_dataset_node_list
 
     def create_node(self, dag_conf, level_maps):
@@ -335,6 +344,7 @@ class CreateDag:
 
         job_node_list.extend(dataset_node_list)
         return job_node_list
+
     def create_dag(self, dag_conf):
         """
         创建 dag link

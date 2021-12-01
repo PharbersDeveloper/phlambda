@@ -24,7 +24,7 @@ def run(**kwargs):
     return {"data": data, "timespan": last_time}
 
 
-def lambdaHandler(event, context):
+def lambda_handler(event, context):
 
     return {
         "statusCode": 200,

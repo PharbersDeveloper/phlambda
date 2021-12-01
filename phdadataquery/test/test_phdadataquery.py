@@ -1,7 +1,7 @@
 
 import pytest
 import json
-from src.main import lambdaHandler
+from src.main import lambda_handler
 
 
 class TestLmd:
@@ -9,7 +9,7 @@ class TestLmd:
     def test_lmd_adapter_dict(self):
         with open('../event/event.json', 'r', encoding='utf8') as fp:
             event = (json.loads(fp.read()))
-            report = lambdaHandler(event, None)
+            report = lambda_handler(event, None)
             print(report)
 
 

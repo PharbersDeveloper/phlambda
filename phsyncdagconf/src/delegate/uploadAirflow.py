@@ -211,7 +211,6 @@ class Airflow:
         operator_file_path = operator_dir_path + operator_file_name
         if os.path.exists(operator_file_path):
             links = create_airflow_link()
-            print(links)
             update_operator_file(operator_file_path, dag_name, links)
         else:
             links = create_airflow_link()

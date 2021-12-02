@@ -183,7 +183,10 @@ class CreateDag:
                 else:
                     # 如果没有获取到Item 则说明没有dataset 获取 level 最大值 +2
                     max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
-                    output_level = max_level + 2
+                    if max_level > (-9999):
+                        output_level = max_level + 2
+                    else:
+                        output_level = 2
                 output_level_map = {
                     output.get("id"): output_level
                 }
@@ -281,7 +284,6 @@ class CreateDag:
             "job_level_map": job_level_map,
             "inputs_level_maps": process_inputs_level_maps
         }
-        print(level_map)
         return level_map
 
     def create_dataset_data(self, ds, ds_type, level_maps, item, data, dag_conf):

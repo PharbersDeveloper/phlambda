@@ -53,21 +53,6 @@ class SyncDagConfToDynamoDB:
         else:
             status = self.insert_action(item_list)
             if status:
-                print(status)
-                # 创建airflow相关文件
-                try:
-                    self.airflow.airflow(item_list)
-                except Exception as e:
-                    status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
-                    raise Exception(status)
-                else:
-                    # 更新action 中job cat为 dag_conf insert success
-                    status = "airflow job create success"
-                finally:
-                    for item in item_list:
-                        self.updateAction.updateItem(item, "action", status)
-                        self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-
                 for item in item_list:
                     if json.loads(item.get("message")).get("dagName"):
                         try:
@@ -108,8 +93,24 @@ class SyncDagConfToDynamoDB:
                                 self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
                             else:
                                 self.updateAction.updateNotification(item, "notification", dag_conf, status)
+
             else:
                 print("不符合dag规范的action")
+
+        airflow_item_list = self.process_insert_event()
+        # 创建airflow相关文件
+        try:
+            self.airflow.airflow(airflow_item_list)
+        except Exception as e:
+            status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
+            raise Exception(status)
+        else:
+            # 更新action 中job cat为 dag_conf insert success
+            status = "airflow job create success"
+        finally:
+            for item in item_list:
+                self.updateAction.updateItem(item, "action", status)
+                self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
 
 
 

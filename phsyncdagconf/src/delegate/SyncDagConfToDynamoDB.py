@@ -36,6 +36,13 @@ class SyncDagConfToDynamoDB:
                 item_list.append(item)
         return item_list
 
+    def insert_action(self, item_list):
+        status = "dag_action"
+        for item in item_list:
+            if not json.loads(item.get("message")).get("dagName"):
+                status = None
+
+        return status
 
     def exec(self):
         # 处理event
@@ -44,8 +51,23 @@ class SyncDagConfToDynamoDB:
         if not item_list:
             print("操作不是INSERT")
         else:
-            if json.loads(item_list[0].get("message")).get("dagName"):
-                self.airflow.airflow(item_list)
+            status = self.insert_action(item_list)
+            if status:
+                print(status)
+                # 创建airflow相关文件
+                try:
+                    self.airflow.airflow(item_list)
+                except Exception as e:
+                    status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
+                    raise Exception(status)
+                else:
+                    # 更新action 中job cat为 dag_conf insert success
+                    status = "airflow job create success"
+                finally:
+                    for item in item_list:
+                        self.updateAction.updateItem(item, "action", status)
+                        self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+
                 for item in item_list:
                     if json.loads(item.get("message")).get("dagName"):
                         try:
@@ -62,7 +84,6 @@ class SyncDagConfToDynamoDB:
                             status = "dag_conf insert success"
                         finally:
                             # 更新action 信息
-
                             self.updateAction.updateItem(item, "action", status)
                             if not status == "dag_conf insert success":
                                 self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
@@ -88,7 +109,7 @@ class SyncDagConfToDynamoDB:
                             else:
                                 self.updateAction.updateNotification(item, "notification", dag_conf, status)
             else:
-                print("message消息不符合规范")
+                print("不符合dag规范的action")
 
 
 

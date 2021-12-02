@@ -5,7 +5,11 @@ import os
 from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
-
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+                    datefmt='%Y-%m-%d  %H:%M:%S %a'
+                    )
 class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
@@ -263,4 +267,8 @@ class Airflow:
                 self.create_phjobs(dag_item)
                 # 上传phjob文件
                 self.upload_phjob_files(dag_item)
+
+    def exec(self, dag_conf):
+        logging.info(dag_conf)
+        logging.info("运行创建airflow文件命令")
 

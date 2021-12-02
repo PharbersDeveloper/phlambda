@@ -1,7 +1,11 @@
 import json
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+                    datefmt='%Y-%m-%d  %H:%M:%S %a'
+                    )
 
 class CreateDag:
 
@@ -75,7 +79,7 @@ class CreateDag:
                 data.update({"runtime": None})
                 # print("dag link ========================================")
                 # print(data)
-                self.dynamodb.putData(data)
+                # self.dynamodb.putData(data)
                 link_list.append(data)
 
             return link_list
@@ -148,7 +152,7 @@ class CreateDag:
         data.update({"item": dag_item})
         # print("job node ====================================")
         # print(data)
-        self.dynamodb.putData(data)
+        # self.dynamodb.putData(data)
         job_node_list.append(data)
 
         return job_node_list
@@ -303,7 +307,7 @@ class CreateDag:
             node_data = self.create_dataset_data(ds, ds_type, level_maps, item, node_data, dag_conf)
             # print("dataset node ===============================================")
             # print(node_data)
-            self.dynamodb.putData(node_data)
+            # self.dynamodb.putData(node_data)
         return dataset_node_list
 
     def create_dataset_node(self, dag_conf, level_maps):
@@ -363,3 +367,6 @@ class CreateDag:
 
         return link_list
 
+    def exec(self, dag_conf):
+        logging.info(dag_conf)
+        logging.info("运行创建dag命令")

@@ -1,11 +1,14 @@
 import json
-from delegate.SyncDagConfToDynamoDB import SyncDagConfToDynamoDB
+from delegate.max import Project
+from delegate.execute import Execute
+
+
 
 
 def lambda_handler(event, context):
     # 11261502
     print(event)
-    app = SyncDagConfToDynamoDB(event=event, context=context)
+    app = Project(event=event, context=context)
     try:
         app.exec()
     except Exception as e:

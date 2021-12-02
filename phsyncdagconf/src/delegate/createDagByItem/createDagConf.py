@@ -1,10 +1,14 @@
 import json
-import logging
 
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 from util.AWS import define_value as dv
 from delegate.updateAction import UpdateAction
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
+                    datefmt='%Y-%m-%d  %H:%M:%S %a'
+                    )
 
 class CreateDagConf:
 
@@ -113,5 +117,9 @@ class CreateDagConf:
         data.update({"item": dag_conf})
         # print("dagconf =======================================")
         # print(data)
-        self.dynamodb.putData(data)
+        # self.dynamodb.putData(data)
         return dag_conf
+
+    def exec(self, dag_conf):
+        logging.info(dag_conf)
+        logging.info("运行创建dagConf命令")

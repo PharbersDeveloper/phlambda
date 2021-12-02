@@ -1,10 +1,10 @@
 import json
 import time
-import http.client
-import urllib.parse
+
 from util.AWS.DynamoDB import DynamoDB
-from boto3.dynamodb.conditions import Key, Attr
-from util.GenerateID import GenerateID
+from boto3.dynamodb.conditions import Key
+from clickhouse_driver.errors import ServerException
+from util.ClieckHouse import ClickHouse
 
 dynamodb = DynamoDB()
 # import base64
@@ -18,13 +18,11 @@ dynamodb = DynamoDB()
 # dynamodb = DynamoDB(sts=sts)
 
 
-def executeSql(sql, type):
-    conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
-    # conn = http.client.HTTPSConnection(host="max.pharbers.com")
-    url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
-    conn.request(type, url)
-    res = conn.getresponse()
-    return res.read().decode("utf-8")
+def executeSql(sql):
+    client = ClickHouse(host="192.168.16.117", port="9000").getClient()
+    # client = ClickHouse(host="localhost", port="19000").getClient()
+    result = client.execute(sql)
+    return result
 
 
 def finishingEventData(record):
@@ -37,31 +35,63 @@ def finishingEventData(record):
     return item
 
 
-def cleanClickHouseData(tableName, version):
-    sql = "ALTER TABLE `{0}` DELETE WHERE 1 = 1 {1}".format(tableName,
-                                                            " and version = {0}".format(version) if version else "")
-    print("Alex Sql \n")
-    print(sql)
-    result = executeSql(sql, "POST")
-    return 0 if result else 1
+# 修改ClickHouse中的Col的类型
+def transformClickHouseSchema(projectId, data):
+    schema = {}
+    try:
+        tableName = projectId + "_" + data["destination"]
+        schemas = data["schema"]
+        for item in schemas:
+            schema = item
+            sql = f"""ALTER TABLE default.`{tableName}` MODIFY COLUMN `{item["src"]}` {item["type"]}"""
+            executeSql(sql)
+    except ServerException as se:
+        if se.code == 341:
+            raise Exception(f"column {schema['src']} cannot convert to {schema['type']}")
+    except Exception as e:
+        raise Exception(f"unknown error")
 
 
-def cleanDynamoDBDSData(tableName, id):
+# 修改DynamoDB的DS中的Schema类型
+def transformDataSetSchema(projectId, data):
+    dsId = data["dsid"]
     result = dynamodb.queryTable({
-        "table_name": tableName,
+        "table_name": "dataset",
         "limit": 1000,
-        "expression": Key('id').eq(id),
+        "expression": Key("id").eq(dsId) & Key("projectId").eq(projectId),
         "start_key": ""
-    })["data"]
-    if len(result) > 0:
-        result[0]["version"] = ""
-        result[0]["date"] = int(round(time.time() * 1000))
-        dynamodb.putData({
-            "table_name": tableName,
-            "item": result[0]
+    })["data"].pop()
+    schema = json.loads(result["schema"])
+    changeSchema = data["schema"]
+    for item in changeSchema:
+        res = list(filter(lambda x: x["src"] == item["src"], schema))
+        if len(res) == 1:
+            idx = schema.index(res.pop())
+            schema.pop(idx)
+            schema.insert(idx, item)
+    result["schema"] = json.dumps(schema, ensure_ascii=False)
+    dynamodb.putData({
+        "table_name": "dataset",
+        "item": result
+    })
+
+
+# 回滚对ClickHouse Col的类型修改
+# todo 这块可能会有无限递归的风险
+def rollBackType(dsId, projectId):
+    result = dynamodb.queryTable({
+        "table_name": "dataset",
+        "limit": 1000,
+        "expression": Key("id").eq(dsId) & Key("projectId").eq(projectId),
+        "start_key": ""
+    })["data"].pop()
+    if result is not None:
+        schema = json.loads(result["schema"])
+        destination = result["name"]
+        transformClickHouseSchema(projectId, {
+            "schema": schema,
+            "destination": destination
         })
-        return 1
-    return 0
 
 
 def updateActionData(tableName, id, state):
@@ -87,11 +117,6 @@ def insertNotification(actionId, state, error):
         "expression": Key('id').eq(actionId),
         "start_key": ""
     })["data"]
-    print("Alex ====>>>>> \n")
-    print(actionId)
-    print(result)
-    print(result[0]["message"])
-    print(type(result[0]["message"]))
     message = json.loads(result[0]["message"])
     dynamodb.putData({
         "table_name": "notification",
@@ -108,12 +133,12 @@ def insertNotification(actionId, state, error):
                 "opname": result[0]["owner"],
                 "opgroup": message.get("opgroup", "0"),
                 "cnotification": {
-                    "status": "clear_DS_{}".format(state),
+                    "status": "transform_schema_{}".format(state),
                     "error": error
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0].get("showName", "")
+            "showName": result[0]["showName"]
         }
     })
 
@@ -123,7 +148,7 @@ def default(data):
 
 
 __func_dict = {
-    "insert:clear_DS_data": finishingEventData,
+    "insert:transform_schema": finishingEventData,
 }
 
 
@@ -135,14 +160,15 @@ def run(eventName, jobCat, record):
             print("message ==> \n")
             print(message)
             print(type(message))
-            result = cleanClickHouseData(item["projectId"] + "_" + message["destination"], message["version"]) & \
-                     cleanDynamoDBDSData("dataset", message["dsid"])
+            transformClickHouseSchema(item["projectId"], message)
+            transformDataSetSchema(item["projectId"], message)
             updateActionData("action", item["id"], "succeed")
             insertNotification(item["id"], "succeed", "")
-            print(result)
+
         except Exception as e:
             print("Error ====> \n")
             print(str(e))
+            rollBackType(json.loads(item["message"])["dsid"], item["projectId"])
             updateActionData("action", item["id"], "failed")
             insertNotification(item["id"], "failed", str(e))
     else:

@@ -10,6 +10,7 @@ from models.Partition import Partition
 from models.DataSet import DataSet
 from models.Notification import Notification
 from models.Dag import Dag
+from models.DagConf import DagConf
 
 # import base64
 # from util.AWS.STS import STS
@@ -37,14 +38,17 @@ __table_structure = {
     "partition": Partition,
     "dataset": DataSet,
     "notification": Notification,
-    "dag": Dag
+    "dag": Dag,
+    "dagconf": DagConf
 }
 
 
 def __queryData(table, body, type_name):
     dy_method = __dynamodb_func[type_name]
-    limit = body.get("limit", 0)
-    start_key = "" if len(body.get("start_key", "")) == 0 else body.get("start_key", "")
+    limit = body.get("limit", 100)
+    start_key = body.get("start_key", None)
+    if start_key is not None and len(start_key) == 0:
+        start_key = None
     conditions = body["conditions"]
 
     expr = Expression().join_expr(type_name, conditions)
@@ -67,9 +71,6 @@ def __batch_get_items(table, body, type_name):
 
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
     json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
-    json_api_data["meta"] = {
-        "start_key": payload["start_key"]
-    }
     return json_api_data
 
 

@@ -1,5 +1,5 @@
 {
-  "body": "{\n    \"table\": \"dag\",\n    \"conditions\": {\n        \"projectId\": [\"=\", \"max\"],\n        \"sortVersion\": [\"begins_with\",  \"developer_1qaz2wsx\"]\n    },\n    \"limit\": 100,\n    \"start_key\": {}\n}",
+  "body": "{\"table\":\"dag\",\"conditions\":{\"projectId\":[\"=\",\"zrqojSgLfK1PbsmH\"],\"sortVersion\":[\"begins_with\",\"developer_\"]},\"limit\":10}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

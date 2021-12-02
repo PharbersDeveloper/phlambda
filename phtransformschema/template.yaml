@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Environment:
+        Variables:
+          CLICK_HOST: 192.168.16.117
+          CLICK_PORT: 8123
+          CLICK_DB: default
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+      FunctionName: lmd-phtransformschema-V2
+      MemorySize: 1024
+      Description: "DynamoDB Action Table Event 触发修改ClickHouse中Table的Schema的类型或者Column Name(未实现)"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+#      Events:
+#        Type: DynamoDB
+#        Properties:
+#          Stream: arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action
+#          StartingPosition: TRIM_HORIZON
+#          BatchSize: 1
+#          Enabled: No
+

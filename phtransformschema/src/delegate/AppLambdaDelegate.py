@@ -1,4 +1,4 @@
-import handler.ClearClickHouseData as CD
+import handler.TransformClickHouseData as TCH
 
 
 class AppLambdaDelegate:
@@ -13,10 +13,13 @@ class AppLambdaDelegate:
         for record in records:
             print('EventID: ' + record['eventID'])
             print('EventName: ' + record['eventName'])
+            print(record)
             eventName = record["eventName"].lower()
             if eventName == "insert":
                 new_image = record["dynamodb"]["NewImage"]
-                jobCat = new_image.get("jobCat", {"S": "None"})["S"]
-                CD.run(eventName, jobCat, new_image)
+                jobCat = new_image["jobCat"]["S"]
+                TCH.run(eventName, jobCat, new_image)
             else:
                 continue
+
+

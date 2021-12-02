@@ -3,10 +3,10 @@ import http.client
 import urllib.parse
 
 
-def executeSql(sql, type):
+def executeSql(sql, method):
     conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
     url = urllib.parse.quote("/ch/?query=" + sql, safe=":/?=&")
-    conn.request(type, url)
+    conn.request(method, url)
     res = conn.getresponse()
     return res.read().decode("utf-8")
 
@@ -16,7 +16,6 @@ def lambda_handler(event, context):
     args = eval(event["body"])
     res = executeSql(args["query"], "GET")
 
-    print(res)
     rows = filter(lambda x: x != '', res.split("\n"))
 
     # 这里没有任何的错误处理
@@ -27,12 +26,11 @@ def lambda_handler(event, context):
         cells = row.split("\t")
 
         tmp = {}
-        for cell in cells:
-            index = cells.index(cell)
-            tmp[columns[index]] = cell
+        for index in range(len(cells)):
+            tmp[columns[index]] = "0" if "UNKNOWN_TABLE" in cells[index] else cells[index]
 
         final_res.append(tmp)
-
+    print(final_res)
     return {
         "statusCode": 200,
         "headers": {"Access-Control-Allow-Origin": "*"},

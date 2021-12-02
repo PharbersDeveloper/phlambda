@@ -17,7 +17,7 @@ class AppLambdaDelegate:
             eventName = record["eventName"].lower()
             if eventName == "insert":
                 new_image = record["dynamodb"]["NewImage"]
-                jobCat = new_image["jobCat"]["S"]
+                jobCat = new_image.get("jobCat", {"S": "None"})["S"]
                 CD.run(eventName, jobCat, new_image)
             else:
                 continue

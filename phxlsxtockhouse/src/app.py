@@ -255,7 +255,11 @@ def lambda_handler(event, context):
                 continue
 
             new_image = record["dynamodb"]["NewImage"]
-            if record["eventName"].lower() == "insert" and new_image["jobCat"]["S"] == "project_file_to_DS":
+            print("Alex 进入  =====> \n")
+            print(record["eventName"].lower())
+            print(new_image)
+            print(new_image.get("jobCat", {"S": "None"})["S"])
+            if record["eventName"].lower() == "insert" and new_image.get("jobCat", {"S": "None"})["S"] == "project_file_to_DS":
                 item = {}
                 for field in list(new_image.keys()):
                     value = new_image[field]
@@ -272,6 +276,7 @@ def lambda_handler(event, context):
 
     except Exception as e:
         print("error: \n")
-        print(e)
+        print(str(e))
+        print(history)
         updateAction(history, dynamodb, "failed")
         insetNotification(history, dynamodb, {"progress": -1}, "failed", str(e))

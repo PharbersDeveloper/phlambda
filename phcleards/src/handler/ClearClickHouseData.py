@@ -113,7 +113,7 @@ def insertNotification(actionId, state, error):
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0]["showName"]
+            "showName": result[0].get("showName", "")
         }
     })
 

@@ -12,6 +12,7 @@ class Airflow:
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
+        # TODO: max 是项目名这里写死了，应该是通过传入的项目名确定路径
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
 
 

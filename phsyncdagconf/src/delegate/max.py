@@ -39,8 +39,8 @@ class Max(Project):
     def exec(self, dag_conf):
 
         logging.info("开始执行创建dag脚本")
-        logging.info(dag_conf)
-        item_order_list = ["createDag", "createDagConf", "createAirflowFile"]
+        # , "createDag", "createAirflowFile"
+        item_order_list = ["createDagConf"]
         orderExec(item_order_list, dag_conf)
 
         # try:

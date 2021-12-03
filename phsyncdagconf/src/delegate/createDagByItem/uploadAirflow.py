@@ -269,6 +269,7 @@ class Airflow:
                 self.upload_phjob_files(dag_item)
 
     def exec(self, dag_conf):
-        logging.info(dag_conf)
+
         logging.info("运行创建airflow文件命令")
+        logging.info(dag_conf)
 

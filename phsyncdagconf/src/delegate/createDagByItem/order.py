@@ -19,28 +19,31 @@ class Order:
 class CreateDagOrder(Order):
     def __init__(self, **kwargs):
         self.dag_conf = kwargs.get("dag_conf")
+        self.create_dag = CreateDag(self.dag_conf)
         pass
 
     def run(self):
-        CreateDag.exec(self, self.dag_conf)
+        self.create_dag.exec()
 
 
 class CreateDagConfOrder(Order):
     def __init__(self, **kwargs):
         self.dag_conf = kwargs.get("dag_conf")
+        self.create_dag_conf = CreateDagConf(dag_conf=self.dag_conf)
         pass
 
     def run(self):
-        CreateDagConf.exec(self, self.dag_conf)
+        self.create_dag_conf.exec()
 
 
 class CreateAirflowFileOrder(Order):
     def __init__(self, **kwargs):
-        self.dag_conf = kwargs.get("dag_conf")
+        self.dag_conf  = kwargs.get("dag_conf")
+        self.create_airflow_file = Airflow(self.dag_conf)
         pass
 
     def run(self):
-        Airflow.exec(self, self.dag_conf)
+        self.create_airflow_file.exec()
 
 
 class Agent:

@@ -13,6 +13,8 @@ logging.basicConfig(level=logging.DEBUG,
 class CreateDagConf:
 
     def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.dynamodb = DynamoDB()
 
     def check_outputs(self, dag_conf):
@@ -75,7 +77,7 @@ class CreateDagConf:
         return targetJobId
 
 
-    def insert_dagconf(self, action_item):
+    def __insert_dagconf(self, action_item):
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
@@ -85,7 +87,7 @@ class CreateDagConf:
         dag_conf.update({"jobId": jobId})
         # 进行outputs检查
         self.check_outputs(dag_conf)
-        self.update_targetId(dag_conf)
+        # self.update_targetId(dag_conf)
         targetJobId = self.get_targetId(dag_conf)
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
 
@@ -116,10 +118,11 @@ class CreateDagConf:
 
         data.update({"item": dag_conf})
         # print("dagconf =======================================")
-        # print(data)
+        logging.info(data)
         # self.dynamodb.putData(data)
         return dag_conf
 
-    def exec(self, dag_conf):
-        logging.info(dag_conf)
+    def exec(self):
+
         logging.info("运行创建dagConf命令")
+        logging.info(self.dag_conf)

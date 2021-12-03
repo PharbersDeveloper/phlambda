@@ -368,5 +368,6 @@ class CreateDag:
         return link_list
 
     def exec(self, dag_conf):
-        logging.info(dag_conf)
+
         logging.info("运行创建dag命令")
+        logging.info(dag_conf)

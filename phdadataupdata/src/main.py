@@ -15,9 +15,8 @@ def down_data_with_time(bucket, key, file_name, **kwargs) -> tuple:
 
 
 def up_data(bucket, key, file_name, data):
-    # s3 = boto3.client('s3')
-    # s3.put_object(Body=data.encode(), Bucket=bucket, Key=(key+file_name))
-    print(1)
+    s3 = boto3.client('s3')
+    s3.put_object(Body=data.encode(), Bucket=bucket, Key=(key+file_name))
 
 
 def run(timespan, **kwargs):
@@ -33,15 +32,24 @@ def run(timespan, **kwargs):
 
 
 def lambda_handler(event, context):
+    try:
+        result = run(**eval(event["body"]))
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        },
-        "body": run(**eval(event["body"]))
-    }
+    except Exception as e:
+        return {
+            "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": str(e)})
+        }
+    else:
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+            },
+            "body": json.dumps({"message": result})
+        }
 
 

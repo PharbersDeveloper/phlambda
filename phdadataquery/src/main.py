@@ -25,15 +25,22 @@ def run(**kwargs):
 
 
 def lambda_handler(event, context):
+    try:
+        result = run(**eval(event["body"]))
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE"
-        },
-        "body": json.dumps(run(**eval(event["body"])), ensure_ascii=False)
-    }
-
-
+    except Exception as e:
+        return {
+            "statusCode": 503,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            "body": json.dumps({"message": str(e)}, ensure_ascii=False)
+        }
+    else:
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+            },
+            "body": json.dumps({"message": result}, ensure_ascii=False)
+        }

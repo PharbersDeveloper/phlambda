@@ -4,7 +4,7 @@ import logging
 
 from delegate.singleton import singleton
 from delegate.initproject import Project
-from createDagByItem.order import exec as orderExec
+from createDagByItem.commandExecute import exec as orderExec
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -36,13 +36,11 @@ class Max(Project):
         # 5. 利用策略模式，把创建所有level的流程，抽离出来，这个部分会长期修改，并可能不由你单人修改
 
 
-    def exec(self, dag_conf):
+    def exec(self, dag_item):
 
         logging.info("开始执行创建dag脚本")
         # , "createDag", "createAirflowFile"
-        item_order_list = ["createDagConf"]
-        orderExec(item_order_list, dag_conf)
-
+        orderExec(dag_item)
         # try:
         #     # 插入dagconf信息
         #     dag_conf = self.createDagConf.insert_dagconf(item)

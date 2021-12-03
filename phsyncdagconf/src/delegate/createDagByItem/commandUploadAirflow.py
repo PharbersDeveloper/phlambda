@@ -2,6 +2,7 @@ import json
 import subprocess
 import os
 
+from delegate.createDagByItem.command import Command
 from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
@@ -10,8 +11,12 @@ logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s %(name)s %(levelname)s %(message)s",
                     datefmt='%Y-%m-%d  %H:%M:%S %a'
                     )
-class Airflow:
+
+
+class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
@@ -268,8 +273,8 @@ class Airflow:
                 # 上传phjob文件
                 self.upload_phjob_files(dag_item)
 
-    def exec(self, dag_conf):
+    def exec(self, dag_item):
 
         logging.info("运行创建airflow文件命令")
-        logging.info(dag_conf)
+        logging.info(dag_item)
 

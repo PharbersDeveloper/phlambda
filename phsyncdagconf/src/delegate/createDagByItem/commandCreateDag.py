@@ -1,4 +1,6 @@
 import json
+
+from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 import logging
@@ -7,9 +9,12 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d  %H:%M:%S %a'
                     )
 
-class CreateDag:
+
+class CommandCreateDag(Command):
 
     def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.dynamodb = DynamoDB()
 
     def get_max_level(self, table_name, partition_key, partition_value):
@@ -109,6 +114,8 @@ class CreateDag:
         messages = create_source_target_map(dag_conf)
         link_list = put_link_to_database(messages)
 
+        logging.info("所有link的data")
+        logging.info(link_list)
         return link_list
 
     def create_job_node(self, dag_conf, level_maps):
@@ -308,6 +315,8 @@ class CreateDag:
             # print("dataset node ===============================================")
             # print(node_data)
             # self.dynamodb.putData(node_data)
+            dataset_node_list.append(node_data)
+
         return dataset_node_list
 
     def create_dataset_node(self, dag_conf, level_maps):
@@ -333,9 +342,15 @@ class CreateDag:
         }
         item.update({"position": json.dumps(position)})
         output_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="outputs", level_maps=level_maps)
+        logging.info("所有output dag dataset的data")
+        logging.info(output_dataset_node_list)
         input_dataset_node_list = self.put_dataset_node(data, item, dag_conf, ds_type="inputs", level_maps=level_maps)
-        output_dataset_node_list.extend(input_dataset_node_list)
 
+        logging.info("所有input dag dataset的data")
+        logging.info(input_dataset_node_list)
+        output_dataset_node_list.extend(input_dataset_node_list)
+        logging.info("所有input output dag dataset的data")
+        logging.info(output_dataset_node_list)
         return output_dataset_node_list
 
     def create_node(self, dag_conf, level_maps):
@@ -345,8 +360,12 @@ class CreateDag:
         """
         # 创建dataset的node
         dataset_node_list = self.create_dataset_node(dag_conf, level_maps)
+
         # 创建job的node
         job_node_list = self.create_job_node(dag_conf, level_maps)
+
+        logging.info("所有dag jobnode的data")
+        logging.info(job_node_list)
 
         job_node_list.extend(dataset_node_list)
         return job_node_list
@@ -361,13 +380,16 @@ class CreateDag:
         # 根据创建 event 下所有的dag_conf 创建link
         link_list = self.create_link(dag_conf)
 
+
         # # 根据dag_conf 和 level_maps 创建dataset
         node_list = self.create_node(dag_conf, level_maps)
         link_list.extend(node_list)
-
         return link_list
 
-    def exec(self, dag_conf):
+    def run(self):
 
         logging.info("运行创建dag命令")
-        logging.info(dag_conf)
+        logging.info(self.dag_conf)
+
+        dag_data = self.create_dag(self.dag_conf)
+        return dag_data

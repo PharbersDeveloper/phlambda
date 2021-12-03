@@ -51,10 +51,10 @@ class Execute:
         if item_list:
             logging.info("item_list生成成功")
             for item in item_list:
-                dag_conf = json.loads(item.get("message"))
+                dag_item = json.loads(item.get("message"))
                 logging.info(json.loads(item.get("message")).get("projectName"))
                 project_init = project_table[json.loads(item.get("message")).get("projectName")]()
-                project_init.exec(dag_conf)
+                project_init.exec(dag_item)
         else:
             logging.info("action不符合dag创建流程的要求")
 

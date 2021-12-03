@@ -1,5 +1,6 @@
 import json
 
+from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 from util.AWS import define_value as dv
@@ -10,7 +11,8 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d  %H:%M:%S %a'
                     )
 
-class CreateDagConf:
+
+class CommandCreateDagConf(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -77,16 +79,16 @@ class CreateDagConf:
         return targetJobId
 
 
-    def __insert_dagconf(self, action_item):
+    def __insert_dagconf(self, dag_item):
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
 
-        dag_conf = json.loads(action_item.get("message"))
+        dag_conf = dag_item
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行outputs检查
-        self.check_outputs(dag_conf)
+        # self.check_outputs(dag_conf)
         # self.update_targetId(dag_conf)
         targetJobId = self.get_targetId(dag_conf)
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
@@ -120,9 +122,11 @@ class CreateDagConf:
         # print("dagconf =======================================")
         logging.info(data)
         # self.dynamodb.putData(data)
-        return dag_conf
+        return data
 
-    def exec(self):
+    def run(self):
 
         logging.info("运行创建dagConf命令")
-        logging.info(self.dag_conf)
+        dag_conf_data = self.__insert_dagconf(self.dag_item)
+
+        return dag_conf_data

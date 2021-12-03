@@ -14,17 +14,17 @@ class Strategy(ABC):
         # ssm get url
         ssm_client = boto3.client('ssm')
         response = ssm_client.get_parameter(
-            Name='project_driver_args',
+            Name='project_dirver_args',
             WithDecryption=True|False
         )
         ssm_dict = json.loads(response.get('Parameter').get('Value'))
-        url = ssm_dict.get(project).split(':')
-        client = Client(host=url[0], port=url[1])
+        url = ssm_dict.get(project)
+        client = Client(host=url[7:-5], port=url[-4:])
         data = client.execute(sql, columnar=True)
         return data
 
     def parse_data(self, schema, down_data):
-        final_list = [schema]
+        final_list = []
         for i in range(len(down_data[0])):
             first_list = []
             for j in down_data:

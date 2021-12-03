@@ -38,7 +38,8 @@ class UpdateAction:
             "type": "notification",
             "opname": item.get("owner"),
             "cnotification": {
-                "jobId": dag_conf.get("jobId"),
+                "jobName": dag_conf.get("jobName"),
+                "jobPath": dag_conf.get("job_path"),
                 "status": status,
                 "error": ""
             }

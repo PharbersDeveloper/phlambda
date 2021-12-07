@@ -2,15 +2,15 @@ import json
 from util.AWS.DynamoDB import DynamoDB
 from util.ExpressionUtil import Expression
 
-import base64
-from util.AWS.STS import STS
-from constants.Common import Common
-sts = STS().assume_role(
-    base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-    "Ph-Back-RW"
-)
-dynamodb = DynamoDB(sts=sts)
-# dynamodb = DynamoDB()
+# import base64
+# from util.AWS.STS import STS
+# from constants.Common import Common
+# sts = STS().assume_role(
+#     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
+#     "Ph-Back-RW"
+# )
+# dynamodb = DynamoDB(sts=sts)
+dynamodb = DynamoDB()
 
 
 def __convert2obj(item):

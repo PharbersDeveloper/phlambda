@@ -16,7 +16,7 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phcomputedeletionimpact-V2
       MemorySize: 1024
-      Description: "计算删除DS或删除脚本产生的影响"
+      Description: "计算删除DS产生的影响"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
       VpcConfig:

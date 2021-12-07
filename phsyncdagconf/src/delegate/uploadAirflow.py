@@ -185,7 +185,8 @@ class Airflow:
                             .replace("$alfred_schedule_interval", str("None")) \
                             .replace("$alfred_description", str("A Max Auto Job Example")) \
                             .replace("$alfred_dag_timeout", str("3000.0")) \
-                            .replace("$alfred_start_date", str(1))
+                            .replace("$alfred_start_date", str(1))  \
+                            .replace("$alfred_projectId", dag_conf.get("projectId"))
                     )
 
         def update_operator_file(operator_file_path, dag_name, links):
@@ -195,8 +196,9 @@ class Airflow:
                 for line in jf:
                     line = line + "\n"
                     w.write(
-                        line.replace("$alfred_jobs_dir", str(dag_name)) \
+                        line.replace("$alfred_jobs_dir", str(dag_name))
                             .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
+                            .replace("$alfred_projectName", str(dag_conf.get("projectName")))
                     )
                 w.write(link.replace('.', '_'))
                 w.write("\n")

@@ -1,6 +1,7 @@
 import json
 from boto3.dynamodb.conditions import Key, Attr
 
+
 class RemoveJob:
     def __init__(self, dynamodb):
         self.dynamodb = dynamodb
@@ -10,6 +11,7 @@ class RemoveJob:
         entity["cmessage"] = json.loads(entity["cmessage"])
         return entity
 
+    # TODO 删除s3脚本没做
     def removeJob2S3(self, path):
         pass
 

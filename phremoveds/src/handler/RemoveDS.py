@@ -15,7 +15,6 @@ class RemoveDS:
 
     def executeSql(self, sql, type):
         conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
-        # conn = http.client.HTTPSConnection(host="max.pharbers.com")
         url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
         conn.request(type, url)
         res = conn.getresponse()
@@ -27,40 +26,40 @@ class RemoveDS:
         return 0 if result else 1
 
     def removeDynamoDBData(self, tableName, id, projectId):
-        # dag_ds_result = self.dynamodb.scanTable({
-        #     "table_name": "dag",
-        #     "expression": Attr("projectId").eq(projectId) & Attr("representId").eq(id),
-        #     "limit": 1000,
-        #     "start_key": ""
-        # })["data"].pop()
-        #
-        # dag_link_result = self.dynamodb.scanTable({
-        #     "table_name": "dag",
-        #     "expression": Attr("projectId").eq(projectId) & Attr("cat").eq("null"),
-        #     "limit": 1000,
-        #     "start_key": ""
-        # })["data"]
-        #
-        # link = list(map(self.__convert2obj, dag_link_result))
-        # impact_link = list(filter(lambda item: item["cmessage"]["sourceName"] == dag_ds_result["name"], link)) + \
-        #               list(filter(lambda item: item["cmessage"]["targetName"] == dag_ds_result["name"], link))
-        #
-        # for item in impact_link:
-        #     self.dynamodb.deleteData({
-        #         "table_name": "dag",
-        #         "conditions": {
-        #             "projectId": projectId,
-        #             "sortVersion": item["sortVersion"]
-        #         }
-        #     })
+        dag_ds_result = self.dynamodb.scanTable({
+            "table_name": "dag",
+            "expression": Attr("projectId").eq(projectId) & Attr("representId").eq(id),
+            "limit": 1000,
+            "start_key": ""
+        })["data"].pop()
 
-        # self.dynamodb.deleteData({
-        #     "table_name": "dag",
-        #     "conditions": {
-        #         "projectId": projectId,
-        #         "sortVersion": dag_ds_result["sortVersion"]
-        #     }
-        # })
+        dag_link_result = self.dynamodb.scanTable({
+            "table_name": "dag",
+            "expression": Attr("projectId").eq(projectId) & Attr("cat").eq("null"),
+            "limit": 1000,
+            "start_key": ""
+        })["data"]
+
+        link = list(map(self.__convert2obj, dag_link_result))
+        impact_link = list(filter(lambda item: item["cmessage"]["sourceName"] == dag_ds_result["name"], link)) + \
+                      list(filter(lambda item: item["cmessage"]["targetName"] == dag_ds_result["name"], link))
+
+        for item in impact_link:
+            self.dynamodb.deleteData({
+                "table_name": "dag",
+                "conditions": {
+                    "projectId": projectId,
+                    "sortVersion": item["sortVersion"]
+                }
+            })
+
+        self.dynamodb.deleteData({
+            "table_name": "dag",
+            "conditions": {
+                "projectId": projectId,
+                "sortVersion": dag_ds_result["sortVersion"]
+            }
+        })
 
         self.dynamodb.deleteData({
             "table_name": tableName,
@@ -72,6 +71,5 @@ class RemoveDS:
         return 1
 
     def exec(self, item, message):
-        return self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
-        # return self.removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
-        #        self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
+        return self.removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
+               self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])

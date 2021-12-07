@@ -5,16 +5,16 @@ from boto3.dynamodb.conditions import Key
 from handler.RemoveDS import RemoveDS
 from handler.RemoveJob import RemoveJob
 
-# dynamodb = DynamoDB()
-import base64
-from util.AWS.STS import STS
-from constants.Common import Common
-
-sts = STS().assume_role(
-    base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-    "Ph-Back-RW"
-)
-dynamodb = DynamoDB(sts=sts)
+dynamodb = DynamoDB()
+# import base64
+# from util.AWS.STS import STS
+# from constants.Common import Common
+#
+# sts = STS().assume_role(
+#     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
+#     "Ph-Back-RW"
+# )
+# dynamodb = DynamoDB(sts=sts)
 
 
 def finishingEventData(record):
@@ -96,13 +96,13 @@ def run(eventName, jobCat, record):
             message = json.loads(item["message"])
             result = method(dynamodb).exec(item, message)
 
-            # updateActionData("action", item["id"], "succeed")
-            # insertNotification(item["id"], "succeed", "")
+            updateActionData("action", item["id"], "succeed")
+            insertNotification(item["id"], "succeed", "")
             print(result)
         except Exception as e:
             print("error ====> \n")
             print(str(e))
-            # updateActionData("action", item["id"], "failed")
-            # insertNotification(item["id"], "failed", str(e))
+            updateActionData("action", item["id"], "failed")
+            insertNotification(item["id"], "failed", str(e))
     else:
         print("未命中")

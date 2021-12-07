@@ -25,7 +25,6 @@ class Airflow:
 
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
-
         subprocess.call(["mkdir", "-p", job_path])
         subprocess.call(["touch", job_path + "/__init__.py"])
 
@@ -96,7 +95,7 @@ class Airflow:
         raise e
 
 """
-                               .replace('$alfred_outputs', ', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                )
                 else:
@@ -190,6 +189,7 @@ class Airflow:
                     )
 
         def update_operator_file(operator_file_path, dag_name, links):
+            print(links)
             for link in links:
                 w = open(operator_file_path, "a")
                 jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
@@ -200,9 +200,8 @@ class Airflow:
                             .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                             .replace("$alfred_projectName", str(dag_conf.get("projectName")))
                     )
-                w.write(link.replace('.', '_'))
-                w.write("\n")
                 w.close()
+
 
         # 判断dag的operator是否存在 存在则直接添加
         # 如果没有则根据模板创建
@@ -214,12 +213,21 @@ class Airflow:
         operator_file_path = operator_dir_path + operator_file_name
         if os.path.exists(operator_file_path):
             links = create_airflow_link()
-            print(links)
             update_operator_file(operator_file_path, dag_name, links)
         else:
             links = create_airflow_link()
             create_operator_file(operator_dir_path, dag_name, links)
             update_operator_file(operator_file_path, dag_name, links)
+        return links
+
+    def update_operator_link(self, operator_file_path, flow_links):
+
+        for link in flow_links:
+            w = open(operator_file_path, "a")
+            w.write(link.replace('.', '_'))
+            w.write("\n")
+            w.close()
+
 
     def airflow_operator_exec(self, item, res):
         dag_name = json.loads(item["message"]).get("projectName") + \
@@ -231,13 +239,21 @@ class Airflow:
         if os.path.exists(operator_file_path):
             os.system("rm " + operator_file_path)
         # 创建airflow_operator 先写入没有targetJobId
+        flow_links = []
         for dag_item in res.get("Items"):
             if not eval(dag_item.get("targetJobId")):
-                self.airflow_operator_file(dag_item)
+                link = self.airflow_operator_file(dag_item)
+                flow_links.extend(link)
         # # 更新airflow_operator 写入有targetJobId
         for dag_item in res.get("Items"):
             if eval(dag_item.get("targetJobId")):
-                self.airflow_operator_file(dag_item)
+                link = self.airflow_operator_file(dag_item)
+                flow_links.extend(link)
+
+        print(operator_file_path)
+        print(flow_links)
+        self.update_operator_link(operator_file_path, flow_links)
+
 
     def airflow(self, item_list):
 
@@ -258,7 +274,6 @@ class Airflow:
 
             # 创建上传job文件
             for dag_item in res.get("Items"):
-                # print(item)
                 # 创建args_properties
                 self.create_init(dag_item)
                 self.cerate_args_properties(dag_item)

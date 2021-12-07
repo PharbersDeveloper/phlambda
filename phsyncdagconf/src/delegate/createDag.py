@@ -66,13 +66,13 @@ class CreateDag:
                 item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + represent_id})
                 item.update({"projectId": dag_conf.get("projectId")})
                 item.update({"ctype": "link"})
-                item.update({"cat": None})
-                item.update({"name": None})
+                item.update({"cat": "null"})
+                item.update({"name": "null"})
                 item.update({"cmessage": json.dumps(message, ensure_ascii=False)})
                 data.update({"item": item})
-                data.update({"position": None})
-                data.update({"level": None})
-                data.update({"runtime": None})
+                data.update({"position": "null"})
+                data.update({"level": "null"})
+                data.update({"runtime": "null"})
                 # print("dag link ========================================")
                 # print(data)
                 self.dynamodb.putData(data)
@@ -182,8 +182,12 @@ class CreateDag:
                             output_level = max_level + 2
                 else:
                     # 如果没有获取到Item 则说明没有dataset 获取 level 最大值 +2
+
                     max_level = self.get_max_level("dag", "projectId", dag_conf["projectId"])
-                    output_level = max_level + 2
+                    if max_level < (-9999):
+                        output_level = 2
+                    else:
+                        output_level = max_level + 2
                 output_level_map = {
                     output.get("id"): output_level
                 }
@@ -253,6 +257,7 @@ class CreateDag:
             return inputs_level_maps
 
         def judge_level_is_legal(outputs_level_maps, job_level_map):
+
             for name, output_level in  outputs_level_maps.items():
                 if job_level_map.get(dag_conf.get("jobDisplayName")) >= output_level:
                     raise Exception("输入参数level大于输出参数level")

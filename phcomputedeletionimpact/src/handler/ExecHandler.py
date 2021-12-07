@@ -34,26 +34,32 @@ def __ds_query_impact(data):
             "projectId": ["=", data["projectId"]],
             "jobName": ["begins_with", f"""{item["flowVersion"]}_{item["cmessage"]["targetId"]}"""]
         })
-        dag_conf_result = __query("dagconf", dag_conf_cond).pop()
-        return {
-            "projectId": dag_conf_result["projectId"],
-            "targetId": dag_conf_result["jobId"],
-            "jobName": dag_conf_result["jobName"],
-            "type": dag_conf_result["runtime"]
-        }
+        dag_conf_result = __query("dagconf", dag_conf_cond)
+        if len(dag_conf_result) > 0:
+            return {
+                "projectId": dag_conf_result[0]["projectId"],
+                "targetId": dag_conf_result[0]["jobId"],
+                "jobName": dag_conf_result[0]["jobName"],
+                "type": dag_conf_result[0]["runtime"]
+            }
+        else:
+            return {}
 
     def __get_target_job_info(item):
         dag_conf_cond = Expression().join_expr("", {
             "projectId": ["=", data["projectId"]],
             "jobName": ["begins_with", f"""{item["flowVersion"]}_{item["cmessage"]["sourceId"]}"""]
         })
-        dag_conf_result = __query("dagconf", dag_conf_cond).pop()
-        return {
-            "projectId": dag_conf_result["projectId"],
-            "targetId": dag_conf_result["jobId"],
-            "jobName": dag_conf_result["jobName"],
-            "type": dag_conf_result["runtime"]
-        }
+        dag_conf_result = __query("dagconf", dag_conf_cond)
+        if len(dag_conf_result) > 0:
+            return {
+                "projectId": dag_conf_result[0]["projectId"],
+                "targetId": dag_conf_result[0]["jobId"],
+                "jobName": dag_conf_result[0]["jobName"],
+                "type": dag_conf_result[0]["runtime"]
+            }
+        else:
+            return {}
 
     impact_link = []
     for ds in data["query"]:
@@ -69,7 +75,7 @@ def __ds_query_impact(data):
                                       list(filter(lambda item: item["cmessage"]["targetName"] == ds["name"], link))))
         impact_link.extend(impact_source_link + impact_target_link)
 
-    return impact_link
+    return list(filter(lambda item: len(list(item.keys())) > 0, impact_link))
 
 
 def __job_query_impact(data):

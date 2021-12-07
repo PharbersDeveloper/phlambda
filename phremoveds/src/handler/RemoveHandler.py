@@ -102,6 +102,7 @@ def run(eventName, jobCat, record):
         except Exception as e:
             print("error ====> \n")
             print(str(e))
+            print(item)
             updateActionData("action", item["id"], "failed")
             insertNotification(item["id"], "failed", str(e))
     else:

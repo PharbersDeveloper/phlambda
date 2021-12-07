@@ -21,36 +21,34 @@ class RemoveJob:
             "expression": Key("projectId").eq(projectId) & Key("representId").eq(id),
             "limit": 1000,
             "start_key": ""
-        })["data"].pop()
-
-        dag_link_result = self.dynamodb.scanTable({
-            "table_name": "dag",
-            "expression": Attr("projectId").eq(projectId) & Attr("cat").eq("null"),
-            "limit": 1000,
-            "start_key": ""
         })["data"]
+        if len(dag_job_result) > 0:
+            dag_link_result = self.dynamodb.scanTable({
+                "table_name": "dag",
+                "expression": Attr("projectId").eq(projectId) & Attr("ctype").eq("link"),
+                "limit": 1000,
+                "start_key": ""
+            })["data"]
 
-        link = list(map(self.__convert2obj, dag_link_result))
+            link = list(map(self.__convert2obj, dag_link_result))
+            impact_link = list(filter(lambda item: item["cmessage"]["sourceName"] == dag_job_result[0]["name"], link)) + \
+                          list(filter(lambda item: item["cmessage"]["targetName"] == dag_job_result[0]["name"], link))
+            for item in impact_link:
+                self.dynamodb.deleteData({
+                    "table_name": "dag",
+                    "conditions": {
+                        "projectId": projectId,
+                        "sortVersion": item["sortVersion"]
+                    }
+                })
 
-        impact_link = list(filter(lambda item: item["cmessage"]["sourceName"] == dag_job_result["name"], link)) + \
-                      list(filter(lambda item: item["cmessage"]["targetName"] == dag_job_result["name"], link))
-
-        for item in impact_link:
             self.dynamodb.deleteData({
                 "table_name": "dag",
                 "conditions": {
                     "projectId": projectId,
-                    "sortVersion": item["sortVersion"]
+                    "sortVersion": dag_job_result[0]["sortVersion"]
                 }
             })
-
-        self.dynamodb.deleteData({
-            "table_name": "dag",
-            "conditions": {
-                "projectId": projectId,
-                "sortVersion": dag_job_result["sortVersion"]
-            }
-        })
 
         self.dynamodb.deleteData({
             "table_name": "dagconf",

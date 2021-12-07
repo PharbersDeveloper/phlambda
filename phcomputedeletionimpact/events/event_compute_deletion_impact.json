@@ -1,5 +1,5 @@
 {
-  "body": "{\"projectId\":\"HfSZTr74gRcQOYoA\",\"id\":\"3b653080d2fd450e92ad11bfc74bb664.xlsx\",\"name\":\"1234_output\",\"type\":\"ds\",\"sortVersion\":\"developer_\"}",
+  "body": "{\"projectId\":\"HfSZTr74gRcQOYoA\",\"type\":\"ds\",\"query\":[{\"id\":\"25efe5ccd524496fa187626d705dc120.xlsx\",\"name\":\"5678_output\",\"sortVersion\":\"developer_\"},{\"id\":\"b01fdceb7e02ebd7ea41a30c84ec540b.xlsx\",\"name\":\"sh\",\"sortVersion\":\"developer_\"}]}",
   "resource": "/phcomputedeletionimpact/",
   "path": "/phcomputedeletionimpact/",
   "httpMethod": "POST",

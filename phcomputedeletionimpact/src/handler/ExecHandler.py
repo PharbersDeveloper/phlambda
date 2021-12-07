@@ -55,18 +55,21 @@ def __ds_query_impact(data):
             "type": dag_conf_result["runtime"]
         }
 
-    dag_cond = Expression().join_expr("", {
-        "projectId": ["=", data["projectId"]],
-        "sortVersion": ["begins_with", data["sortVersion"]]
-    })
-    dag_result = __query("dag", dag_cond)
-    link = list(map(__convert2obj, list(filter(lambda item: item["ctype"] == "link", dag_result))))
-    impact_source_link = list(map(__get_source_job_info,
-                                  list(filter(lambda item: item["cmessage"]["sourceName"] == data["name"], link))))
-    impact_target_link = list(map(__get_target_job_info,
-                                  list(filter(lambda item: item["cmessage"]["targetName"] == data["name"], link))))
+    impact_link = []
+    for ds in data["query"]:
+        dag_cond = Expression().join_expr("", {
+            "projectId": ["=", data["projectId"]],
+            "sortVersion": ["begins_with", ds["sortVersion"]]
+        })
+        dag_result = __query("dag", dag_cond)
+        link = list(map(__convert2obj, list(filter(lambda item: item["ctype"] == "link", dag_result))))
+        impact_source_link = list(map(__get_source_job_info,
+                                      list(filter(lambda item: item["cmessage"]["sourceName"] == ds["name"], link))))
+        impact_target_link = list(map(__get_target_job_info,
+                                      list(filter(lambda item: item["cmessage"]["targetName"] == ds["name"], link))))
+        impact_link.extend(impact_source_link + impact_target_link)
 
-    return impact_source_link + impact_target_link
+    return impact_link
 
 
 def __job_query_impact(data):

@@ -6,6 +6,7 @@ from delegate.createDag import CreateDag
 from delegate.createDagConf import CreateDagConf
 from delegate.updateAction import UpdateAction
 from delegate.rollBack import RollBack
+from delegate.level import DagLevel
 from delegate.uploadAirflow import Airflow
 
 class SyncDagConfToDynamoDB:
@@ -57,7 +58,7 @@ class SyncDagConfToDynamoDB:
                     if json.loads(item.get("message")).get("dagName"):
                         try:
                             # 插入dagconf信息
-                            dag_conf = self.createDagConf.insert_dagconf(item)
+                            dag_conf_list = self.createDagConf.insert_dagconf(item)
                         except Exception as e:
                             # TODO 此处添加回滚功能
                             # 对已经插入的item 进行回滚
@@ -67,48 +68,52 @@ class SyncDagConfToDynamoDB:
                         else:
                             # 更新action 中job cat为 dag_conf insert success
                             status = "dag_conf insert success"
-                        finally:
-                            # 更新action 信息
-                            self.updateAction.updateItem(item, "action", status)
-                            if not status == "dag_conf insert success":
-                                self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            else:
-                                self.updateAction.updateNotification(item, "notification", dag_conf, status)
+                        print(dag_conf_list)
+                        # finally:
+                        #     # 更新action 信息
+                        #     self.updateAction.updateItem(item, "action", status)
+                        #     if not status == "dag_conf insert success":
+                        #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        #     else:
+                        #         self.updateAction.updateNotification(item, "notification", dag_conf, status)
+
+                        create_level = DagLevel(dag_conf_list=dag_conf_list)
+                        dag_item_list = create_level.exec()
 
                         try:
                             # 插入dag信息
-                            dag_item = self.createDag.create_dag(dag_conf)
+                            dag_item = self.createDag.create_dag(dag_item_list, dag_conf_list)
                         except Exception as e:
                             # TODO 此处添加回滚功能
                             # self.rollBack.dag_rollback(dag_item_list)
                             status = "插入dag时错误:" + json.dumps(str(e), ensure_ascii=False)
                             raise Exception(status)
-                        else:
-                            # 更新action 中job cat为 dag insert success
-                            status = "dag insert success"
-                        finally:
-                            # 插入dag成功后更新action 信息
-                            self.updateAction.updateItem(item, "action", status)
-                            if not status == "dag insert success":
-                                self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            else:
-                                self.updateAction.updateNotification(item, "notification", dag_conf, status)
+                        # else:
+                        #     # 更新action 中job cat为 dag insert success
+                        #     status = "dag insert success"
+                        # finally:
+                        #     # 插入dag成功后更新action 信息
+                        #     self.updateAction.updateItem(item, "action", status)
+                        #     if not status == "dag insert success":
+                        #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        #     else:
+                        #         self.updateAction.updateNotification(item, "notification", dag_conf, status)
 
             else:
                 print("不符合dag规范的action")
 
-        airflow_item_list = self.process_insert_event()
-        # 创建airflow相关文件
-        try:
-            self.airflow.airflow(airflow_item_list)
-        except Exception as e:
-            status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
-        else:
-            # 更新action 中job cat为 dag_conf insert success2
-            status = "airflow job create success"
-        finally:
-            print(status)
+        # airflow_item_list = self.process_insert_event()
+        # # 创建airflow相关文件
+        # try:
+        #     self.airflow.airflow(airflow_item_list)
+        # except Exception as e:
+        #     status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     raise Exception(status)
+        # else:
+        #     # 更新action 中job cat为 dag_conf insert success2
+        #     status = "airflow job create success"
+        # finally:
+        #     print(status)
             # for item in item_list:
             #     self.updateAction.updateItem(item, "action", status)
             #     self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
@@ -116,7 +121,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event_a.json") as f:
+    with open("../events/event_b.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

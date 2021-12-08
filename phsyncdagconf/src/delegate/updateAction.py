@@ -30,7 +30,6 @@ class UpdateAction:
             "Key": Key,
             "AttributeUpdates": AttributeUpdates
         }
-        print(data)
         self.dynamodb.updateData(data)
 
     def updateNotification(self, item, table_name, dag_conf, status=" "):

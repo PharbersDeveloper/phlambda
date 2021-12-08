@@ -29,27 +29,42 @@ class CreateDagConf:
         else:
             return 0
 
-    def update_targetId(self, dag_conf):
-        # 判断input 如果是某个item的output
-        # 则将当前jobId 添加到input Item 的targetJobId
-        data = {}
-        data.update({"table_name": "dagconf"})
-        data.update({"partition_key": "projectId"})
-        data.update({"partition_value": dag_conf.get("projectId")})
-        data.update({"sort_key": "jobName"})
-        data.update({"sort_value": dag_conf.get("flowVersion")})
-        res = self.dynamodb.queryTableBeginWith(data)
-        if res.get("Items"):
-            for item in res.get("Items"):
-                for input in dag_conf.get("inputs"):
+    def update_targetId(self, dag_conf, dag_conf_list):
+        if dag_conf_list:
+            # 判断input 如果是某个item的output
+            # 则将当前jobId 添加到input Item 的targetJobId
+            for dy_dag_conf in dag_conf_list:
+                for input in json.loads(dag_conf.get("inputs")):
                     # 如果当前 dag_conf的 input 是某个item的outputs 说明是item的 targetjob 更新item
-                    if json.dumps(input, ensure_ascii=False) in item.get("outputs"):
+                    if json.dumps(input, ensure_ascii=False) in dy_dag_conf.get("outputs"):
                         # 更新 item 的 targetId
-                        targetJobId_list = eval(item.get("targetJobId"))
-                        targetJobId_list.append(dag_conf.get("jobId"))
-                        item["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
-                        # 更新 item
-                        UpdateAction().updateDagConf(item)
+                        dy_targetJobId_list = eval(dy_dag_conf.get("targetJobId"))
+                        dy_targetJobId_list.append(dag_conf.get("jobId"))
+                        dy_dag_conf["targetJobId"] = json.dumps(dy_targetJobId_list, ensure_ascii=False)
+
+            # 判断输出 是某个item的input
+            for dy_dag_conf in dag_conf_list:
+                output = json.loads(dag_conf.get("outputs"))[0]
+                if json.dumps(output, ensure_ascii=False) in dy_dag_conf.get("inputs"):
+                    targetJobId_list = eval(dag_conf.get("targetJobId"))
+                    targetJobId_list.append(dy_dag_conf.get("jobId"))
+                    dag_conf["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
+
+        # 修改好targetId 后 将当前dag_conf 连接到dag_conf list
+        dag_conf_list.append(dag_conf)
+        return dag_conf_list
+
+        # if res.get("Items"):
+        #     for item in res.get("Items"):
+        #         for input in dag_conf.get("inputs"):
+        #             # 如果当前 dag_conf的 input 是某个item的outputs 说明是item的 targetjob 更新item
+        #             if json.dumps(input, ensure_ascii=False) in item.get("outputs"):
+        #                 # 更新 item 的 targetId
+        #                 targetJobId_list = eval(item.get("targetJobId"))
+        #                 targetJobId_list.append(dag_conf.get("jobId"))
+        #                 item["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
+        #                 # 更新 item
+        #                 UpdateAction().updateDagConf(item)
 
 
     def get_targetId(self, dag_conf):
@@ -70,6 +85,25 @@ class CreateDagConf:
 
         return targetJobId
 
+    def get_all_dag_conf(self, dag_conf):
+        projectId = dag_conf.get("projectId")
+        flowVersion = dag_conf.get("flowVersion")
+        data = {}
+        data.update({"table_name": "dagconf"})
+        data.update({"partition_key": "projectId"})
+        data.update({"partition_value": projectId})
+        data.update({"sort_key": "jobName"})
+        data.update({"sort_value": flowVersion})
+        res = self.dynamodb.queryTableBeginWith(data)
+        dag_conf_list = []
+        for dy_dag_conf in res.get("Items"):
+            dag_conf_list.append(dy_dag_conf)
+        # print(dag_conf)
+        # print(dag_conf_list)
+        update_dag_conf_list = self.update_targetId(dag_conf, dag_conf_list)
+
+        return update_dag_conf_list
+
 
     def insert_dagconf(self, action_item):
         # 传递进item_list 包含所有此次event
@@ -80,9 +114,9 @@ class CreateDagConf:
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行outputs检查
-        self.check_outputs(dag_conf)
-        self.update_targetId(dag_conf)
-        targetJobId = self.get_targetId(dag_conf)
+        # self.check_outputs(dag_conf)
+        # self.update_targetId(dag_conf)
+        targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
 
         dag_conf.update({"inputs": json.dumps(dag_conf.get("inputs"), ensure_ascii=False)})
@@ -106,12 +140,13 @@ class CreateDagConf:
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
-        job_path = dv.S3_PREFIX + dv.TEMPLATE_BUCKET + "/" + dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + "/phjob.py"
+        job_path = dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + "/phjob.py"
         dag_conf.update({"jobPath": job_path})
-
-
         data.update({"item": dag_conf})
+
+        update_dag_conf_list = self.get_all_dag_conf(dag_conf)
+
         # print("dagconf =======================================")
         # print(data)
-        self.dynamodb.putData(data)
-        return dag_conf
+        # self.dynamodb.putData(data)
+        return update_dag_conf_list

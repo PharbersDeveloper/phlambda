@@ -75,7 +75,7 @@ class CreateDag:
                 data.update({"runtime": "null"})
                 # print("dag link ========================================")
                 # print(data)
-                self.dynamodb.putData(data)
+                # self.dynamodb.putData(data)
                 link_list.append(data)
 
             return link_list
@@ -107,35 +107,44 @@ class CreateDag:
 
         return link_list
 
-    def create_job_node(self, dag_conf, level_maps):
+    def create_node(self, dag_item, dag_conf_list):
         """
         根据 dag_conf 的列表 分別创建每个job 对应的node
         :param dag_conf_list: dag的详细参数的列表
         :return: 创建job_node成功后返回一条消息
         """
         job_node_list = []
-        project_id = dag_conf.get("projectId")
-        represent_id = dag_conf.get("jobId")
-        cat = "job"
+        if dag_item.get("id"):
+            cat = "dataset"
+            represent_id = dag_item.get("id")
+            name = dag_item.get("name")
+            cmessage = "<empty>"
+            runtime = "intermediate"
+        elif dag_item.get("jobId"):
+            cat = "job"
+            represent_id = dag_item.get("jobId")
+            name = dag_item.get("jobName")
+            cmessage = dag_item.get("jobName")
+            runtime = "python3"
+        project_id = dag_conf_list[0].get("projectId")
+        flowVersion = dag_conf_list[0].get("flowVersion")
+        level = dag_item.get("level")
+
         ctype = "node"
-        job_name = dag_conf.get("jobDisplayName")
-        # name = dag_conf.get("dagName") \
-        #        + "_" + dag_conf.get("flowVersion") \
-        #        + "_" + dag_conf.get("jobDisplayName") \
-        #        + "_" + dag_conf.get("jobVersion")
-        level = level_maps["job_level_map"].get(job_name)
+
+
         data = {}
         data.update({"table_name": "dag"})
         dag_item = {}
+        dag_item.update({"name": name})
         dag_item.update({"projectId": project_id})
         dag_item.update({"representId": represent_id})
-        dag_item.update({"cmessage": job_name})
-        dag_item.update({"flowVersion": dag_conf.get("flowVersion")})
-        dag_item.update({"sortVersion": dag_conf.get("flowVersion") + "_" + represent_id})
+        dag_item.update({"cmessage": cmessage})
+        dag_item.update({"flowVersion": flowVersion})
+        dag_item.update({"sortVersion": flowVersion + "_" + represent_id})
         dag_item.update({"cat": cat})
-        dag_item.update({"runtime": dag_conf.get("runtime")})
+        dag_item.update({"runtime": runtime})
         dag_item.update({"ctype": ctype})
-        dag_item.update({"name": job_name})
         dag_item.update({"level": str(level)})
         position = {
             "x": "0",
@@ -147,7 +156,7 @@ class CreateDag:
         dag_item.update({"position": json.dumps(position)})
         data.update({"item": dag_item})
         # print("job node ====================================")
-        # print(data)
+        print(data)
         self.dynamodb.putData(data)
         job_node_list.append(data)
 
@@ -286,7 +295,7 @@ class CreateDag:
             "job_level_map": job_level_map,
             "inputs_level_maps": process_inputs_level_maps
         }
-        print(level_map)
+        # print(level_map)
         return level_map
 
     def create_dataset_data(self, ds, ds_type, level_maps, item, data, dag_conf):
@@ -306,7 +315,7 @@ class CreateDag:
             node_data = self.create_dataset_data(ds, ds_type, level_maps, item, node_data, dag_conf)
             # print("dataset node ===============================================")
             # print(node_data)
-            self.dynamodb.putData(node_data)
+            # self.dynamodb.putData(node_data)
         return dataset_node_list
 
     def create_dataset_node(self, dag_conf, level_maps):
@@ -337,7 +346,7 @@ class CreateDag:
 
         return output_dataset_node_list
 
-    def create_node(self, dag_conf, level_maps):
+    def create_node_123(self, dag_conf, level_maps):
         """
         创建 dag node
         :param dag_conf_list: dag的详细参数的列表
@@ -350,19 +359,30 @@ class CreateDag:
         job_node_list.extend(dataset_node_list)
         return job_node_list
 
-    def create_dag(self, dag_conf):
+    def create_dag(self, dag_item_list, dag_conf_list):
         """
         创建 dag link
         :param dag_conf_list: dag的详细参数的列表
         """
-        level_maps = self.determine_node_level(dag_conf)
+        # level_maps = self.determine_node_level(dag_conf)
 
         # 根据创建 event 下所有的dag_conf 创建link
-        link_list = self.create_link(dag_conf)
+        all_link_list = []
+        for dag_conf in dag_conf_list:
+            link_list = self.create_link(dag_conf)
+            all_link_list.extend(link_list)
 
-        # # 根据dag_conf 和 level_maps 创建dataset
-        node_list = self.create_node(dag_conf, level_maps)
-        link_list.extend(node_list)
+
+        for dag_item in dag_item_list:
+            print(dag_item)
+            self.create_node(json.loads(dag_item), dag_conf_list)
+
+
+
+
+        # # # 根据dag_conf 和 level_maps 创建dataset
+        # node_list = self.create_node(dag_conf, level_maps)
+        # link_list.extend(node_list)
 
         return link_list
 

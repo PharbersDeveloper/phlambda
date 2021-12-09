@@ -1,9 +1,14 @@
+
+from Common.ExportData.__init__ import Strategy
 import pandas as pd
-from Strategy import Strategy
 
 
 class CsvStrategy(Strategy):
 
-    def do_exec(self, data):
+    def __init__(self):
+        pass
 
-        print("Csv")
+    def do_exec(self, fin_list, file_name, schema):
+        dataf = pd.DataFrame(fin_list)
+        dataf.columns = schema
+        dataf.to_csv(file_name, index=False)

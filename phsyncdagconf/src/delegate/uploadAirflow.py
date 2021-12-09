@@ -10,10 +10,10 @@ class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
+        self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
-        self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
 
 
     def create_init(self, dag_conf, path=None):
@@ -191,7 +191,6 @@ class Airflow:
                     )
 
         def update_operator_file(operator_file_path, dag_name, links):
-            print(links)
             for link in links:
                 w = open(operator_file_path, "a")
                 jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
@@ -251,9 +250,6 @@ class Airflow:
             if eval(dag_item.get("targetJobId")):
                 link = self.airflow_operator_file(dag_item)
                 flow_links.extend(link)
-
-        print(operator_file_path)
-        print(flow_links)
         self.update_operator_link(operator_file_path, flow_links)
 
 

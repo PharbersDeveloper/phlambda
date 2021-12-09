@@ -82,7 +82,7 @@ class CreateDag:
 
         def create_source_target_map(dag_conf):
             job_id = dag_conf.get("jobId")
-            job_name = dag_conf.get("jobDisplayName")
+            job_name = dag_conf.get("jobName")
             id_maps = []
             for input in json.loads(dag_conf.get("inputs")):
                 id_map = {}
@@ -108,6 +108,7 @@ class CreateDag:
         return link_list
 
     def create_node(self, dag_item, dag_conf_list):
+
         """
         根据 dag_conf 的列表 分別创建每个job 对应的node
         :param dag_conf_list: dag的详细参数的列表
@@ -382,9 +383,6 @@ class CreateDag:
 
         dag_list.extend(dag_data_list)
 
-        # # # 根据dag_conf 和 level_maps 创建dataset
-        # node_list = self.create_node(dag_conf, level_maps)
-        # link_list.extend(node_list)
 
         return dag_list
 

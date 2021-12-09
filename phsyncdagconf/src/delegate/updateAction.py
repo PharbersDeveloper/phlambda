@@ -63,7 +63,7 @@ class UpdateAction:
         del AttributeUpdates["id"]
         data = {
             "table_name": table_name,
-            "Key": Key,
+            "key": Key,
             "AttributeUpdates": AttributeUpdates
         }
         print(data)

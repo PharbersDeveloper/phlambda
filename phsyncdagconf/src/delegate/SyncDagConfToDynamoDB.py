@@ -65,10 +65,10 @@ class SyncDagConfToDynamoDB:
                         except Exception as e:
                             status = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
                             self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            raise Exception(status)
                         else:
                             # 更新action 中job cat为 dag_conf insert success
-                            status = "dag_conf insert success"
+                            # status = "dag_conf insert success"
+                            pass
 
                         try:
                             # 插入dag信息
@@ -76,10 +76,10 @@ class SyncDagConfToDynamoDB:
                         except Exception as e:
                             status = "创建dag时错误:" + json.dumps(str(e), ensure_ascii=False)
                             self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            raise Exception(status)
                         else:
                             # 更新action 中job cat为 dag insert success
-                            status = "dag insert success"
+                            # status = "dag insert success"
+                            pass
 
                         try:
                             # 插入dag信息
@@ -88,10 +88,10 @@ class SyncDagConfToDynamoDB:
                         except Exception as e:
                             status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
                             self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                            raise Exception(status)
                         else:
                             # 更新action 中job cat为 dag insert success
-                            status = "dag insert success"
+                            # status = "dag insert success"
+                            pass
             else:
                 print("不符合dag规范的action")
 
@@ -101,10 +101,9 @@ class SyncDagConfToDynamoDB:
             self.airflow.airflow(airflow_item_list)
         except Exception as e:
             status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
         else:
             # 更新action 中job cat为 dag_conf insert success2
-            status = "airflow job create success"
+            status = "dag insert success"
         finally:
             for item in item_list:
                 self.updateAction.updateItem(item, "action", status)
@@ -113,7 +112,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event_a.json") as f:
+    with open("../events/event_c.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

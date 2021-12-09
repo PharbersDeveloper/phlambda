@@ -76,7 +76,7 @@ class CreateDag:
                 # print("dag link ========================================")
                 # print(data)
                 # self.dynamodb.putData(data)
-                link_list.append(data)
+                link_list.append(item)
 
             return link_list
 
@@ -113,7 +113,7 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         :return: 创建job_node成功后返回一条消息
         """
-        job_node_list = []
+
         if dag_item.get("id"):
             cat = "dataset"
             represent_id = dag_item.get("id")
@@ -156,11 +156,11 @@ class CreateDag:
         dag_item.update({"position": json.dumps(position)})
         data.update({"item": dag_item})
         # print("job node ====================================")
-        print(data)
-        self.dynamodb.putData(data)
-        job_node_list.append(data)
+        # print(data)
+        # self.dynamodb.putData(data)
 
-        return job_node_list
+
+        return dag_item
 
     def determine_node_level(self, dag_conf):
 
@@ -366,23 +366,25 @@ class CreateDag:
         """
         # level_maps = self.determine_node_level(dag_conf)
 
+        dag_list = []
         # 根据创建 event 下所有的dag_conf 创建link
-        all_link_list = []
+        link_data_list = []
         for dag_conf in dag_conf_list:
             link_list = self.create_link(dag_conf)
-            all_link_list.extend(link_list)
+            link_data_list.extend(link_list)
 
+        dag_list.extend(link_data_list)
 
+        dag_data_list = []
         for dag_item in dag_item_list:
-            print(dag_item)
-            self.create_node(json.loads(dag_item), dag_conf_list)
+            dag_data = self.create_node(json.loads(dag_item), dag_conf_list)
+            dag_data_list.append(dag_data)
 
-
-
+        dag_list.extend(dag_data_list)
 
         # # # 根据dag_conf 和 level_maps 创建dataset
         # node_list = self.create_node(dag_conf, level_maps)
         # link_list.extend(node_list)
 
-        return link_list
+        return dag_list
 

@@ -84,7 +84,7 @@ class DagLevel:
             root = LevelTreeNode(json.dumps(root_node, ensure_ascii=False))
 
             self.update_child_node(self.dag_conf_list, root_node, root)
-            root.dump()
+            # root.dump()
             max_level = self.get_latest_child(root)
 
             max_dag = eval(root.path)

@@ -144,9 +144,8 @@ class CreateDagConf:
         dag_conf.update({"jobPath": job_path})
         data.update({"item": dag_conf})
 
-        update_dag_conf_list = self.get_all_dag_conf(dag_conf)
 
+        update_dag_conf_list = self.get_all_dag_conf(dag_conf)
         # print("dagconf =======================================")
-        # print(data)
         # self.dynamodb.putData(data)
         return update_dag_conf_list

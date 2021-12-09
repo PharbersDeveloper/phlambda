@@ -30,15 +30,15 @@ class UpdateAction:
             "Key": Key,
             "AttributeUpdates": AttributeUpdates
         }
-        self.dynamodb.updateData(data)
+        # self.dynamodb.updateData(data)
 
     def updateNotification(self, item, table_name, dag_conf, status=" "):
         message = {
             "type": "notification",
             "opname": item.get("owner"),
             "cnotification": {
-                "jobName": dag_conf.get("jobName"),
-                "jobPath": dag_conf.get("job_path"),
+                "jobName": str(dag_conf.get("jobName")),
+                "jobPath": str(dag_conf.get("job_path")),
                 "status": status,
                 "error": ""
             }
@@ -66,6 +66,7 @@ class UpdateAction:
             "Key": Key,
             "AttributeUpdates": AttributeUpdates
         }
+        print(data)
         self.dynamodb.updateData(data)
 
     def updateDagConf(self, item):

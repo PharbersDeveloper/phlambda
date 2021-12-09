@@ -10,10 +10,10 @@ class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/tmp/phjobs/"
+        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        # TODO: max 是项目名这里写死了，应该是通过传入的项目名确定路径
-        self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
+        self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
 
 
     def create_init(self, dag_conf, path=None):
@@ -158,7 +158,9 @@ class Airflow:
                     res = self.dynamodb.queryTableBeginWith(data)
                     if res.get("Items"):
                         targetJobName = res["Items"][0].get("jobDisplayName")
-                    link = dag_conf.get("jobDisplayName") + " >> " + targetJobName
+                        link = dag_conf.get("jobDisplayName") + " >> " + targetJobName
+                    else:
+                        link = dag_conf.get("jobDisplayName")
                     links.append(link)
             else:
                 link = dag_conf.get("jobDisplayName")

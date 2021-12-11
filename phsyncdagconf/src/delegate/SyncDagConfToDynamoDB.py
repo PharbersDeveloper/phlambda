@@ -105,7 +105,6 @@ class SyncDagConfToDynamoDB:
                             # 更新action 中job cat为 dag_conf insert success
                             # status = "dag_conf insert success"
                             pass
-
                         try:
                             dag_item_list = self.createDag.create_dag(dag_item_list, dag_conf_list)
                         except Exception as e:
@@ -150,7 +149,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event_c.json") as f:
+    with open("../events/event_refresh.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

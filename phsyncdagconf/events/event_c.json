@@ -13,21 +13,21 @@
             "S": "Zz4OaNcwWn1moae"
           },
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "HfSZTr74gRcQOYoA"
           }
         },
         "NewImage": {
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "HfSZTr74gRcQOYoA"
           },
           "message": {
-            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_c1\",\"jobId\": \"2wsx8ikm\",\"inputs\": [{\"name\": \"测试DS_001\", \"id\": \"02452512cee51d543d3c10cb7b41af2f.xlsx\"}, {\"name\": \"测试DS_005\", \"id\": \"9d05f15c3cd41aa257829fe2681ef093.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_006\", \"id\": \"d66a7b05d055b2a2b4c35dcf790b637d.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jtest\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"1qaz4rfv\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+            "S": "{\"projectId\": \"HfSZTr74gRcQOYoA\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\",\"jobName\": \"developer_3DIZjZhUE2652a4_Test_Test_compute_D\"}"
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
           },
-          "id": {
-            "S": "Zz4OaNcwWn1moae"
+          "jobCat": {
+            "S": "dag_refresh"
           },
           "category": {
             "S": "csv"

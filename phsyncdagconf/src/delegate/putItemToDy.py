@@ -29,10 +29,12 @@ class PutItemToDy:
 
     def del_same_dag_conf_item(self):
 
+
+        projectId = self.dag_conf_list[0].get("projectId")
         query_data = {
             "table_name": "dagconf",
             "partition_key": "projectId",
-            "partition_value": "JfSmQBYUpyb4jtest",
+            "partition_value": projectId,
             "sort_key": "jobName",
             "sort_value": "developer"
         }
@@ -45,10 +47,11 @@ class PutItemToDy:
 
     def del_same_dag_item(self):
 
+        projectId = self.dag_conf_list[0].get("projectId")
         query_data = {
             "table_name": "dag",
             "partition_key": "projectId",
-            "partition_value": "JfSmQBYUpyb4jtest",
+            "partition_value": projectId,
             "sort_key": "sortVersion",
             "sort_value": "developer"
         }

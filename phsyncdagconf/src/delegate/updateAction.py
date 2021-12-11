@@ -23,8 +23,10 @@ class UpdateAction:
                 }
             }
             AttributeUpdates.update(update)
-        del AttributeUpdates["projectId"]
-        del AttributeUpdates["id"]
+        if AttributeUpdates.get("id"):
+            del AttributeUpdates["id"]
+        if AttributeUpdates.get("projectId"):
+            del AttributeUpdates["projectId"]
         data = {
             "table_name": table_name,
             "Key": Key,
@@ -59,14 +61,16 @@ class UpdateAction:
                 }
             }
             AttributeUpdates.update(update)
-        del AttributeUpdates["projectId"]
-        del AttributeUpdates["id"]
+        if AttributeUpdates.get("id"):
+            del AttributeUpdates["id"]
+        if AttributeUpdates.get("projectId"):
+            del AttributeUpdates["projectId"]
+
         data = {
             "table_name": table_name,
             "key": Key,
             "AttributeUpdates": AttributeUpdates
         }
-        print(data)
         self.dynamodb.updateData(data)
 
     def updateDagConf(self, item):

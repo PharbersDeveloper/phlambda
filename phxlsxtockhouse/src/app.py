@@ -17,12 +17,17 @@ __TYPE_STRUCTURE = {
     "String": str
 }
 client = ClickHouse(host="192.168.16.117", port="9000").getClient()
+reg = "[\n\t\s（），+()-./\"'\\\\]"
 
 
 def executeChDriverSql(sql):
     result = client.execute(sql)
     print(result)
     return result
+
+
+def insertData(sql, values):
+    return client.execute(sql, values)
 
 
 def updateAction(item, dynamodb, state):
@@ -69,15 +74,16 @@ def insertDataset(item, dynamodb):
     title_row = message["skipValue"]
     file_name = message["fileId"]
     sheet_name = message["fileSheet"]
-    label = message.get("label", "[]")
+    # label = message.get("label", "[]")
     version = message.get("version", "0.0.0")
     des_table_name = message["destination"]
+    print("message =====> \n")
+    print(message)
     # if title_row == 0:
     #     title_row += 1
     # else:
     #     title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row + 1))
-    reg = "[\n\t\s（），+()-./\"'\\\\]"
     converted_mapper = list(map(lambda item: {
         "src": re.sub(reg, "_", item["src"]),
         "des": re.sub(reg, "_", item["des"]),
@@ -101,6 +107,7 @@ def insertDataset(item, dynamodb):
         if len(schema - fileSchema) != 0:
             raise Exception("Schema Not Matched,请使用高级映射！")
     dsId = data[0]["id"] if len(data) > 0 else file_name
+    label = data[0]["label"] if len(data) > 0 else "[]"
     dynamodb.putData({
         "table_name": "dataset",
         "item": {
@@ -114,6 +121,41 @@ def insertDataset(item, dynamodb):
         }
     })
     write2Clickhouse(message, mapper, item, dynamodb)
+
+
+def insertDag(item, dynamodb):
+    message = json.loads(item["message"])
+    des_table_name = message["destination"]
+    file_name = message["fileId"]
+    result = dynamodb.scanTable({
+        "table_name": "dataset",
+        "limit": 100000,
+        "expression": Attr("name").eq(des_table_name) & Attr("projectId").eq(item["projectId"]),
+        "start_key": ""
+    })
+    print("Alex DynamoDB DAG =>>>>>> \n")
+    print(result)
+    data = result["data"]
+    dsId = data[0]["id"] if len(data) > 0 else file_name
+    dynamodb.putData({
+        "table_name": "dag",
+        "item": {
+            "id": "",
+            "projectId": item["projectId"],
+            "sortVersion": f"developer_{dsId}",
+            "cat": "dataset",
+            "cmessage": "",
+            "ctype": "node",
+            "flowVersion": "developer",
+            "level": "-99999",
+            "name": des_table_name,
+            "position": """{"x": "0", "y": "0", "z": "0", "w": "0", "h": "0"}""",
+            "representId": dsId,
+            "runtime": "uploaded"
+        }
+    })
+
+    pass
 
 
 def getExcelMapper(file_name, sheet_name, skip_first):
@@ -131,8 +173,8 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     des_table_name = message["destination"]
     tableName = item["projectId"] + "_" + des_table_name
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
-    reg = "[\n\t\s（），+()-./\"'\\\\]"
-    fields = ", ".join(list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
+    fields = ", ".join(
+        list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
     # if title_row == 0:
     #     title_row += 1
     # else:
@@ -153,31 +195,34 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     countSql = f"SELECT COUNT(1) FROM " \
                f"{os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` " \
                f"WHERE version = '{version}'"
+    print("count sql ======> \n")
+    print(countSql)
     count = list(executeChDriverSql(countSql).pop()).pop()
     if count > 0:
         raise Exception("version already exist")
 
     # excel回调数据
     def callBack(data, adapted_mapper, batch_size, hit_count):
+        print("data ===> \n")
+        print(data)
         cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
         cols_description.append("`version`")
         cols_description = ",".join(cols_description)
         sql = f"INSERT INTO {os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` ({cols_description}) VALUES"
 
         def add_col(item):
+            value = {}
             for x in list(item.keys()):
                 mi = list(filter(lambda mapperItem: mapperItem["des"] == x, mapper))[0]
                 fieldType = __TYPE_STRUCTURE[mi["type"]]
-                item[x] = re.sub("[']", "", fieldType(item[x]))
-            item["version"] = version
-            values = list(map(lambda v: "'{0}'".format(v), list(item.values())))
-            return "(" + ",".join(values) + ")"
+                value[re.sub(reg, "_", x)] = re.sub("[']", "", fieldType(item[x]))
+            value["version"] = version
+            return value
 
-        excel_data = ",".join(list(map(add_col, data)))
-        sql = sql + " " + excel_data + ";"
         print("sql ====> \n")
         print(sql)
-        executeChDriverSql(sql)
+        execl_data = list(map(add_col, data))
+        insertData(sql, execl_data)
 
         hit_value = 100 / batch_size
         progress = round(float(hit_count * hit_value), 2)
@@ -210,7 +255,11 @@ def lambda_handler(event, context):
                 continue
 
             new_image = record["dynamodb"]["NewImage"]
-            if record["eventName"].lower() == "insert" and new_image["jobCat"]["S"] == "project_file_to_DS":
+            print("Alex 进入  =====> \n")
+            print(record["eventName"].lower())
+            print(new_image)
+            print(new_image.get("jobCat", {"S": "None"})["S"])
+            if record["eventName"].lower() == "insert" and new_image.get("jobCat", {"S": "None"})["S"] == "project_file_to_DS":
                 item = {}
                 for field in list(new_image.keys()):
                     value = new_image[field]
@@ -222,11 +271,12 @@ def lambda_handler(event, context):
                     print(item)
                     history = item
                     insertDataset(item, dynamodb)
+                    insertDag(item, dynamodb)
                     updateAction(item, dynamodb, "created")
 
     except Exception as e:
         print("error: \n")
-        print(e)
+        print(str(e))
+        print(history)
         updateAction(history, dynamodb, "failed")
         insetNotification(history, dynamodb, {"progress": -1}, "failed", str(e))
-    return {}

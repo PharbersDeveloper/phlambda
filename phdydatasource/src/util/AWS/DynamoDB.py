@@ -24,33 +24,43 @@ class DynamoDB:
         self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
         self.dynamodb_client = boto3.client("dynamodb", region_name=Common.AWS_REGION)
 
+    def __dynamoData2EntityData(self, record):
+        item = {}
+        for field in list(record.keys()):
+            value = record[field]
+            v_k = list(value.keys())[0]
+            item[field] = value[v_k]
+        return item
+
     def queryTable(self, data):
         table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
-        table = self.dynamodb_resource.Table(table_name)
+        paginator = self.dynamodb_client.get_paginator("query")
+
         try:
-            if len(start_key) == 0:
-                result = table.query(
-                    KeyConditionExpression=expression,
-                    Limit=limit,
-                )
-            else:
-                result = table.query(
-                    KeyConditionExpression=expression,
-                    Limit=limit,
-                    ExclusiveStartKey=start_key
-                )
+            response_iterator = paginator.paginate(
+                TableName=table_name,
+                KeyConditionExpression=expression["FilterExpression"],
+                ExpressionAttributeNames=expression["ExpressionAttributeNames"],
+                ExpressionAttributeValues=expression["ExpressionAttributeValues"],
+                PaginationConfig={
+                    "MaxItems": limit,
+                    "PageSize": limit,
+                    "StartingToken": start_key
+                }
+            )
+            result = response_iterator.build_full_result()
             return {
-                "data": result.get("Items"),
-                "start_key": result.get("LastEvaluatedKey", "{}")
+                "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
+                "start_key": result.get("NextToken", "")
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
-                "start_key": {}
+                "start_key": ""
             }
 
     def scanTable(self, data):
@@ -58,28 +68,30 @@ class DynamoDB:
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
-        table = self.dynamodb_resource.Table(table_name)
+        paginator = self.dynamodb_client.get_paginator("scan")
+
         try:
-            if len(start_key) == 0:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                )
-            else:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                    ExclusiveStartKey=start_key
-                )
+            response_iterator = paginator.paginate(
+                TableName=table_name,
+                FilterExpression=expression["FilterExpression"],
+                ExpressionAttributeNames=expression["ExpressionAttributeNames"],
+                ExpressionAttributeValues=expression["ExpressionAttributeValues"],
+                PaginationConfig={
+                    "MaxItems": limit,
+                    "PageSize": limit,
+                    "StartingToken": start_key
+                }
+            )
+            result = response_iterator.build_full_result()
             return {
-                "data": result.get("Items"),
-                "start_key": result.get("LastEvaluatedKey", "{}")
+                "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
+                "start_key": result.get("NextToken", "")
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
-                "start_key": {}
+                "start_key": ""
             }
 
     def putData(self, data):
@@ -106,14 +118,6 @@ class DynamoDB:
             "status": "complete"
         }
 
-    def __dynamoData2EntityData(self, record):
-        item = {}
-        for field in list(record.keys()):
-            value = record[field]
-            v_k = list(value.keys())[0]
-            item[field] = value[v_k]
-        return item
-
     def batchGetItem(self, data):
         table_name = data["table_name"]
         expression = data["expression"]
@@ -127,6 +131,5 @@ class DynamoDB:
         items = result["Responses"].get(table_name, [])
         data = list(map(self.__dynamoData2EntityData, items))
         return {
-            "data": data,
-            "start_key": {}
+            "data": data
         }

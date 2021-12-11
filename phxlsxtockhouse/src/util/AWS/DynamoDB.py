@@ -87,6 +87,8 @@ class DynamoDB:
         item = data["item"]
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
+        if len(item.get("id", "")) == 0:
+            del item["id"]
         table = self.dynamodb_resource.Table(table_name)
         table.put_item(
             Item=item

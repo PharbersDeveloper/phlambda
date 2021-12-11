@@ -1,5 +1,5 @@
 {
-  "body": "{\"table\": \"dataset\",\"conditions\": {\"id\": \"1f6e029418b3b1de40eeba956210b846.xlsx\"},\"limit\": 100,\"start_key\": {}}",
+  "body": "{\"table\":\"dag\",\"conditions\":{\"projectId\":[\"=\",\"zrqojSgLfK1PbsmH\"],\"sortVersion\":[\"=\",\"developer_-76mXfbxK-xua8t\"]},\"limit\":10,\"start_key\": {}}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

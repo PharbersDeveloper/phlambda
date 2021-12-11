@@ -14,6 +14,7 @@ class Dag(Model):
         "level": fields.Str(dump_default="unknown"),
         "name": fields.Str(dump_default="unknown"),
         "position": fields.Str(dump_default="unknown"),
-        "representId": fields.Str(dump_default="unknown")
+        "representId": fields.Str(dump_default="unknown"),
+        "runtime": fields.Str(dump_default="unknown")
     }
 

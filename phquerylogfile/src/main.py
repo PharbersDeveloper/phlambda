@@ -40,9 +40,10 @@ def lambda_handler(event, context):
                         },
                         "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
                     }
-        # rdata = data[data.rfind('application_')-100: data.rfind('application_')+100]
-        print(data)
+        rdata = data[data.rfind('application_'): data.rfind('application_')+30]
+        print(rdata)
 
+    # application_1639098106143_0120
     except Exception as e:
         return {
             "statusCode": 503,
@@ -57,5 +58,5 @@ def lambda_handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin": "*",
             },
-            "body": json.dumps({"message": data, "status": 1}, ensure_ascii=False)
+            "body": json.dumps({"message": rdata, "status": 1}, ensure_ascii=False)
         }

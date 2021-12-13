@@ -14,7 +14,7 @@ class CreateDagConf:
     def check_outputs(self, dag_conf):
 
         outputs = dag_conf.get("outputs")
-
+        
         data = {}
         data.update({"table_name": "dagconf"})
         attribute = {

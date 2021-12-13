@@ -79,10 +79,6 @@ def insertDataset(item, dynamodb):
     des_table_name = message["destination"]
     print("message =====> \n")
     print(message)
-    # if title_row == 0:
-    #     title_row += 1
-    # else:
-    #     title_row += 2
     mapper = message.get("mapper", getExcelMapper(file_name, sheet_name, title_row + 1))
     converted_mapper = list(map(lambda item: {
         "src": re.sub(reg, "_", item["src"]),
@@ -175,10 +171,6 @@ def write2Clickhouse(message, mapper, item, dynamodb):
     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
     fields = ", ".join(
         list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
-    # if title_row == 0:
-    #     title_row += 1
-    # else:
-    #     title_row += 2
 
     print("fields ====> \n")
     print(fields)

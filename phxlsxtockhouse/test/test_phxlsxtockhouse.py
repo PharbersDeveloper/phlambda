@@ -2,6 +2,7 @@ import os
 import pytest
 import json
 import src.app as app
+import src.main as main
 
 os.environ["PATH_PREFIX"] = "/Users/qianpeng/Desktop/"
 os.environ["BATCH_SIZE"] = "200"
@@ -16,7 +17,7 @@ os.environ["AWS_SESSION_TOKEN"] = "IQoJb3JpZ2luX2VjEGQaDmNuLW5vcnRod2VzdC0xIkcwR
 class TestLmd:
     def test_lmd(self):
         event = open("../events/event.json", "r").read()
-        result = app.lambda_handler(json.loads(event), None)
+        result = main.lambda_handler(json.loads(event), None)
         print(result)
         # assert 'e' in a
 

@@ -14,3 +14,13 @@ class ClickHouse(metaclass=SingletonMetaClass):
 
     def getClient(self):
         return self.__client
+
+    # 以下并未做任何抽象
+    def get_count(self, sql):
+        return list(self.__client.execute(sql).pop()).pop()
+
+    def exec_ddl_sql(self, sql):
+        return self.__client.execute(sql)
+
+    def insert_data(self, sql, values):
+        return self.__client.execute(sql, values)

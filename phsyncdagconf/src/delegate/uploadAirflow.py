@@ -76,7 +76,10 @@ class Airflow:
                     file.write("""def debug_execute(**kwargs):
     try:
         args = {"name": "$alfred_name"}
+        inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
+        args.update({"input_datasets": inputs})
+        args.update({"output_datasets": outputs})
 
         args.update(kwargs)
         result = exec_before(**args)
@@ -96,6 +99,7 @@ class Airflow:
 
 """
                                .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                )
                 else:

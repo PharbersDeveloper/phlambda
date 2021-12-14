@@ -54,10 +54,10 @@ def lambda_handler(event, context):
     try:
         execution_date = datetime.datetime.utcnow()
         # dag_run_id = "_".join([project_name, dag_id, flow_version])
-        dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%d_%H:%M:%S.%f")])
+        # dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%d_%H:%M:%S.%f")])
         body = {
-            "dag_run_id": dag_run_id,
-            "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            # "dag_run_id": dag_run_id,
+            # "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "conf": conf
         }
         dag_runs = requests.post(url=runs_url, data=json.dumps(body), headers=headers)
@@ -79,6 +79,7 @@ def lambda_handler(event, context):
         res["msg"] = runs_url + " api error"
 
     return {
-        "statusCode": 200 if res["status"] == "Success" else 502,
+        "headers": { "Access-Control-Allow-Origin": "*"},
+        "statusCode": 200 if res["status"] == "success" else 502,
         "body": json.dumps(res)
     }

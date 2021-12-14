@@ -12,8 +12,8 @@ class Airflow:
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        # TODO: max 是项目名这里写死了，应该是通过传入的项目名确定路径
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
 
 
     def create_init(self, dag_conf, path=None):
@@ -76,7 +76,10 @@ class Airflow:
                     file.write("""def debug_execute(**kwargs):
     try:
         args = {"name": "$alfred_name"}
+        inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
+        args.update({"input_datasets": inputs})
+        args.update({"output_datasets": outputs})
 
         args.update(kwargs)
         result = exec_before(**args)
@@ -96,6 +99,7 @@ class Airflow:
 
 """
                                .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                )
                 else:
@@ -158,7 +162,9 @@ class Airflow:
                     res = self.dynamodb.queryTableBeginWith(data)
                     if res.get("Items"):
                         targetJobName = res["Items"][0].get("jobDisplayName")
-                    link = dag_conf.get("jobDisplayName") + " >> " + targetJobName
+                        link = dag_conf.get("jobDisplayName") + " >> " + targetJobName
+                    else:
+                        link = dag_conf.get("jobDisplayName")
                     links.append(link)
             else:
                 link = dag_conf.get("jobDisplayName")
@@ -189,7 +195,6 @@ class Airflow:
                     )
 
         def update_operator_file(operator_file_path, dag_name, links):
-            print(links)
             for link in links:
                 w = open(operator_file_path, "a")
                 jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
@@ -249,9 +254,6 @@ class Airflow:
             if eval(dag_item.get("targetJobId")):
                 link = self.airflow_operator_file(dag_item)
                 flow_links.extend(link)
-
-        print(operator_file_path)
-        print(flow_links)
         self.update_operator_link(operator_file_path, flow_links)
 
 

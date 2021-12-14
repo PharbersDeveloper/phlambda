@@ -74,17 +74,16 @@ class DagLevel:
     def exec(self):
 
         # 获取当前event的dag_conf_list
-        # print(self.dag_conf_list)
-
         # 判断所有root节点
         root_node_list = [eval(root_dag_conf.get("outputs"))[0] for root_dag_conf in self.dag_conf_list if len(eval(root_dag_conf.get("targetJobId"))) == 0]
         all_node_level_list = []
         for root_node in root_node_list:
+
             # 创建root_node
             root = LevelTreeNode(json.dumps(root_node, ensure_ascii=False))
 
             self.update_child_node(self.dag_conf_list, root_node, root)
-            root.dump()
+            # root.dump()
             max_level = self.get_latest_child(root)
 
             max_dag = eval(root.path)
@@ -106,6 +105,7 @@ class DagLevel:
                             current_level = compare_level
 
             process_dag.append(json.dumps(current_level, ensure_ascii=False))
+
 
         return list(set(process_dag))
 

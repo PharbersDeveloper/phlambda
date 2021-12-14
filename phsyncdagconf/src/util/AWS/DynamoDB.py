@@ -91,7 +91,7 @@ class DynamoDB(object):
 
     def updateData(self, data):
         table_name = data.get("table_name")
-        key = data.get("Key")
+        key = data.get("key")
         attributeUpdates = data.get("AttributeUpdates")
         table = self.dynamodb_resource.Table(table_name)
         res = table.update_item(
@@ -125,17 +125,55 @@ class DynamoDB(object):
 
     def delete_item(self, data):
         table_name = data.get("table_name")
-        key = data.get("name")
-        table = self.dynamodb.Table(table_name)
+        key = data.get("key")
+        table = self.dynamodb_resource.Table(table_name)
         try:
             res = table.delete_item(
                 Key=key,
                 # ReturnValues="ALL_OLD",
-                # ConditionExpression=Attr("projectId").eq("max") & Attr("dagName").eq("test_dag3")
+                # ConditionExpression=Attr(condition_key).begins_with(condition_value)
             )
             return "删除成功"
         except Exception as e:
             return "删除失败:" + json.loads(str(e))
+
+    def delete_dag_conf_item_by_partitionkey_sortkey(self, query_data, delete_data):
+        # 先进行query 再根据query逐条删除
+        res = self.queryTableBeginWith(query_data)
+        delete_partitionKey = delete_data.get("partitionKey")
+        delete_sortKey = delete_data.get("sortKey")
+        for item in res.get("Items"):
+
+            key = {
+                delete_partitionKey: item.get(delete_partitionKey),
+                delete_sortKey: item.get(delete_sortKey),
+            }
+            data = {
+                "table_name": delete_data.get("table_name"),
+                "key": key
+            }
+            self.delete_item(data)
+
+    def delete_dag_item_by_partitionkey_sortkey(self, query_data, delete_data, dag_conf_outputs):
+        # 先进行query 再根据query逐条删除
+        res = self.queryTableBeginWith(query_data)
+        delete_partitionKey = delete_data.get("partitionKey")
+        delete_sortKey = delete_data.get("sortKey")
+        print(dag_conf_outputs)
+        for item in res.get("Items"):
+            if item.get("representId") not in dag_conf_outputs and item.get("cat") == "dataset":
+                print("不需要删除")
+            else:
+                key = {
+                    delete_partitionKey: item.get(delete_partitionKey),
+                    delete_sortKey: item.get(delete_sortKey),
+                }
+                data = {
+                    "table_name": delete_data.get("table_name"),
+                    "key": key
+                }
+                self.delete_item(data)
+
 
 if __name__ == '__main__':
     auth = STS()

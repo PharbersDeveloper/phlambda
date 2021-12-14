@@ -21,7 +21,7 @@
             "S": "JfSmQBYUpyb4jsei"
           },
           "message": {
-            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_c1\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"测试DS_001\", \"id\": \"02452512cee51d543d3c10cb7b41af2f.xlsx\"}, {\"name\": \"测试DS_005\", \"id\": \"9d05f15c3cd41aa257829fe2681ef093.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_006\", \"id\": \"d66a7b05d055b2a2b4c35dcf790b637d.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jtest\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"1qaz4rfv\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+            "S": "{\"dagName\": \"ETL_Iterator\",\"flowVersion\": \"developer\",\"jobName\": \"compute_f\",\"jobId\": \"\",\"inputs\": [{\"name\": \"e\", \"id\": \"acda823a837a41f1a56f72d82a6935fd\"}],\"outputs\": [{\"name\": \"f\", \"id\": \"979758cf363744dfa3e22d0efdaed807\"}],\"jobVersion\": \"f_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"\",\"projectName\":\"ETL_Iterator\",\"labels\":[]}"
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"

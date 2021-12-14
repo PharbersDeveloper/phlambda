@@ -1,3 +1,4 @@
+import json
 from handler.Command.Command import Command
 
 
@@ -26,3 +27,14 @@ class SaveDataSetCommand(Command):
         }
 
         self.receiver.save(parameters)
+
+
+class SaveActionCommand(Command):
+
+    def __init__(self, receiver):
+        self.receiver = receiver
+
+    def execute(self, data):
+        parameter = dict({}, **data)
+        parameter["message"] = json.dumps(parameter["message"], ensure_ascii=False)
+        self.receiver.save(parameter)

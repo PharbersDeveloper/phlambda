@@ -1,8 +1,15 @@
+import os
 import json
+import time
+import constants.DefinValue as DV
 from handler.Strategy.Reader import Reader
 from handler.Command.MsgReceiver import MsgReceiver
 from handler.Command.SendMsgCommand import SendMsgSuccessCommand, SendMsgFailCommand
-from constants.Errors import Errors
+from handler.Command.ActionReceiver import ActionReceiver
+from handler.Command.SaveCommand import SaveActionCommand
+from handler.Command.LockReceiver import LockReceiver
+from handler.Command.LockCommand import LockCommand, UnLockCommand, WatchLockCommand
+from constants.Errors import Errors, ResourceBusy
 
 
 def lambda_handler(event, context):
@@ -26,12 +33,28 @@ def lambda_handler(event, context):
 
                 for item in data:
                     item["message"] = json.loads(item["message"])
-                    history = item
-                    result = Reader(item).reader()
+                    history = dict({}, **item)
+                    check_key = os.environ[DV.CHECK_APP_NAME] + "_" + item["projectId"] + "_" + item["message"]["destination"]
+                    if WatchLockCommand(LockReceiver()).execute({"key": check_key}):
+                        raise ResourceBusy("Resources Are Busy")
 
+                    # TODO：这里会有lock会被别的操作者给释放掉，锁的内容与结构需要在这版本之后重新调整
+                    # 触发条件: 当操作同一个DS一个大数据量另一个小数据量，小数据量先写完这样就会把lock去掉
+                    lock_key = os.environ[DV.LOCK_APP_NAME] + "_" + item["projectId"] + "_" + item["message"]["destination"]
+                    LockCommand(LockReceiver()).execute({
+                        "key": lock_key,
+                        "value": int(round(time.time() * 1000)),
+                        "time": 60 * 60
+                    })
+                    result = Reader(item).reader()
+                    item["jobDesc"] = "created"
+                    SaveActionCommand(ActionReceiver()).execute(item)
                     SendMsgSuccessCommand(MsgReceiver()).execute(result)
 
     except Errors as e:
+        print(e)
+        history["jobDesc"] = "failed"
+        SaveActionCommand(ActionReceiver()).execute(history)
         command = SendMsgFailCommand(MsgReceiver())
         command.execute({
             "id": history["id"],
@@ -44,4 +67,8 @@ def lambda_handler(event, context):
                 "code": e.code,
                 "message": e.message
             }
+        })
+    finally:
+        UnLockCommand(LockReceiver()).execute({
+            "key": os.environ[DV.LOCK_APP_NAME] + "_" + history["projectId"] + "_" + history["message"]["destination"]
         })

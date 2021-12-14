@@ -1,12 +1,18 @@
+import os
 import json
+import time
 import http.client
 import urllib.parse
 from boto3.dynamodb.conditions import Attr
+from constants.Common import Common
+from util.PhRedis import PhRedis
+from constants.Errors import Errors, ResourceBusy
 
 
 class RemoveDS:
     def __init__(self, dynamodb):
         self.dynamodb = dynamodb
+        self.redis = PhRedis(host=os.environ[Common.REDIS_HOST], port=os.environ[Common.REDIS_PORT]).getRedis()
 
     def __convert2obj(self, item):
         entity = dict({}, **item)
@@ -14,7 +20,8 @@ class RemoveDS:
         return entity
 
     def executeSql(self, sql, type):
-        conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
+        conn = http.client.HTTPConnection(host=os.environ[Common.CLICKHOUSE_HOST],
+                                          port=os.environ[Common.CLICKHOUSE_PORT])
         url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
         conn.request(type, url)
         res = conn.getresponse()
@@ -71,5 +78,23 @@ class RemoveDS:
         return 1
 
     def exec(self, item, message):
-        return self.removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
-               self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
+        check_key = os.environ[Common.CHECK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+        set_key = os.environ[Common.LOCK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+        try:
+            if self.redis.exists(check_key):
+                raise ResourceBusy("Resources Are Busy")
+            else:
+                if self.redis.setnx(set_key, int(round(time.time() * 1000))):
+                    self.redis.expire(set_key, 60)
+
+                # result = 1
+                result = self.removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
+                         self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
+
+                return result
+        except ResourceBusy as e:
+            raise e
+        except Exception as e:
+            raise Errors(e)
+        finally:
+            self.redis.delete(set_key)

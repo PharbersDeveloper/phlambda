@@ -82,7 +82,7 @@ class Xlsx(Strategy):
         original_schema = self.parameters["original_schema"]
         standard_schema = self.parameters["standard_schema"]
         fields = ", ".join(
-            list(map(lambda field: f"""{field['des']}` {field["type"]}""", standard_schema))
+            list(map(lambda field: f"""`{field['des']}` {field["type"]}""", standard_schema))
         )
 
         # Create Table

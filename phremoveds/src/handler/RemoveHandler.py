@@ -4,6 +4,7 @@ from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
 from handler.RemoveDS import RemoveDS
 from handler.RemoveJob import RemoveJob
+from constants.Errors import Errors
 
 dynamodb = DynamoDB()
 # import base64
@@ -99,11 +100,14 @@ def run(eventName, jobCat, record):
             updateActionData("action", item["id"], "succeed")
             insertNotification(item["id"], "succeed", "")
             print(result)
-        except Exception as e:
+        except Errors as e:
             print("error ====> \n")
-            print(str(e))
+            print(e)
             print(item)
             updateActionData("action", item["id"], "failed")
-            insertNotification(item["id"], "failed", str(e))
+            insertNotification(item["id"], "failed", json.dumps({
+                "code": e.code,
+                "message": e.message
+            }, ensure_ascii=False))
     else:
         print("未命中")

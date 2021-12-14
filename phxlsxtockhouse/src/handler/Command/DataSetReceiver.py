@@ -19,7 +19,7 @@ class DataSetReceiver(Receiver):
                 "id": data["ds_id"],
                 "projectId": data["project_id"],
                 "date": int(round(time.time() * 1000)),
-                "name": data["ds_name"],
+                "name": data["name"],
                 "schema": json.dumps(data["schema"], ensure_ascii=False),
                 "label": data["label"],
                 "version": data["version"]

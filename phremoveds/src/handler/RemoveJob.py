@@ -1,6 +1,7 @@
 import json
 import time
 from boto3.dynamodb.conditions import Key, Attr
+from constants.Errors import Errors
 
 
 class RemoveJob:
@@ -130,4 +131,8 @@ class RemoveJob:
         return 1
 
     def exec(self, item, message):
-        return self.removeJob(message["targetId"], item["projectId"], message["jobName"], item["owner"], item["showName"])
+        try:
+            return self.removeJob(message["targetId"], item["projectId"],
+                                  message["jobName"], item["owner"], item["showName"])
+        except Exception as e:
+            raise Errors(e)

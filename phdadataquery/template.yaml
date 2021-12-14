@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phdadataquery-dev
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+#      Layers:
+#        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
+      FunctionName: lmd-phdadataquery-dev
+      Description: "phchdatasource-v2 "
+      MemorySize: 512
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Timeout: 5
+      Environment:
+        Variables:
+          HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
+          PORT: "6379"
+          APP_NAME: "phchdatasource"
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

@@ -101,7 +101,8 @@ class CreateDagConf:
                         dag_conf.get("flowVersion") + "_" + \
                         dag_conf.get("jobName") + "_" + \
                         dag_conf.get("jobId")
-        dag_conf.update({"jobName": job_full_name })
+        dag_conf.update({"jobShowName": dag_conf.get("jobName")})
+        dag_conf.update({"jobName": job_full_name})
         dag_conf.update({"jobDisplayName": job_display_full_name })
         dag_conf.update({"labels": json.dumps(dag_conf.get("labels"), ensure_ascii=False)})
         dag_conf.update({"projectName": dag_conf.get("projectName")})

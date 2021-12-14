@@ -21,7 +21,7 @@ class DagLevel:
             for dag_conf in dag_conf_list:
                 if json.dumps(node, ensure_ascii=False) in dag_conf.get("outputs"):
                     child_node = {
-                        "jobName": dag_conf.get("jobName"),
+                        "jobName": dag_conf.get("jobShowName"),
                         "jobId": dag_conf.get("jobId")
                     }
                     dataset_child_node_list.append(child_node)

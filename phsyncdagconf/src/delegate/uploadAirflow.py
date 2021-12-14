@@ -10,9 +10,9 @@ class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/tmp/phjobs/"
+        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
 
 
@@ -79,9 +79,9 @@ class Airflow:
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
         args.update({"input_datasets": inputs})
-        args.update({"output_datasets": outputs})
+        df_map = readClickhouse(inputs, kwargs)
 
-        args.update(kwargs)
+        args.update(df_map)
         result = exec_before(**args)
 
         args.update(result if isinstance(result, dict) else {})
@@ -259,6 +259,8 @@ class Airflow:
 
     def airflow(self, item_list):
 
+        print("=================")
+        print(item_list)
         for item in item_list:
             # 获取所有的item 进行创建airflow
             projectId = json.loads(item["message"]).get("projectId")

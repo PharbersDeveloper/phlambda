@@ -20,12 +20,12 @@ def readClickhouse(inputs, kwargs):
         version = version_map.get(dbtable)
         df = spark.read.format("jdbc") \
             .option("url", "jdbc:clickhouse://192.168.16.117:8123") \
-            .option("dbtable", dbtable) \
+            .option("dbtable", "HfSZTr74gRcQOYoA_" + dbtable) \
             .option("driver", "ru.yandex.clickhouse.ClickHouseDriver") \
             .option("user", "default") \
             .option("password", "") \
             .option("fetchsize", "500000").load()
-        df = df.where(df.version==version).drop('version')
+        df = df.where(df["version"]==version).drop('version')
         df_map.update({"df_" + dbtable: df})
     return df_map
 

@@ -21,7 +21,7 @@
             "S": "JfSmQBYUpyb4jtest"
           },
           "message": {
-            "S": "{\"projectId\": \"JfSmQBYUpyb4jtest\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
+            "S": "{\"projectId\": \"JfSmQBYUpyb4jsei\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"

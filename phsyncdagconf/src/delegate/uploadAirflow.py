@@ -206,6 +206,7 @@ class Airflow:
                         line.replace("$alfred_jobs_dir", str(dag_name))
                             .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                             .replace("$alfred_projectName", str(dag_conf.get("projectName")))
+                            .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
                     )
                 w.close()
 
@@ -237,15 +238,20 @@ class Airflow:
 
 
     def airflow_operator_exec(self, item, res):
+
         dag_name = json.loads(item["message"]).get("projectName") + \
                    "_" + json.loads(item["message"]).get("dagName") + \
                    "_" + json.loads(item["message"]).get("flowVersion")
+
         operator_file_name = "ph_dag_" + dag_name + ".py"
+
         operator_dir_path = self.operator_path
         operator_file_path = operator_dir_path + operator_file_name
+
         if os.path.exists(operator_file_path):
             os.system("rm " + operator_file_path)
         # 创建airflow_operator 先写入没有targetJobId
+
         flow_links = []
         for dag_item in res.get("Items"):
             if not eval(dag_item.get("targetJobId")):
@@ -274,12 +280,12 @@ class Airflow:
             data.update({"sort_key": "jobName"})
             data.update({"sort_value": flowVersion})
             res = self.dynamodb.queryTableBeginWith(data)
-
             # 创建airflow_operator
             self.airflow_operator_exec(item, res)
 
             # 创建上传job文件
             for dag_item in res.get("Items"):
+
                 # 创建args_properties
                 self.create_init(dag_item)
                 self.cerate_args_properties(dag_item)

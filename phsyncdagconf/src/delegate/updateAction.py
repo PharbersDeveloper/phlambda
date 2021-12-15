@@ -41,6 +41,7 @@ class UpdateAction:
             "cnotification": {
                 "jobName": str(dag_conf.get("jobName")),
                 "jobPath": str(dag_conf.get("job_path")),
+                "jobShowName": str(dag_conf.get("jobShowName")),
                 "status": status,
                 "error": ""
             }

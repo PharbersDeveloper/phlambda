@@ -54,10 +54,10 @@ def lambda_handler(event, context):
     try:
         execution_date = datetime.datetime.utcnow()
         # dag_run_id = "_".join([project_name, dag_id, flow_version])
-        # dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%d_%H:%M:%S.%f")])
+        dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00")])
         body = {
-            # "dag_run_id": dag_run_id,
-            # "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "dag_run_id": dag_run_id,
+            "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00"),
             "conf": conf
         }
         dag_runs = requests.post(url=runs_url, data=json.dumps(body), headers=headers)
@@ -67,6 +67,7 @@ def lambda_handler(event, context):
             res["data"] = {
                 "dag_run_id": airflow_result["dag_run_id"],
                 "dag_id": airflow_result["dag_id"],
+                "run_id": dag_run_id,
                 "project_name": project_name
             }
         else:

@@ -27,16 +27,22 @@ class AppLambdaDelegate:
         return 'insert data succeed'
 
     def query_version(self, project_id, **kwargs):
-        return self.dynamodb.queryTable({
+        result = self.dynamodb.queryTable({
             "table_name": "version",
             "expression": Key('project_id').eq(f'{project_id}')
         })
+        if result:
+            result[0]['updatetime'] = int(result[0]['updatetime'])
+            return result[0]
 
     def querytime_version(self, **kwargs):
-        return self.dynamodb.scanTable({
+        result = self.dynamodb.scanTable({
             "table_name": "version",
             "expression": Attr('updatetime').lt(int(time.time()))
         })
+        if result:
+            result = [i.get("project_id") for i in result]
+        return result
 
     def parse_data(self, item):
         item['sort_key'] = item['name'] + item['version_msg']
@@ -52,20 +58,3 @@ class AppLambdaDelegate:
         body = eval(self.event["body"])
         action = body.pop('action')
         return Commends[action](**body)
-
-
-
-#
-# sts = STS().assume_role(
-#     base64.b64decode(Common.ASSUME_ROLE_ARN).decode(),
-#     "Ph-Back-RW"
-# )
-# dynamodb = DynamoDB(sts=sts)
-# table = dynamodb.dynamodb_resource.Table('version')
-# print(table.scan(
-#         FilterExpression=Attr('updatetime').lt(int(time.time()))
-# )["Items"])
-#
-# print(table.scan(
-#         FilterExpression=Key('project_id').eq('002')
-# ))

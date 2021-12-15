@@ -78,13 +78,14 @@ class Airflow:
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
-        args.update({"input_datasets": inputs})
-        args.update({"output_datasets": outputs})
+        project_id = $alfred_project_id
 
-        args.update(kwargs)
+        args.update(df_map)
         result = exec_before(**args)
 
         args.update(result if isinstance(result, dict) else {})
+        df_map = readClickhouse(inputs, args)
+        args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
@@ -101,6 +102,7 @@ class Airflow:
                                .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
+                               .replace('$alfred_project_id', dag_conf.get("projectId"))
                                )
                 else:
                     file.write(line)
@@ -204,6 +206,7 @@ class Airflow:
                         line.replace("$alfred_jobs_dir", str(dag_name))
                             .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                             .replace("$alfred_projectName", str(dag_conf.get("projectName")))
+                            .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
                     )
                 w.close()
 
@@ -235,15 +238,20 @@ class Airflow:
 
 
     def airflow_operator_exec(self, item, res):
+
         dag_name = json.loads(item["message"]).get("projectName") + \
                    "_" + json.loads(item["message"]).get("dagName") + \
                    "_" + json.loads(item["message"]).get("flowVersion")
+
         operator_file_name = "ph_dag_" + dag_name + ".py"
+
         operator_dir_path = self.operator_path
         operator_file_path = operator_dir_path + operator_file_name
+
         if os.path.exists(operator_file_path):
             os.system("rm " + operator_file_path)
         # 创建airflow_operator 先写入没有targetJobId
+
         flow_links = []
         for dag_item in res.get("Items"):
             if not eval(dag_item.get("targetJobId")):
@@ -259,6 +267,8 @@ class Airflow:
 
     def airflow(self, item_list):
 
+        print("=================")
+        print(item_list)
         for item in item_list:
             # 获取所有的item 进行创建airflow
             projectId = json.loads(item["message"]).get("projectId")
@@ -270,12 +280,12 @@ class Airflow:
             data.update({"sort_key": "jobName"})
             data.update({"sort_value": flowVersion})
             res = self.dynamodb.queryTableBeginWith(data)
-
             # 创建airflow_operator
             self.airflow_operator_exec(item, res)
 
             # 创建上传job文件
             for dag_item in res.get("Items"):
+
                 # 创建args_properties
                 self.create_init(dag_item)
                 self.cerate_args_properties(dag_item)

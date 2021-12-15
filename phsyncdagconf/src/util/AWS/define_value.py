@@ -24,7 +24,7 @@ ENV_CUR_RUNTIME_DEFAULT = 'python3'
 TEMPLATE_PHCONF_FILE = "/template/python/phcli/maxauto/phconf-20210104.yaml"
 TEMPLATE_PHJOB_FILE_PY = "/template/python/phcli/maxauto/phjob-20210104.tmp"
 TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r-20210122.tmp"
-TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20210104.tmp"
+TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20211214.tmp"
 TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20210122.tmp"
 
 TEMPLATE_JUPYTER_PYTHON_FILE = '/template/python/phcli/maxauto/phJupyterPython-20210322.json'

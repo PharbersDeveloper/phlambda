@@ -39,7 +39,7 @@ class CreateDag:
 
         def create_source_target_map(dag_conf):
             job_id = dag_conf.get("jobId")
-            job_name = dag_conf.get("jobName")
+            job_name = dag_conf.get("jobShowName")
             id_maps = []
             for input in json.loads(dag_conf.get("inputs")):
                 id_map = {}
@@ -80,7 +80,7 @@ class CreateDag:
         elif dag_item.get("jobId"):
             cat = "job"
             represent_id = dag_item.get("jobId")
-            name = dag_item.get("jobName")
+            name = dag_item.get("jobShowName")
             cmessage = dag_item.get("jobName")
             runtime = "python3"
         project_id = dag_conf_list[0].get("projectId")
@@ -125,7 +125,7 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         """
         # level_maps = self.determine_node_level(dag_conf)
-
+        print(dag_item_list)
         dag_list = []
         # 根据创建 event 下所有的dag_conf 创建link
         link_data_list = []

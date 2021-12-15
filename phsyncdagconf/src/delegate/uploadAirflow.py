@@ -78,13 +78,14 @@ class Airflow:
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
-        args.update({"input_datasets": inputs})
-        df_map = readClickhouse(inputs, kwargs)
+        project_id = $alfred_project_id
 
         args.update(df_map)
         result = exec_before(**args)
 
         args.update(result if isinstance(result, dict) else {})
+        df_map = readClickhouse(inputs, args)
+        args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
@@ -101,6 +102,7 @@ class Airflow:
                                .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
+                               .replace('$alfred_project_id', dag_conf.get("projectId"))
                                )
                 else:
                     file.write(line)

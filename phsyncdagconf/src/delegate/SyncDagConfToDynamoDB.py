@@ -79,18 +79,18 @@ class SyncDagConfToDynamoDB:
                             status = "dag insert success"
                             pass
 
-                        # try:
-                        #     # 插入dag信息
-                        #     putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
-                        #     putItem.put_dag_job()
-                        # except Exception as e:
-                        #     status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
-                        #     self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                        #     raise e
-                        # else:
-                        #     # 更新action 中job cat为 dag insert success
-                        #     status = "dag insert success"
-                        #     pass
+                        try:
+                            # 插入dag信息
+                            putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
+                            putItem.put_dag_job()
+                        except Exception as e:
+                            status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            raise e
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            pass
 
                     elif item.get("jobCat") == "dag_refresh":
                         try:
@@ -114,17 +114,17 @@ class SyncDagConfToDynamoDB:
                             status = "daginsert success"
                             pass
 
-                        # try:
-                        #     # 插入dag信息
-                        #     putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
-                        #     putItem.put_dag_job()
-                        # except Exception as e:
-                        #     status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
-                        #     self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-                        # else:
-                        #     # 更新action 中job cat为 dag insert success
-                        #     status = "dag insert success"
-                        #     pass
+                        try:
+                            # 插入dag信息
+                            putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
+                            putItem.put_dag_job()
+                        except Exception as e:
+                            status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            pass
                     
             else:
                 print("不符合dag规范的action")
@@ -139,20 +139,20 @@ class SyncDagConfToDynamoDB:
             else:
                 # 更新action 中job cat为 dag_conf insert success2
                 status = "dag insert success"
-            # finally:
-            #
-            #     for item in item_list:
-            #         dag_conf = {}
-            #         for dag_conf_item in dag_conf_list:
-            #             if json.loads(item.get("message")).get("jobName") in dag_conf_item.get("jobName"):
-            #                 dag_conf = dag_conf_item
-            #         self.updateAction.updateItem(item, "action", status)
-            #         self.updateAction.updateNotification(item, "notification", dag_conf=dag_conf, status=status)
+            finally:
+
+                for item in item_list:
+                    dag_conf = {}
+                    for dag_conf_item in dag_conf_list:
+                        if json.loads(item.get("message")).get("jobName") in dag_conf_item.get("jobName"):
+                            dag_conf = dag_conf_item
+                    self.updateAction.updateItem(item, "action", status)
+                    self.updateAction.updateNotification(item, "notification", dag_conf=dag_conf, status=status)
 
 
 
 if __name__ == '__main__':
-    with open("../events/event_refresh.json") as f:
+    with open("../events/event_a.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

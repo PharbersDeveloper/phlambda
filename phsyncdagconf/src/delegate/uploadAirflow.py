@@ -79,7 +79,9 @@ class Airflow:
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs]
         project_id = $alfred_project_id
-
+        ph_conf = json.loads(kwargs.get("ph_conf"))
+        
+        args.update(ph_conf)
         args.update(df_map)
         result = exec_before(**args)
 
@@ -89,6 +91,12 @@ class Airflow:
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
+        createOutputs(args, ph_conf, outputs, project_id)
+        
+        for output in outputs:
+            args.update({output: output})
+        for input in inputs:
+            args.update({input: input})
         result = exec_after(outputs=outputs, **args)
 
         return result

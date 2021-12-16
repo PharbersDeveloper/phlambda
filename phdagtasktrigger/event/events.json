@@ -1,5 +1,5 @@
 {
-    "body": "{\"project_name\": \"ETL_Iterator\", \"flow_version\": \"developer\", \"run_id\": \"ETL_Iterator_ETL_Iterator_developer_2021-12-15T05:09:13+00:00\", \"clean_tasks\": [\"ETL_Iterator_ETL_Iterator_developer_compute_vvv_r1cjJ3Kz7yGyLv1\"]}",
+    "body": "{\"project_name\": \"ETL_Iterator\", \"flow_version\": \"developer\", \"run_id\": \"ETL_Iterator_ETL_Iterator_developer_2021-12-16T02:21:30+00:00\", \"task_id\": \"ETL_Iterator_ETL_Iterator_developer_compute_aaa_VDqrXM3XDVpHkIH\", \"clean_cat\":\"downstream\"}",
     "def": "def",
     "resource": "/{proxy+}",
     "path": "/path/to/resource",

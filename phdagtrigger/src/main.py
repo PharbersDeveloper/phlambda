@@ -29,8 +29,8 @@ def lambda_handler(event, context):
 
     res = {}
     headers = {
-        "Authorization": 'Basic Base64(webuser:password)',
-        "Content-type": 'application/json',
+        "Content-type": "application/json",
+        "Accept": "application/json"
     }
 
     # 如果存在dag_id将状态改为激活

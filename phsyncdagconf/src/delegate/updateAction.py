@@ -49,7 +49,7 @@ class UpdateAction:
         item.update({"jobDesc": status})
         item.update({"message": json.dumps(message,  ensure_ascii=False)})
         Key = {
-            "id": item.get("id"),
+            "id": item.get("id", "default_id"),
             "projectId": item.get("projectId")
         }
 

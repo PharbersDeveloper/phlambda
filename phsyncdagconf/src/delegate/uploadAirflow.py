@@ -10,9 +10,9 @@ class Airflow:
     def __init__(self, **kwargs):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/tmp/phjobs/"
+        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
 
 
@@ -69,20 +69,24 @@ class Airflow:
                     file.write("@click.command()\n")
                     for must in dv.PRESET_MUST_ARGS.split(","):
                         file.write("@click.option('--{}')\n".format(must.strip()))
-                    for input in json.loads(dag_conf.get("inputs")):
-                        file.write("@click.option('--" + input.get("name") + "')\n")
-                    for output in json.loads(dag_conf.get("outputs")):
-                        file.write("@click.option('--" + output.get("name") + "')\n")
+                    # for input in json.loads(dag_conf.get("inputs")):
+                    #     file.write("@click.option('--" + input.get("name") + "')\n")
+                    # for output in json.loads(dag_conf.get("outputs")):
+                    #     file.write("@click.option('--" + output.get("name") + "')\n")
                     file.write("""def debug_execute(**kwargs):
     try:
+        logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
-        outputs = [$alfred_outputs]
-        project_id = $alfred_project_id
-        ph_conf = json.loads(kwargs.get("ph_conf"))
+        outputs = [$alfred_outputs_name]
+        outputs_id = ["$alfred_output_id"]
+        project_id = "$alfred_project_id"
         
+        ph_conf = json.loads(kwargs.get("ph_conf"))
+        logger.debug("打印ph_conf")
+        logger.debug(ph_conf)
+        logger.debug(type(ph_conf))
         args.update(ph_conf)
-        args.update(df_map)
         result = exec_before(**args)
 
         args.update(result if isinstance(result, dict) else {})
@@ -91,8 +95,11 @@ class Airflow:
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
-        createOutputs(args, ph_conf, outputs, project_id)
-        
+        logger.debug("job脚本返回输出df")
+        logger.debug(args)
+
+        createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
+
         for output in outputs:
             args.update({output: output})
         for input in inputs:
@@ -107,8 +114,9 @@ class Airflow:
         raise e
 
 """
-                               .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
                                )

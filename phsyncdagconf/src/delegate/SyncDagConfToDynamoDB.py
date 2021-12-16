@@ -68,6 +68,7 @@ class SyncDagConfToDynamoDB:
                             # 更新action 中job cat为 dag_conf insert success
                             status = "dag_conf insert success"
                             pass
+
                         try:
                             # 创建dag_item_list
                             dag_item_list = self.createDag.create_dag(dag_item_list, dag_conf_list)
@@ -136,18 +137,20 @@ class SyncDagConfToDynamoDB:
                 self.airflow.airflow(airflow_item_list)
             except Exception as e:
                 status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
+                raise e
             else:
                 # 更新action 中job cat为 dag_conf insert success2
                 status = "dag insert success"
-            finally:
-
-                for item in item_list:
-                    dag_conf = {}
-                    for dag_conf_item in dag_conf_list:
-                        if json.loads(item.get("message")).get("jobName") in dag_conf_item.get("jobName"):
-                            dag_conf = dag_conf_item
-                    self.updateAction.updateItem(item, "action", status)
-                    self.updateAction.updateNotification(item, "notification", dag_conf=dag_conf, status=status)
+            # finally:
+            #
+            #     for item in item_list:
+            #         print(item)
+            #         dag_conf = {}
+            #         for dag_conf_item in dag_conf_list:
+            #             if json.loads(item.get("message")).get("jobName") and json.loads(item.get("message")).get("jobName") in dag_conf_item.get("jobName"):
+            #                 dag_conf = dag_conf_item
+            #         self.updateAction.updateItem(item, "action", status)
+            #         self.updateAction.updateNotification(item, "notification", dag_conf=dag_conf, status=status)
 
 
 

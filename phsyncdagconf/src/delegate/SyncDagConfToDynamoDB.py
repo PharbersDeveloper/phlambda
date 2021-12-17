@@ -2,11 +2,13 @@ import os
 import json
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-from createDag import CreateDag
-from createDagConf import CreateDagConf
-from updateAction import UpdateAction
-from rollBack import RollBack
-from uploadAirflow import Airflow
+from delegate.createDag import CreateDag
+from delegate.createDagConf import CreateDagConf
+from delegate.updateAction import UpdateAction
+from delegate.rollBack import RollBack
+from delegate.level import DagLevel
+from delegate.uploadAirflow import Airflow
+from delegate.putItemToDy import PutItemToDy
 
 class SyncDagConfToDynamoDB:
 
@@ -36,47 +38,121 @@ class SyncDagConfToDynamoDB:
                 item_list.append(item)
         return item_list
 
+    def insert_action(self, item_list):
+        status = "dag_action"
+        for item in item_list:
+            if not json.loads(item.get("message")).get("flowVersion"):
+                status = None
+
+        return status
 
     def exec(self):
         # 处理event
         item_list = self.process_insert_event()
-
-        try:
-            # 插入dagconf信息
-            dag_conf_list = self.createDagConf.insert_dagconf(item_list)
-            print(dag_conf_list)
-            for dag_conf in dag_conf_list:
-            self.airflow.airflow(dag_conf_list)
-        except Exception as e:
-            # TODO 此处添加回滚功能
-            # 对已经插入的item 进行回滚
-            # self.rollBack.dag_conf_rollback(dag_conf_list)
-            raise Exception("插入dag_conf时错误:" + json.dumps(str(e)))
+        if not item_list:
+            print("操作不是INSERT")
         else:
-            # 更新action 中job cat为 dag_conf insert success
-            status = "dag_conf insert success"
-            # 插入dag_conf 成功后更新action 信息
-            self.updateAction.updateItem(item_list, "action", status)
-            self.updateAction.updateItem(item_list, "notification", status)
+            status = self.insert_action(item_list)
+            if status:
+                for item in item_list:
+                    if json.loads(item.get("message")).get("dagName"):
+                        try:
+                            # 插入dagconf信息
+                            dag_conf_list = self.createDagConf.insert_dagconf(item)
+                            create_level = DagLevel(dag_conf_list=dag_conf_list)
+                            dag_item_list = create_level.exec()
+                        except Exception as e:
+                            status = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag_conf insert success
+                            status = "dag_conf insert success"
+                            pass
+                        try:
+                            # 创建dag_item_list
+                            dag_item_list = self.createDag.create_dag(dag_item_list, dag_conf_list)
+                        except Exception as e:
+                            status = "创建dag时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            pass
 
-        try:
-            # 插入dag信息
-            dag_item_list = self.createDag.create_dag(dag_conf_list)
-            print(item_list)
-        except Exception as e:
-            # TODO 此处添加回滚功能
-            # self.rollBack.dag_rollback(dag_item_list)
-            raise Exception("插入dag时错误:" + json.dumps(str(e)))
-        else:
-            # 更新action 中job cat为 dag insert success
-            status = "dag insert success"
-            # 插入dag成功后更新action 信息
-            self.updateAction.updateItem(item_list, "action", status)
-            self.updateAction.updateItem(item_list, "notification", status)
+                        try:
+                            # 插入dag信息
+                            putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
+                            putItem.put_dag_job()
+                        except Exception as e:
+                            status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            raise e
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            pass
+
+                    elif item.get("jobCat") == "dag_refresh":
+                        try:
+                            dag_conf_list = self.createDagConf.refresh_dagconf(item)
+                            create_level = DagLevel(dag_conf_list=dag_conf_list)
+                            dag_item_list = create_level.exec()
+                        except Exception as e:
+                            status = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag_conf insert success
+                            # status = "dag_conf insert success"
+                            pass
+                        try:
+                            dag_item_list = self.createDag.create_dag(dag_item_list, dag_conf_list)
+                        except Exception as e:
+                            status = "创建dag时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "daginsert success"
+                            pass
+
+                        try:
+                            # 插入dag信息
+                            putItem = PutItemToDy(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list)
+                            putItem.put_dag_job()
+                        except Exception as e:
+                            status = "将dag上传时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            pass
+                    
+            else:
+                print("不符合dag规范的action")
+
+        airflow_item_list = self.process_insert_event()
+        if json.loads(airflow_item_list[0].get("message")).get("dagName") or airflow_item_list[0].get("jobCat") == "dag_refresh":
+            # 创建airflow相关文件
+            try:
+                self.airflow.airflow(airflow_item_list)
+            except Exception as e:
+                status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
+            else:
+                # 更新action 中job cat为 dag_conf insert success2
+                status = "dag insert success"
+            finally:
+
+                for item in item_list:
+                    dag_conf = {}
+                    for dag_conf_item in dag_conf_list:
+                        if json.loads(item.get("message")).get("jobName") in dag_conf_item.get("jobName"):
+                            dag_conf = dag_conf_item
+                    self.updateAction.updateItem(item, "action", status)
+                    self.updateAction.updateNotification(item, "notification", dag_conf=dag_conf, status=status)
+
 
 
 if __name__ == '__main__':
-    with open("../events/event.json") as f:
+    with open("../events/event_a.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

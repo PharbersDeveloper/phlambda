@@ -1,0 +1,46 @@
+{
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "id": {
+            "S": "Zz4OaNcwWn1moae"
+          },
+          "projectId": {
+            "S": "JfSmQBYUpyb4jtest"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "JfSmQBYUpyb4jtest"
+          },
+          "message": {
+            "S": "{\"projectId\": \"JfSmQBYUpyb4jsei\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
+          },
+          "property": {
+            "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
+          },
+          "jobCat": {
+            "S": "dag_refresh"
+          },
+          "category": {
+            "S": "csv"
+          },
+          "status": {
+            "S": "creating"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
+}

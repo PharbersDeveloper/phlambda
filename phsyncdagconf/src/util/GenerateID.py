@@ -10,7 +10,7 @@ class GenerateID:
     def generate():
         charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
                   "abcdefghijklmnopqrstuvwxyz" \
-                  "0123456789-_"
+                  "0123456789"
 
         charsetLength = len(charset)
         keyLength = 3 * 5

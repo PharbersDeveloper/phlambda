@@ -77,24 +77,20 @@ class RemoveDS:
         })
         return 1
 
-    def exec(self, item, message):
-        check_key = os.environ[Common.CHECK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
-        set_key = os.environ[Common.LOCK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+    def exec(self, item, messages):
         try:
-            if self.redis.exists(check_key):
-                raise ResourceBusy("Resources Are Busy")
-            else:
-                if self.redis.setnx(set_key, int(round(time.time() * 1000))):
-                    self.redis.expire(set_key, 60)
-
-                # result = 1
-                result = self.removeClickHouseData(item["projectId"] + "_" + message["destination"]) & \
-                         self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
-
-                return result
+            for message in messages:
+                check_key = os.environ[Common.CHECK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+                set_key = os.environ[Common.LOCK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+                if self.redis.exists(check_key):
+                    raise ResourceBusy("Resources Are Busy")
+                else:
+                    if self.redis.setnx(set_key, int(round(time.time() * 1000))):
+                        self.redis.expire(set_key, 60)
+                    self.removeClickHouseData(item["projectId"] + "_" + message["destination"])
+                    self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
+                    self.redis.delete(set_key)
         except ResourceBusy as e:
             raise e
         except Exception as e:
             raise Errors(e)
-        finally:
-            self.redis.delete(set_key)

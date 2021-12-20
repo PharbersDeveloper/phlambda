@@ -65,7 +65,7 @@ def insertNotification(actionId, state, error):
             "message": json.dumps({
                 "type": "operation",
                 "opname": result[0]["owner"],
-                "opgroup": message.get("opgroup", "0"),
+                "opgroup": message[0].get("opgroup", "0"),
                 "cnotification": {
                     "status": "remove_DS_{}".format(state),
                     "error": error
@@ -94,12 +94,11 @@ def run(eventName, jobCat, record):
         try:
             print("Alex ==> \n")
             print(method)
-            message = json.loads(item["message"])
-            result = method(dynamodb).exec(item, message)
+            messages = json.loads(item["message"])
+            method(dynamodb).exec(item, messages)
 
             updateActionData("action", item["id"], "succeed")
             insertNotification(item["id"], "succeed", "")
-            print(result)
         except Errors as e:
             print("error ====> \n")
             print(e)

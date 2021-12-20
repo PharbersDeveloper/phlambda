@@ -24,7 +24,7 @@ class RemoveJob:
     def removeJob2S3(self, path):
         pass
 
-    def removeJob(self, id, projectId, jobName, owner, showName):
+    def removeJob(self, id, projectId, jobName, flowVersion):
         dag_job_result = self.dynamodb.scanTable({
             "table_name": "dag",
             "expression": Key("projectId").eq(projectId) & Key("representId").eq(id),
@@ -69,7 +69,7 @@ class RemoveJob:
 
         dag_conf_results = self.dynamodb.scanTable({
             "table_name": "dagconf",
-            "expression": Attr("projectId").eq(projectId) & Attr("flowVersion").eq("developer"),
+            "expression": Attr("projectId").eq(projectId) & Attr("flowVersion").eq(flowVersion),
             "limit": 10000,
             "start_key": ""
         })["data"]
@@ -109,30 +109,30 @@ class RemoveJob:
                 "jobName": jobName
             }
         })
-        self.dynamodb.putData({
-            "table_name": "action",
-            "item": {
-                "projectId": projectId,
-                "code": 0,
-                "comments": "dag_refresh",
-                "date": int(round(time.time() * 1000)),
-                "jobCat": "dag_refresh",
-                "jobDesc": "refresh",
-                "message": json.dumps({
-                    "projectId": projectId,
-                    "jobName": jobName,
-                    "flowVersion": dag_conf_result[0]["flowVersion"] if len(dag_conf_result) > 0 else "developer",
-                    "jobCat": "dag_refresh"
-                }),
-                "owner": owner,
-                "showName": showName
-            }
-        })
         return 1
 
-    def exec(self, item, message):
+    def exec(self, item, messages):
         try:
-            return self.removeJob(message["targetId"], item["projectId"],
-                                  message["jobName"], item["owner"], item["showName"])
+            for message in messages:
+                self.removeJob(message["targetId"], item["projectId"],
+                               message["jobName"], message["flowVersion"])
+            self.dynamodb.putData({
+                "table_name": "action",
+                "item": {
+                    "projectId": item["projectId"],
+                    "code": 0,
+                    "comments": "dag_refresh",
+                    "date": int(round(time.time() * 1000)),
+                    "jobCat": "dag_refresh",
+                    "jobDesc": "refresh",
+                    "message": json.dumps({
+                        "projectId": item["projectId"],
+                        "flowVersion": messages[0]["flowVersion"] if len(messages) > 0 else "developer",
+                        "jobCat": "dag_refresh"
+                    }),
+                    "owner": item["owner"],
+                    "showName": item["showName"]
+                }
+            })
         except Exception as e:
             raise Errors(e)

@@ -7,25 +7,17 @@ import base64
 
 s3 = boto3.client('s3')
 def if_exit(bucket, key):
-    # response = s3.get_object(Bucket='ph-platform',
-    #                          Key='2020-11-11/emr/yarnLogs/hadoop/logs-tfile/application_1639098106143_0120/ip-192-168-27-243.cn-northwest-1.compute.internal_8041')
-    # a = response.get('Body').read()
-    # print(a)
     _s3 = boto3.client('s3')
     try:
         response = _s3.get_object(Bucket=bucket, Key=key)
+
+        return response.get('Body').read()
     except:
-        return False
-    else:
-        base64_data = base64.b64encode(response.get('Body').read())
-        base64_str = base64_data.decode('utf-8')
-        return base64_str
+        return
 
 
-def read_gz(bucket, key):
-    s3 = boto3.resource('s3')
-    obj = s3.Object(bucket, key)
-    gzipfile = BytesIO(obj.get()['Body'].read())
+def read_gz(gz_data):
+    gzipfile = BytesIO(gz_data)
     return gzip.GzipFile(fileobj=gzipfile).read()
 
 
@@ -39,23 +31,28 @@ def query_logfile(bucket, file_key):
 
 
 def run(bucket, key, **kwargs):
-    if not if_exit(bucket, key+"stderr.gz"):
+    result = if_exit(bucket, key+"stderr.gz")
+    if not result:
         return
-    log_file = read_gz(bucket, key+"stderr.gz").decode()
+    log_file = read_gz(result).decode()
     file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_')+30]
     logkey_list = query_logfile(bucket, file_nmae)
 
     # with open('test1.txt', 'wb') as f:
     #     for i in logkey_list:
     #         f.write(if_exit(bucket, i))
-
-    return [if_exit(bucket, i) for i in logkey_list]
+    # for i in logkey_list:
+    #     reasult = if_exit(bucket, i)
+    #     base64_data = base64.b64encode(reasult)
+    #     print(json.dumps(base64_data))
+    #     print(type(base64_data))
+    #     base64_str = base64_data.decode('utf-8')
+    return [base64.b64encode(if_exit(bucket, i)).decode('utf-8') for i in logkey_list]
 
 
 def lambda_handler(event, context):
     try:
         data = run(**eval(event["body"]))
-        print(data)
         if not data:
             return {
                         "statusCode": 200,
@@ -64,8 +61,14 @@ def lambda_handler(event, context):
                         },
                         "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
                     }
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+            },
+            "body": json.dumps({"message": data, "status": 1}, ensure_ascii=False)
+        }
 
-    # application_1639098106143_0120
     except Exception as e:
         return {
             "statusCode": 503,
@@ -74,13 +77,3 @@ def lambda_handler(event, context):
             },
             "body": json.dumps({"message": str(e), "status": 0}, ensure_ascii=False)
         }
-    else:
-        return {
-            "statusCode": 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-            },
-            "body": json.dumps({"message": data, "status": 1}, ensure_ascii=False)
-        }
-    # data = run(**eval(event["body"]))
-    # print(data)

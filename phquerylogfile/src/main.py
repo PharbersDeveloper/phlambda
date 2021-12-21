@@ -5,12 +5,10 @@ import gzip
 import base64
 
 
-s3 = boto3.client('s3')
 def if_exit(bucket, key):
     _s3 = boto3.client('s3')
     try:
         response = _s3.get_object(Bucket=bucket, Key=key)
-
         return response.get('Body').read()
     except:
         return

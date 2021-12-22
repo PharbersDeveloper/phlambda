@@ -1,31 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-V2
+Description: cicd lambda phmaxcompatible-V2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: app.lambda_handler
+      Handler: main.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      Environment:
-        Variables:
-          PATH_PREFIX: /mnt/tmp/max/tmp/
-          BATCH_SIZE: 10000
-          CLICKHOUSE_DB: default
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1
-      FunctionName: lmd-phxlsxtockhouse-V2
-      Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
+      FunctionName: lmd-phmaxcompatible-V2
+      Description: "兼容max1。0"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 600
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-058404c2ad02dcbb9
-          - sg-09f5205a1194149ab
-        SubnetIds:
-          - subnet-0260eab5acd58bc53
-          - subnet-0e3daa88acef9b136

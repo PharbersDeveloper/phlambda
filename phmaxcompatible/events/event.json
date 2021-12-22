@@ -1,14 +1,59 @@
+
 {
-        "id": "e0d24d609b7fbf5b84918ec7720feaef.xlsx",
-        "projectId": "HfSZTr74gRcQOYoA",
-        "category":"xlsx",
-        "code": 0,
-        "comments": "",
-        "jobCat": "upload",
-        "jobDesc": "created",
-        "message": "emr/log/test.xls",
-        "owner": "a71723eba8d673e68a9a87aee65c36a83c9e14abde59c60c556a3eba23818ea7",
-        "showName": "张璐",
-        "name": "test",
-        "version": "test1"
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          },
+          "id": {
+            "S": "000011"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "JfSmQBYUpyb4jsei"
+          },
+          "id": {
+            "S": "000011"
+          },
+          "code": {
+            "N": "0"
+          },
+          "comments": {
+            "S": "project file to Data set"
+          },
+          "jobCat": {
+            "S": "max1.0"
+          },
+          "jobDesc": {
+            "S": "creating"
+          },
+          "message": {
+            "S": "{\"skipValue\":0,\"jumpValue\":0,\"fileType\":\"xlsx\",\"fileSheet\":\"订单明细\",\"fileId\":\"LLP 2020年2月出单收支明细.xlsx\",\"fileName\":\"MAPPING_to QLX\",\"isAppend\":false,\"destination\":\"是最大\"}"
+          },
+          "date": {
+            "N": "1636010256565"
+          },
+          "owner": {
+            "S": "5a8a4b460be6e51b2ea202f8b0022d7aaed117816f617fbd65a87c8b149222c0"
+          },
+          "showName": {
+            "S": "alfred"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
 }

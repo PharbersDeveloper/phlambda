@@ -53,40 +53,33 @@ class AppLambdaDelegate:
             "showName": self.data.get("showName"),
         }
 
-    def query_version(self, project_id, **kwargs):
-        result = self.dynamodb.queryTable({
-            "table_name": "version",
-            "expression": Key('project_id').eq(f'{project_id}')
-        })
-        if result:
-            result[0]['updatetime'] = int(result[0]['updatetime'])
-            return result[0]
-
 
 def lambda_handler(event, context):
+    records = event["Records"]
     try:
-        if event.get('jobCat') != 'max1.0':
-            return {
-                "statusCode": 200,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*'
-                },
-                "body": json.dumps({"message": "jobCat != max1.0"})
-            }
-        app = AppLambdaDelegate(event)
-        return {
-            "statusCode": 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*'
-            },
-            "body": json.dumps({"message": app.run()})
-        }
+        for record in records:
+            if record["eventName"].lower() != "insert":
+                continue
 
-    except Exception as e:
-        return {
-            "statusCode": 503,
-            'headers': {
-                'Access-Control-Allow-Origin': '*'
-            },
-            "body": json.dumps({"message": str(e)})
-        }
+            new_image = record["dynamodb"]["NewImage"]
+            if record["eventName"].lower() == "insert" and \
+                    new_image.get("jobCat", {"S": "None"})["S"] == "max1.0":
+                data = {
+                    "id": "e0d24d609b7fbf5b84918ec7720feaef.xlsx",
+                    "projectId": new_image.get("jobCat")["S"],
+                    "category": "",
+                    "code": 0,
+                    "comments": "",
+                    "jobCat": "max1.0",
+                    "jobDesc": new_image.get("jobDesc")["S"],
+                    "message": json.loads(new_image.get("message")["S"]).get('keys'),
+                    "owner": new_image.get("owner")["S"],
+                    "showName": new_image.get("showName")["S"],
+                    "name": json.loads(new_image.get("message")["S"]).get('name'),
+                    "version": json.loads(new_image.get("message")["S"]).get('version')
+                }
+                app = AppLambdaDelegate(data)
+                app.run()
+
+    except:
+        pass

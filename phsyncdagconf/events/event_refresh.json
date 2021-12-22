@@ -23,9 +23,6 @@
           "message": {
             "S": "{\"projectId\": \"HfSZTr74gRcQOYoA\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
           },
-          "property": {
-            "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
-          },
           "jobCat": {
             "S": "dag_refresh"
           },

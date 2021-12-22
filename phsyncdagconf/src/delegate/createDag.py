@@ -125,7 +125,6 @@ class CreateDag:
         :param dag_conf_list: dag的详细参数的列表
         """
         # level_maps = self.determine_node_level(dag_conf)
-        print(dag_item_list)
         dag_list = []
         # 根据创建 event 下所有的dag_conf 创建link
         link_data_list = []

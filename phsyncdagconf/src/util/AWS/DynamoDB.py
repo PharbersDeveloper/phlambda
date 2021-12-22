@@ -159,7 +159,6 @@ class DynamoDB(object):
         res = self.queryTableBeginWith(query_data)
         delete_partitionKey = delete_data.get("partitionKey")
         delete_sortKey = delete_data.get("sortKey")
-        print(dag_conf_outputs)
         for item in res.get("Items"):
             if item.get("representId") not in dag_conf_outputs and item.get("cat") == "dataset":
                 print("不需要删除")

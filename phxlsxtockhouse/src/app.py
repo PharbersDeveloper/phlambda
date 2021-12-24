@@ -113,6 +113,8 @@
 #             "name": des_table_name,
 #             "schema": json.dumps(converted_mapper, ensure_ascii=False),
 #             "label": label,
+#             "cat": "normal",
+#             "path": "",
 #             "version": version
 #         }
 #     })
@@ -195,8 +197,6 @@
 #
 #     # excel回调数据
 #     def callBack(data, adapted_mapper, batch_size, hit_count):
-#         print("data ===> \n")
-#         print(data)
 #         cols_description = list(map(lambda col: "`{0}`".format(re.sub(reg, "_", col['des'])), adapted_mapper))
 #         cols_description.append("`version`")
 #         cols_description = ",".join(cols_description)
@@ -218,6 +218,10 @@
 #
 #         hit_value = 100 / batch_size
 #         progress = round(float(hit_count * hit_value), 2)
+#         print("Progress    =====> \n")
+#         print(batch_size)
+#         print(hit_count)
+#         print(hit_value)
 #         print("==========> {} \n".format(progress))
 #         insetNotification(item, dynamodb, {"progress": progress}, "succeed" if progress >= 100 else "running", "")
 #

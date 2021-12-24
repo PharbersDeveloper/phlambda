@@ -22,6 +22,8 @@ class DataSetReceiver(Receiver):
                 "name": data["name"],
                 "schema": json.dumps(data["schema"], ensure_ascii=False),
                 "label": data["label"],
+                "cat": data["cat"],
+                "path": data["path"],
                 "version": data["version"]
             }
         })

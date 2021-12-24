@@ -23,6 +23,8 @@ class SaveDataSetCommand(Command):
             "name": data["ds_name"],
             "schema": data["standard_schema"],
             "label": data["label"],
+            "cat": data["cat"],
+            "path": data["path"],
             "version": data["version"]
         }
 

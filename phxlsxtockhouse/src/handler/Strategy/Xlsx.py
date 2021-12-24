@@ -124,6 +124,8 @@ class Xlsx(Strategy):
                 "sheet_name": data["message"]["fileSheet"],
                 "ds_name": data["message"]["destination"],
                 "opgroup": data["message"]["opgroup"],
+                "cat": data["message"].get("cat", "normal"),
+                "path": data["message"].get("path", ""),
                 "prefix": "project_file_to_DS_"
             }
 

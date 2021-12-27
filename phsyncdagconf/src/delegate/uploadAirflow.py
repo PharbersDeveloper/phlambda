@@ -69,18 +69,24 @@ class Airflow:
                     file.write("@click.command()\n")
                     for must in dv.PRESET_MUST_ARGS.split(","):
                         file.write("@click.option('--{}')\n".format(must.strip()))
-                    for input in json.loads(dag_conf.get("inputs")):
-                        file.write("@click.option('--" + input.get("name") + "')\n")
-                    for output in json.loads(dag_conf.get("outputs")):
-                        file.write("@click.option('--" + output.get("name") + "')\n")
+                    # for input in json.loads(dag_conf.get("inputs")):
+                    #     file.write("@click.option('--" + input.get("name") + "')\n")
+                    # for output in json.loads(dag_conf.get("outputs")):
+                    #     file.write("@click.option('--" + output.get("name") + "')\n")
                     file.write("""def debug_execute(**kwargs):
     try:
+        logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
-        outputs = [$alfred_outputs]
-        project_id = $alfred_project_id
-
-        args.update(df_map)
+        outputs = [$alfred_outputs_name]
+        outputs_id = ["$alfred_output_id"]
+        project_id = "$alfred_project_id"
+        
+        ph_conf = json.loads(kwargs.get("ph_conf"))
+        logger.debug("打印ph_conf")
+        logger.debug(ph_conf)
+        logger.debug(type(ph_conf))
+        args.update(ph_conf)
         result = exec_before(**args)
 
         args.update(result if isinstance(result, dict) else {})
@@ -89,6 +95,15 @@ class Airflow:
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
+        logger.debug("job脚本返回输出df")
+        logger.debug(args)
+
+        createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
+
+        for output in outputs:
+            args.update({output: output})
+        for input in inputs:
+            args.update({input: input})
         result = exec_after(outputs=outputs, **args)
 
         return result
@@ -99,8 +114,9 @@ class Airflow:
         raise e
 
 """
-                               .replace('$alfred_outputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
                                )
@@ -185,7 +201,7 @@ class Airflow:
                             .replace("$alfred_email_on_failure", str("False")) \
                             .replace("$alfred_email_on_retry", str("False")) \
                             .replace("$alfred_email", str("['airflow@example.com']")) \
-                            .replace("$alfred_retries", str(1)) \
+                            .replace("$alfred_retries", str(0)) \
                             .replace("$alfred_retry_delay", str("minutes=5")) \
                             .replace("$alfred_dag_id", str(dag_name)) \
                             .replace("$alfred_dag_tags", str("'default'")) \
@@ -197,18 +213,18 @@ class Airflow:
                     )
 
         def update_operator_file(operator_file_path, dag_name, links):
-            for link in links:
-                w = open(operator_file_path, "a")
-                jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
-                for line in jf:
-                    line = line + "\n"
-                    w.write(
-                        line.replace("$alfred_jobs_dir", str(dag_name))
-                            .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
-                            .replace("$alfred_projectName", str(dag_conf.get("projectName")))
-                            .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
-                    )
-                w.close()
+
+            w = open(operator_file_path, "a")
+            jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
+            for line in jf:
+                line = line + "\n"
+                w.write(
+                    line.replace("$alfred_jobs_dir", str(dag_name))
+                        .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
+                        .replace("$alfred_projectName", str(dag_conf.get("projectName")))
+                        .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
+                )
+            w.close()
 
 
         # 判断dag的operator是否存在 存在则直接添加
@@ -239,9 +255,14 @@ class Airflow:
 
     def airflow_operator_exec(self, item, res):
 
-        dag_name = json.loads(item["message"]).get("projectName") + \
-                   "_" + json.loads(item["message"]).get("dagName") + \
-                   "_" + json.loads(item["message"]).get("flowVersion")
+        if item.get("jobCat") == "dag_refresh":
+            dag_name = res.get("Items")[0].get("projectName") +\
+                       "_" + res.get("Items")[0].get("dagName") + \
+                       "_" + res.get("Items")[0].get("flowVersion")
+        else:
+            dag_name = json.loads(item["message"]).get("projectName") + \
+                       "_" + json.loads(item["message"]).get("dagName") + \
+                       "_" + json.loads(item["message"]).get("flowVersion")
 
         operator_file_name = "ph_dag_" + dag_name + ".py"
 
@@ -267,8 +288,6 @@ class Airflow:
 
     def airflow(self, item_list):
 
-        print("=================")
-        print(item_list)
         for item in item_list:
             # 获取所有的item 进行创建airflow
             projectId = json.loads(item["message"]).get("projectId")

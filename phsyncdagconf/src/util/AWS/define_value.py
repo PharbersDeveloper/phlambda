@@ -31,7 +31,7 @@ TEMPLATE_JUPYTER_PYTHON_FILE = '/template/python/phcli/maxauto/phJupyterPython-2
 TEMPLATE_JUPYTER_R_FILE = '/template/python/phcli/maxauto/phJupyterR-20210122.json'
 
 TEMPLATE_PHDAG_FILE = "/template/python/phcli/maxauto/phdag-20210104.yaml"
-TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phgraphtemp-20211207.tmp"
+TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phgraphtemp-20211215.tmp"
 TEMPLATE_PHDAGJOB_FILE = "/template/python/phcli/maxauto/phDagJob-20211207.tmp"
 
 TEMPLATE_SFN_LMD_STEP_FILE = "/template/python/phcli/step_functions/step_tmp/ph-sfn-create-lmd-step-20210713.tmp"
@@ -55,4 +55,4 @@ DEFAULT_ROLE_ARN = 'arn:aws-cn:iam::444603803904:role/Pharbers-IoC-Maintainer'
 DEFAULT_MACHINE_TYPE = 'STANDARD'
 DEFAULT_MACHINE_ARN_SUFFIX = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:'
 
-PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, job_id'
+PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, job_id，ph_conf'

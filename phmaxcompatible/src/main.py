@@ -24,8 +24,10 @@ class AppLambdaDelegate:
             "date": int(time.time()),
             "label": "[]",
             "name": self.data.get("name"),
-            "schema": self.data.get("message"),
-            "version": self.data.get("version")
+            "schema": "[]",
+            "version": self.data.get("version"),
+            "cat": self.data.get("cat"),
+            "path": self.data.get("message")
         }
 
     @property
@@ -94,7 +96,8 @@ def lambda_handler(event, context):
                     "owner": new_image.get("owner")["S"],
                     "showName": new_image.get("showName")["S"],
                     "name": json.loads(new_image.get("message")["S"]).get('name'),
-                    "version": json.loads(new_image.get("message")["S"]).get('version')
+                    "version": json.loads(new_image.get("message")["S"]).get('version'),
+                    "cat": json.loads(new_image.get("message")["S"]).get('cat')
                 }
                 app = AppLambdaDelegate(data)
                 app.run()

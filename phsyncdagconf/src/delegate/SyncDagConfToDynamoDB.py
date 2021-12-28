@@ -61,6 +61,7 @@ class SyncDagConfToDynamoDB:
                             dag_conf_list = self.createDagConf.insert_dagconf(item)
                             create_level = DagLevel(dag_conf_list=dag_conf_list)
                             dag_item_list = create_level.exec()
+
                         except Exception as e:
                             status = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
                             self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
@@ -154,7 +155,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event_refresh.json") as f:
+    with open("../events/event_a.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

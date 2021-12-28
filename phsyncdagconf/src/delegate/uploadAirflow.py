@@ -79,26 +79,38 @@ class Airflow:
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs_name]
-        outputs_id = ["$alfred_output_id"]
+        outputs_id = [$alfred_outputs_id]
         project_id = "$alfred_project_id"
+        runtime = "$alfred_runtime"
         
-        ph_conf = json.loads(kwargs.get("ph_conf"))
-        logger.debug("打印ph_conf")
-        logger.debug(ph_conf)
-        logger.debug(type(ph_conf))
-        args.update(ph_conf)
+        ph_conf = json.loads(kwargs.get("ph_conf", {}))
+        user_conf = ph_conf.get("userConf", {})
+        ds_conf = ph_conf.get("datasets", {})
+        logger.debug("打印 user_conf")
+        logger.debug(user_conf)
+        logger.debug(type(user_conf))
+        logger.debug("打印 ds_conf")
+        logger.debug(ds_conf)
+        logger.debug(type(ds_conf))
+        args.update(user_conf)
+        args.update({"ds_conf": ds_conf})
+    
+        args.update(kwargs)
+        output_version = args.get("owner") + "_" + args.get("run_id")
         result = exec_before(**args)
-
+        
         args.update(result if isinstance(result, dict) else {})
-        df_map = readClickhouse(inputs, args)
-        args.update(df_map)
+        if project_id == "HfSZTr74gRcQOYoA":
+            df_map = readClickhouse(inputs, args, project_id, outputs, output_version, logger)
+            args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
         logger.debug("job脚本返回输出df")
         logger.debug(args)
-
-        createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
+        
+        if project_id == "HfSZTr74gRcQOYoA":
+            createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
 
         for output in outputs:
             args.update({output: output})
@@ -115,10 +127,11 @@ class Airflow:
 
 """
                                .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name").lower()+'"' for input in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
+                               .replace('$alfred_runtime', dag_conf.get("runtime"))
                                )
                 else:
                     file.write(line)
@@ -287,7 +300,6 @@ class Airflow:
 
 
     def airflow(self, item_list):
-
         for item in item_list:
             # 获取所有的item 进行创建airflow
             projectId = json.loads(item["message"]).get("projectId")

@@ -13,15 +13,15 @@
             "S": "Zz4OaNcwWn1moae"
           },
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "JfSmQBYUpyb4jseitest"
           }
         },
         "NewImage": {
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "JfSmQBYUpyb4jseitest"
           },
           "message": {
-            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_b1\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"测试DS_004\", \"id\": \"61b80c3b92e8519b2675e0d18c7b560e.xlsx\"}, {\"name\": \"测试DS_003\", \"id\": \"769d8def35b1121c054ee478a192673d.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_005\", \"id\": \"9d05f15c3cd41aa257829fe2681ef093.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jtest\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"1qaz4rfv\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_b1\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"测试DS_004\", \"id\": \"61b80c3b92e8519b2675e0d18c7b560e.xlsx\"}, {\"name\": \"测试DS_003\", \"id\": \"769d8def35b1121c054ee478a192673d.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_005\", \"id\": \"9d05f15c3cd41aa257829fe2681ef093.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jseitest\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"1qaz4rfv\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"

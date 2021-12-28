@@ -73,6 +73,7 @@
 #     message = json.loads(item["message"])
 #     title_row = message["skipValue"]
 #     file_name = message["fileId"]
+#     cat = message.get("cat", "intermediate")
 #     sheet_name = message["fileSheet"]
 #     # label = message.get("label", "[]")
 #     version = message.get("version", "0.0.0")
@@ -113,7 +114,7 @@
 #             "name": des_table_name,
 #             "schema": json.dumps(converted_mapper, ensure_ascii=False),
 #             "label": label,
-#             "cat": "normal",
+#             "cat": cat,
 #             "path": "",
 #             "version": version
 #         }

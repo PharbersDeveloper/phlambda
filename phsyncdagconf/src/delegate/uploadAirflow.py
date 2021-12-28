@@ -5,6 +5,8 @@ import os
 from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
+from handler.GenerateInvoker import GenerateInvoker
+
 
 class Airflow:
     def __init__(self, **kwargs):
@@ -14,7 +16,6 @@ class Airflow:
         # 这个位置挂载 efs 下 /pharbers/projects
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
-
 
     def create_init(self, dag_conf, path=None):
         # lmd中默认创建到tmp下的phjobs /tmp/phjobs/
@@ -28,7 +29,7 @@ class Airflow:
         subprocess.call(["mkdir", "-p", job_path])
         subprocess.call(["touch", job_path + "/__init__.py"])
 
-    def cerate_args_properties(self, dag_conf, path=None):
+    def create_args_properties(self, dag_conf, path=None):
         # if not path:
         #     path = self.job_path + "/arg.properties"
         # subprocess.call(["touch", path])
@@ -116,20 +117,15 @@ class Airflow:
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
+        operator_parameters = dag_conf.get("operator_parameters", [])
+
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
+        operator_code = GenerateInvoker().execute(operator_parameters)
         with open(job_path + "/phjob.py", "a") as file:
             file.write("""def execute(**kwargs):\n""")
+            file.write(operator_code)
 
-            file.write("""    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)\n""")
-
-            file.write("""
-    result_path_prefix = kwargs["result_path_prefix"]
-    spark = kwargs["spark"]()
-    depends_path = kwargs["depends_path"]
-
-    return {}
-""")
 
 
     def upload_phjob_files(self, dag_conf):
@@ -236,7 +232,6 @@ class Airflow:
             w.write("\n")
             w.close()
 
-
     def airflow_operator_exec(self, item, res):
 
         dag_name = json.loads(item["message"]).get("projectName") + \
@@ -264,7 +259,6 @@ class Airflow:
                 flow_links.extend(link)
         self.update_operator_link(operator_file_path, flow_links)
 
-
     def airflow(self, item_list):
 
         print("=================")
@@ -288,9 +282,20 @@ class Airflow:
 
                 # 创建args_properties
                 self.create_init(dag_item)
-                self.cerate_args_properties(dag_item)
+                self.create_args_properties(dag_item)
                 self.create_phmain(dag_item)
                 self.create_phjobs(dag_item)
                 # 上传phjob文件
                 self.upload_phjob_files(dag_item)
 
+
+# if __name__ == '__main__':
+#     args = ["operation_null", "",
+#             "filter", [{"key": ["opt", "val"]}],
+#             "select", ["col1"],
+#             "filter", [{"key2": ["opt2", "val2"]}]]
+#
+#     code = GenerateInvoker().execute(args)
+#     with open("/Users/qianpeng/tmp/phjobs/phjob.py", "w") as file:
+#         file.write("""def execute(**kwargs):\n""")
+#         file.write(code)

@@ -79,20 +79,47 @@ class CreateDag:
         def create_ds_item(dag_item, dag_conf_list):
             project_id = dag_conf_list[0].get("projectId")
             flowVersion = dag_conf_list[0].get("flowVersion")
+            name = dag_item.get("name")
             represent_id = dag_item.get("id")
             level = dag_item.get("level")
-            data = {"table_name": "dag"}
+            cat = "dataset"
+            ctype = "node"
+            cmessage = "<empty>"
+
+            data = {"table_name": "dataset"}
             key = {
+                "id": represent_id,
                 "projectId": project_id,
-                "sortVersion": flowVersion + "_" + represent_id,
             }
             data.update({"key": key})
-            res = self.dynamodb.getItem(data)
-            dy_dag_item = res.get("Item")
 
-            dy_dag_item.update({"level": str(level)})
+            while data:
+                res = self.dynamodb.getItem(data)
+                if res.get("Item"):
+                    runtime = res["Item"].get("cat")
+                    break
 
-            return dy_dag_item
+            process_dag_item = {}
+            process_dag_item.update({"name": name})
+            process_dag_item.update({"projectId": project_id})
+            process_dag_item.update({"representId": represent_id})
+            process_dag_item.update({"cmessage": cmessage})
+            process_dag_item.update({"flowVersion": flowVersion})
+            process_dag_item.update({"sortVersion": flowVersion + "_" + represent_id})
+            process_dag_item.update({"cat": cat})
+            process_dag_item.update({"runtime": runtime})
+            process_dag_item.update({"ctype": ctype})
+            process_dag_item.update({"level": str(level)})
+            position = {
+                "x": "0",
+                "y": "0",
+                "z": "0",
+                "w": "0",
+                "h": "0",
+            }
+            process_dag_item.update({"position": json.dumps(position)})
+
+            return process_dag_item
 
         def create_job_item(dag_item, dag_conf_list):
             represent_id = dag_item.get("jobId")

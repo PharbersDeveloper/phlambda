@@ -123,7 +123,7 @@ class CreateDag:
 
         def create_job_item(dag_item, dag_conf_list):
             represent_id = dag_item.get("jobId")
-            name = dag_item.get("jobShowName")
+            name = dag_item.get("jobName")
             cmessage = dag_item.get("jobName")
             runtime = get_job_runtime(dag_item, dag_conf_list)
             project_id = dag_conf_list[0].get("projectId")
@@ -179,6 +179,9 @@ class CreateDag:
 
         dag_data_list = []
         for dag_item in dag_item_list:
+            print(dag_item)
+        for dag_item in dag_item_list:
+            print(dag_item)
             dag_data = self.create_node(json.loads(dag_item), dag_conf_list)
             dag_data_list.append(dag_data)
 

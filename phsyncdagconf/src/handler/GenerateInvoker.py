@@ -3,13 +3,15 @@ from handler.FilterCommand import FilterCommand
 from handler.Receiver import Receiver
 from handler.SelectCommand import SelectCommand
 from handler.OperationNullCommand import OperationNullCommand
+from handler.ScriptCommand import ScriptCommand
 
 
 class GenerateInvoker:
     commands = {
         "filter": FilterCommand,
         "select": SelectCommand,
-        "operation_null": OperationNullCommand
+        "operation_null": OperationNullCommand,
+        "script": ScriptCommand
     }
 
     def __execute(self, commands: [Command]):

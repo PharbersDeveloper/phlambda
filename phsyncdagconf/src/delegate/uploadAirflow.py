@@ -102,7 +102,7 @@ class Airflow:
         
         args.update(result if isinstance(result, dict) else {})
         if project_id == "HfSZTr74gRcQOYoA":
-            df_map = readClickhouse(inputs, args, project_id, outputs, output_version, logger)
+            df_map = create_input_df(runtime, inputs, args, project_id, output_version, logger)
             args.update(df_map)
         result = execute(**args)
 
@@ -111,7 +111,7 @@ class Airflow:
         logger.debug(args)
         
         if project_id == "HfSZTr74gRcQOYoA":
-            createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
+            createOutputs(args, ph_conf, outputs, outputs_id, project_id, inputs, output_version, logger)
 
         for output in outputs:
             args.update({output: output})
@@ -146,7 +146,7 @@ class Airflow:
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
-        operator_parameters = dag_conf.get("operator_parameters", ["script"])
+        operator_parameters = dag_conf.get("operator_parameters", ["script", " "])
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")

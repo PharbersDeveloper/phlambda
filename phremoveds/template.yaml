@@ -14,8 +14,13 @@ Resources:
           CLICK_HOST: 192.168.16.117
           CLICK_PORT: 8123
           CLICK_DB: default
+          REDIS_HOST: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+          REDIS_PORT: 6379
+          CHECK_APP_NAME: ds2clickhouse
+          LOCK_APP_NAME: rmds
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
       FunctionName: lmd-phremoveds-V2
       MemorySize: 1024
       Description: "DynamoDB Action Table Event 触发删除对应DS和ClickHouse数据"

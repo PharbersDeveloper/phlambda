@@ -20,6 +20,7 @@ class DagConf(Model):
         "timeout": fields.Str(dump_default="unknown"),
         "labels": fields.Str(dump_default="unknown"),
         "projectName": fields.Str(dump_default="unknown"),
-        "jobPath": fields.Str(dump_default="unknown")
+        "jobPath": fields.Str(dump_default="unknown"),
+        "jobShowName": fields.Str(dump_default="unknown")
     }
 

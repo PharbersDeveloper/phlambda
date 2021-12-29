@@ -5,6 +5,8 @@ import os
 from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
+from handler.GenerateInvoker import GenerateInvoker
+
 
 class Airflow:
     def __init__(self, **kwargs):
@@ -14,7 +16,6 @@ class Airflow:
         # 这个位置挂载 efs 下 /pharbers/projects
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
-
 
     def create_init(self, dag_conf, path=None):
         # lmd中默认创建到tmp下的phjobs /tmp/phjobs/
@@ -28,7 +29,7 @@ class Airflow:
         subprocess.call(["mkdir", "-p", job_path])
         subprocess.call(["touch", job_path + "/__init__.py"])
 
-    def cerate_args_properties(self, dag_conf, path=None):
+    def create_args_properties(self, dag_conf, path=None):
         # if not path:
         #     path = self.job_path + "/arg.properties"
         # subprocess.call(["touch", path])
@@ -79,26 +80,38 @@ class Airflow:
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs_name]
-        outputs_id = ["$alfred_output_id"]
+        outputs_id = [$alfred_outputs_id]
         project_id = "$alfred_project_id"
+        runtime = "$alfred_runtime"
         
-        ph_conf = json.loads(kwargs.get("ph_conf"))
-        logger.debug("打印ph_conf")
-        logger.debug(ph_conf)
-        logger.debug(type(ph_conf))
-        args.update(ph_conf)
+        ph_conf = json.loads(kwargs.get("ph_conf", {}))
+        user_conf = ph_conf.get("userConf", {})
+        ds_conf = ph_conf.get("datasets", {})
+        logger.debug("打印 user_conf")
+        logger.debug(user_conf)
+        logger.debug(type(user_conf))
+        logger.debug("打印 ds_conf")
+        logger.debug(ds_conf)
+        logger.debug(type(ds_conf))
+        args.update(user_conf)
+        args.update({"ds_conf": ds_conf})
+    
+        args.update(kwargs)
+        output_version = args.get("owner") + "_" + args.get("run_id")
         result = exec_before(**args)
-
+        
         args.update(result if isinstance(result, dict) else {})
-        df_map = readClickhouse(inputs, args)
-        args.update(df_map)
+        if project_id == "HfSZTr74gRcQOYoA":
+            df_map = readClickhouse(inputs, args, project_id, outputs, output_version, logger)
+            args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
         logger.debug("job脚本返回输出df")
         logger.debug(args)
-
-        createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
+        
+        if project_id == "HfSZTr74gRcQOYoA":
+            createOutputs(args, ph_conf, outputs, outputs_id, project_id, logger)
 
         for output in outputs:
             args.update({output: output})
@@ -115,10 +128,11 @@ class Airflow:
 
 """
                                .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_inputs', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name").lower()+'"' for input in json.loads(dag_conf.get("inputs"))])) \
                                .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
+                               .replace('$alfred_runtime', dag_conf.get("runtime"))
                                )
                 else:
                     file.write(line)
@@ -132,20 +146,15 @@ class Airflow:
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
+        operator_parameters = dag_conf.get("operator_parameters", [])
+
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
+        operator_code = GenerateInvoker().execute(operator_parameters)
         with open(job_path + "/phjob.py", "a") as file:
             file.write("""def execute(**kwargs):\n""")
+            file.write(operator_code)
 
-            file.write("""    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)\n""")
-
-            file.write("""
-    result_path_prefix = kwargs["result_path_prefix"]
-    spark = kwargs["spark"]()
-    depends_path = kwargs["depends_path"]
-
-    return {}
-""")
 
 
     def upload_phjob_files(self, dag_conf):
@@ -252,7 +261,6 @@ class Airflow:
             w.write("\n")
             w.close()
 
-
     def airflow_operator_exec(self, item, res):
 
         if item.get("jobCat") == "dag_refresh":
@@ -285,9 +293,7 @@ class Airflow:
                 flow_links.extend(link)
         self.update_operator_link(operator_file_path, flow_links)
 
-
     def airflow(self, item_list):
-
         for item in item_list:
             # 获取所有的item 进行创建airflow
             projectId = json.loads(item["message"]).get("projectId")
@@ -307,9 +313,20 @@ class Airflow:
 
                 # 创建args_properties
                 self.create_init(dag_item)
-                self.cerate_args_properties(dag_item)
+                self.create_args_properties(dag_item)
                 self.create_phmain(dag_item)
                 self.create_phjobs(dag_item)
                 # 上传phjob文件
                 self.upload_phjob_files(dag_item)
 
+
+# if __name__ == '__main__':
+#     args = ["operation_null", "",
+#             "filter", [{"key": ["opt", "val"]}],
+#             "select", ["col1"],
+#             "filter", [{"key2": ["opt2", "val2"]}]]
+#
+#     code = GenerateInvoker().execute(args)
+#     with open("/Users/qianpeng/tmp/phjobs/phjob.py", "w") as file:
+#         file.write("""def execute(**kwargs):\n""")
+#         file.write(code)

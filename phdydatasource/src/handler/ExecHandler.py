@@ -11,6 +11,7 @@ from models.DataSet import DataSet
 from models.Notification import Notification
 from models.Dag import Dag
 from models.DagConf import DagConf
+from models.Log import Log
 
 # import base64
 # from util.AWS.STS import STS
@@ -39,7 +40,8 @@ __table_structure = {
     "dataset": DataSet,
     "notification": Notification,
     "dag": Dag,
-    "dagconf": DagConf
+    "dagconf": DagConf,
+    "logs": Log
 }
 
 

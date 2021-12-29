@@ -1,9 +1,10 @@
 import boto3
-from constants.Common import Common
+import constants.DefinValue as Common
 from util.GenerateID import GenerateID
+from util.ClieckHouse import SingletonMetaClass
 
 
-class DynamoDB:
+class DynamoDB(metaclass=SingletonMetaClass):
 
     def __init__(self, **kwargs):
         self.access_key = kwargs.get("access_key", None)

@@ -13,18 +13,15 @@
             "S": "Zz4OaNcwWn1moae"
           },
           "projectId": {
-            "S": "JfSmQBYUpyb4jtest"
+            "S": "HfSZTr74gRcQOYoA"
           }
         },
         "NewImage": {
           "projectId": {
-            "S": "JfSmQBYUpyb4jtest"
+            "S": "HfSZTr74gRcQOYoA"
           },
           "message": {
-            "S": "{\"projectId\": \"JfSmQBYUpyb4jsei\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
-          },
-          "property": {
-            "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"
+            "S": "{\"projectId\": \"HfSZTr74gRcQOYoA\",\"flowVersion\": \"developer\",\"jobCat\": \"dag_refresh\"}"
           },
           "jobCat": {
             "S": "dag_refresh"

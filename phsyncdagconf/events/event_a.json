@@ -40,9 +40,6 @@
           },
           "owner": {
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
-          },
-          "jobCat": {
-            "S": "clear_DS_data"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

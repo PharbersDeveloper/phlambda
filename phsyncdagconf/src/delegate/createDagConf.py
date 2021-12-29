@@ -71,21 +71,26 @@ class CreateDagConf:
             dag_conf_list.append(dy_dag_conf)
         # print(dag_conf)
         # print(dag_conf_list)
+
         update_dag_conf_list = self.update_targetId(dag_conf, dag_conf_list)
 
         return update_dag_conf_list
 
     def insert_dagconf(self, action_item):
+
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
 
+
         dag_conf = json.loads(action_item.get("message"))
+
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行outputs检查
-        self.check_outputs(dag_conf)
+        # self.check_outputs(dag_conf)
         # self.update_targetId(dag_conf)
+
         targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
 
@@ -115,8 +120,8 @@ class CreateDagConf:
         dag_conf.update({"jobPath": job_path})
         data.update({"item": dag_conf})
 
-
         update_dag_conf_list = self.get_all_dag_conf(dag_conf)
+
 
         return update_dag_conf_list
 

@@ -98,9 +98,14 @@ class DagLevel:
         # remove_duplicate_node
         for current_level in all_node_level_list:
             current_id = current_level.get("id")
+            current_job_id = current_level.get("jobId")
             if current_id:
+                compare_id = "id"
+            elif current_job_id:
+                compare_id = "jobId"
+            if compare_id:
                 for compare_level in all_node_level_list:
-                    if current_id == compare_level.get("id") and not operator.eq(current_level, compare_level):
+                    if current_level.get(compare_id) == compare_level.get(compare_id) and not operator.eq(current_level, compare_level):
                         if current_level.get("level") > compare_level.get("level"):
                             current_level = compare_level
 

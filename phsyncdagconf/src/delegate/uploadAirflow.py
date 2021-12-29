@@ -146,7 +146,7 @@ class Airflow:
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
-        operator_parameters = dag_conf.get("operator_parameters", [])
+        operator_parameters = dag_conf.get("operator_parameters", ["script"])
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")

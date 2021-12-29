@@ -20,7 +20,7 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Environment:
         Variables:
-          PATH_PREFIX: /mnt/tmp/{project}/tmp/
+          PATH_PREFIX: /mnt/tmp/{}/tmp/
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

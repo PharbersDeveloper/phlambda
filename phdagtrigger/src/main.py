@@ -1,37 +1,86 @@
-import subprocess
+import requests
 import json
+import boto3
+import datetime
+import traceback
 
 
+# ssm get url
+client = boto3.client('ssm')
+response = client.get_parameter(
+    Name='airflow_args'
+)
+ssm_dict = json.loads(response.get("Parameter").get("Value"))
+
+
+# 运行指定dag
 def lambda_handler(event, context):
-    msg = event['body']
+    msg = eval(event["body"])
+    project_name = msg.get("project_name", "max")
+    flow_version = msg.get("flow_version", "developer")
+    conf = msg.get("conf", {})
+    dag_id = "_".join([project_name, project_name, flow_version])
 
-    run_id = msg['run_id']
-    project_name = msg['project_name']
-    dag_name = project_name
-    job_id = msg['job_id']
-    job_name = msg['job_name']
+    if project_name in ["default", "max"]:
+        url = ssm_dict.get(project_name)
+    else:
+        url = ssm_dict.get("max")
+    print(url)
 
     res = {}
-    ret = subprocess.run('airflow dags unpause ' + dag_name, shell=True, capture_output=True, text=True)
-    if ret.returncode != 0:
-        res["status"] = 'Failed'
-        res["msg"] = dag_name + " Activation failed"
-        # return JsonResponse(res)
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
 
-        # 运行指定dag
-        ret = subprocess.run('airflow dags trigger ' + dag_name, shell=True, capture_output=True, text=True)
-        if ret.returncode == 0:
-            res["status"] = 'Success'
-            res["msg"] = dag_name + " Trigger a success"
+    # 如果存在dag_id将状态改为激活
+    # update_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id
+    update_url = "http://" + url + "/api/v1/dags/" + dag_id
+    try:
+        body = {"is_paused": False}
+        result = requests.patch(url=update_url, data=json.dumps(body), headers=headers)
+        if result.status_code != 200:
+            res["status"] = "failed"
+            res["msg"] = dag_id + " Activation failed"
+
+    except:
+        res["status"] = "failed"
+        res["msg"] = update_url + "api error"
+
+    # dag_id状态激活后即可开始run
+    # runs_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/dagRuns"
+    runs_url = "http://" + url + "/api/v1/dags/" + dag_id + "/dagRuns"
+
+    try:
+        execution_date = datetime.datetime.utcnow()
+        # dag_run_id = "_".join([project_name, dag_id, flow_version])
+        dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00")])
+        body = {
+            "dag_run_id": dag_run_id,
+            "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+            "conf": conf
+        }
+        dag_runs = requests.post(url=runs_url, data=json.dumps(body), headers=headers)
+        if dag_runs.status_code == 200:
+            airflow_result = dag_runs.json()
+            res["status"] = "success"
+            res["data"] = {
+                "dag_run_id": airflow_result["dag_run_id"],
+                "dag_id": airflow_result["dag_id"],
+                "run_id": dag_run_id,
+                "project_name": project_name
+            }
         else:
-            res["status"] = "Failed"
-            res["msg"] = dag_name + " Trigger failure"
+            res["status"] = "failed"
+            res["msg"] = dag_id + " Trigger failure"
 
-    else:
-        res["status"] = "Failed"
-        res["msg"] = "Not GET request"
+    except:
+        print(traceback.format_exc())
+        res["status"] = "failed"
+        res["msg"] = runs_url + " api error"
 
     return {
-        "statusCode": 200 if res["status"] == "Success" else 502,
+        "headers": { "Access-Control-Allow-Origin": "*"},
+        "statusCode": 200 if res["status"] == "success" else 502,
         "body": json.dumps(res)
     }

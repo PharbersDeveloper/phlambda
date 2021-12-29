@@ -17,15 +17,6 @@ class Excel:
         self.adapted_mapper = self.mapperAdapter(self.mapper, self.title_row, self.dim['left'], self.dim['right'])
         adapted_mapper = set(map(lambda item: item["des"], self.adapted_mapper))
         dim_mapper = set(map(lambda item: item["des"], self.mapper))
-        # print("mapper \n")
-        # print(mapper)
-        # print("Alex")
-        # print("DIM: =>")
-        # print(self.dim)
-        # print(dim_mapper)
-        # print("ADA: =>")
-        # print(self.adapted_mapper)
-        # print(adapted_mapper)
         # 这里判断，判断输入的参数是不是在你的数据dim之内
         print("Excel DIMS ===> \n")
         print(dim_mapper)
@@ -55,7 +46,11 @@ class Excel:
         header_cells = self.ws[self.dim['left'] + str(title_row) + ":" + self.dim['right'] + str(title_row)]
 
         print("alex read header")
-        header = list(map(lambda item: {"value": item.value ,"column_letter": item.column_letter, "column": item.column - 1}, header_cells[0]))
+        header = list(map(lambda header_cell: {
+            "value": header_cell.value,
+            "column_letter": header_cell.column_letter,
+            "column": header_cell.column - 1
+        }, header_cells[0]))
         for index, item in enumerate(header):
             if item["value"] is None:
                 item["value"] = "col_{0}".format(index)
@@ -82,6 +77,8 @@ class Excel:
     # 分批的索引
     def buildBatchIndex(self):
         batch_count = floor(self.data_rows_count / self.g_batch_size) + 1
+        if self.data_rows_count == self.g_batch_size:
+            batch_count = floor(self.data_rows_count / self.g_batch_size)
         step_indeies = []
         for index in range(0, batch_count):
             step_indeies.append(min(index * self.g_batch_size + self.g_batch_size + self.title_row + 1,
@@ -107,7 +104,7 @@ class Excel:
             row_process_count += 1
             if row_process_count == self.step_indeies[batch_hit_time] - 1:
                 batch_hit_time = batch_hit_time + 1
-                func(values, self.adapted_mapper, len(self.step_indeies), batch_hit_time)
+                func(values, len(self.step_indeies), batch_hit_time)
                 values.clear()
                 if batch_hit_time == len(self.step_indeies):
                     break

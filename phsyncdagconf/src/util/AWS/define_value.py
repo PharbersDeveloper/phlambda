@@ -30,6 +30,7 @@ TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20210122.tmp"
 TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_SELECT_FILE_PY = "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_OPERATION_NULL_FILE_PY = "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp"
+TEMPLATE_OPERATOR_SCRIPT_FILE_PY = "/template/python/phcli/maxauto/script-20211229.tmp"
 
 TEMPLATE_JUPYTER_PYTHON_FILE = '/template/python/phcli/maxauto/phJupyterPython-20210322.json'
 TEMPLATE_JUPYTER_R_FILE = '/template/python/phcli/maxauto/phJupyterR-20210122.json'

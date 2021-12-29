@@ -96,7 +96,8 @@ class CreateDag:
             while data:
                 res = self.dynamodb.getItem(data)
                 if res.get("Item"):
-                    runtime = res["Item"].get("cat")
+                    runtime = res["Item"].get("cat", "uploaded")
+
                     break
 
             process_dag_item = {}

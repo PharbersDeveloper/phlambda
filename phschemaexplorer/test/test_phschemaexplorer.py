@@ -6,7 +6,7 @@ import src.main as app
 
 class TestLmd:
     def test_lmd(self):
-        os.environ["PATH_PREFIX"] = "../events/{project}/"
+        os.environ["PATH_PREFIX"] = "../events/{}/"
         event = open("../events/event_find.json", "r").read()
         result = app.lambda_handler(json.loads(event), None)
         assert len(result) == 1

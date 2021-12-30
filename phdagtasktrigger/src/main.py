@@ -72,17 +72,33 @@ def clearTaskInstances(dag_id, clean_tasks, execution_date):
         "task_ids": clean_tasks,
         "start_date": execution_date,
         "end_date": execution_date,
-        "only_failed": True,
+        "only_failed": False,
         "only_running": False,
         "include_subdags": True,
         "include_parentdag": True,
         "reset_dag_runs": True
     }
     result = requests.post(url=url, data=json.dumps(body), headers=headers)
+    print(result)
     if result.status_code != 200:
         raise Exception()
 
     return
+
+
+def delete_dy_item(item):
+    run_id = item["run_id"]
+    task_ids = item["task_ids"]
+    dynamodb_resource = boto3.resource('dynamodb')
+    table = dynamodb_resource.Table("notification")
+    for tid in task_ids:
+        table.delete_item(
+            Key = {
+                "id": run_id,
+                "projectId": tid
+            }
+        )
+
 
 
 # 运行指定dag
@@ -104,10 +120,17 @@ def lambda_handler(event, context):
 
     try:
         clean_tasks = [task_id]
+
         if clear_task_cat != "self_only":
             clean_tasks = updateTaskInstancesState(dag_id, task_id, execution_date,
                                                    is_upstream=True if clear_task_cat == "upstream" else False,
                                                    is_downstream=True if clear_task_cat == "downstream" else False)
+
+        delete_dy_item({
+            "run_id": dag_run_id,
+            "task_ids": clean_tasks
+        })
+        print(clean_tasks)
 
         clearTaskInstances(dag_id, clean_tasks, execution_date)
         res = {

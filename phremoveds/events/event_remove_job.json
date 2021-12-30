@@ -1,0 +1,58 @@
+{
+  "Records": [
+    {
+      "eventID": "648a41ba76caca4b5c6f8d2a9bdd5c20",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1636707471,
+        "Keys": {
+          "id": {
+            "S": "irT8VuP6oupvfMB"
+          },
+          "projectId": {
+            "S": "HfSZTr74gRcQOYoA"
+          }
+        },
+        "NewImage": {
+          "date": {
+            "N": "1636707467859"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "remove_Job"
+          },
+          "code": {
+            "N": "0"
+          },
+          "comments": {
+            "S": "delete_dataset"
+          },
+          "showName": {
+            "S": "张璐"
+          },
+          "id": {
+            "S": "irT8VuP6oupvfMB"
+          },
+          "message": {
+            "S": "{\"targetId\": \"FST6QInvqf4P3OM\", \"jobName\": \"developer_GK6rZCbr6Fn5O0O_Test_Test_compute_qazw\"}"
+          },
+          "jobDesc": {
+            "S": "success"
+          },
+          "projectId": {
+            "S": "HfSZTr74gRcQOYoA"
+          }
+        },
+        "SequenceNumber": "100679000000000002022142948",
+        "SizeBytes": 530,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729"
+    }
+  ]
+}

@@ -296,8 +296,19 @@ export default class Platform {
             project: { link: "project", isArray: false, inverse: "wikis" },
             type: String, // MD or HTML
             location: String
-        }
+        },
 
+        // configuration web pages
+        page: {
+            projectName: String,
+            version: String,
+            name: String,
+            route: String,
+            uri: String,
+            cat: String,
+            level: Number,
+            engine: String
+        }
     }
 
     operations = {
@@ -472,6 +483,5 @@ export default class Platform {
         delete record.password
         return record
     }
-
     // Account End
 }

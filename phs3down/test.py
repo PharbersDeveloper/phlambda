@@ -10,14 +10,14 @@ def down(key):
                                      ExpiresIn=3600, HttpMethod="get")
 
 
-def copy_file(dataset_name, version, key, **kwargs):
+def copy_file(dataset_name, key, **kwargs):
     current_time = time.strftime("%Y%m%d%H%M%S")
     file_type = key[key.rfind('.'):]
     s3 = boto3.client("s3")
     response = s3.get_object(Bucket='ph-platform', Key=key)["Body"].read().decode()
-    s3.put_object(Bucket='ph-platform', Key=f'2020-11-11/download/{dataset_name}_{version}{current_time}{file_type}',
+    s3.put_object(Bucket='ph-platform', Key=f'2020-11-11/download/{dataset_name}_{current_time}{file_type}',
                   Body=response)
-    return f'2020-11-11/download/{dataset_name}_{version}{current_time}{file_type}'
+    return f'2020-11-11/download/{dataset_name}_{current_time}{file_type}'
 
 
 def query_logfile(bucket, path, **kwargs):
@@ -58,7 +58,7 @@ def lambda_handler(event, context):
                 "headers": {
                     "Access-Control-Allow-Origin": "*",
                 },
-                "body": json.dumps({"message": result, "status": 0}, ensure_ascii=False)
+                "body": json.dumps({"message": "Missing required files!", "status": 0}, ensure_ascii=False)
             }
 
     except Exception as e:

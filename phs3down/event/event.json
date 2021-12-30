@@ -1,5 +1,5 @@
 {
-    "body": "{\"bucket\": \"ph-platform\", \"key\": \"2020-11-11/cicd/lmdnodejs/artifacts/23072ccd-2e5a-4f4b-bb2f-a2156f78aa3b/\"}",
+    "body": "{\"bucket\": \"ph-platform\", \"dataset_name\": \"test_cp1\",\"version\": \"001\",\"path\": \"2020-11-11/download\"}",
     "resource": "/act/{type}",
     "path": "/act/sendCode",
     "httpMethod": "GET",

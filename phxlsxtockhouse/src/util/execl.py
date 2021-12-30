@@ -46,14 +46,11 @@ class Excel:
         header_cells = self.ws[self.dim['left'] + str(title_row) + ":" + self.dim['right'] + str(title_row)]
 
         print("alex read header")
-        header = list(map(lambda header_cell: {
-            "value": header_cell.value,
-            "column_letter": header_cell.column_letter,
-            "column": header_cell.column - 1
-        }, header_cells[0]))
-        for index, item in enumerate(header):
-            if item["value"] is None:
-                item["value"] = "col_{0}".format(index)
+        header = list(map(lambda index, header_cell: {
+            "value": header_cell.value if header_cell.value is not None else "col_{0}".format(index),
+            "column_letter": header_cell.column_letter if header_cell.value is not None else None,
+            "column": header_cell.column - 1 if header_cell.value is not None else index
+        }, list(range(0, len(header_cells[0]) + 1)), header_cells[0]))
 
         for iter_mapper in mapper:
             for iter_header in header:
@@ -88,6 +85,22 @@ class Excel:
     def buildBatchCoordinate(self, dim, index_range):
         return dim['left'] + str(index_range.start) + ":" + dim['right'] + str(index_range.stop - 1)
 
+    # 删除整行为None的数据
+    def remove_none_value(self, lines):
+        values = list(filter(lambda line: len(set(line.values())) != 1 or (len(set(line.values())) == 1 and set(line.values()).pop() is not None), lines))
+        return values
+
+    def replace_cell_none(self, lines):
+        def conversion(line):
+            keys = list(line.keys())
+            values = list(line.values())
+            update_index = list(map(lambda idx: idx[0], list(filter(lambda val: val[1] is None, list(enumerate(values))))))
+            for index in update_index:
+                values[index] = "0"  # 补0的原因是为了ClickHouse转换数据为Number类型时不会报错
+            return dict(zip(keys, values))
+
+        return list(map(conversion, lines))
+
     def batchReader(self, func):
         # rows = self.ws.iter_rows(self.title_row + self.skip_next + 1 + 1, max(self.step_indeies)) # 多加一个1，因为是1-base
         rows = self.ws.iter_rows(self.title_row + 1 + self.skip_next, max(self.step_indeies))
@@ -99,12 +112,16 @@ class Excel:
             tmp = {}
             for col in self.adapted_mapper:
                 value = row[col['column']].value
-                tmp[col['des']] = "None" if value is None else value
+                tmp[col['des']] = value
             values.append(tmp)
             row_process_count += 1
             if row_process_count == self.step_indeies[batch_hit_time] - 1:
                 batch_hit_time = batch_hit_time + 1
-                func(values, len(self.step_indeies), batch_hit_time)
+                # 重构用
+                # func(self.replace_cell_none(self.remove_none_value(values)), len(self.step_indeies), batch_hit_time)
+
+                # 老方法
+                func(self.replace_cell_none(self.remove_none_value(values)), self.adapted_mapper, len(self.step_indeies), batch_hit_time)
                 values.clear()
                 if batch_hit_time == len(self.step_indeies):
                     break
@@ -121,5 +138,5 @@ class Excel:
                     cell = "col_" + str(idx)
                     cols.append(cell)
                 else:
-                    cols.append(cell.value)
+                    cols.append(str(cell.value))
         return cols

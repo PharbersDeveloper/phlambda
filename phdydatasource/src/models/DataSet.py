@@ -13,5 +13,6 @@ class DataSet(Model):
         "cat": fields.Str(dump_default="normal"),
         "path": fields.Str(dump_default=""),
         "format": fields.Str(dump_default=""),
+        "prop": fields.Str(dump_default=""),
         "date": fields.Int(dump_default=-1)
     }

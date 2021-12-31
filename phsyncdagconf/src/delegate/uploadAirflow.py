@@ -101,17 +101,16 @@ class Airflow:
         result = exec_before(**args)
         
         args.update(result if isinstance(result, dict) else {})
-        if project_id == "HfSZTr74gRcQOYoA":
-            df_map = create_input_df(runtime, inputs, args, project_id, output_version, logger)
-            args.update(df_map)
+
+        df_map = create_input_df(runtime, inputs, args, project_id, output_version, logger)
+        args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})
         logger.debug("job脚本返回输出df")
         logger.debug(args)
         
-        if project_id == "HfSZTr74gRcQOYoA":
-            createOutputs(args, ph_conf, outputs, outputs_id, project_id, inputs, output_version, logger)
+        createOutputs(args, ph_conf, outputs, outputs_id, project_id, inputs, output_version, logger)
 
         for output in outputs:
             args.update({output: output})
@@ -127,9 +126,9 @@ class Airflow:
         raise e
 
 """
-                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name").lower()+'"' for input in json.loads(dag_conf.get("inputs"))])) \
-                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id").lower()+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name")+'"' for input in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
                                .replace('$alfred_runtime', dag_conf.get("runtime"))
@@ -146,7 +145,16 @@ class Airflow:
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
-        operator_parameters = dag_conf.get("operator_parameters", ["script", " "])
+        print("======打印 dag_conf====33===")
+        print(dag_conf.get("operatorParameters"))
+        print(type(dag_conf.get("operatorParameters")))
+        print(json.loads(dag_conf.get("operatorParameters")))
+        operator_parameters = json.loads(dag_conf.get("operatorParameters"))
+        print("======打印operator_parameters=======")
+        print(operator_parameters)
+
+
+        operator_parameters = json.loads(dag_conf.get("operatorParameters", "[\"pt\", \" \"]"))
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")

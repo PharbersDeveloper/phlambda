@@ -96,7 +96,7 @@ class CreateDagConf:
 
         dag_conf.update({"inputs": json.dumps(dag_conf.get("inputs"), ensure_ascii=False)})
         dag_conf.update({"outputs": json.dumps(dag_conf.get("outputs"), ensure_ascii=False)})
-        dag_conf.update({"operatorParameters": dag_conf.get("operatorParameters")})
+        dag_conf.update({"operatorParameters": json.dumps(dag_conf.get("operatorParameters"), ensure_ascii=False)})
         job_full_name = dag_conf.get("flowVersion") + "_" + \
                         dag_conf.get("jobId") + "_" + \
                         dag_conf.get("projectName") + "_" + \

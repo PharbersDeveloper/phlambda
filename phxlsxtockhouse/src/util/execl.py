@@ -96,7 +96,7 @@ class Excel:
             values = list(line.values())
             update_index = list(map(lambda idx: idx[0], list(filter(lambda val: val[1] is None, list(enumerate(values))))))
             for index in update_index:
-                values[index] = "0"  # 补0的原因是为了ClickHouse转换数据为Number类型时不会报错
+                values[index] = "None"
             return dict(zip(keys, values))
 
         return list(map(conversion, lines))

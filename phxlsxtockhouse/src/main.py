@@ -9,6 +9,7 @@ from handler.Command.ActionReceiver import ActionReceiver
 from handler.Command.SaveCommand import SaveActionCommand
 from handler.Command.LockReceiver import LockReceiver
 from handler.Command.LockCommand import LockCommand, UnLockCommand, WatchLockCommand
+from handler.Command.RollBackCommand import RollBackCommand
 from constants.Errors import Errors, ResourceBusy
 
 
@@ -54,9 +55,9 @@ def lambda_handler(event, context):
     except Errors as e:
         print(e)
         history["jobDesc"] = "failed"
+        RollBackCommand().execute(history)
         SaveActionCommand(ActionReceiver()).execute(history)
-        command = SendMsgFailCommand(MsgReceiver())
-        command.execute({
+        SendMsgFailCommand(MsgReceiver()).execute({
             "id": history["id"],
             "project_id": history["projectId"],
             "prefix": "project_file_to_DS_",

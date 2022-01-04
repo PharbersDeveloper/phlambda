@@ -84,6 +84,14 @@ class ResourceBusy(Errors):
     }
 
 
+class ColumnDuplicate(Errors):
+    code = 508
+    message = {
+        "en": "Duplicate Column Names",
+        "zh": "重复的列名"
+    }
+
+
 def serialization(data):
     content = {
         "code": 200,

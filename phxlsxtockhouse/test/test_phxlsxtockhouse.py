@@ -8,8 +8,8 @@ import src.app as app
 class TestLmd:
     def test_lmd(self):
         event = open("../events/event.json", "r").read()
-        # result = main.lambda_handler(json.loads(event), None)
-        result = app.lambda_handler(json.loads(event), None)
+        result = main.lambda_handler(json.loads(event), None)
+        # result = app.lambda_handler(json.loads(event), None)
         print(result)
         # assert 'e' in a
 

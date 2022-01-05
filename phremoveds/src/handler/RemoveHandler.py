@@ -16,53 +16,6 @@ def finishingEventData(record):
     return item
 
 
-# def updateActionData(tableName, id, state):
-#     result = dynamodb.queryTable({
-#         "table_name": tableName,
-#         "limit": 1000,
-#         "expression": Key('id').eq(id),
-#         "start_key": ""
-#     })["data"]
-#     if len(result) > 0:
-#         result[0]["jobDesc"] = state
-#         result[0]["date"] = int(round(time.time() * 1000))
-#         dynamodb.putData({
-#             "table_name": tableName,
-#             "item": result[0]
-#         })
-# def insertNotification(actionId, state, error):
-#     result = dynamodb.queryTable({
-#         "table_name": "action",
-#         "limit": 1000,
-#         "expression": Key('id').eq(actionId),
-#         "start_key": ""
-#     })["data"]
-#     message = json.loads(result[0]["message"])
-#     dynamodb.putData({
-#         "table_name": "notification",
-#         "item": {
-#             "id": actionId,
-#             "projectId": result[0]["projectId"],
-#             "code": 0,
-#             "comments": "",
-#             "date": int(round(time.time() * 1000)),
-#             "jobCat": "notification",
-#             "jobDesc": state,
-#             "message": json.dumps({
-#                 "type": "operation",
-#                 "opname": result[0]["owner"],
-#                 "opgroup": message[0].get("opgroup", "0"),
-#                 "cnotification": {
-#                     "status": "remove_DS_{}".format(state),
-#                     "error": error
-#                 }
-#             }),
-#             "owner": result[0]["owner"],
-#             "showName": result[0].get("showName", "")
-#         }
-#     })
-
-
 def default():
     return None
 
@@ -87,8 +40,6 @@ def run(eventName, jobCat, record):
                 "data": item,
                 "prefix": "remove_DS_"
             })
-            # updateActionData("action", item["id"], "succeed")
-            # insertNotification(item["id"], "succeed", "")
         except Errors as e:
             print("error ====> \n")
             print(e)
@@ -102,10 +53,5 @@ def run(eventName, jobCat, record):
                     "meta": e.meta
                 }
             })
-            # updateActionData("action", item["id"], "failed")
-            # insertNotification(item["id"], "failed", json.dumps({
-            #     "code": e.code,
-            #     "message": e.message
-            # }, ensure_ascii=False))
     else:
         print("未命中")

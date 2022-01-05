@@ -30,22 +30,11 @@ class RemoveDS:
                     "tableName": f"""{item["projectId"]}_{message["destination"]}"""
                 })
 
-                SaveCommand(RemoveDSReceiver()).execute(item)
-                # if self.redis.exists(check_key):
-                #     raise ResourceBusy("Resources Are Busy")
-                # else:
-                #     if self.redis.setnx(set_key, int(round(time.time() * 1000))):
-                #         self.redis.expire(set_key, 60)
-                #
-                #     SaveCommand(RemoveCKReceiver()).execute({
-                #         "tableName": f"""{item["projectId"]}_{message["destination"]}"""
-                #     })
-                #
-                #     SaveCommand(RemoveDSReceiver()).execute(item)
-                #
-                #     # self.removeClickHouseData(item["projectId"] + "_" + message["destination"])
-                #     # self.removeDynamoDBData("dataset", message["dsid"], item["projectId"])
-                #     self.redis.delete(set_key)
+                SaveCommand(RemoveDSReceiver()).execute({
+                    "message": message,
+                    "projectId": item["projectId"]
+                })
+
         except ResourceBusy as e:
             raise e
         except Exception as e:

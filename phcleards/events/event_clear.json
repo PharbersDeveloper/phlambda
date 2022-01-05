@@ -10,10 +10,10 @@
         "ApproximateCreationDateTime": 1636696845,
         "Keys": {
           "id": {
-            "S": "eULKK6I-KdrD6nj"
+            "S": "test"
           },
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "jFlL0WS1Qwy5buKh"
           }
         },
         "NewImage": {
@@ -33,29 +33,19 @@
             "S": "测试"
           },
           "showName": {
-            "S": "alfred"
+            "S": "Alex"
           },
           "id": {
-            "S": "eULKK6I-KdrD6nj"
+            "S": "test"
           },
           "message": {
-            "M": {
-              "dsid": {
-                "S": "1f6e029418b3b1de40eeba956210b846.xlsx"
-              },
-              "destination": {
-                "S": "fdgsgsb"
-              },
-              "version": {
-                "S": "a"
-              }
-            }
+            "S": "[{\"version\":\"\",\"dsid\":\"2f6a16fb4131aead251cc2f325c40ae2.xlsx\",\"destination\":\"A\",\"opname\":\"5UBSLZvV0w9zh7-lZQap\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}]"
           },
           "jobDesc": {
             "S": "running"
           },
           "projectId": {
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "jFlL0WS1Qwy5buKh"
           }
         },
         "SequenceNumber": "100493600000000003337009385",

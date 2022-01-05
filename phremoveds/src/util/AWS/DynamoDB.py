@@ -1,5 +1,5 @@
 import boto3
-from constants.Common import Common
+import constants.DefinValue as Common
 from util.GenerateID import GenerateID
 
 

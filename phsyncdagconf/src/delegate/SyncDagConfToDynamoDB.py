@@ -59,12 +59,14 @@ class SyncDagConfToDynamoDB:
                         try:
                             # 插入dagconf信息
                             dag_conf_list = self.createDagConf.insert_dagconf(item)
+                            print(dag_conf_list)
                             create_level = DagLevel(dag_conf_list=dag_conf_list)
                             dag_item_list = create_level.exec()
 
                         except Exception as e:
                             status = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
                             self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            print(e)
                         else:
                             # 更新action 中job cat为 dag_conf insert success
                             status = "dag_conf insert success"

@@ -144,6 +144,7 @@ class CreateDag:
             runtime = get_job_runtime(dag_item, dag_conf_list)
             project_id = dag_conf_list[0].get("projectId")
             flowVersion = dag_conf_list[0].get("flowVersion")
+            operatorParameters = dag_item.get("operatorParameters")
             level = dag_item.get("level")
             ctype = "node"
             cat = "job"
@@ -155,6 +156,7 @@ class CreateDag:
             process_dag_item.update({"representId": represent_id})
             process_dag_item.update({"cmessage": cmessage})
             process_dag_item.update({"flowVersion": flowVersion})
+            process_dag_item.update({"operatorParameters": operatorParameters})
             process_dag_item.update({"sortVersion": flowVersion + "_" + represent_id})
             process_dag_item.update({"cat": cat})
             process_dag_item.update({"runtime": runtime})

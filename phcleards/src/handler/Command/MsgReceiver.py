@@ -14,7 +14,6 @@ class MsgReceiver(Receiver):
         action_item = dict({}, **data["data"])
         action_item["message"] = json.dumps(action_item["message"], ensure_ascii=False)
         action_item["jobDesc"] = status
-        action_item["date"] = int(round(time.time() * 1000))
         self.dynamodb.putData({
             "table_name": "action",
             "item": action_item

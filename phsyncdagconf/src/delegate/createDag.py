@@ -76,12 +76,26 @@ class CreateDag:
                     runtime = dag_conf.get("runtime")
             return runtime
 
+        def get_ds_prop(id, projectId):
+            data = {}
+            data.update({"table_name": "dataset"})
+            key = {
+                "id": id,
+                "projectId": projectId
+            }
+            data.update({"key":key})
+            res = self.dynamodb.getItem(data)
+            prop = res["Item"].get("prop")
+            return prop
+
         def create_ds_item(dag_item, dag_conf_list):
             project_id = dag_conf_list[0].get("projectId")
             flowVersion = dag_conf_list[0].get("flowVersion")
             name = dag_item.get("name")
             represent_id = dag_item.get("id")
             level = dag_item.get("level")
+            # 获取ds的 prop
+            prop = get_ds_prop(represent_id, project_id)
             cat = "dataset"
             ctype = "node"
             cmessage = "<empty>"
@@ -102,6 +116,7 @@ class CreateDag:
 
             process_dag_item = {}
             process_dag_item.update({"name": name})
+            process_dag_item.update({"prop": prop})
             process_dag_item.update({"projectId": project_id})
             process_dag_item.update({"representId": represent_id})
             process_dag_item.update({"cmessage": cmessage})
@@ -129,16 +144,19 @@ class CreateDag:
             runtime = get_job_runtime(dag_item, dag_conf_list)
             project_id = dag_conf_list[0].get("projectId")
             flowVersion = dag_conf_list[0].get("flowVersion")
+            operatorParameters = dag_item.get("operatorParameters")
             level = dag_item.get("level")
             ctype = "node"
             cat = "job"
 
             process_dag_item = {}
             process_dag_item.update({"name": name})
+            process_dag_item.update({"prop": "<empty>"})
             process_dag_item.update({"projectId": project_id})
             process_dag_item.update({"representId": represent_id})
             process_dag_item.update({"cmessage": cmessage})
             process_dag_item.update({"flowVersion": flowVersion})
+            process_dag_item.update({"operatorParameters": operatorParameters})
             process_dag_item.update({"sortVersion": flowVersion + "_" + represent_id})
             process_dag_item.update({"cat": cat})
             process_dag_item.update({"runtime": runtime})

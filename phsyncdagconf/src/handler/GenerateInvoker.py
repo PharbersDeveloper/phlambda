@@ -17,15 +17,14 @@ class GenerateInvoker:
     def __execute(self, commands: [Command]):
         if len(commands) == 0:
             return ""
-        codes = """
-    data_frame = kwargs.get("input_df")\n\n"""
+        codes = """    data_frame = kwargs.get("input_df")\n\n"""
         return_df = ""
         for code in list(commands):
             content = code.execute()
             codes += content["code"] + "\n\n"
             return_df = content["return_data"]
         codes += "    return {'out_df': " + return_df + "}\n\n"
-        codes = "\n".join(list(map(lambda line: "    " + line, codes.split("\n"))))
+        codes = "\n".join(list(map(lambda line: line, codes.split("\n"))))
         return codes
 
     def execute(self, args):

@@ -11,23 +11,57 @@ class CreateDagConf:
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
 
-    def check_outputs(self, dag_conf):
+    def check_outputs(self, dag_conf, dag_conf_list):
 
         outputs = dag_conf.get("outputs")
-        
-        data = {}
-        data.update({"table_name": "dagconf"})
-        attribute = {
-            "key": "outputs",
-            "value": json.dumps(outputs, ensure_ascii=False)
-        }
-        data.update({"attribute": attribute})
-        res = self.dynamodb.query_attribute(data)
-        if res.get("Items"):
-            # 说明有相同outputs
-            raise Exception("output已经被使用")
-        else:
-            return 0
+        flag = 0
+        for dy_dag_conf in dag_conf_list:
+            if dy_dag_conf.get("outputs") == outputs:
+                # 说明有相同outputs
+                raise Exception("output已经被使用")
+            else:
+                flag = 1
+        return flag
+
+    def check_max_index(self, dag_conf):
+
+        projectId = dag_conf.get("projectId")
+        inputs = dag_conf.get("inputs")
+        input_cats = ["input_index", "uploaded", "intermediate"]
+        for input in inputs:
+            id = input.get("id")
+            data = {
+                "table_name": "dataset",
+                "key": {
+                    "id": id,
+                    "projectId": projectId
+                }
+            }
+            res = self.dynamodb.getItem(data)
+            cat = res["Item"].get("cat")
+            if cat in input_cats:
+                check = "ok"
+            else:
+                raise Exception("inputs选择错误")
+
+        outputs = dag_conf.get("outputs")
+        output_cats = ["intermediate", "output_index"]
+        for output in outputs:
+            id = output.get("id")
+            data = {
+                "table_name": "dataset",
+                "key": {
+                    "id": id,
+                    "projectId": projectId
+                }
+            }
+            res = self.dynamodb.getItem(data)
+            cat = res["Item"].get("cat")
+            if cat in output_cats:
+                check = "ok"
+            else:
+                raise Exception("outputs选择错误")
+        return check
 
     def update_targetId(self, dag_conf, dag_conf_list):
 
@@ -69,6 +103,8 @@ class CreateDagConf:
         dag_conf_list = []
         for dy_dag_conf in res.get("Items"):
             dag_conf_list.append(dy_dag_conf)
+        # 拿到所有的dag_conf后 查询当前dag_conf的输出是否已经被使用
+        self.check_outputs(dag_conf, dag_conf_list)
         # print(dag_conf)
         # print(dag_conf_list)
 
@@ -87,8 +123,8 @@ class CreateDagConf:
 
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
-        # 进行outputs检查
-        # self.check_outputs(dag_conf)
+        # 进行input output检查input index只能作为输入，output index 只能作为输出
+        self.check_max_index(dag_conf)
         # self.update_targetId(dag_conf)
 
         targetJobId = []
@@ -96,7 +132,7 @@ class CreateDagConf:
 
         dag_conf.update({"inputs": json.dumps(dag_conf.get("inputs"), ensure_ascii=False)})
         dag_conf.update({"outputs": json.dumps(dag_conf.get("outputs"), ensure_ascii=False)})
-        dag_conf.update({"operatorParameters": dag_conf.get("operatorParameters")})
+        dag_conf.update({"operatorParameters": json.dumps(dag_conf.get("operatorParameters"), ensure_ascii=False)})
         job_full_name = dag_conf.get("flowVersion") + "_" + \
                         dag_conf.get("jobId") + "_" + \
                         dag_conf.get("projectName") + "_" + \

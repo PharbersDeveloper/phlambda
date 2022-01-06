@@ -46,7 +46,10 @@ def transformClickHouseSchema(projectId, data):
             sql = f"""ALTER TABLE default.`{tableName}` MODIFY COLUMN `{item["src"]}` {item["type"]}"""
             executeSql(sql)
     except ServerException as se:
-        if se.code == 341:
+        print("ServerException  ==> \n")
+        print(se)
+        print(se.code)
+        if se.code == 341 or se.code == 50:
             raise Exception(f"column {schema['src']} cannot convert to {schema['type']}")
     except Exception as e:
         raise Exception(f"unknown error")
@@ -94,27 +97,26 @@ def rollBackType(dsId, projectId):
         })
 
 
-def updateActionData(tableName, id, state):
+def updateActionData(tableName, projectId, date, state):
     result = dynamodb.queryTable({
         "table_name": tableName,
         "limit": 1000,
-        "expression": Key('id').eq(id),
+        "expression": Key('projectId').eq(projectId) & Key("date").eq(date),
         "start_key": ""
     })["data"]
     if len(result) > 0:
         result[0]["jobDesc"] = state
-        result[0]["date"] = int(round(time.time() * 1000))
         dynamodb.putData({
             "table_name": tableName,
             "item": result[0]
         })
 
 
-def insertNotification(actionId, state, error):
+def insertNotification(actionId, projectId, date, state, error):
     result = dynamodb.queryTable({
         "table_name": "action",
         "limit": 1000,
-        "expression": Key('id').eq(actionId),
+        "expression": Key('projectId').eq(projectId) & Key("date").eq(date),
         "start_key": ""
     })["data"]
     message = json.loads(result[0]["message"])
@@ -162,14 +164,14 @@ def run(eventName, jobCat, record):
             print(type(message))
             transformClickHouseSchema(item["projectId"], message)
             transformDataSetSchema(item["projectId"], message)
-            updateActionData("action", item["id"], "succeed")
-            insertNotification(item["id"], "succeed", "")
+            updateActionData("action", item["projectId"], item["date"], "succeed")
+            insertNotification(item["id"], item["projectId"], item["date"], "succeed", "")
 
         except Exception as e:
             print("Error ====> \n")
             print(str(e))
             rollBackType(json.loads(item["message"])["dsid"], item["projectId"])
-            updateActionData("action", item["id"], "failed")
-            insertNotification(item["id"], "failed", str(e))
+            updateActionData("action", item["projectId"], item["date"], "failed")
+            insertNotification(item["id"], item["projectId"], item["date"], "failed", str(e))
     else:
         print("未命中")

@@ -58,8 +58,10 @@ class Airflow:
                        "_" + dag_conf.get("dagName") + \
                        "_" + dag_conf.get("flowVersion")
 
+
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
+
 
         f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHMAIN_FILE_PY)
         with open(job_path + "/phmain.py", "w") as file:
@@ -136,6 +138,59 @@ class Airflow:
                 else:
                     file.write(line)
 
+    def edit_prepare_phjob(self, message):
+        jobDisplayName = message.get("jobDisplayName")
+        jobName = message.get("jobName")
+        operatorParameters = message.get("operatorParameters")
+        projectName = message.get("projectName")
+        flowVersion = message.get("flowVersion")
+        projectId = message.get("projectId")
+
+        dag_name = projectName + \
+                   "_" + projectName + \
+                   "_" + flowVersion
+
+        job_full_name = jobDisplayName
+
+        job_path = self.job_path_prefix + dag_name + "/" + job_full_name
+        print(operatorParameters)
+
+        subprocess.call(["mkdir", "-p", job_path])
+
+        # 2. /phjob.py file
+        self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
+        operator_code = GenerateInvoker().execute(operatorParameters)
+        with open(job_path + "/phjob.py", "a") as file:
+            file.write("""def execute(**kwargs):\n""")
+            file.write(operator_code)
+
+        # 创建完成后将脚本上传到s3
+        self.phs3.upload(
+            file=job_path + "/phjob.py",
+            bucket_name=dv.TEMPLATE_BUCKET,
+            object_name=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + jobDisplayName + "/phjob.py"
+        )
+
+        # 查询 dag_conf item 修改 operatorParameters 字段
+        data = {}
+        data.update({"table_name": "dagconf"})
+        key = {
+            "projectId": projectId,
+            "jobName": jobName
+        }
+        data.update({"key": key})
+        res = self.dynamodb.getItem(data)
+
+        item = res["Item"]
+        item.update({"operatorParameters": json.dumps(operatorParameters, ensure_ascii=False)})
+        edit_data = {
+            "table_name": "dagconf",
+            "item": item
+        }
+        self.dynamodb.putData(edit_data)
+
+
+
     def create_phjobs(self, dag_conf):
         # 通过 phcli 创建 phjobs 相关文件
         dag_name = dag_conf.get("projectName") + \
@@ -152,9 +207,6 @@ class Airflow:
         operator_parameters = json.loads(dag_conf.get("operatorParameters"))
         print("======打印operator_parameters=======")
         print(operator_parameters)
-
-
-        operator_parameters = json.loads(dag_conf.get("operatorParameters", "[\"pt\", \" \"]"))
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")

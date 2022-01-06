@@ -129,6 +129,21 @@ class SyncDagConfToDynamoDB:
                             # 更新action 中job cat为 dag insert success
                             status = "dag insert success"
                             pass
+
+                    elif json.loads(item.get("message")).get("jobCat") == "prepare_edit":
+                        print("进入prepare_edit流程")
+                        try:
+                            self.airflow.edit_prepare_phjob(json.loads(item.get("message")))
+                        except Exception as e:
+                            status = "修改prepare脚本时错误:" + json.dumps(str(e), ensure_ascii=False)
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+                            print(e)
+                        else:
+                            # 更新action 中job cat为 dag insert success
+                            status = "dag insert success"
+                            self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+
+
                     
             else:
                 print("不符合dag规范的action")
@@ -157,7 +172,7 @@ class SyncDagConfToDynamoDB:
 
 
 if __name__ == '__main__':
-    with open("../events/event_a.json") as f:
+    with open("../events/event_edit_prepare.json") as f:
         event = json.load(f)
     app = SyncDagConfToDynamoDB(event=event)
     app.exec()

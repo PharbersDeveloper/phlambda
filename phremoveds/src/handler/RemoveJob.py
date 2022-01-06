@@ -28,7 +28,7 @@ class RemoveJob:
                     "projectId": item["projectId"],
                     "code": 0,
                     "comments": "dag_refresh",
-                    "date": int(round(time.time() * 1000)),
+                    "date": str(int(round(time.time() * 1000))),
                     "jobCat": "dag_refresh",
                     "jobDesc": "refresh",
                     "message": json.dumps({

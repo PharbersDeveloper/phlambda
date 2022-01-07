@@ -3,6 +3,8 @@ from delegate.createDagByItem.command import Command
 from delegate.createDagByItem.commandCreateDag import CommandCreateDag
 from delegate.createDagByItem.commandCreateDagConf import CommandCreateDagConf
 from delegate.createDagByItem.commandUploadAirflow import CommandUploadAirflow
+from delegate.createDagByItem.commandPutItemToDB import CommandPutItemToDB
+from delegate.createDagByItem.commandCreateDagLevel import CommandCreateDagLevel
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s %(name)s %(levelname)s %(message)s",
@@ -50,19 +52,24 @@ logging.basicConfig(level=logging.DEBUG,
 #         return data
 
 
-def exec(dag_item):
+def max_exec(dag_item):
 
     # 创建dag_conf 返回dag_conf_data
-    dag_conf_data = CommandCreateDagConf(dag_item=dag_item).run()
-    logging.info("创建写入dag_conf数据库数据成功")
-    logging.info(dag_conf_data)
+    dag_conf_list = CommandCreateDagConf(dag_item=dag_item).run()
+    logging.info("创建dag_conf成功")
+    logging.info(dag_conf_list)
+
+    # 根据dag_conf_list 创建 Level并返回 dag_item_level_list
+    level_type = "SCRIPT_LEVEL"
+    dag_item_level_list = CommandCreateDagLevel(dag_conf_list=dag_conf_list, level_type=level_type).run()
 
     # 创建dag 返回dag_data
-    dag_data = CommandCreateDag(dag_conf=dag_conf_data.get("item")).run()
-    # logging.info("创建写入dag数据库数据成功")
-    # logging.info(dag_data)
+    dag_item_list = CommandCreateDag(dag_conf_list=dag_conf_list, dag_item_level_list=dag_item_level_list).run()
+
+    # 将创建好的dag上传到dynamodb
+    putItem = CommandPutItemToDB(dag_conf_list=dag_conf_list, dag_item_list=dag_item_list).run()
 
     # 创建airflow 返回airflow_data
 
-    return dag_conf_data
+    return {}
 

@@ -6,7 +6,7 @@ from delegate.max import Max
 
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt = '%Y-%m-%d  %H:%M:%S %a'
+                    datefmt='%Y-%m-%d  %H:%M:%S %a'
                     )
 
 project_table = {
@@ -38,7 +38,7 @@ class Execute:
 
     def screen_regular_item(self, item_list):
         for item in item_list:
-            if json.loads(item.get("message")).get("dagName"):
+            if json.loads(item.get("message")).get("jobCat"):
                 logging.info("item符合创建job形式")
             else:
                 item_list.remove(item)
@@ -56,7 +56,7 @@ class Execute:
                 project_init = project_table[json.loads(item.get("message")).get("projectName")]()
                 project_init.exec(dag_item)
         else:
-            logging.info("action不符合dag创建流程的要求")
+            logging.info("action不是INSERT")
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import logging
 
 from delegate.singleton import singleton
 from delegate.initproject import Project
-from createDagByItem.commandExecute import exec as orderExec
+from createDagByItem.commandExecute import max_exec as maxExec
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -40,12 +40,11 @@ class Max(Project):
 
         logging.info("开始执行创建dag脚本")
         # , "createDag", "createAirflowFile"
-        orderExec(dag_item)
+        maxExec(dag_item)
         # try:
         #     # 插入dagconf信息
         #     dag_conf = self.createDagConf.insert_dagconf(item)
         # except Exception as e:
-        #     # TODO 此处添加回滚功能
         #     # 对已经插入的item 进行回滚
         #     # self.rollBack.dag_conf_rollback(dag_conf_list)
         #     status = "插入dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)

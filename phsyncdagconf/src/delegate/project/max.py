@@ -1,11 +1,13 @@
 import logging
 import json
+import time
 
 from delegate.singleton import singleton
 from delegate.project.initproject import Project
 from delegate.createDagByItem.commandExecute import max_script as maxCreate
 from delegate.createDagByItem.commandExecute import max_refrash as maxRefrash
 from delegate.createDagByItem.commandExecute import max_prepare_script as maxPrepareScript
+from delegate.lock.redisLock import create_redis_lock
 from delegate.updateAction import UpdateAction
 
 
@@ -51,64 +53,18 @@ class Max(Project):
             "dag_create": maxCreate
         }
 
-        try:
-            status = max_job_cats.get(dag_type)(dag_item)
-        except Exception as e:
-            status = json.dumps(str(e), ensure_ascii=False)
-        finally:
-            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
-            logging.info("更新notification状态成功")
-            logging.info(status)
+        # 创建redis连接
+        redis_lock = dag_item.get("projcetId") + "_" + dag_item.get("jobCat")
+        redis_cli = create_redis_lock()
 
-
-        # try:
-        #     # 插入dagconf信息
-        #     dag_conf = self.createDagConf.insert_dagconf(item)
-        # except Exception as e:
-        #     # 对已经插入的item 进行回滚
-        #     # self.rollBack.dag_conf_rollback(dag_conf_list)
-        #     status = "插入dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     raise Exception(status)
-        # else:
-        #     # 更新action 中job cat为 dag_conf insert success
-        #     status = "dag_conf insert success"
-        # finally:
-        #     # 更新action 信息
-        #     self.updateAction.updateItem(item, "action", status)
-        #     if not status == "dag_conf insert success":
-        #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-        #     else:
-        #         self.updateAction.updateNotification(item, "notification", dag_conf, status)
-        #
-        # try:
-        #     # 插入dag信息
-        #     dag_item = self.createDag.create_dag(dag_conf)
-        # except Exception as e:
-        #     # TODO 此处添加回滚功能
-        #     # self.rollBack.dag_rollback(dag_item_list)
-        #     status = "插入dag时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     raise Exception(status)
-        # else:
-        #     # 更新action 中job cat为 dag insert success
-        #     status = "dag insert success"
-        # finally:
-        #     # 插入dag成功后更新action 信息
-        #     self.updateAction.updateItem(item, "action", status)
-        #     if not status == "dag insert success":
-        #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-        #     else:
-        #         self.updateAction.updateNotification(item, "notification", dag_conf, status)
-
-        # # 创建airflow相关文件
-        # try:
-        #     self.airflow.airflow(airflow_item_list)
-        # except Exception as e:
-        #     status = "创建airflow相关文件时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     raise Exception(status)
-        # else:
-        #     # 更新action 中job cat为 dag_conf insert success
-        #     status = "airflow job create success"
-        # finally:
-        #     for item in item_list:
-        #         self.updateAction.updateItem(item, "action", status)
-        #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
+        if redis_cli.setnx(redis_lock, time.time()):
+            redis_cli.expire(redis_lock, 60)
+            try:
+                status = max_job_cats.get(dag_type)(dag_item)
+            except Exception as e:
+                status = json.dumps(str(e), ensure_ascii=False)
+            finally:
+                self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
+                logging.info("更新notification状态成功")
+                logging.info(status)
+        redis_cli.delete(redis_lock)

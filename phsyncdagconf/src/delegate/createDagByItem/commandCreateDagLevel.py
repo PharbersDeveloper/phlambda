@@ -22,7 +22,7 @@ class CommandCreateDagLevel(Command):
 
     def InitialStrategys(self):
         """初始化方法: 策略函数"""
-        ScriptLevel.collect_context()
+        ScriptLevel().collect_context()
 
     def run(self):
         self.InitialStrategys()

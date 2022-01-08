@@ -1,10 +1,12 @@
-import os
-import json
 import logging
+import json
 
 from delegate.singleton import singleton
-from delegate.initproject import Project
-from createDagByItem.commandExecute import max_exec as maxExec
+from delegate.project.initproject import Project
+from delegate.createDagByItem.commandExecute import max_script as maxCreate
+from delegate.createDagByItem.commandExecute import max_refrash as maxRefrash
+from delegate.createDagByItem.commandExecute import max_prepare_script as maxPrepareScript
+from delegate.updateAction import UpdateAction
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -16,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG,
 class Max(Project):
 
     def __init__(self, **kwargs):
+        self.updateAction = UpdateAction()
         pass
         # for key, val in kwargs.items():
         #     setattr(self, key, val)
@@ -36,11 +39,28 @@ class Max(Project):
         # 5. 利用策略模式，把创建所有level的流程，抽离出来，这个部分会长期修改，并可能不由你单人修改
 
 
-    def exec(self, dag_item):
+    def exec(self, dag_item, dag_type):
 
-        logging.info("开始执行创建dag脚本")
+        logging.info("开始对dag进行操作")
+        logging.info(dag_type)
+
         # , "createDag", "createAirflowFile"
-        maxExec(dag_item)
+        max_job_cats = {
+            "dag_refresh": maxRefrash,
+            "prepare_edit": maxPrepareScript,
+            "dag_create": maxCreate
+        }
+
+        try:
+            status = max_job_cats.get(dag_type)(dag_item)
+        except Exception as e:
+            status = json.dumps(str(e), ensure_ascii=False)
+        finally:
+            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
+            logging.info("更新notification状态成功")
+            logging.info(status)
+
+
         # try:
         #     # 插入dagconf信息
         #     dag_conf = self.createDagConf.insert_dagconf(item)
@@ -92,10 +112,3 @@ class Max(Project):
         #     for item in item_list:
         #         self.updateAction.updateItem(item, "action", status)
         #         self.updateAction.updateNotification(item, "notification", dag_conf={}, status=status)
-
-
-if __name__ == '__main__':
-    with open("../events/event_a.json") as f:
-        event = json.load(f)
-    app = Max(event=event)
-    app.exec()

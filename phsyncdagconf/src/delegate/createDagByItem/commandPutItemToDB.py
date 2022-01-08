@@ -90,10 +90,3 @@ class CommandPutItemToDB(Command):
         # 上传item 到dag
         self.put_item_to_dag(self.dag_item_list)
 
-    def run(self):
-
-        logging.info("运行创建dag命令")
-        logging.info(self.dag_item_list)
-
-        dag_data = self.create_dag(self.dag_item_level_list, self.dag_conf_list)
-        return dag_data

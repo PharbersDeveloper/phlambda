@@ -1,8 +1,5 @@
 import json
-from delegate.max import Project
-from delegate.execute import Execute
-
-
+from delegate.project.max import Project
 
 
 def lambda_handler(event, context):

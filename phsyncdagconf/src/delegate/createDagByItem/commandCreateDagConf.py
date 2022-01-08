@@ -147,15 +147,14 @@ class CommandCreateDagConf(Command):
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
-
+        logging.info(action_item)
 
         dag_conf = json.loads(action_item.get("message"))
 
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行input output检查input index只能作为输入，output index 只能作为输出
-        self.check_max_index(dag_conf)
-        # self.update_targetId(dag_conf)
+        # self.check_max_index(dag_conf)
 
         targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
@@ -192,9 +191,16 @@ class CommandCreateDagConf(Command):
 
         return update_dag_conf_list
 
+    def refresh_dagconf(self):
+        dag_conf = json.loads(self.dag_item.get("message"))
+        dag_conf_list = self.get_all_dag_conf(dag_conf)
+
+        return dag_conf_list
+
     def run(self):
 
         logging.info("运行创建dagConf命令")
+        logging.info(self.dag_item)
         dag_conf_list = self.__insert_dagconf(self.dag_item)
 
         return dag_conf_list

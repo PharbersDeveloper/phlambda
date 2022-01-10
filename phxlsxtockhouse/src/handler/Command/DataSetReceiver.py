@@ -24,6 +24,7 @@ class DataSetReceiver(Receiver):
                 "label": data["label"],
                 "cat": data["cat"],
                 "path": data["path"],
+                "prop": data["prop"],
                 "format": data["format"],
                 "version": data["version"]
             }

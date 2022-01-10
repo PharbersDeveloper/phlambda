@@ -69,6 +69,18 @@
 #     })
 #
 #
+# def rollback(item):
+#     message = json.loads(item["message"])
+#     version = message.get("version", "0.0.0")
+#     tableName = item["projectId"] + "_" + message["destination"]
+#     sql = f"ALTER TABLE {os.environ.get(__CLICKHOUSE_DB)}.`{tableName}` DELETE WHERE version = {version}"
+#     showTables = list(map(lambda table: table[0], client.execute("SHOW TABLES")))
+#     print(showTables)
+#     if tableName in showTables:
+#         client.execute(sql)
+#
+#
+#
 # def insertDataset(item, dynamodb):
 #     message = json.loads(item["message"])
 #     title_row = message["skipValue"]
@@ -105,6 +117,7 @@
 #             raise Exception("Schema Not Matched,请使用高级映射！")
 #     dsId = data[0]["id"] if len(data) > 0 else file_name
 #     label = data[0]["label"] if len(data) > 0 else "[]"
+#     write2Clickhouse(message, mapper, item, dynamodb)
 #     dynamodb.putData({
 #         "table_name": "dataset",
 #         "item": {
@@ -116,10 +129,10 @@
 #             "label": label,
 #             "cat": cat,
 #             "path": "",
+#             "prop": "",
 #             "version": version
 #         }
 #     })
-#     write2Clickhouse(message, mapper, item, dynamodb)
 #
 #
 # def insertDag(item, dynamodb):
@@ -154,8 +167,6 @@
 #         }
 #     })
 #
-#     pass
-#
 #
 # def getExcelMapper(file_name, sheet_name, skip_first):
 #     result = Excel.getSchema(os.environ.get(__FILE_PATH) + file_name, sheet_name, skip_first)
@@ -173,10 +184,19 @@
 #     tableName = item["projectId"] + "_" + des_table_name
 #     zipMapper = mapper + [{"src": "version", "des": "version", "type": "String"}]
 #     fields = ", ".join(
-#         list(map(lambda item: "`{0}` {1}".format(re.sub(reg, "_", item['des']), item["type"]), zipMapper)))
+#         list(map(lambda col: "`{0}` {1}".format(re.sub(reg, "_", col['des']), col["type"]), zipMapper)))
 #
 #     print("fields ====> \n")
 #     print(fields)
+#
+#     columns = list(map(lambda col: f"{col['des']}", zipMapper))
+#     distinct_columns = set(columns)
+#
+#     print(columns)
+#     print(distinct_columns)
+#
+#     if len(columns) != len(distinct_columns):
+#         raise Exception("Duplicate Column Names")
 #
 #     # 创建表
 #     create_table = f"CREATE TABLE IF NOT EXISTS " \
@@ -256,7 +276,8 @@
 #             print(record["eventName"].lower())
 #             print(new_image)
 #             print(new_image.get("jobCat", {"S": "None"})["S"])
-#             if record["eventName"].lower() == "insert" and new_image.get("jobCat", {"S": "None"})["S"] == "project_file_to_DS":
+#             if record["eventName"].lower() == "insert" and new_image.get("jobCat", {"S": "None"})[
+#                 "S"] == "project_file_to_DS":
 #                 item = {}
 #                 for field in list(new_image.keys()):
 #                     value = new_image[field]
@@ -275,5 +296,6 @@
 #         print("error: \n")
 #         print(str(e))
 #         print(history)
+#         rollback(history)
 #         updateAction(history, dynamodb, "failed")
 #         insetNotification(history, dynamodb, {"progress": -1}, "failed", str(e))

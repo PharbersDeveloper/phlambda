@@ -1,4 +1,4 @@
-from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched, VersionAlreadyExist
+from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched, VersionAlreadyExist, ColumnDuplicate
 from handler.Strategy.Strategy import Strategy
 from openpyxl.utils.exceptions import InvalidFileException
 
@@ -22,7 +22,6 @@ import constants.DefinValue as DV
 
 
 class Xlsx(Strategy):
-
     parameters = None
 
     def __init__(self):
@@ -54,20 +53,28 @@ class Xlsx(Strategy):
             value["version"] = version
             return value
 
+        def remove_none_value(lines):
+            values = list(filter(lambda line: len(set(line.values())) != 1 or
+                                              (len(set(line.values())) == 1 and set(line.values()).pop() is not None),
+                                 lines))
+            return values
+
+        hit_value = 100 / batch_size
+        progress = round(float(hit_count * hit_value), 2)
+        logging.debug(f"progress ====> {progress} \n")
+
+        if progress == 100:
+            data = remove_none_value(data)
+
         logging.debug("sql ====> \n")
         logging.debug(sql)
         execl_data = list(map(add_col, data))
         self.clickhouse.insert_data(sql, execl_data)
 
-        hit_value = 100 / batch_size
-        progress = round(float(hit_count * hit_value), 2)
-        logging.debug(f"====> {progress} \n")
-
         # 主要做写入Notification操作的进度
-        command = SendMsgRunCommand(self.msg_receiver)
         message = dict({}, **self.parameters)
         message["data"] = {"progress": progress}
-        command.execute(message)
+        SendMsgRunCommand(self.msg_receiver).execute(message)
 
     def __write2Clickhouse(self):
         logging.debug("Alex =====> write2Clickhouse \n")
@@ -124,8 +131,9 @@ class Xlsx(Strategy):
                 "sheet_name": data["message"]["fileSheet"],
                 "ds_name": data["message"]["destination"],
                 "opgroup": data["message"]["opgroup"],
-                "cat": data["message"].get("cat", "normal"),
+                "cat": data["message"].get("cat", "intermediate"),
                 "path": data["message"].get("path", ""),
+                "prop": data["message"].get("prop", ""),
                 "format": data["message"].get("format", ""),
                 "prefix": "project_file_to_DS_"
             }
@@ -165,14 +173,13 @@ class Xlsx(Strategy):
             parameters["ds_id"] = ds_id
             parameters["label"] = label
 
-            check_receiver = CheckSchemaReceiver()
-            CheckSchemaConsistencyCommand(check_receiver).execute({
+            CheckSchemaConsistencyCommand(CheckSchemaReceiver()).execute({
                 "cur_schema": standard_schema,
                 "ds_schema": json.loads(ds_result[0]["schema"]) if len(ds_result) > 0 else None
             })
 
-            SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建索引
             self.__write2Clickhouse()  # 写数据
+            SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
             SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag
 
         except FileNotFoundError as e:
@@ -182,6 +189,8 @@ class Xlsx(Strategy):
         except VersionAlreadyExist as e:
             raise e
         except SchemaNotMatched as e:
+            raise e
+        except ColumnDuplicate as e:
             raise e
         except Exception as e:
             raise Errors(e)

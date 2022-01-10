@@ -123,8 +123,8 @@ def lambda_handler(event, context):
 
         if clear_task_cat != "self_only":
             clean_tasks = updateTaskInstancesState(dag_id, task_id, execution_date,
-                                                   is_upstream=clear_task_cat == "upstream",
-                                                   is_downstream=clear_task_cat == "downstream")
+                                                   is_upstream=True if clear_task_cat == "upstream" else False,
+                                                   is_downstream=True if clear_task_cat == "downstream" else False)
 
         delete_dy_item({
             "run_id": dag_run_id,

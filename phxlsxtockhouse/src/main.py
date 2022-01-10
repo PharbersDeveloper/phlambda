@@ -70,6 +70,7 @@ def lambda_handler(event, context):
             }
         })
     finally:
-        UnLockCommand(LockReceiver()).execute({
-            "key": os.environ[DV.LOCK_APP_NAME] + "_" + history["projectId"] + "_" + history["message"]["destination"]
-        })
+        if len(history) > 0:
+            UnLockCommand(LockReceiver()).execute({
+                "key": os.environ[DV.LOCK_APP_NAME] + "_" + history["projectId"] + "_" + history["message"]["destination"]
+            })

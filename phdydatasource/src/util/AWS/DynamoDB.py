@@ -42,6 +42,7 @@ class DynamoDB:
         try:
             response_iterator = paginator.paginate(
                 TableName=table_name,
+                ScanIndexForward=False,
                 KeyConditionExpression=expression["FilterExpression"],
                 ExpressionAttributeNames=expression["ExpressionAttributeNames"],
                 ExpressionAttributeValues=expression["ExpressionAttributeValues"],

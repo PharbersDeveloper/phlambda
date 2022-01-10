@@ -50,7 +50,6 @@ def run(eventName, jobCat, record):
                 "error": {
                     "code": e.code,
                     "message": e.message,
-                    "meta": e.meta
                 }
             })
     else:

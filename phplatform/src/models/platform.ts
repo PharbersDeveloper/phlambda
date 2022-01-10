@@ -300,7 +300,8 @@ export default class Platform {
 
         // configuration web pages
         page: {
-            projectName: String,
+            cliendId: String,
+            clientName: String,
             version: String,
             name: String,
             route: String,

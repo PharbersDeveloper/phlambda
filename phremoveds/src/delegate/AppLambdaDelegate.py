@@ -1,4 +1,4 @@
-import handler.ClearClickHouseData as CD
+import handler.RemoveHandler as RH
 
 
 class AppLambdaDelegate:
@@ -16,7 +16,7 @@ class AppLambdaDelegate:
             eventName = record["eventName"].lower()
             if eventName == "insert":
                 new_image = record["dynamodb"]["NewImage"]
-                jobCat = new_image["jobCat"]["S"]
-                CD.run(eventName, jobCat, new_image)
+                jobCat = new_image.get("jobCat", {"S": "None"})["S"]
+                RH.run(eventName, jobCat, new_image)
             else:
                 continue

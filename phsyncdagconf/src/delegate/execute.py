@@ -5,7 +5,11 @@ from delegate.project.max import Max
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 project_table = {
-    "max": Max
+    "Test": Max,
+    "Auto_max_refactor": Max,
+    "ETL_Iterator": Max,
+    "专门测试用": Max,
+    "max": Max,
 }
 
 class Execute:
@@ -59,7 +63,7 @@ class Execute:
 
 
 if __name__ == '__main__':
-    with open("../events/event_refresh.json") as f:
+    with open("../events/event_d.json") as f:
         event = json.load(f)
     app = Execute(event=event)
     app.exec()

@@ -1,9 +1,10 @@
 import boto3
-from constants.Common import Common
+import constants.DefinValue as Common
 from util.GenerateID import GenerateID
+from util.ClieckHouse import SingletonMetaClass
 
 
-class DynamoDB:
+class DynamoDB(metaclass=SingletonMetaClass):
 
     def __init__(self, **kwargs):
         self.access_key = kwargs.get("access_key", None)
@@ -87,6 +88,8 @@ class DynamoDB:
         item = data["item"]
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
+        if len(item.get("id", "")) == 0:
+            del item["id"]
         table = self.dynamodb_resource.Table(table_name)
         table.put_item(
             Item=item

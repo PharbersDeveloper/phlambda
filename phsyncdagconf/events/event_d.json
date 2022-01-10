@@ -1,0 +1,56 @@
+{
+  "Records": [{
+    "eventID": "c95d2be1090c4f4715e604cc60dafdf2",
+    "eventName": "INSERT",
+    "eventVersion": "1.1",
+    "eventSource": "aws:dynamodb",
+    "awsRegion": "cn-northwest-1",
+    "dynamodb": {
+      "ApproximateCreationDateTime": 1641797293.0,
+      "Keys": {
+        "date": {
+          "S": "1641797292645"
+        },
+        "projectId": {
+          "S": "jFlL0WS1Qwy5buKh"
+        }
+      },
+      "NewImage": {
+        "date": {
+          "S": "1641797292645"
+        },
+        "owner": {
+          "S": "5UBSLZvV0w9zh7-lZQap"
+        },
+        "jobCat": {
+          "S": "intermediate"
+        },
+        "code": {
+          "N": "0"
+        },
+        "comments": {
+          "S": ""
+        },
+        "showName": {
+          "S": "鹏钱"
+        },
+        "id": {
+          "S": "e2EG1d_0dNWmcYG"
+        },
+        "message": {
+          "S": "{\"actionName\":\"compute_B\",\"dagName\":\"专门测试用\",\"flowVersion\":\"developer\",\"jobName\":\"compute_B\",\"jobId\":\"\",\"inputs\":[{\"name\":\"A\",\"id\":\"27a0d12b40810466d491dc2abc61cd1a.xlsx\"}],\"outputs\":[{\"name\":\"B\",\"id\":\"ba510bfed57847059f8bec50fa30181e\"}],\"jobVersion\":\"B_version1\",\"projectId\":\"jFlL0WS1Qwy5buKh\",\"timeout\":\"1000\",\"runtime\":\"pyspark\",\"owner\":\"鹏钱\",\"targetJobId\":\"\",\"projectName\":\"专门测试用\",\"labels\":[],\"operatorParameters\":[\"script\",\"\"],\"prop\":{\"path\":\"\",\"partitions\":1}}"
+        },
+        "jobDesc": {
+          "S": "created"
+        },
+        "projectId": {
+          "S": "jFlL0WS1Qwy5buKh"
+        }
+      },
+      "SequenceNumber": "19347300000000002018873711",
+      "SizeBytes": 680,
+      "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2022-01-06T02:26:42.148"
+  }]
+}

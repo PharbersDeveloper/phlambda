@@ -1,5 +1,5 @@
 {
-  "body": "{\n    \"table\": \"dag\",\n    \"conditions\": {\n        \"projectId\": [\"=\", \"max\"],\n        \"sortVersion\": [\"begins_with\",  \"developer_1qaz2wsx\"]\n    },\n    \"limit\": 100,\n    \"start_key\": {}\n}",
+  "body": "{\"table\":\"notification\",\"conditions\":{\"id\":[\"=\",\"ETL_Iterator_ETL_Iterator_developer_2021-12-10T06_05_42+00_00\"],\"projectId\":[\"begins_with\",\"ETL_Iterator_ETL_Iterator_developer\"]},\"limit\":1}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

@@ -10,3 +10,8 @@ class Project(object):
     """
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
+
+    def exec(self):
+        pass
+
+

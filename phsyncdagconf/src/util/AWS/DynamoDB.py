@@ -73,7 +73,6 @@ class DynamoDB(object):
                 "start_key": result.get("LastEvaluatedKey", "{}")
             }
         except Exception as e:
-            print(e)
             return {
                 "data": [],
                 "start_key": {}

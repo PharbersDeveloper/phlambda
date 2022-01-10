@@ -4,9 +4,10 @@ from util.AWS.DynamoDB import DynamoDB
 
 def lambda_handler(event, context):
     try:
+        table = ["dagconf", "dataset"]
         body = eval(event["body"])
         dynamodb = DynamoDB()
-        result = dynamodb.getTableCount(body["tableName"], body["projectId"])
+        result = [dynamodb.getTableCount(i, body["projectId"]) for i in table]
     except Exception as e:
         return {
             "statusCode": 503,
@@ -21,5 +22,5 @@ def lambda_handler(event, context):
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps({"message": result})
+            "body": json.dumps(dict(zip(table, result)))
         }

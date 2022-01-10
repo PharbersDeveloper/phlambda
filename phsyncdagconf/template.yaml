@@ -11,6 +11,7 @@ Resources:
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
       FunctionName: lmd-phsyncdagconf-dev
       MemorySize: 1024
       Description: "创建dagconf 同时创建dag, airflow运行文件"

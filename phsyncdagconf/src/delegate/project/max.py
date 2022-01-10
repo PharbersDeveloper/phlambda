@@ -30,18 +30,18 @@ class Max(Project):
             "dag_create": maxCreate
         }
 
-        # 创建redis连接
-        redis_lock = dag_item.get("projcetId") + "_" + dag_item.get("jobCat")
-        redis_cli = create_redis_lock()
-
-        if redis_cli.setnx(redis_lock, time.time()):
-            redis_cli.expire(redis_lock, 60)
-            try:
-                status = max_job_cats.get(dag_type)(dag_item)
-            except Exception as e:
-                status = json.dumps(str(e), ensure_ascii=False)
-            finally:
-                self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
-                self.logger.debug("更新notification状态成功")
-                self.logger.debug(status)
-        redis_cli.delete(redis_lock)
+        # # 创建redis连接
+        # redis_lock = dag_item.get("projcetId") + "_" + dag_item.get("jobCat")
+        # redis_cli = create_redis_lock()
+        #
+        # if redis_cli.setnx(redis_lock, time.time()):
+        #     redis_cli.expire(redis_lock, 60)
+        try:
+            status = max_job_cats.get(dag_type)(dag_item)
+        except Exception as e:
+            status = json.dumps(str(e), ensure_ascii=False)
+        finally:
+            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
+            self.logger.debug("更新notification状态成功")
+            self.logger.debug(status)
+        # redis_cli.delete(redis_lock)

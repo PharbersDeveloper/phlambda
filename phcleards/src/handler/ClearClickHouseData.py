@@ -1,12 +1,19 @@
+import os
 import json
 import time
 import http.client
 import urllib.parse
 from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key, Attr
+from constants.Errors import Errors, ResourceBusy
+from constants.Common import Common
+from util.PhRedis import PhRedis
 from util.GenerateID import GenerateID
 
 dynamodb = DynamoDB()
+redis = PhRedis(host=os.environ[Common.REDIS_HOST], port=os.environ[Common.REDIS_PORT]).getRedis()
+
+
 # import base64
 # from util.AWS.STS import STS
 # from constants.Common import Common
@@ -19,8 +26,7 @@ dynamodb = DynamoDB()
 
 
 def executeSql(sql, type):
-    conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
-    # conn = http.client.HTTPSConnection(host="max.pharbers.com")
+    conn = http.client.HTTPConnection(host=os.environ[Common.CLICKHOUSE_HOST], port=os.environ[Common.CLICKHOUSE_PORT])
     url = urllib.parse.quote("/ch/?query=" + sql, safe=':/?=&')
     conn.request(type, url)
     res = conn.getresponse()
@@ -40,6 +46,7 @@ def finishingEventData(record):
 def cleanClickHouseData(tableName, version):
     sql = "ALTER TABLE `{0}` DELETE WHERE 1 = 1 {1}".format(tableName,
                                                             " and version = {0}".format(version) if version else "")
+    print("Alex Sql \n")
     print(sql)
     result = executeSql(sql, "POST")
     return 0 if result else 1
@@ -112,7 +119,7 @@ def insertNotification(actionId, state, error):
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0]["showName"]
+            "showName": result[0].get("showName", "")
         }
     })
 
@@ -129,21 +136,34 @@ __func_dict = {
 def run(eventName, jobCat, record):
     item = __func_dict.get(eventName + ":" + jobCat, default)(record)
     if item is not None:
+        message = json.loads(item["message"])
+        print("message ==> \n")
+        print(message)
+        print(type(message))
+        check_key = os.environ[Common.CHECK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
+        set_key = os.environ[Common.LOCK_APP_NAME] + "_" + item["projectId"] + "_" + message["destination"]
         try:
-            message = json.loads(item["message"])
-            print("message ==> \n")
-            print(message)
-            print(type(message))
-            updateActionData("action", item["id"], "succeed")
-            insertNotification(item["id"], "succeed", "")
-            result = cleanClickHouseData(message["destination"], message["version"]) & \
-                     cleanDynamoDBDSData("dataset", message["dsid"])
+            if redis.exists(check_key):
+                raise ResourceBusy("Resources Are Busy")
+            else:
+                if redis.setnx(set_key, int(round(time.time() * 1000))):
+                    redis.expire(set_key, 60)
 
-            print(result)
-        except Exception as e:
+                result = cleanClickHouseData(item["projectId"] + "_" + message["destination"], message["version"]) & \
+                         cleanDynamoDBDSData("dataset", message["dsid"])
+                updateActionData("action", item["id"], "succeed")
+                insertNotification(item["id"], "succeed", "")
+
+                print(result)
+        except Errors as e:
             print("Error ====> \n")
-            print(str(e))
+            print(e)
             updateActionData("action", item["id"], "failed")
-            insertNotification(item["id"], "failed", str(e))
+            insertNotification(item["id"], "failed", json.dumps({
+                "code": e.code,
+                "message": e.message
+            }, ensure_ascii=False))
+        finally:
+            redis.delete(set_key)
     else:
         print("未命中")

@@ -5,6 +5,7 @@ import urllib.parse
 
 def executeSql(sql, method):
     conn = http.client.HTTPConnection(host="192.168.16.117", port="8123")
+    # conn = http.client.HTTPSConnection(host="max.pharbers.com")
     url = urllib.parse.quote("/ch/?query=" + sql, safe=":/?=&")
     conn.request(method, url)
     res = conn.getresponse()
@@ -27,9 +28,8 @@ def lambda_handler(event, context):
         cells = row.split("\t")
 
         tmp = {}
-        for cell in cells:
-            index = cells.index(cell)
-            tmp[columns[index]] = cell
+        for index in range(len(cells)):
+            tmp[columns[index]] = cells[index]
 
         final_res.append(tmp)
 

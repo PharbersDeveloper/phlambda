@@ -11,7 +11,7 @@ class ScriptCommand(Command):
         self.phs3 = PhS3()
 
     def execute(self, data=None):
-        path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/script.template"
+        path = "/tmp/phjobs/script.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
                            dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_SCRIPT_FILE_PY,
                            path)

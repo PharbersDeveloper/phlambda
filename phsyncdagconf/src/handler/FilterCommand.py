@@ -11,7 +11,7 @@ class FilterCommand(Command):
         self.phs3 = PhS3()
 
     def execute(self, data=None):
-        path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/filter_for_pyspark.template"
+        path = "/tmp/phjobs/filter_for_pyspark.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
                            dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_FILTER_FILE_PY,
                            path)

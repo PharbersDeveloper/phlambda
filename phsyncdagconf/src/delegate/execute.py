@@ -40,8 +40,9 @@ class Execute:
         return item_list
 
     def screen_regular_item(self, item_list):
+        jobCats = ["dag_refresh", "prepare_edit", "dag_create"]
         for item in item_list:
-            if item.get("jobCat"):
+            if item.get("jobCat") in jobCats:
                 self.logger.debug("item符合创建job形式")
             else:
                 item_list.remove(item)

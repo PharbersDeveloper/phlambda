@@ -11,7 +11,7 @@ class SelectCommand(Command):
         self.phs3 = PhS3()
 
     def execute(self, data=None):
-        path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/select_for_pyspark.template"
+        path = "/tmp/phjobs/select_for_pyspark.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
                            dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_SELECT_FILE_PY,
                            path)

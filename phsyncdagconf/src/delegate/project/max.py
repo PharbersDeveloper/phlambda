@@ -39,7 +39,7 @@ class Max(Project):
         try:
             status = max_job_cats.get(dag_type)(dag_item)
         except Exception as e:
-            status = json.dumps(str(e), ensure_ascii=False)
+            status = str(e)
         finally:
             self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
             self.logger.debug("更新notification状态成功")

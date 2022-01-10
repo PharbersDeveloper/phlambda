@@ -46,7 +46,13 @@ class UpdateAction:
                 "jobPath": str(dag_conf.get("job_path")),
                 "jobShowName": str(dag_conf.get("jobShowName")),
                 "status": status,
-                "error": ""
+                "error": json.dumps({
+                    "code": "123",
+                    "message": {
+                        "zh": status,
+                        "en": status
+                    }
+                }, ensure_ascii=False)
             }
         }
         item.update({"jobDesc": status})

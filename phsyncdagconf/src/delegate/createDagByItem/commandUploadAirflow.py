@@ -16,10 +16,10 @@ class CommandUploadAirflow(Command):
             setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
+        self.job_path_prefix = "/tmp/phjobs/"
         # self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
+        self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 

@@ -6,11 +6,7 @@ from delegate.level.scriptLevel import ScriptLevel
 from delegate.level.levelStrategyFactory import LevelStrategyFactory
 from util.AWS import define_value as dv
 from delegate.updateAction import UpdateAction
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandCreateDagLevel(Command):
@@ -19,6 +15,7 @@ class CommandCreateDagLevel(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("create_dag_level", LOG_DEBUG_LEVEL)
 
     def InitialStrategys(self):
         """初始化方法: 策略函数"""

@@ -3,11 +3,7 @@ import json
 from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandCreateDag(Command):
@@ -16,6 +12,7 @@ class CommandCreateDag(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("create_dag", LOG_DEBUG_LEVEL)
 
     def create_link(self, dag_conf):
         """
@@ -219,6 +216,6 @@ class CommandCreateDag(Command):
 
     def run(self):
 
-        logging.info("运行创建dag命令")
+        self.logger.debug("运行创建dag命令")
         dag_data = self.create_dag(self.dag_item_level_list, self.dag_conf_list)
         return dag_data

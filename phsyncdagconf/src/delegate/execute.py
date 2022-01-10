@@ -2,12 +2,7 @@ import json
 import logging
 
 from delegate.project.max import Max
-
-
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 project_table = {
     "max": Max
@@ -18,6 +13,8 @@ class Execute:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
+        self.logger = PhLogging().phLogger("创建流程入口", LOG_DEBUG_LEVEL)
+            
 
     def process_insert_event(self):
         # 获取新插入item的 partition_key, sort_key, message
@@ -25,7 +22,7 @@ class Execute:
         records = self.event.get("Records")
         for record in records:
             if record.get("eventName") == "INSERT":
-                logging.info(record.get("eventName"))
+                self.logger.debug(record.get("eventName"))
                 new_image = record["dynamodb"]["NewImage"]
                 item = {}
                 for item_key in list(new_image.keys()):
@@ -41,7 +38,7 @@ class Execute:
     def screen_regular_item(self, item_list):
         for item in item_list:
             if item.get("jobCat"):
-                logging.info("item符合创建job形式")
+                self.logger.debug("item符合创建job形式")
             else:
                 item_list.remove(item)
 
@@ -51,14 +48,14 @@ class Execute:
         # 获取所有的item
         item_list = self.process_insert_event()
         if item_list:
-            logging.info("item_list生成成功")
+            self.logger.debug("item_list生成成功")
             for item in item_list:
                 dag_type = item.get("jobCat")
-                logging.info(json.loads(item.get("message")).get("projectName"))
+                self.logger.debug(json.loads(item.get("message")).get("projectName"))
                 project_init = project_table[json.loads(item.get("message")).get("projectName")]()
                 project_init.exec(item, dag_type)
         else:
-            logging.info("action不是INSERT")
+            self.logger.debug("action不是INSERT")
 
 
 if __name__ == '__main__':

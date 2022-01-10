@@ -1,12 +1,7 @@
 import logging
 
 from util.AWS.DynamoDB import DynamoDB
-
-
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt = '%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class Project(object):

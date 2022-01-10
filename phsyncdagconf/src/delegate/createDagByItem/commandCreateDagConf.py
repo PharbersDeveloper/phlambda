@@ -5,11 +5,7 @@ from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 from util.AWS import define_value as dv
 from delegate.updateAction import UpdateAction
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandCreateDagConf(Command):
@@ -18,6 +14,7 @@ class CommandCreateDagConf(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("create_dag_conf", LOG_DEBUG_LEVEL)
 
     def check_outputs(self, dag_conf, dag_conf_list):
 
@@ -147,7 +144,7 @@ class CommandCreateDagConf(Command):
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
-        logging.info(action_item)
+        self.logger.debug(action_item)
 
         dag_conf = json.loads(action_item.get("message"))
 
@@ -199,8 +196,8 @@ class CommandCreateDagConf(Command):
 
     def run(self):
 
-        logging.info("运行创建dagConf命令")
-        logging.info(self.dag_item)
+        self.logger.debug("运行创建dagConf命令")
+        self.logger.debug(self.dag_item)
         dag_conf_list = self.__insert_dagconf(self.dag_item)
 
         return dag_conf_list

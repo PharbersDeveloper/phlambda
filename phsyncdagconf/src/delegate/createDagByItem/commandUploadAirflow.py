@@ -7,12 +7,7 @@ from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
 from handler.GenerateInvoker import GenerateInvoker
-
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandUploadAirflow(Command):
@@ -21,10 +16,12 @@ class CommandUploadAirflow(Command):
             setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/phjobs/"
+        self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/home/hbzhao/PycharmProjects/pythonProject/phlambda/phsyncdagconf/src/dags/"
+        self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
     def create_init(self, dag_conf, path=None):
         # lmd中默认创建到tmp下的phjobs /tmp/phjobs/
@@ -388,7 +385,7 @@ class CommandUploadAirflow(Command):
 
     def run(self):
 
-        logging.info("运行创建airflow文件命令")
-        logging.info(self.dag_item)
+        self.logger.debug("运行创建airflow文件命令")
+        self.logger.debug(self.dag_item)
         self.airflow(self.dag_item)
 

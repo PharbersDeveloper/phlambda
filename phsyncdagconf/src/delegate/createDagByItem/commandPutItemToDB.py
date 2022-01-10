@@ -3,11 +3,7 @@ import json
 from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-import logging
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s %(name)s %(levelname)s %(message)s",
-                    datefmt='%Y-%m-%d  %H:%M:%S %a'
-                    )
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandPutItemToDB(Command):
@@ -16,6 +12,7 @@ class CommandPutItemToDB(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("put_item_to_db", LOG_DEBUG_LEVEL)
 
     def put_item_to_dag(self, dag_item_list):
         for dag_item in dag_item_list:

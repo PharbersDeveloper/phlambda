@@ -85,11 +85,6 @@ class Excel:
     def buildBatchCoordinate(self, dim, index_range):
         return dim['left'] + str(index_range.start) + ":" + dim['right'] + str(index_range.stop - 1)
 
-    # 删除整行为None的数据
-    def remove_none_value(self, lines):
-        values = list(filter(lambda line: len(set(line.values())) != 1 or (len(set(line.values())) == 1 and set(line.values()).pop() is not None), lines))
-        return values
-
     def replace_cell_none(self, lines):
         def conversion(line):
             keys = list(line.keys())
@@ -118,10 +113,10 @@ class Excel:
             if row_process_count == self.step_indeies[batch_hit_time] - 1:
                 batch_hit_time = batch_hit_time + 1
                 # 重构用
-                # func(self.replace_cell_none(self.remove_none_value(values)), len(self.step_indeies), batch_hit_time)
+                func(self.replace_cell_none(values), len(self.step_indeies), batch_hit_time)
 
                 # 老方法
-                func(self.replace_cell_none(self.remove_none_value(values)), self.adapted_mapper, len(self.step_indeies), batch_hit_time)
+                # func(self.replace_cell_none(self.remove_none_value(values)), self.adapted_mapper, len(self.step_indeies), batch_hit_time)
                 values.clear()
                 if batch_hit_time == len(self.step_indeies):
                     break

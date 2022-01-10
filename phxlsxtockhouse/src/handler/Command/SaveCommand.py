@@ -25,6 +25,7 @@ class SaveDataSetCommand(Command):
             "label": data["label"],
             "cat": data["cat"],
             "path": data["path"],
+            "prop": data["prop"],
             "format": data["format"],
             "version": data["version"]
         }

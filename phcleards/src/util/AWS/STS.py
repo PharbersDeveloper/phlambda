@@ -2,7 +2,7 @@
 import boto3
 import botocore.exceptions
 from util.AWS.PhAWS import PhAWS
-from constants.Common import Common
+import constants.DefinValue as Common
 
 
 class STS(PhAWS):

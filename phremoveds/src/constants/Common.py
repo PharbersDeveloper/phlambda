@@ -1,20 +1,32 @@
+import os
+import constants.DefinValue as DV
+from util.ClieckHouse import ClickHouse
+from util.AWS.DynamoDB import DynamoDB
+from util.PhRedis import PhRedis
 
-class Common:
 
-    AWS_REGION = "cn-northwest-1"
+def __create_dynamodb():
+    return DynamoDB()
+    # import base64
+    # from util.AWS.STS import STS
+    # sts = STS().assume_role(
+    #     base64.b64decode(DV.ASSUME_ROLE_ARN).decode(),
+    #     "Ph-Back-RW"
+    # )
+    # return DynamoDB(sts=sts)
 
-    ASSUME_ROLE_ARN = "YXJuOmF3cy1jbjppYW06OjQ0NDYwMzgwMzkwNDpyb2xlL1BoLUJhY2stUlc="
 
-    CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
+def __create_clickhouse():
+    return ClickHouse(host=os.environ[DV.CLICKHOUSE_HOST], port=os.environ[DV.CLICKHOUSE_PORT])
 
-    CLICKHOUSE_PORT = "CLICKHOUSE_PORT"
 
-    CLICKHOUSE_DB = "CLICKHOUSE_DB"
+def __create_redis():
+    return PhRedis(host=os.environ[DV.REDIS_HOST], port=os.environ[DV.REDIS_PORT])
 
-    REDIS_HOST = "REDIS_HOST"
 
-    REDIS_PORT = "REDIS_PORT"
+EXTERNAL_SERVICES = {
+    "dynamodb": __create_dynamodb(),
+    "clickhouse": __create_clickhouse(),
+    "redis": __create_redis(),
+}
 
-    CHECK_APP_NAME = "CHECK_APP_NAME"
-
-    LOCK_APP_NAME = "LOCK_APP_NAME"

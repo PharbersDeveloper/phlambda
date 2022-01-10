@@ -173,7 +173,6 @@ class DynamoDB(object):
                 }
                 self.delete_item(data)
 
-
 if __name__ == '__main__':
     auth = STS()
     sts = auth.assume_role(Common.ASSUME_ROLE_ARN, Common.ASSUME_ROLE_ARN)

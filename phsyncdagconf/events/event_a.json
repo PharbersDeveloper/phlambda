@@ -10,24 +10,24 @@
         "ApproximateCreationDateTime": 1635485706,
         "Keys": {
           "id": {
-            "S": "alex_test_001"
+            "S": "hbzhao_test_actionId"
           },
           "projectId": {
-            "S": "alex_test"
+            "S": "hbzhao_test_projectId"
           }
         },
         "NewImage": {
           "projectId": {
-            "S": "alex_test"
+            "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": "{\"dagName\": \"alex_test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"alex_test_a\",\"jobId\": \"alex_test\",\"inputs\": [{\"name\": \"测试DS_001\", \"id\": \"02452512cee51d543d3c10cb7b41af2f.xlsx\"}, {\"name\": \"测试DS_002\", \"id\": \"8b7753ed7ac15fa017026473076d42ec.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_003\", \"id\": \"alex_test.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"alex_test\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"alex_test\",\"targetJobId\": \"\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
+            "S": "{\"dagName\": \"hbzhao_test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_a\",\"jobId\": \"\",\"inputs\": [{\"name\": \"测试DS_001\", \"id\": \"02452512cee51d543d3c10cb7b41af2f.xlsx\"}, {\"name\": \"测试DS_002\", \"id\": \"8b7753ed7ac15fa017026473076d42ec.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_003\", \"id\": \"769d8def35b1121c054ee478a192673d.xlsx\"}],\"jobVersion\": \"hbzhao_version1\",\"projectId\": \"hbzhao_test_projectId\",\"timeout\": \"1000\",\"runtime\": \"pysaprk\",\"owner\": \"hbzhao\",\"targetJobId\": \"\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"],\"operatorParameters\":[\"script\",\"\"],\"prop\":{\"path\": \"\",\"partitions\": 1}}"
           },
           "code": {
             "S": "0"
           },
           "id": {
-            "S": "alex_test_001"
+            "S": "hbzhao_test_actionId"
           },
           "date": {
             "S": "1637756524405"
@@ -40,6 +40,9 @@
           },
           "owner": {
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "dag_create"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

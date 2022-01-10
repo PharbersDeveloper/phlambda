@@ -1,15 +1,20 @@
 import json
-import logging
 
+from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
 from util.AWS import define_value as dv
 from delegate.updateAction import UpdateAction
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-class CreateDagConf:
+
+class CommandCreateDagConf(Command):
 
     def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("create_dag_conf", LOG_DEBUG_LEVEL)
 
     def check_outputs(self, dag_conf, dag_conf_list):
 
@@ -63,8 +68,31 @@ class CreateDagConf:
                 raise Exception("outputs选择错误")
         return check
 
-    def update_targetId(self, dag_conf, dag_conf_list):
 
+    def update_targetId(self, dag_conf):
+        # 判断input 如果是某个item的output
+        # 则将当前jobId 添加到input Item 的targetJobId
+        data = {}
+        data.update({"table_name": "dagconf"})
+        data.update({"partition_key": "projectId"})
+        data.update({"partition_value": dag_conf.get("projectId")})
+        data.update({"sort_key": "jobName"})
+        data.update({"sort_value": dag_conf.get("flowVersion")})
+        res = self.dynamodb.queryTableBeginWith(data)
+        if res.get("Items"):
+            for item in res.get("Items"):
+                for input in dag_conf.get("inputs"):
+                    # 如果当前 dag_conf的 input 是某个item的outputs 说明是item的 targetjob 更新item
+                    if json.dumps(input, ensure_ascii=False) in item.get("outputs"):
+                        # 更新 item 的 targetId
+                        targetJobId_list = eval(item.get("targetJobId"))
+                        targetJobId_list.append(dag_conf.get("jobId"))
+                        item["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
+                        # 更新 item
+                        UpdateAction().updateDagConf(item)
+
+
+    def update_targetId(self, dag_conf, dag_conf_list):
 
         if dag_conf.get("inputs"):
             # 判断input 如果是某个item的output
@@ -112,20 +140,18 @@ class CreateDagConf:
 
         return update_dag_conf_list
 
-    def insert_dagconf(self, action_item):
-
+    def __insert_dagconf(self, action_item):
         # 传递进item_list 包含所有此次event
         data = {}
         data.update({"table_name": "dagconf"})
-
+        self.logger.debug(action_item)
 
         dag_conf = json.loads(action_item.get("message"))
 
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行input output检查input index只能作为输入，output index 只能作为输出
-        self.check_max_index(dag_conf)
-        # self.update_targetId(dag_conf)
+        # self.check_max_index(dag_conf)
 
         targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
@@ -139,10 +165,10 @@ class CreateDagConf:
                         dag_conf.get("dagName") + "_" + \
                         dag_conf.get("jobName")
         job_display_full_name = dag_conf.get("projectName") + "_" + \
-                        dag_conf.get("dagName") + "_" + \
-                        dag_conf.get("flowVersion") + "_" + \
-                        dag_conf.get("jobName") + "_" + \
-                        dag_conf.get("jobId")
+                                dag_conf.get("dagName") + "_" + \
+                                dag_conf.get("flowVersion") + "_" + \
+                                dag_conf.get("jobName") + "_" + \
+                                dag_conf.get("jobId")
         dag_conf.update({"jobShowName": dag_conf.get("jobName")})
         dag_conf.update({"jobName": job_full_name})
         dag_conf.update({"jobDisplayName": job_display_full_name })
@@ -162,8 +188,16 @@ class CreateDagConf:
 
         return update_dag_conf_list
 
-    def refresh_dagconf(self, action_item):
-        dag_conf = json.loads(action_item.get("message"))
+    def refresh_dagconf(self):
+        dag_conf = json.loads(self.dag_item.get("message"))
         dag_conf_list = self.get_all_dag_conf(dag_conf)
+
+        return dag_conf_list
+
+    def run(self):
+
+        self.logger.debug("运行创建dagConf命令")
+        self.logger.debug(self.dag_item)
+        dag_conf_list = self.__insert_dagconf(self.dag_item)
 
         return dag_conf_list

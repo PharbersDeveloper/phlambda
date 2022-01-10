@@ -1,7 +1,0 @@
-    #  Select Start
-    kwargs["select_cols"] = "*" if len(#select_cols#) == 0 else #select_cols#
-    select_cols = kwargs["select_cols"]  # array ["col"]
-    data_frame = data_frame.select(select_cols)
-    #  Select End
-data_frame
-

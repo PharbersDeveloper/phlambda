@@ -2,20 +2,26 @@ import json
 import subprocess
 import os
 
+from delegate.createDagByItem.command import Command
 from util.AWS.ph_s3 import PhS3
 from util.AWS.DynamoDB import DynamoDB
 from util.AWS import define_value as dv
 from handler.GenerateInvoker import GenerateInvoker
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
-class Airflow:
+class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
     def create_init(self, dag_conf, path=None):
         # lmd中默认创建到tmp下的phjobs /tmp/phjobs/
@@ -277,7 +283,7 @@ class Airflow:
                             .replace("$alfred_schedule_interval", str("None")) \
                             .replace("$alfred_description", str("A Max Auto Job Example")) \
                             .replace("$alfred_dag_timeout", str("3000.0")) \
-                            .replace("$alfred_start_date", str(1))  \
+                            .replace("$alfred_start_date", str(1)) \
                             .replace("$alfred_projectId", dag_conf.get("projectId"))
                     )
 
@@ -324,7 +330,7 @@ class Airflow:
     def airflow_operator_exec(self, item, res):
 
         if item.get("jobCat") == "dag_refresh":
-            dag_name = res.get("Items")[0].get("projectName") +\
+            dag_name = res.get("Items")[0].get("projectName") + \
                        "_" + res.get("Items")[0].get("dagName") + \
                        "_" + res.get("Items")[0].get("flowVersion")
         else:
@@ -353,40 +359,33 @@ class Airflow:
                 flow_links.extend(link)
         self.update_operator_link(operator_file_path, flow_links)
 
-    def airflow(self, item_list):
-        for item in item_list:
-            # 获取所有的item 进行创建airflow
-            projectId = json.loads(item["message"]).get("projectId")
-            flowVersion = json.loads(item["message"]).get("flowVersion")
-            data = {}
-            data.update({"table_name": "dagconf"})
-            data.update({"partition_key": "projectId"})
-            data.update({"partition_value": projectId})
-            data.update({"sort_key": "jobName"})
-            data.update({"sort_value": flowVersion})
-            res = self.dynamodb.queryTableBeginWith(data)
-            # 创建airflow_operator
-            self.airflow_operator_exec(item, res)
+    def airflow(self, item):
+        # 获取所有的item 进行创建airflow
+        projectId = json.loads(item["message"]).get("projectId")
+        flowVersion = json.loads(item["message"]).get("flowVersion")
+        data = {}
+        data.update({"table_name": "dagconf"})
+        data.update({"partition_key": "projectId"})
+        data.update({"partition_value": projectId})
+        data.update({"sort_key": "jobName"})
+        data.update({"sort_value": flowVersion})
+        res = self.dynamodb.queryTableBeginWith(data)
+        # 创建airflow_operator
+        self.airflow_operator_exec(item, res)
 
-            # 创建上传job文件
-            for dag_item in res.get("Items"):
+        # 创建上传job文件
+        for dag_item in res.get("Items"):
+            # 创建args_properties
+            self.create_init(dag_item)
+            self.create_args_properties(dag_item)
+            self.create_phmain(dag_item)
+            self.create_phjobs(dag_item)
+            # 上传phjob文件
+            self.upload_phjob_files(dag_item)
 
-                # 创建args_properties
-                self.create_init(dag_item)
-                self.create_args_properties(dag_item)
-                self.create_phmain(dag_item)
-                self.create_phjobs(dag_item)
-                # 上传phjob文件
-                self.upload_phjob_files(dag_item)
+    def run(self):
 
+        self.logger.debug("运行创建airflow文件命令")
+        self.logger.debug(self.dag_item)
+        self.airflow(self.dag_item)
 
-# if __name__ == '__main__':
-#     args = ["operation_null", "",
-#             "filter", [{"key": ["opt", "val"]}],
-#             "select", ["col1"],
-#             "filter", [{"key2": ["opt2", "val2"]}]]
-#
-#     code = GenerateInvoker().execute(args)
-#     with open("/Users/qianpeng/tmp/phjobs/phjob.py", "w") as file:
-#         file.write("""def execute(**kwargs):\n""")
-#         file.write(code)

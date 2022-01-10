@@ -1,13 +1,18 @@
+import json
 
+from delegate.createDagByItem.command import Command
 from util.AWS.DynamoDB import DynamoDB
+from util.GenerateID import GenerateID
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-class PutItemToDy:
+
+class CommandPutItemToDB(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
-
+        self.logger = PhLogging().phLogger("put_item_to_db", LOG_DEBUG_LEVEL)
 
     def put_item_to_dag(self, dag_item_list):
         for dag_item in dag_item_list:
@@ -69,7 +74,7 @@ class PutItemToDy:
             output_ids.append(id)
         return output_ids
 
-    def put_dag_job(self):
+    def run(self):
 
         # 处理所有dag_conf的output
         dag_conf_output_ids = self.get_all_dag_conf_output()
@@ -81,3 +86,4 @@ class PutItemToDy:
         self.put_item_to_dag_conf(self.dag_conf_list)
         # 上传item 到dag
         self.put_item_to_dag(self.dag_item_list)
+

@@ -1,11 +1,14 @@
 import json
+import logging
+
 from util.AWS.DynamoDB import DynamoDB
-from util.GenerateID import GenerateID
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 class UpdateAction:
 
     def __init__(self, **kwargs):
         self.dynamodb = DynamoDB()
+        self.logger = PhLogging().phLogger("update_dynamodb_action", LOG_DEBUG_LEVEL)
 
     def updateItem(self, item, table_name, status=" "):
         item.update({"jobDesc": status})
@@ -32,7 +35,7 @@ class UpdateAction:
             "Key": Key,
             "AttributeUpdates": AttributeUpdates
         }
-        # self.dynamodb.updateData(data)
+        self.dynamodb.updateData(data)
 
     def updateNotification(self, item, table_name, dag_conf, status=" "):
         message = {
@@ -43,7 +46,13 @@ class UpdateAction:
                 "jobPath": str(dag_conf.get("job_path")),
                 "jobShowName": str(dag_conf.get("jobShowName")),
                 "status": status,
-                "error": ""
+                "error": json.dumps({
+                    "code": "123",
+                    "message": {
+                        "zh": status,
+                        "en": status
+                    }
+                }, ensure_ascii=False)
             }
         }
         item.update({"jobDesc": status})
@@ -52,7 +61,6 @@ class UpdateAction:
             "id": item.get("id", "default_id"),
             "projectId": item.get("projectId")
         }
-
         AttributeUpdates={}
         for key, value in item.items():
             update = {

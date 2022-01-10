@@ -1,17 +1,27 @@
 import json
 import operator
 
+from delegate.level.levelSuper import LevelSuper
+from delegate.level.levelStrategyFactory import LevelStrategyFactory
+from delegate.level.levelTreeNode import LevelTreeNode
 from util.AWS.DynamoDB import DynamoDB
-from delegate.levelTreeNode import LevelTreeNode
-from util.GenerateID import GenerateID
-from util.AWS import define_value as dv
 
-class DagLevel:
+
+class ScriptLevel(LevelSuper):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+
+    def create_level(self, dag_conf_list):
+        return self.exec(dag_conf_list)
+
+    def get_level_type(self):
+        return "SCRIPT_LEVEL"
+
+    def collect_context(self):
+        LevelStrategyFactory.register(self.get_level_type(), ScriptLevel)
 
     def update_child_node(self, dag_conf_list, node, root):
 
@@ -71,18 +81,18 @@ class DagLevel:
             self.get_child_node_name(child_obj, level, level_map)
 
         return level_map
-    def exec(self):
+    def exec(self, dag_conf_list):
 
         # 获取当前event的dag_conf_list
         # 判断所有root节点
-        root_node_list = [eval(root_dag_conf.get("outputs"))[0] for root_dag_conf in self.dag_conf_list if len(eval(root_dag_conf.get("targetJobId"))) == 0]
+        root_node_list = [eval(root_dag_conf.get("outputs"))[0] for root_dag_conf in dag_conf_list if len(eval(root_dag_conf.get("targetJobId"))) == 0]
         all_node_level_list = []
         for root_node in root_node_list:
 
             # 创建root_node
             root = LevelTreeNode(json.dumps(root_node, ensure_ascii=False))
 
-            self.update_child_node(self.dag_conf_list, root_node, root)
+            self.update_child_node(dag_conf_list, root_node, root)
             # root.dump()
             max_level = self.get_latest_child(root)
 
@@ -113,4 +123,3 @@ class DagLevel:
 
 
         return list(set(process_dag))
-

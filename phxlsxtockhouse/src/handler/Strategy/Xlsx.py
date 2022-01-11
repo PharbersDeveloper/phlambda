@@ -9,16 +9,15 @@ from handler.Command.DataSetReceiver import DataSetReceiver
 from handler.Command.SaveCommand import SaveDataSetCommand, SaveDagCommand
 from handler.Command.MsgReceiver import MsgReceiver
 from handler.Command.SendMsgCommand import SendMsgRunCommand
-
 from boto3.dynamodb.conditions import Attr
-import constants.Common as Common
 from util.execl import Excel
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 import os
 import re
 import json
-import logging
 import constants.DefinValue as DV
+import constants.Common as Common
 
 
 class Xlsx(Strategy):
@@ -28,9 +27,10 @@ class Xlsx(Strategy):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
         self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.msg_receiver = MsgReceiver()
+        self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
 
     def __xlsx_callback(self, data, batch_size, hit_count):
-        logging.debug("__xlsx_callback ===> \n")
+        self.logger.debug("Read_Call ===> \n")
 
         project_id = self.parameters["project_id"]
         version = self.parameters["version"]
@@ -61,13 +61,12 @@ class Xlsx(Strategy):
 
         hit_value = 100 / batch_size
         progress = round(float(hit_count * hit_value), 2)
-        logging.debug(f"progress ====> {progress} \n")
+        self.logger.debug(f"progress ====> {progress} \n")
 
         if progress == 100:
             data = remove_none_value(data)
 
-        logging.debug("sql ====> \n")
-        logging.debug(sql)
+        self.logger.debug(f"sql ====> \n {sql}")
         execl_data = list(map(add_col, data))
         self.clickhouse.insert_data(sql, execl_data)
 
@@ -77,7 +76,7 @@ class Xlsx(Strategy):
         SendMsgRunCommand(self.msg_receiver).execute(message)
 
     def __write2Clickhouse(self):
-        logging.debug("Alex =====> write2Clickhouse \n")
+        self.logger.debug("write2Clickhouse \n")
         project_id = self.parameters["project_id"]
         skip_first = self.parameters["skip_first"]
         skip_next = self.parameters["skip_next"]
@@ -96,14 +95,14 @@ class Xlsx(Strategy):
         create_table_sql = f"CREATE TABLE IF NOT EXISTS " \
                            f"{os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` " \
                            f"({fields}) ENGINE=MergeTree() PRIMARY KEY version"
-        logging.debug("create table ====> \n", create_table_sql)
+        self.logger.debug(f"create table ====> \n {create_table_sql}")
         self.clickhouse.exec_ddl_sql(create_table_sql)
 
         # Check Version
         count_sql = f"SELECT COUNT(1) FROM " \
                     f"{os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` " \
                     f"WHERE version = '{version}'"
-        logging.debug("count sql ====> \n", count_sql)
+        self.logger.debug(f"count sql ====> \n  {count_sql}")
         count = self.clickhouse.get_count(count_sql)
         if count > 0:
             raise VersionAlreadyExist("version already exist")
@@ -115,7 +114,7 @@ class Xlsx(Strategy):
         ).batchReader(self.__xlsx_callback)
 
     def do_exec(self, data):
-        logging.debug("Alex Excel Xlsx ====> \n")
+        self.logger.debug("Excel Xlsx ====> \n")
 
         try:
             # TODO 应该在抽象一层参数类,以Build构造出数据，第一版本先这样
@@ -180,7 +179,9 @@ class Xlsx(Strategy):
 
             self.__write2Clickhouse()  # 写数据
             SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
+            self.logger.debug("SaveDataSetCommand")
             SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag
+            self.logger.debug("SaveDagCommand")
 
         except FileNotFoundError as e:
             raise FileNotFound(e)

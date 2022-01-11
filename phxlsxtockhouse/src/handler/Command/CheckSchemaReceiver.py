@@ -1,15 +1,15 @@
 from handler.Command.Receiver import Receiver
 from constants.Errors import SchemaNotMatched, ColumnDuplicate
-import logging
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CheckSchemaReceiver(Receiver):
 
     def __init__(self):
-        pass
+        self.logger = PhLogging().phLogger("CheckSchema", LOG_DEBUG_LEVEL)
 
     def check(self, data):
-        logging.debug("Alex Check Schema ====> \n")
+        self.logger.debug(f"Alex Check Schema ====> \n {data}")
         cur_schema = list(map(lambda item: item["src"], data["cur_schema"]))
         ds_schema = list(map(lambda item: item["src"], data["ds_schema"]))
         if len(set(ds_schema) - set(cur_schema)) > 0:  # 检测 Schema 在多次上传时是否与以前一直

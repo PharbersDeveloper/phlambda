@@ -11,9 +11,11 @@ from handler.Command.LockReceiver import LockReceiver
 from handler.Command.LockCommand import LockCommand, UnLockCommand, WatchLockCommand
 from handler.Command.RollBackCommand import RollBackCommand
 from constants.Errors import Errors, ResourceBusy
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 def lambda_handler(event, context):
+    logger = PhLogging().phLogger("import data to ds", LOG_DEBUG_LEVEL)
     records = event["Records"]
     history = {}
     try:
@@ -53,7 +55,7 @@ def lambda_handler(event, context):
                     SendMsgSuccessCommand(MsgReceiver()).execute(result)
 
     except Errors as e:
-        print(e)
+        logger.debug(e)
         history["jobDesc"] = "failed"
         RollBackCommand().execute(history)
         SaveActionCommand(ActionReceiver()).execute(history)

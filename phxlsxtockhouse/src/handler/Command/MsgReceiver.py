@@ -1,6 +1,6 @@
 from handler.Command.Receiver import Receiver
 import constants.Common as Common
-import logging
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 import json
 import time
 
@@ -9,9 +9,10 @@ class MsgReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.logger = PhLogging().phLogger("Message", LOG_DEBUG_LEVEL)
 
     def __send_notification(self, status, message):
-        logging.debug("Alex Notification ====> \n")
+        self.logger.debug(f"Alex Notification ====> {status} \n {message}")
         self.dynamodb.putData({
             "table_name": "notification",
             "item": {

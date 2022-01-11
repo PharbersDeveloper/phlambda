@@ -40,6 +40,7 @@ def __ds_query_impact(data):
                 "projectId": dag_conf_result[0]["projectId"],
                 "targetId": dag_conf_result[0]["jobId"],
                 "jobName": dag_conf_result[0]["jobName"],
+                "jobShowName": dag_conf_result[0]["jobShowName"],
                 "type": dag_conf_result[0]["runtime"]
             }
         else:
@@ -56,6 +57,7 @@ def __ds_query_impact(data):
                 "projectId": dag_conf_result[0]["projectId"],
                 "targetId": dag_conf_result[0]["jobId"],
                 "jobName": dag_conf_result[0]["jobName"],
+                "jobShowName": dag_conf_result[0]["jobShowName"],
                 "type": dag_conf_result[0]["runtime"]
             }
         else:
@@ -75,7 +77,8 @@ def __ds_query_impact(data):
                                       list(filter(lambda item: item["cmessage"]["targetName"] == ds["name"], link))))
         impact_link.extend(impact_source_link + impact_target_link)
 
-    return list(filter(lambda item: len(list(item.keys())) > 0, impact_link))
+    impact_link = list(filter(lambda item: len(list(item.keys())) > 0, impact_link))
+    return [dict(t) for t in set([tuple(d.items()) for d in impact_link])]
 
 
 def __job_query_impact(data):

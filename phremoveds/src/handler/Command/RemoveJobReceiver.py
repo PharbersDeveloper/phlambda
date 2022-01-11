@@ -2,12 +2,15 @@ import json
 import constants.Common as Common
 from handler.Command.Receiver import Receiver
 from boto3.dynamodb.conditions import Key, Attr
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class RemoveJobReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.logger = PhLogging().phLogger("Remove Job", LOG_DEBUG_LEVEL)
+
 
     def __convert2obj(self, item):
         entity = dict({}, **item)
@@ -26,6 +29,7 @@ class RemoveJobReceiver(Receiver):
         pass
 
     def exec(self, data):
+        self.logger.debug(f"{data}")
         project_id = data["project_id"]
         target_id = data["target_id"]
         job_name = data["job_name"]

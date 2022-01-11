@@ -1,6 +1,6 @@
 from handler.Command.Receiver import Receiver
 import constants.Common as Common
-import logging
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 import time
 import json
 
@@ -9,9 +9,10 @@ class DataSetReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.logger = PhLogging().phLogger("DataSet", LOG_DEBUG_LEVEL)
 
     def save(self, data):
-        logging.debug("Alex Save DataSet ====> \n")
+        self.logger.debug(f"Alex Save DataSet ====> \n  {data}")
 
         self.dynamodb.putData({
             "table_name": "dataset",

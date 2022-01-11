@@ -257,12 +257,21 @@ module.exports = Serializer => {
 
         output[reservedKeys.primary] = records.map(record =>
           mapRecord.call(this, type, record))
+        /*源库作者代码*/
+        // if (
+        //     (!originalType || (originalType && !recordTypes[originalType][relatedField][keys.isArray])) &&
+        //     ((ids && ids.length === 1) || (method === methods.create && records.length === 1))
+        // ) {
+        //   output[reservedKeys.primary] = output[reservedKeys.primary][0]
+        // }
 
-        if ((!originalType || (originalType &&
-          !recordTypes[originalType][relatedField][keys.isArray])) &&
-          ((ids && ids.length === 1) ||
-          (method === methods.create && records.length === 1)))
+        /*Alex修改后，query ids为单个id时返回依然是数组*/
+        if (
+            (!originalType || (originalType && !recordTypes[originalType][relatedField][keys.isArray])) &&
+            (method === methods.create && records.length === 1)
+        ) {
           output[reservedKeys.primary] = output[reservedKeys.primary][0]
+        }
 
         if (method === methods.create)
           contextResponse.meta.headers['Location'] = prefix +

@@ -300,7 +300,7 @@ export default class Platform {
 
         // configuration web pages
         page: {
-            cliendId: String,
+            clientId: String,
             clientName: String,
             version: String,
             name: String,

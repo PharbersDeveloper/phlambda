@@ -11,9 +11,6 @@ class AppLambdaDelegate:
         event = self.event
         records = event["Records"]
         for record in records:
-            print('EventID: ' + record['eventID'])
-            print('EventName: ' + record['eventName'])
-            print(record)
             eventName = record["eventName"].lower()
             if eventName == "insert":
                 new_image = record["dynamodb"]["NewImage"]

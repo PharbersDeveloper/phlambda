@@ -1,15 +1,16 @@
 from handler.Command.Receiver import Receiver
 import constants.Common as Common
-import logging
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class DagReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.logger = PhLogging().phLogger("DAG", LOG_DEBUG_LEVEL)
 
     def save(self, data):
-        logging.debug("Alex Save Dag ====> \n")
+        self.logger.debug(f"Alex Save Dag ====> \n {data}")
 
         des_table_name = data["ds_name"]
         dsId = data["ds_id"]

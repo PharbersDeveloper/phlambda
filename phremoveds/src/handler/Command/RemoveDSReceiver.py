@@ -2,6 +2,7 @@ import json
 import constants.Common as Common
 from handler.Command.Receiver import Receiver
 from boto3.dynamodb.conditions import Attr
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class RemoveDSReceiver(Receiver):
@@ -9,6 +10,7 @@ class RemoveDSReceiver(Receiver):
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
         self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
+        self.logger = PhLogging().phLogger("Remove DS", LOG_DEBUG_LEVEL)
 
     def __convert2obj(self, item):
         entity = dict({}, **item)
@@ -16,6 +18,7 @@ class RemoveDSReceiver(Receiver):
         return entity
 
     def exec(self, data):
+        self.logger.debug(f"{data}")
         ds_id = data["message"]["dsid"]
         project_id = data["projectId"]
         dag_ds_result = self.dynamodb.scanTable({

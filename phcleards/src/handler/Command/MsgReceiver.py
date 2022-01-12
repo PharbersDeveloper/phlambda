@@ -1,14 +1,15 @@
 from handler.Command.Receiver import Receiver
 import constants.Common as Common
-import logging
 import json
 import time
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class MsgReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.logger = PhLogging().phLogger("Message", LOG_DEBUG_LEVEL)
 
     def __update_action(self, status, data):
         action_item = dict({}, **data["data"])
@@ -20,9 +21,9 @@ class MsgReceiver(Receiver):
         })
 
     def __send_notification(self, status, data):
+        self.logger.debug(f"Notification ====> {data}")
         action_item = data["data"]
         message = action_item["message"][0]
-        logging.debug("Alex Notification ====> \n")
         self.dynamodb.putData({
             "table_name": "notification",
             "item": {

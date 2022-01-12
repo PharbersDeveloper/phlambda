@@ -4,6 +4,7 @@ from handler.RemoveJob import RemoveJob
 from handler.Command.SendMsgCommand import SendMsgSuccessCommand, SendMsgFailCommand
 from handler.Command.MsgReceiver import MsgReceiver
 from constants.Errors import Errors
+from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 def finishingEventData(record):
@@ -27,12 +28,12 @@ __func_dict = {
 
 
 def run(eventName, jobCat, record):
+    logger = PhLogging().phLogger("Remover DS", LOG_DEBUG_LEVEL)
     item = finishingEventData(record)
     method = __func_dict.get(eventName + ":" + jobCat, default())
     if method is not None:
         try:
-            print("Alex ==> \n")
-            print(method)
+            logger.debug(f"Method ==>  {method} ")
             item["message"] = json.loads(item["message"])
             method().exec(item)
 
@@ -41,9 +42,8 @@ def run(eventName, jobCat, record):
                 "prefix": "remove_DS_"
             })
         except Errors as e:
-            print("error ====> \n")
-            print(e)
-            print(item)
+            logger.debug(f"Error ====>  {e}")
+            logger.debug(f"Item ===> {item}")
             SendMsgFailCommand(MsgReceiver()).execute({
                 "data": item,
                 "prefix": "remove_DS_",
@@ -53,4 +53,4 @@ def run(eventName, jobCat, record):
                 }
             })
     else:
-        print("未命中")
+        logger.debug("未命中")

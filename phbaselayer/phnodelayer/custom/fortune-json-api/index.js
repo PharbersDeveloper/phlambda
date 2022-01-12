@@ -265,10 +265,15 @@ module.exports = Serializer => {
         //   output[reservedKeys.primary] = output[reservedKeys.primary][0]
         // }
 
-        /*Alex修改后，query ids为单个id时返回依然是数组*/
+        /*
+          Alex修改后，query ids为单个id时返回依然是数组
+          request.params.hasOwnProperty("id")
+          查询参数包含id，就认定为是id查询，虽然不合理，目前暂时只能这么判断，
+          其余的查询都返回数组，但不包过relationship  relationship需要看关联关系
+        */
         if (
             (!originalType || (originalType && !recordTypes[originalType][relatedField][keys.isArray])) &&
-            (method === methods.create && records.length === 1)
+            ((request.params.hasOwnProperty("id")) || (method === methods.create && records.length === 1))
         ) {
           output[reservedKeys.primary] = output[reservedKeys.primary][0]
         }

@@ -326,7 +326,7 @@ function attachQueries (request) {
      return parametersMap.hasOwnProperty(pp) ? parametersMap[pp] : false
   })
 
-  if (parameters.includes(false)) {
+  if (request.method === "find" && parameters.includes(false)) {
     throw new BadRequestError("Query Parameter Error")
   }
 

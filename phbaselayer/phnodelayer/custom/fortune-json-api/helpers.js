@@ -38,6 +38,7 @@ function initializeContext (contextRequest, request, response) {
   const errors = this.errors
   const NotAcceptableError = errors.NotAcceptableError
   const NotFoundError = errors.NotFoundError
+  const BadRequestError = errors.BadRequestError
 
   // According to the spec, if the media type is provided in the Accept
   // header, it should be included at least once without any media type
@@ -307,6 +308,27 @@ function attachQueries (request) {
   let query = request.uriObject.query
   if (!query) query = {}
   request.options = {}
+
+  const parametersMap = {
+    "filter[": true,
+    "ids[": true,
+    "sort": true,
+    "page[": true,
+    "include": true
+  }
+
+  const parameters = Object.keys(query).map((parameter) => {
+    let pp = parameter
+    if (pp.indexOf("]") !== -1) {
+      const index = parameter.indexOf("[")
+      pp = parameter.substring(0, index + 1)
+    }
+     return parametersMap.hasOwnProperty(pp) ? parametersMap[pp] : false
+  })
+
+  if (request.method === "find" && parameters.includes(false)) {
+    throw new BadRequestError("Query Parameter Error")
+  }
 
   // Iterate over dynamic query strings.
   for (const parameter of Object.keys(query))

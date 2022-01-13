@@ -77,4 +77,7 @@ export default class PhStore implements IStore {
         return this.store
     }
 
+    isConnect(): boolean {
+        return !(this.store.connectionStatus === 0)
+    }
 }

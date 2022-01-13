@@ -18,12 +18,14 @@ export default class JSONAPIDelegate {
     public isFirstInit = true
 
     public async prepare(jsonApiDB: StoreEnum) {
-        this.store = (StoreRegister.getInstance.getData(jsonApiDB) as PhStore)
+        this.store = StoreRegister.getInstance.getData(jsonApiDB) as PhStore
         this.isFirstInit = false
         this.listener = this.fortuneHTTP(this.store.getStore(), {
             serializers: [[this.jsonApiSerializer]]
         })
-        // await this.store.open()
+        if (!this.store.isConnect()) {
+            await this.store.open()
+        }
     }
 
     public async exec(event: any) {

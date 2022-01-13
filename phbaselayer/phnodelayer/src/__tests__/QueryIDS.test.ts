@@ -1,5 +1,6 @@
 import { Logger, DBConfig, JSONAPI, StoreEnum, ServerRegisterConfig } from "../index"
 import * as fs from "fs"
+import {eventNames} from "cluster"
 
 const findIDSEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("events/event_ids.json", "utf8"))
@@ -12,6 +13,34 @@ const findIDSEvent = jest.fn(() => {
         "ids[]": [
             "JfSmQBYUpyb4jsei"
         ]
+    }
+    return event
+})
+
+const findIDEvent = jest.fn(() => {
+    const event = JSON.parse(fs.readFileSync("events/event_ids.json", "utf8"))
+    event.httpMethod = "GET"
+    // event.resource = "/phplatform/{type}/{id}"
+    event.resource = "/phplatform/{type}/{id}/{relationship}"
+    // event.resource = "/phplatform/{type}/{id}/{relationship}"
+    // event.resource = "/phplatform/{type}/{id}/relationships/{relationship}"
+    // event.path = "/phplatform/accounts/5UBSLZvV0w9zh7-lZQap"
+    event.path = "/phplatform/roles/bF8M0Ti9O3qIwadh/accountRole"
+    // event.path = "/phplatform/accounts/5UBSLZvV0w9zh7-lZQap/employer"
+    // event.path = "/phplatform/partners/zudIcG_17yj8CEUoCTHg/relationships/employee"
+    event.pathParameters = {
+        // type: "partners",
+        // type: "accounts",
+        type: "roles",
+        // id: "zudIcG_17yj8CEUoCTHg",
+        // id: "5UBSLZvV0w9zh7-lZQap",
+        id: "bF8M0Ti9O3qIwadh",
+        relationship: "accountRole"
+    }
+    event.queryStringParameters = {
+
+    }
+    event.multiValueQueryStringParameters = {
     }
     return event
 })
@@ -74,7 +103,6 @@ const updateEvent = jest.fn(() => {
     return event
 })
 
-
 const deleteEvent = jest.fn(() => {
     const event = JSON.parse(fs.readFileSync("events/event_ids.json", "utf8"))
     event.httpMethod = "DELETE"
@@ -128,7 +156,7 @@ describe("IDS Test", () => {
         expect(result.statusCode).toBe(204)
     })
 
-    test("Find", async () => {
+    test("Find IDS", async () => {
         const configs = new registerConfigs()
         ServerRegisterConfig(configs)
         const result = await JSONAPI(StoreEnum.POSTGRES, new findIDSEvent())
@@ -136,4 +164,15 @@ describe("IDS Test", () => {
         Logger.info(data)
         expect(data.data instanceof Array).toBe(true)
     })
+
+    // test("Find ID", async () => {
+    //     for (const item of [1, 2, 3]) {
+    //         const configs = new registerConfigs()
+    //         ServerRegisterConfig(configs)
+    //         const result = await JSONAPI(StoreEnum.POSTGRES, new findIDEvent())
+    //         const data = JSON.parse(String(result.outputData[1].data))
+    //         Logger.info(data)
+    //         expect(data.data instanceof Object).toBe(true)
+    //     }
+    // })
 })

@@ -1,17 +1,17 @@
 
 from phResource.command import Command
-from util.AWS.ELB import ELB
+from util.AWS.CFN import CFN
 
 
-class CommandCreateRule(Command):
+class CommandCreateProject(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
 
-        self.elb = ELB()
+        self.cfn = CFN()
 
     def execute(self):
         # 192.168.16.119
 
-        self.elb.create_rule(self.target_name, self.target_group_arn)
+        self.cfn.create_project(self.target_name)

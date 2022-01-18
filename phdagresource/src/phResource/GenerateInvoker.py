@@ -3,6 +3,8 @@ import re
 from phResource.commandCreateTargetGroup import CommandCreateTargetGroup
 from phResource.commandRegisterTarget import CommandRegisterTarget
 from phResource.commandCreateRule import CommandCreateRule
+from phResource.commandCreateProject import CommandCreateProject
+from phResource.commandCreateEfs import CommandCreateEfs
 
 
 class GenerateInvoker:
@@ -29,7 +31,11 @@ class GenerateInvoker:
         # 向load balancer 添加rules
         CommandCreateRule(target_name=target_name, target_group_arn=target_group_arn).execute()
 
+        # 在efs里创建相关文件夹
+        CommandCreateEfs(target_name=target_name).execute()
+
         # 创建ec2实例
+        CommandCreateProject(target_name=target_name).execute()
 
         # 更新ssm
 

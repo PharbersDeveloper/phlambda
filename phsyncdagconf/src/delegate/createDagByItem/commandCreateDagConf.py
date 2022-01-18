@@ -167,8 +167,7 @@ class CommandCreateDagConf(Command):
         job_display_full_name = dag_conf.get("projectName") + "_" + \
                                 dag_conf.get("dagName") + "_" + \
                                 dag_conf.get("flowVersion") + "_" + \
-                                dag_conf.get("jobName") + "_" + \
-                                dag_conf.get("jobId")
+                                dag_conf.get("jobName")
         dag_conf.update({"jobShowName": dag_conf.get("jobName")})
         dag_conf.update({"jobName": job_full_name})
         dag_conf.update({"jobDisplayName": job_display_full_name })

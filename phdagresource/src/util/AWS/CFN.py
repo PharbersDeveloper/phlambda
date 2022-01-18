@@ -1,29 +1,21 @@
 import boto3
 from util.AWS.PhAWS import PhAWS
 
-class ELB(PhAWS):
+class CFN(PhAWS):
 
     def __init__(self, **kwargs):
 
         self.cfn_client = boto3.client("cloudformation")
 
-    def create_ec2(self):
+    def create_project(self):
 
-        cfn_client.create_stack(
+        self.cfn_client.create_stack(
             StackName= self.target_name + "project",
-            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cloudformation/glue/crawler/phcrawler.yaml',
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn.yaml',
             Parameters=[
                 {
-                    'ParameterKey': 'DatabaseName',
-                    'ParameterValue': database,
+                    'ParameterKey': 'ProjectName',
+                    'ParameterValue': self.target_name,
                 },
-                {
-                    'ParameterKey': 'CrawlerName',
-                    'ParameterValue': crawlerName,
-                },
-                {
-                    'ParameterKey': 'S3TargetPath',
-                    'ParameterValue': S3TargetPath,
-                }
             ]
         )

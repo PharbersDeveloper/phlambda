@@ -1,17 +1,21 @@
+import subprocess
 
 from phResource.command import Command
-from util.AWS.ELB import ELB
 
 
-class CommandCreateRule(Command):
+class CommandPutParameter(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
 
-        self.elb = ELB()
+    def put_parameter(self):
+
+        pass
 
     def execute(self):
         # 192.168.16.119
 
-        self.elb.create_rule(self.target_name, self.target_group_arn)
+        self.create_dir()
+
+        pass

@@ -210,3 +210,28 @@ class PhS3(PhAWS):
             'Key': source_file_path
         }
         self.s3_resource.meta.client.copy(copy_source, target_bucket, target_file_path)
+
+    def file_exist(self, source_bucket, source_file_path):
+        """
+            验证文件是否存在
+            :param source_bucket: 资源桶名
+            :param source_file_path: 资源路径
+        :return:
+        """
+        print("=============================================")
+        dir_path = "/".join(source_file_path.split("/")[0:-1])
+        print(dir_path)
+
+        response = self.s3_client.list_objects(
+            Bucket=source_bucket,
+            Prefix=dir_path,
+        )
+        flag = False
+        if response.get("Contents"):
+            for f in response.get("Contents"):
+                if f.get("Key") == source_file_path:
+                    print(f.get("Key"))
+                    flag = True
+
+        print("=============================================")
+        return flag

@@ -1,6 +1,7 @@
 
 from phResource.command import Command
 from util.AWS.ELB import ELB
+from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
 class CommandRegisterTarget(Command):
@@ -20,6 +21,8 @@ class CommandRegisterTarget(Command):
             "Port": 8080
         }
         targets.append(target)
+        logger = PhLogging().phLogger("register_target", LOG_DEBUG_LEVEL)
+        logger.debug("register_target 流程")
 
         self.elb.register_targets(self.target_group_arn, targets)
-        pass
+        logger.debug("register_target 完成")

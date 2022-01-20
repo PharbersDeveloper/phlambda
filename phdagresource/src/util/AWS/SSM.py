@@ -31,3 +31,9 @@ class SSM(PhAWS):
         value = json.loads(response["Parameter"]["Value"])
 
         return value
+
+    def delete_parameter(self, parameter_name):
+
+        response = self.ssm_client.delete_parameter(
+            Name=parameter_name
+        )

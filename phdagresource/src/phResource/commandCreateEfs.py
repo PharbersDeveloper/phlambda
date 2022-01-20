@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 from phResource.command import Command
 
@@ -13,16 +14,17 @@ class CommandCreateEfs(Command):
     def create_dir(self):
 
         project_path = self.efs_path + self.target_name + "/"
-        dir_list = ["airflow", "chdumps", "tmp", "workspace"]
-        for dir in dir_list:
-            subprocess.call(["mkdir", "-p", project_path + dir])
-        # 复制airflow 文件
-        # 复制chdumps 文件
+        if not os.path.exists(project_path):
+            dir_list = ["airflow", "chdumps", "tmp", "workspace"]
+            for dir in dir_list:
+                subprocess.call(["mkdir", "-p", project_path + dir])
+            # 复制airflow 文件
+            # 复制/mnt/tmp/airflow 文件夹到 project_path + airflow
+            subprocess.call(["cp", "-r", self.efs_path + "airflow/", project_path])
 
-        # dump_path = project_path + "chdumps"
-        # workspace_path = project_path + "workspace"
-        # tmp_path = project_path + "tmp"
-        # airflow = project_path + "airflow"
+            # 复制 chdumps 文件
+            # 复制 /mnt/tmp/chdumps 文件夹到 project_path + chdumps
+            subprocess.call(["cp", "-r", self.efs_path + "airflow/", project_path])
 
 
     def execute(self):

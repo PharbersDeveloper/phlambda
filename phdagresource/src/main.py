@@ -1,15 +1,15 @@
 import json
-import datetime
+from execute import Execute
+
 
 def lambda_handler(event, context):
-
+    # 11261502
     print(event)
-    # 创建target group
-
-    # register targets
-
-    # 向load balancer 添加rules
-
-    # 创建ec2实例
-
-    # 更新ssm
+    app = Execute(event=event, context=context)
+    try:
+        app.exec()
+    except Exception as e:
+        print("error: " + json.dumps(str(e), ensure_ascii=False))
+    else:
+        status = "success"
+        print(status)

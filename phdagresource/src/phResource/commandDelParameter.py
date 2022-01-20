@@ -4,7 +4,7 @@ import json
 from phResource.command import Command
 from util.AWS.SSM import SSM
 
-class CommandPutParameter(Command):
+class CommandDelParameter(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -16,28 +16,23 @@ class CommandPutParameter(Command):
         # 先获取相关parameter
         param_list = ["project_diver_args", "project_args", "userIp"]
 
-        # 先获取userIp 进行增加
+        # 先获取userIp 然后从中去除当前 projectName的资源
         userIp_value = self.ssm.get_ssm_parameter("usersIp")
-        userIp_value.update({self.target_name: self.target_ip})
+        userIp_value.pop(self.target_name)
         self.ssm.put_ssm_parameter("userIp", json.dumps(userIp_value))
 
         # 获取 project_args
         project_args_value = self.ssm.get_ssm_parameter("projects_args")
-        project_args_value.update({self.target_name: "http://" + self.target_ip + ":8080/ch?"})
+        project_args_value.pop(self.target_name)
         self.ssm.put_ssm_parameter("projects_args", json.dumps(project_args_value))
 
         # 更新 project_diver_args
         project_diver_args = self.ssm.get_ssm_parameter("project_dirver_args")
-        project_diver_args.update({self.target_name: "http://" + self.target_ip + ":8123"})
+        project_diver_args.pop(self.target_name)
         self.ssm.put_ssm_parameter("project_diver_args", json.dumps(project_diver_args))
 
-        # 更新 project_args
-        project_args = {
-            "ip": self.target_ip,
-            "target_group_arn": self.target_group_arn,
-            "rule_arn": self.rule_arn
-        }
-        self.ssm.put_ssm_parameter(self.target_name + "project", json.dumps(project_args))
+        # 删除 project_args
+        self.ssm.delete_parameter(self.target_name + "project")
 
 
     def execute(self):

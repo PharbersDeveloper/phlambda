@@ -1,5 +1,6 @@
 import re
 import random
+import json
 
 from util.AWS.SSM import SSM
 
@@ -10,18 +11,21 @@ from phResource.commandCreateProject import CommandCreateProject
 from phResource.commandCreateEfs import CommandCreateEfs
 from phResource.commandPutParameter import CommandPutParameter
 from phResource.commandCreateRecords import CommandCreateRecords
+from phResource.commandDelParameter import CommandDelParameter
+from phResource.commandDelProject import CommandDelProject
+from phResource.commandDelRule import CommandDelRule
+from phResource.commandDelTargetGroup import CommandDelTargetGroup
+from phResource.commandDelRecords import CommandDelRecords
 
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
-class GenerateInvoker:
+class GenerateInvoker(object):
 
-    commands = {
-        "CommandCreateTargetGroup": CommandCreateTargetGroup()
-    }
-    def __init__(self):
+    def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
         self.ssm = SSM()
-
 
     def name_convert_to_camel(self, name):
 
@@ -39,37 +43,106 @@ class GenerateInvoker:
         return ip_address
 
 
-    def execute(self):
+    def create_execute(self):
         logger = PhLogging().phLogger("creat_project", LOG_DEBUG_LEVEL)
         logger.debug("project创建流程")
 
-        project_name = "Auto_Raw_Data"
+        project_name = self.project_name
         target_name = self.name_convert_to_camel(project_name)
         # 分配Ip 并从SSM判断ip是否重复
         target_ip = self.create_ip_address()
         logger.debug(target_name)
+        logger.debug(target_ip)
+
+        try:
+            # 创建records
+            CommandCreateRecords(target_name=target_name).execute()
+        except Exception as e:
+            status = "创建records时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+        
+        try:
+            # 创建target group
+            target_group_arn = CommandCreateTargetGroup(target_name=target_name).execute()
+        except Exception as e:
+            status = "创建 target group 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # register targets
+            CommandRegisterTarget(target_ip=target_ip, target_group_arn=target_group_arn).execute()
+        except Exception as e:
+            status = "register targets 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 向load balancer 添加rules
+            rule_arn = CommandCreateRule(target_name=target_name, target_group_arn=target_group_arn).execute()
+        except Exception as e:
+            status = "向load balancer 添加rules 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        # try:
+        #     # 在efs里创建相关文件夹
+        #     CommandCreateEfs(target_name=target_name).execute()
+        # except Exception as e:
+        #     status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
+        #
+        # try:
+        #     # 创建ec2实例
+        #     CommandCreateProject(target_name=target_name).execute()
+        # except Exception as e:
+        #     status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
+        #
+        # try:
+        #     # 更新ssm
+        #     CommandPutParameter(
+        #         target_name=target_name,
+        #         target_ip=target_ip,
+        #         target_group_arn=target_group_arn,
+        #         rule_arn=rule_arn
+        #     ).execute()
+        # except Exception as e:
+        #     status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
 
 
-        # 创建records
-        CommandCreateRecords(target_name=target_name).execute()
 
-        # 创建target group
-        target_group_arn = CommandCreateTargetGroup(target_name=target_name).execute()
+    def delete_execute(self):
+        logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)
+        logger.debug("project删除流程")
 
-        # register targets
-        CommandRegisterTarget(target_ip=target_ip, target_group_arn=target_group_arn).execute()
+        project_name = self.project_name
+        target_name = self.name_convert_to_camel(project_name)
 
-        # 向load balancer 添加rules
-        CommandCreateRule(target_name=target_name, target_group_arn=target_group_arn).execute()
+        # 删除ec2 实例
+        CommandDelProject(target_name=target_name).execute()
 
-        # 在efs里创建相关文件夹
-        CommandCreateEfs(target_name=target_name).execute()
+        # 删除efs 相关文件
 
-        # 创建ec2实例
-        CommandCreateProject(target_name=target_name).execute()
+        # 删除 load balancer 里的 rule
+        CommandDelRule(target_name=target_name).execute()
 
-        # 更新ssm
-        CommandPutParameter(target_name=target_name, target_ip=target_ip).execute()
+        # 删除 target
+        CommandDelTargetGroup(target_name=target_name).execute()
+
+        # 删除 records
+        CommandDelRecords(target_name=target_name).execute()
+
+        # 删除ssm 中当前project资源
+        CommandDelParameter(target_name=target_name).execute()
+
+    def execute(self):
+        logger = PhLogging().phLogger("选择对project的操作", LOG_DEBUG_LEVEL)
+        logger.debug(self.project_type)
+        logger.debug(self.project_name)
+        if self.project_type == "project_create":
+            self.create_execute()
+        elif self.project_type == "project_delete":
+            self.delete_execute()
+
 
 
 if __name__ == '__main__':

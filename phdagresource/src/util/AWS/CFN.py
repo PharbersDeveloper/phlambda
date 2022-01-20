@@ -7,15 +7,21 @@ class CFN(PhAWS):
 
         self.cfn_client = boto3.client("cloudformation")
 
-    def create_project(self):
+    def create_project(self, target_name):
 
         self.cfn_client.create_stack(
-            StackName= self.target_name + "project",
+            StackName=target_name + "project",
             TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn.yaml',
             Parameters=[
                 {
                     'ParameterKey': 'ProjectName',
-                    'ParameterValue': self.target_name,
+                    'ParameterValue': target_name,
                 },
             ]
+        )
+
+    def delete_project(self, stack_name):
+
+        self.cfn_client.delete_stack(
+            StackName=stack_name + "project"
         )

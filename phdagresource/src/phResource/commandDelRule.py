@@ -4,7 +4,7 @@ from util.AWS.ELB import ELB
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
-class CommandCreateRule(Command):
+class CommandDelRule(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -14,8 +14,8 @@ class CommandCreateRule(Command):
 
     def execute(self):
         # 192.168.16.119
-        logger = PhLogging().phLogger("creat_elb_rule", LOG_DEBUG_LEVEL)
-        logger.debug("elb_rule 创建流程")
+        logger = PhLogging().phLogger("delete_elb_rule", LOG_DEBUG_LEVEL)
+        logger.debug("elb_rule 删除流程")
 
-        self.elb.create_rule(self.target_name, self.target_group_arn)
-        logger.debug("elb_rule 创建完成")
+        self.elb.delete_rule(self.rule_arn)
+        logger.debug("elb_rule 删除完成")

@@ -82,3 +82,16 @@ class ELB(PhAWS):
             ]
         )
 
+        return response["Rules"][0]["RuleArn"]
+
+    def delete_rule(self, rule_arn):
+
+        response = self.elb_client.delete_rule(
+            RuleArn=rule_arn
+        )
+
+    def delete_target_group(self, target_group_arn):
+
+        response = self.elb_client.delete_target_group(
+            TargetGroupArn=target_group_arn
+        )

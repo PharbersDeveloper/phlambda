@@ -1,10 +1,10 @@
 
 from phResource.command import Command
 from util.AWS.ELB import ELB
-
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-class CommandCreateTargetGroup(Command):
+
+class CommandDelTargetGroup(Command):
 
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -15,11 +15,10 @@ class CommandCreateTargetGroup(Command):
     def execute(self):
         # 创建 target group
         # 192.168.16.119
-        logger = PhLogging().phLogger("creat_target_group", LOG_DEBUG_LEVEL)
-        logger.debug("target_group 创建流程")
+        logger = PhLogging().phLogger("del_target_group", LOG_DEBUG_LEVEL)
+        logger.debug("target_group 删除流程")
+        target_group_arn = ""
+        self.elb.delete_target_group(target_group_arn=target_group_arn)
 
-        target_port = 8080
-        target_group_arn = self.elb.create_target_group(self.target_name, target_port)
-
-        logger.debug("target_group 创建完成")
+        logger.debug("target_group 删除完成")
         return target_group_arn

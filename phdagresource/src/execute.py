@@ -55,7 +55,7 @@ class Execute:
 
 
 if __name__ == '__main__':
-    with open("../events/event_create_project.json") as f:
+    with open("../events/event_delete_project.json") as f:
         event = json.load(f)
     app = Execute(event=event)
     app.exec()

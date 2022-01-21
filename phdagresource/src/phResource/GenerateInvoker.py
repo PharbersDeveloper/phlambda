@@ -82,31 +82,31 @@ class GenerateInvoker(object):
             status = "向load balancer 添加rules 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        # try:
-        #     # 在efs里创建相关文件夹
-        #     CommandCreateEfs(target_name=target_name).execute()
-        # except Exception as e:
-        #     status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     logger.debug(status)
-        #
-        # try:
-        #     # 创建ec2实例
-        #     CommandCreateProject(target_name=target_name).execute()
-        # except Exception as e:
-        #     status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     logger.debug(status)
-        #
-        # try:
-        #     # 更新ssm
-        #     CommandPutParameter(
-        #         target_name=target_name,
-        #         target_ip=target_ip,
-        #         target_group_arn=target_group_arn,
-        #         rule_arn=rule_arn
-        #     ).execute()
-        # except Exception as e:
-        #     status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     logger.debug(status)
+        try:
+            # 在efs里创建相关文件夹
+            CommandCreateEfs(target_name=target_name).execute()
+        except Exception as e:
+            status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 创建ec2实例
+            CommandCreateProject(target_name=target_name, target_ip=target_ip).execute()
+        except Exception as e:
+            status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 更新ssm
+            CommandPutParameter(
+                target_name=target_name,
+                target_ip=target_ip,
+                target_group_arn=target_group_arn,
+                rule_arn=rule_arn
+            ).execute()
+        except Exception as e:
+            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
 
 

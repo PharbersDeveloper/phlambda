@@ -31,9 +31,6 @@ class CommandDelParameter(Command):
         project_diver_args.pop(self.target_name)
         self.ssm.put_ssm_parameter("project_diver_args", json.dumps(project_diver_args))
 
-        # 删除 project_args
-        self.ssm.delete_parameter(self.target_name + "project")
-
 
     def execute(self):
         # 192.168.16.119

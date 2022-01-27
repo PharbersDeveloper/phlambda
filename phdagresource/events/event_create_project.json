@@ -21,7 +21,7 @@
             "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\"}"
+            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\",\"projectID\": \"hbzhao_test_projectId\"}"
           },
           "code": {
             "S": "0"

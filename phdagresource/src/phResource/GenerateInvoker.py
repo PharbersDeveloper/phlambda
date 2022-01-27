@@ -16,6 +16,8 @@ from phResource.commandDelProject import CommandDelProject
 from phResource.commandDelRule import CommandDelRule
 from phResource.commandDelTargetGroup import CommandDelTargetGroup
 from phResource.commandDelRecords import CommandDelRecords
+from phResource.commandPutResouceArgs import CommandPutResourceArgs
+from phResource.commandDelResouceArgs import CommandDelResourceArgs
 
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
@@ -48,6 +50,8 @@ class GenerateInvoker(object):
         logger.debug("project创建流程")
 
         project_name = self.project_name
+        project_id = self.project_id
+        
         target_name = self.name_convert_to_camel(project_name)
         # 分配Ip 并从SSM判断ip是否重复
         target_ip = self.create_ip_address()
@@ -100,13 +104,25 @@ class GenerateInvoker(object):
             # 更新ssm
             CommandPutParameter(
                 target_name=target_name,
+                target_ip=target_ip
+            ).execute()
+        except Exception as e:
+            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 在dynamodb更新 resource 相关的参数
+            CommandPutResourceArgs(
+                target_name=target_name,
+                project_id=project_id,
                 target_ip=target_ip,
                 target_group_arn=target_group_arn,
                 rule_arn=rule_arn
             ).execute()
         except Exception as e:
-            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
+
 
 
 
@@ -115,29 +131,67 @@ class GenerateInvoker(object):
         logger.debug("project删除流程")
 
         project_name = self.project_name
+        project_id = self.project_id
         target_name = self.name_convert_to_camel(project_name)
+        # 分配Ip 并从SSM判断ip是否重复
+        target_ip = self.create_ip_address()
+        logger.debug(target_name)
+        logger.debug(target_ip)
 
-        # 删除ec2 实例
-        CommandDelProject(target_name=target_name).execute()
+        # 从dynamodb的resource获取rule_arn target_group_arn
+
+        try:
+            # 删除ec2 实例
+            CommandDelProject(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
         # 删除efs 相关文件
+        try:
+            # 删除 load balancer 里的 rule
+            CommandDelRule(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除 load balancer 里的 rule 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
-        # 删除 load balancer 里的 rule
-        CommandDelRule(target_name=target_name).execute()
 
-        # 删除 target
-        CommandDelTargetGroup(target_name=target_name).execute()
+        try:
+            # 删除 target
+            CommandDelTargetGroup(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除 target时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
-        # 删除 records
-        CommandDelRecords(target_name=target_name).execute()
+        try:
+            # 删除 records
+            CommandDelRecords(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除 records 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
-        # 删除ssm 中当前project资源
-        CommandDelParameter(target_name=target_name).execute()
+        try:
+            # 删除ssm 中当前project资源
+            CommandDelParameter(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除ssm 中当前project资源 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 删除resource args
+            CommandDelResourceArgs(target_name=target_name, project_id=project_id).execute()
+        except Exception as e:
+            status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+
+
 
     def execute(self):
         logger = PhLogging().phLogger("选择对project的操作", LOG_DEBUG_LEVEL)
         logger.debug(self.project_type)
         logger.debug(self.project_name)
+        logger.debug(self.project_id)
         if self.project_type == "project_create":
             self.create_execute()
         elif self.project_type == "project_delete":

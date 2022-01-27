@@ -17,7 +17,8 @@ class CommandDelTargetGroup(Command):
         # 192.168.16.119
         logger = PhLogging().phLogger("del_target_group", LOG_DEBUG_LEVEL)
         logger.debug("target_group 删除流程")
-        target_group_arn = ""
+        project_args = self.ssm.get_ssm_parameter(self.target_name + "-project")
+        target_group_arn = project_args.get("target_group_arn")
         self.elb.delete_target_group(target_group_arn=target_group_arn)
 
         logger.debug("target_group 删除完成")

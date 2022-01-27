@@ -31,14 +31,6 @@ class CommandPutParameter(Command):
         project_diver_args.update({self.target_name: "http://" + self.target_ip + ":8123"})
         self.ssm.put_ssm_parameter("project_diver_args", json.dumps(project_diver_args))
 
-        # 更新 project_args
-        project_args = {
-            "ip": self.target_ip,
-            "target_group_arn": self.target_group_arn,
-            "rule_arn": self.rule_arn
-        }
-        self.ssm.put_ssm_parameter(self.target_name + "project", json.dumps(project_args))
-
 
     def execute(self):
         # 192.168.16.119

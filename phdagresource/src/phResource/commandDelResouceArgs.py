@@ -6,6 +6,7 @@ from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 class CommandDelResourceArgs(Command):
 
+
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
@@ -26,3 +27,4 @@ class CommandDelResourceArgs(Command):
         data.update({"key": key})
         self.dynamodb.delete_item(data)
         logger.debug("resource_args 删除完成")
+

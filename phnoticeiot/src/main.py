@@ -18,17 +18,11 @@ def finishingEventData(record):
 def lambda_handler(event, context):
     records = event["Records"]
     for record in records:
-        data = finishingEventData(record)
+        data = finishingEventData(record["dynamodb"]["NewImage"])
         topic = "pharbers"
         message = json.dumps(data, ensure_ascii=False)
-        iot_data_client.publish(topic=topic, qos=2, payload=message)
-
-    # topic = event["topic"]
-    # message = event["message"]
-    #
-    # response = iot_data_client.publish(topic=topic, qos=2, payload=message)
-    #
-    # return {
-    #     "message": "IOT send {message} to topic={topic}".format(message=message, topic=topic),
-    #     "response": response
-    # }
+        print(message)
+        iot_data_client.publish(topic=topic,
+                                qos=1,
+                                retain=False,
+                                payload=message)

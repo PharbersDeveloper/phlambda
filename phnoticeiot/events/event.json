@@ -24,7 +24,7 @@
             "S": "000011"
           },
           "code": {
-            "N": "0"
+            "S": "0"
           },
           "comments": {
             "S": "project file to Data set"
@@ -39,7 +39,7 @@
             "S": "{\"skipValue\":4,\"jumpValue\":0,\"fileType\":\"xlsx\",\"fileSheet\":\"Sheet1\",\"fileId\":\"测试skipline.xlsx\",\"fileName\":\"MAPPING_to QLX\",\"isAppend\":false,\"destination\":\"A\",\"opname\":\"c89b8123-a120-498f-963c-5be102ee9082\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}"
           },
           "date": {
-            "N": "1636010256565"
+            "S": "1636010256565"
           },
           "owner": {
             "S": "c89b8123-a120-498f-963c-5be102ee9082"

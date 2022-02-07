@@ -12,8 +12,8 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PH_NOTICE_IOT:7
       FunctionName: lmd-phnoticeiot-V2
-      Description: "根据触发事件转发消息到 IOT"
-      MemorySize: 128
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Description: "DynamoDB notification table 触发事件 转发消息到 MQTT"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
 

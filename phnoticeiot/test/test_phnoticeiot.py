@@ -1,13 +1,14 @@
 import pytest
 import json
+import src.main as main
 
 
 class TestLmd:
     def test_lmd(self):
-        # event = {
-        #     'body': "{\"executionArn\": \"arn:aws-cn:states:cn-northwest-1:444603803904:execution:ETL_Iterator:executor_1422814573177741312\"}"
-        # }
-        # response = main.lambda_handler(event, context=None)
-        # assert response
-        a = "pharbers"
-        assert 'e' in a
+        with open("../events/event.json", "r", encoding="utf8") as f:
+            event = json.load(f)
+            main.lambda_handler(event, None)
+
+
+if __name__ == '__main__':
+    pytest.main()

@@ -9,6 +9,7 @@ from phResource.commandRegisterTarget import CommandRegisterTarget
 from phResource.commandCreateRule import CommandCreateRule
 from phResource.commandCreateProject import CommandCreateProject
 from phResource.commandCreateEfs import CommandCreateEfs
+from phResource.commandDeleteEfs import CommandDelEfs
 from phResource.commandPutParameter import CommandPutParameter
 from phResource.commandCreateRecords import CommandCreateRecords
 from phResource.commandDelParameter import CommandDelParameter
@@ -18,6 +19,7 @@ from phResource.commandDelTargetGroup import CommandDelTargetGroup
 from phResource.commandDelRecords import CommandDelRecords
 from phResource.commandPutResouceArgs import CommandPutResourceArgs
 from phResource.commandDelResouceArgs import CommandDelResourceArgs
+from phResource.commandGetResouceArgs import CommandGetResourceArgs
 
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
@@ -88,6 +90,7 @@ class GenerateInvoker(object):
 
         try:
             # 在efs里创建相关文件夹
+            # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
             CommandCreateEfs(target_name=target_name).execute()
         except Exception as e:
             status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
@@ -133,12 +136,7 @@ class GenerateInvoker(object):
         project_name = self.project_name
         project_id = self.project_id
         target_name = self.name_convert_to_camel(project_name)
-        # 分配Ip 并从SSM判断ip是否重复
-        target_ip = self.create_ip_address()
         logger.debug(target_name)
-        logger.debug(target_ip)
-
-        # 从dynamodb的resource获取rule_arn target_group_arn
 
         try:
             # 删除ec2 实例
@@ -147,18 +145,31 @@ class GenerateInvoker(object):
             status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        # 删除efs 相关文件
+        try:
+            # 从dynamodb中获取 project 的相关参数
+            resource_args = CommandGetResourceArgs(target_name=target_name, project_id=project_id).execute()
+        except Exception as e:
+            status = "从dynamodb获取project参数错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
+            # 删除efs 相关文件
+            # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
+            CommandDelEfs(target_name=target_name).execute()
+        except Exception as e:
+            status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
         try:
             # 删除 load balancer 里的 rule
-            CommandDelRule(target_name=target_name).execute()
+            CommandDelRule(target_name=target_name, resource_args=resource_args).execute()
         except Exception as e:
             status = "删除 load balancer 里的 rule 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-
         try:
-            # 删除 target
-            CommandDelTargetGroup(target_name=target_name).execute()
+            # 删除 target group
+            CommandDelTargetGroup(target_name=target_name, resource_args=resource_args).execute()
         except Exception as e:
             status = "删除 target时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)

@@ -17,7 +17,7 @@ class CommandUploadAirflow(Command):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
-        # self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/tmp/"
         # 这个位置挂载 efs 下 /pharbers/projects
         self.operator_path = "/mnt/tmp/max/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
@@ -46,7 +46,6 @@ class CommandUploadAirflow(Command):
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
-
         subprocess.call(["touch", job_path + "/args.properties"])
         with open(job_path + "/args.properties", "w") as file:
             # 遍历 dag_conf input name 作为 key id 作为 value
@@ -64,10 +63,8 @@ class CommandUploadAirflow(Command):
                        "_" + dag_conf.get("dagName") + \
                        "_" + dag_conf.get("flowVersion")
 
-
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
-
 
         f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHMAIN_FILE_PY)
         with open(job_path + "/phmain.py", "w") as file:
@@ -134,9 +131,12 @@ class CommandUploadAirflow(Command):
         raise e
 
 """
-                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name")+'"' for input in json.loads(dag_conf.get("inputs"))])) \
-                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_outputs_name', ', '.join(
+                        ['"' + output.get("name") + '"' for output in json.loads(dag_conf.get("outputs"))])) \
+                               .replace('$alfred_inputs', ', '.join(
+                        ['"' + input.get("name") + '"' for input in json.loads(dag_conf.get("inputs"))])) \
+                               .replace('$alfred_outputs_id', ', '.join(
+                        ['"' + output.get("id") + '"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
                                .replace('$alfred_runtime', dag_conf.get("runtime"))
@@ -151,6 +151,7 @@ class CommandUploadAirflow(Command):
         projectName = message.get("projectName")
         flowVersion = message.get("flowVersion")
         projectId = message.get("projectId")
+        runtime = message.get("runtime")
 
         dag_name = projectName + \
                    "_" + projectName + \
@@ -165,7 +166,7 @@ class CommandUploadAirflow(Command):
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
-        operator_code = GenerateInvoker().execute(operatorParameters)
+        operator_code = GenerateInvoker().execute(runtime, operatorParameters)
         with open(job_path + "/phjob.py", "a") as file:
             file.write("""def execute(**kwargs):\n""")
             file.write(operator_code)
@@ -195,14 +196,12 @@ class CommandUploadAirflow(Command):
         }
         self.dynamodb.putData(edit_data)
 
-
-
     def create_phjobs(self, dag_conf):
         # 通过 phcli 创建 phjobs 相关文件
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
-
+        runtime = dag_conf["runtime"]
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
@@ -216,18 +215,17 @@ class CommandUploadAirflow(Command):
 
         phjob_exist = False
         # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
-        if "script" in operator_parameters:
-            phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py")
+        if "script" in operator_parameters["type"].lower():
+            phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET,
+                                               dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py")
 
         if not phjob_exist:
             # 2. /phjob.py file
             self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
-            operator_code = GenerateInvoker().execute(operator_parameters)
+            operator_code = GenerateInvoker().execute(runtime, operator_parameters)
             with open(job_path + "/phjob.py", "a") as file:
                 file.write("""def execute(**kwargs):\n""")
                 file.write(operator_code)
-
-
 
     def upload_phjob_files(self, dag_conf):
 
@@ -274,7 +272,8 @@ class CommandUploadAirflow(Command):
         def create_operator_file(operator_dir_path, dag_name, links):
             for link in links:
                 w = open(operator_file_path, "a")
-                f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHGRAPHTEMP_FILE)
+                f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET,
+                                                         dv.CLI_VERSION + dv.TEMPLATE_PHGRAPHTEMP_FILE)
                 for line in f_lines:
                     line = line + "\n"
                     w.write(
@@ -306,7 +305,6 @@ class CommandUploadAirflow(Command):
                         .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
                 )
             w.close()
-
 
         # 判断dag的operator是否存在 存在则直接添加
         # 如果没有则根据模板创建
@@ -394,4 +392,3 @@ class CommandUploadAirflow(Command):
         self.logger.debug("运行创建airflow文件命令")
         self.logger.debug(self.dag_item)
         self.airflow(self.dag_item)
-

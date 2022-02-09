@@ -27,10 +27,10 @@ TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r-20210122.tmp"
 TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20211214.tmp"
 TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20210122.tmp"
 
-TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"
-TEMPLATE_OPERATOR_SELECT_FILE_PY = "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp"
-TEMPLATE_OPERATOR_OPERATION_NULL_FILE_PY = "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp"
-TEMPLATE_OPERATOR_SCRIPT_FILE_PY = "/template/python/phcli/maxauto/script-20211229.tmp"
+# TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"
+# TEMPLATE_OPERATOR_SELECT_FILE_PY = "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp"
+# TEMPLATE_OPERATOR_OPERATION_NULL_FILE_PY = "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp"
+# TEMPLATE_OPERATOR_SCRIPT_FILE_PY = "/template/python/phcli/maxauto/script-20211229.tmp"
 
 TEMPLATE_JUPYTER_PYTHON_FILE = '/template/python/phcli/maxauto/phJupyterPython-20210322.json'
 TEMPLATE_JUPYTER_R_FILE = '/template/python/phcli/maxauto/phJupyterR-20210122.json'
@@ -61,3 +61,11 @@ DEFAULT_MACHINE_TYPE = 'STANDARD'
 DEFAULT_MACHINE_ARN_SUFFIX = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:'
 
 PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, job_id，ph_conf'
+
+TEMPLATE_OPERATOR = {
+    "script": "/template/python/phcli/maxauto/script-20211229.tmp",
+    "filter_on_value_for_pyspark": "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp",
+    "filter_on_numerical_range_for_pyspark": "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp",
+    "select_for_pyspark": "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp",
+    "remove_row_on_empty_for__pyspark": "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp",
+}

@@ -316,7 +316,8 @@ export default class Platform {
             clientName: String,
             version: String,
             name: String,
-            css: String
+            css: String,
+            script: String
         }
     }
 

@@ -19,7 +19,9 @@ def lambda_handler(event, context):
     records = event["Records"]
     for record in records:
         data = finishingEventData(record["dynamodb"]["NewImage"])
-        topic = "pharbers"
+        projectId = data["projectId"]
+        ownerId = json.loads(data["message"])["opname"]
+        topic = f"""{projectId}/{ownerId}"""
         message = json.dumps(data, ensure_ascii=False)
         print(message)
         iot_data_client.publish(topic=topic,

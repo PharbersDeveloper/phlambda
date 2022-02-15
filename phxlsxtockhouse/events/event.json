@@ -36,7 +36,7 @@
             "S": "creating"
           },
           "message": {
-            "S": "{\"skipValue\":0,\"jumpValue\":0,\"fileType\":\"xlsx\",\"fileSheet\":\"Sheet1\",\"fileId\":\"test.xlsx\",\"fileName\":\"test\",\"isAppend\":false,\"destination\":\"raw_data\",\"opname\":\"c89b8123-a120-498f-963c-5be102ee9082\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}"
+            "S": "{\"skipValue\":0,\"jumpValue\":0,\"fileType\":\"xlsx\",\"fileSheet\":\"Sheet1\",\"fileId\":\"test.xlsx\",\"fileName\":\"test\",\"isAppend\":false,\"destination\":\"y2\",\"opname\":\"c89b8123-a120-498f-963c-5be102ee9082\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}"
           },
           "date": {
             "N": "1636010256565"

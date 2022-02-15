@@ -40,10 +40,10 @@ def run(eventName, jobCat, record):
                 SaveCommand(ClearDSReceiver()).execute({
                     "dsid": message["dsid"]
                 })
-                SendMsgSuccessCommand(MsgReceiver()).execute({
-                    "data": item,
-                    "prefix": "clear_DS_"
-                })
+            SendMsgSuccessCommand(MsgReceiver()).execute({
+                "data": item,
+                "prefix": "clear_DS_"
+            })
 
         except Error as e:
             SendMsgFailCommand(MsgReceiver()).execute({

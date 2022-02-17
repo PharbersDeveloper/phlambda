@@ -10,7 +10,7 @@ class CFN(PhAWS):
     def create_project(self, target_name, target_ip):
 
         self.cfn_client.create_stack(
-            StackName=target_name + "project",
+            StackName=target_name + "-project",
             TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn.yaml',
             Parameters=[
                 {

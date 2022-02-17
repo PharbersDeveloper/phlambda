@@ -21,7 +21,7 @@
             "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\",\"projectID\": \"hbzhao_test_projectId\"}"
+            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\",\"projectId\": \"hbzhao_test_projectId\",\"target\": \"project\"}"
           },
           "code": {
             "S": "0"
@@ -42,7 +42,7 @@
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
           },
           "jobCat": {
-            "S": "project_create"
+            "S": "create"
           }
         },
         "SequenceNumber": "4262900000000003683290840",
@@ -50,6 +50,6 @@
         "StreamViewType": "NEW_AND_OLD_IMAGES"
       },
       "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
-    }
+    }0
   ]
 }

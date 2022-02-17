@@ -18,8 +18,9 @@ class CommandDelRule(Command):
         # 192.168.16.119
         logger = PhLogging().phLogger("delete_elb_rule", LOG_DEBUG_LEVEL)
         logger.debug("elb_rule 删除流程")
-        # 根据target_name 获取
-        project_args = self.ssm.get_ssm_parameter(self.target_name + "-project")
-        rule_arn = project_args.get("rule_arn")
+        # 从dynamodb 获取ruleArn
+        rule_arn = self.resource_args.get("ruleArn")
+        logger.debug("rule_arn")
+        logger.debug(rule_arn)
         self.elb.delete_rule(rule_arn)
         logger.debug("elb_rule 删除完成")

@@ -14,6 +14,7 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
       Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource
 #      FileSystemConfigs:
 #        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942

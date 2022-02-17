@@ -22,7 +22,6 @@ class CommandCreateEfs(Command):
         }
         self.sns.sns_publish(topic_arn, json.dumps(message, ensure_ascii=False))
 
-
     def execute(self):
         # 192.168.16.119
 

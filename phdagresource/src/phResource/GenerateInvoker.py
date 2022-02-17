@@ -20,6 +20,9 @@ from phResource.commandDelRecords import CommandDelRecords
 from phResource.commandPutResouceArgs import CommandPutResourceArgs
 from phResource.commandDelResouceArgs import CommandDelResourceArgs
 from phResource.commandGetResouceArgs import CommandGetResourceArgs
+from phResource.commandPutNotification import CommandPutNotification
+from phResource.commandStoreCh import CommandStoreCH
+from phResource.commandDumpsCh import CommandDumpsCH
 
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
@@ -29,10 +32,12 @@ class GenerateInvoker(object):
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
+        self.operate_type = self.item.get("jobCat")
+        self.project_message = json.loads(self.item.get("message"))
+        self.action_id = self.item.get("jobCat")
         self.ssm = SSM()
 
     def name_convert_to_camel(self, name):
-
         return re.sub(r'(_[a-z])', lambda x: x.group(1)[1], name.lower())
 
     def create_ip_address(self):
@@ -46,14 +51,14 @@ class GenerateInvoker(object):
 
         return ip_address
 
-
     def create_execute(self):
         logger = PhLogging().phLogger("creat_project", LOG_DEBUG_LEVEL)
         logger.debug("project创建流程")
 
-        project_name = self.project_name
-        project_id = self.project_id
-        
+        project_name = self.project_message.get("projectName")
+        project_id = self.project_message.get("projectId")
+        content = self.project_message.get("content")
+
         target_name = self.name_convert_to_camel(project_name)
         # 分配Ip 并从SSM判断ip是否重复
         target_ip = self.create_ip_address()
@@ -91,7 +96,8 @@ class GenerateInvoker(object):
         try:
             # 在efs里创建相关文件夹
             # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
-            CommandCreateEfs(target_name=target_name).execute()
+            if content == "project":
+                CommandCreateEfs(target_name=target_name).execute()
         except Exception as e:
             status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
@@ -114,6 +120,13 @@ class GenerateInvoker(object):
             logger.debug(status)
 
         try:
+            # 调用恢复clickhouse 数据的lmd
+            CommandStoreCH(target_ip=target_ip).execute()
+        except Exception as e:
+            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
             # 在dynamodb更新 resource 相关的参数
             CommandPutResourceArgs(
                 target_name=target_name,
@@ -126,24 +139,21 @@ class GenerateInvoker(object):
             status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-
-
+        try:
+            CommandPutNotification(action_id=self.action_id).execute()
+        except Exception as e:
+            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
     def delete_execute(self):
         logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)
         logger.debug("project删除流程")
 
-        project_name = self.project_name
-        project_id = self.project_id
+        project_name = self.project_message.get("projectName")
+        project_id = self.project_message.get("projectId")
+        content = self.project_message.get("content")
         target_name = self.name_convert_to_camel(project_name)
         logger.debug(target_name)
-
-        try:
-            # 删除ec2 实例
-            CommandDelProject(target_name=target_name).execute()
-        except Exception as e:
-            status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
 
         try:
             # 从dynamodb中获取 project 的相关参数
@@ -155,7 +165,8 @@ class GenerateInvoker(object):
         try:
             # 删除efs 相关文件
             # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
-            CommandDelEfs(target_name=target_name).execute()
+            if content == "project":
+                CommandDelEfs(target_name=target_name).execute()
         except Exception as e:
             status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
@@ -195,17 +206,26 @@ class GenerateInvoker(object):
             status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
+        try:
+            # 备份 clickhouse数据
+            CommandDumpsCH(resource_args=resource_args).execute()
+        except Exception as e:
+            status = "备份 clickhouse数据时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
-
+        # try:
+        #     # 删除ec2 实例
+        #     CommandDelProject(target_name=target_name).execute()
+        # except Exception as e:
+        #     status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
 
     def execute(self):
         logger = PhLogging().phLogger("选择对project的操作", LOG_DEBUG_LEVEL)
-        logger.debug(self.project_type)
-        logger.debug(self.project_name)
-        logger.debug(self.project_id)
-        if self.project_type == "project_create":
+
+        if self.operate_type == "create":
             self.create_execute()
-        elif self.project_type == "project_delete":
+        elif self.operate_type == "delete":
             self.delete_execute()
 
 

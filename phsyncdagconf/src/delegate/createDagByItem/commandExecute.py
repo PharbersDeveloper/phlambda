@@ -16,7 +16,7 @@ def max_script(dag_item):
 
     try:
         # 创建dag_conf 返回dag_conf_data
-        dag_conf_list, dag_conf = CommandCreateDagConf(dag_item=dag_item).run()
+        dag_conf_list = CommandCreateDagConf(dag_item=dag_item).run()
         logger.debug("创建dag_conf成功")
         logger.debug(dag_conf_list)
     except Exception as e:
@@ -63,7 +63,7 @@ def max_script(dag_item):
     else:
         status = "dag insert success"
 
-    return status, dag_conf
+    return status
 
 
 def max_refrash(dag_item):

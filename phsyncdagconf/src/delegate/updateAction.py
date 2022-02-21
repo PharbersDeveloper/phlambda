@@ -37,7 +37,7 @@ class UpdateAction:
         }
         self.dynamodb.updateData(data)
 
-    def updateNotification(self, item, table_name, dag_conf={}, status=" "):
+    def updateNotification(self, item, table_name, dag_conf, status=" "):
         message = {
             "type": "notification",
             "opname": item.get("owner"),

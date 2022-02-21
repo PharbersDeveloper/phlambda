@@ -39,7 +39,8 @@ def run(eventName, jobCat, record):
 
             SendMsgSuccessCommand(MsgReceiver()).execute({
                 "data": item,
-                "prefix": f"{jobCat}_"
+                "prefix": f"{item['jobDesc']}",
+                "jobCat": jobCat + "_"
             })
         except Errors as e:
             print("error ====> \n")
@@ -47,7 +48,8 @@ def run(eventName, jobCat, record):
             print(item)
             SendMsgFailCommand(MsgReceiver()).execute({
                 "data": item,
-                "prefix": "remove_DS_",
+                "prefix": f"{item['jobDesc']}",
+                "jobCat": jobCat + "_",
                 "error": {
                     "code": e.code,
                     "message": e.message,

@@ -134,7 +134,8 @@ class Xlsx(Strategy):
                 "path": data["message"].get("path", ""),
                 "prop": data["message"].get("prop", ""),
                 "format": data["message"].get("format", ""),
-                "prefix": "project_file_to_DS_"
+                "prefix": data["jobDesc"],
+                "jobCat": "project_file_to_DS_"
             }
 
             self.parameters = parameters

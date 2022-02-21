@@ -5,7 +5,7 @@ import time
 from delegate.singleton import singleton
 from delegate.project.initproject import Project
 from delegate.createDagByItem.commandExecute import max_script as maxCreate
-from delegate.createDagByItem.commandExecute import max_refrash as maxRefrash
+from delegate.createDagByItem.commandExecute import max_refresh as maxRefresh
 from delegate.createDagByItem.commandExecute import max_prepare_script as maxPrepareScript
 from delegate.lock.redisLock import create_redis_lock
 from delegate.updateAction import UpdateAction
@@ -25,7 +25,7 @@ class Max(Project):
 
         # , "createDag", "createAirflowFile"
         max_job_cats = {
-            "dag_refresh": maxRefrash,
+            "dag_refresh": maxRefresh,
             "prepare_edit": maxPrepareScript,
             "dag_create": maxCreate
         }
@@ -37,11 +37,11 @@ class Max(Project):
         # if redis_cli.setnx(redis_lock, time.time()):
         #     redis_cli.expire(redis_lock, 60)
         try:
-            status = max_job_cats.get(dag_type)(dag_item)
+            message = max_job_cats.get(dag_type)(dag_item)
         except Exception as e:
-            status = str(e)
+            message = json.loads(str(e))
         finally:
-            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
+            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=message)
             self.logger.debug("更新notification状态成功")
-            self.logger.debug(status)
+            self.logger.debug(message)
         # redis_cli.delete(redis_lock)

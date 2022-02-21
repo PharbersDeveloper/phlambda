@@ -121,7 +121,6 @@ def updateActionData(tableName, projectId, date, state):
         "start_key": ""
     })["data"]
     if len(result) > 0:
-        result[0]["jobDesc"] = state
         dynamodb.putData({
             "table_name": tableName,
             "item": result[0]
@@ -145,18 +144,19 @@ def insertNotification(actionId, projectId, date, state, error):
             "comments": "",
             "date": int(round(time.time() * 1000)),
             "jobCat": "notification",
-            "jobDesc": state,
+            "jobDesc": result[0]["jobDesc"],
             "message": json.dumps({
                 "type": "operation",
                 "opname": result[0]["owner"],
-                "opgroup": message.get("opgroup", "0"),
+                "opgroup": message.get("opgroup", "-1"),
                 "cnotification": {
                     "status": "transform_schema_{}".format(state),
                     "error": error
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0]["showName"]
+            "showName": result[0]["showName"],
+            "status": state
         }
     })
 

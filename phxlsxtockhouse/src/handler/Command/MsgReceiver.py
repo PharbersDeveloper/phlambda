@@ -18,23 +18,24 @@ class MsgReceiver(Receiver):
             "item": {
                 "id": message["id"],
                 "projectId": message["project_id"],
-                "code": 0,
+                "code": "0",
                 "comments": "",
                 "date": int(round(time.time() * 1000)),
                 "jobCat": "notification",
-                "jobDesc": status,
+                "jobDesc":  f"""{message["prefix"]}""",
                 "message": json.dumps({
                     "type": "operation",
                     "opname": message["owner"],
                     "opgroup": message.get("opgroup", "-1"),
                     "cnotification": {
-                        "status": f"""{message["prefix"]}{status}""",
+                        "status": f"""{message["jobCat"]}{status}""",
                         "data": json.dumps(message.get("data", {}), ensure_ascii=False),
                         "error": json.dumps(message.get("error", {}), ensure_ascii=False)
                     }
                 }, ensure_ascii=False),
                 "owner": message["owner"],
-                "showName": message["showName"]
+                "showName": message["showName"],
+                "status": status
             }
         })
 

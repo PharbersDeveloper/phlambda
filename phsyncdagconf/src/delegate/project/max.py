@@ -37,11 +37,12 @@ class Max(Project):
         # if redis_cli.setnx(redis_lock, time.time()):
         #     redis_cli.expire(redis_lock, 60)
         try:
-            status = max_job_cats.get(dag_type)(dag_item)
+            status, dag_conf = max_job_cats.get(dag_type)(dag_item)
         except Exception as e:
             status = str(e)
+            dag_conf = {}
         finally:
-            self.updateAction.updateNotification(dag_item, "notification", dag_conf={}, status=status)
+            self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=status)
             self.logger.debug("更新notification状态成功")
             self.logger.debug(status)
         # redis_cli.delete(redis_lock)

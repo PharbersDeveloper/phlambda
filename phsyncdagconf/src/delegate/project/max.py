@@ -5,7 +5,7 @@ import time
 from delegate.singleton import singleton
 from delegate.project.initproject import Project
 from delegate.createDagByItem.commandExecute import max_script as maxCreate
-from delegate.createDagByItem.commandExecute import max_refrash as maxRefrash
+from delegate.createDagByItem.commandExecute import max_refresh as maxRefresh
 from delegate.createDagByItem.commandExecute import max_prepare_script as maxPrepareScript
 from delegate.lock.redisLock import create_redis_lock
 from delegate.updateAction import UpdateAction
@@ -25,7 +25,7 @@ class Max(Project):
 
         # , "createDag", "createAirflowFile"
         max_job_cats = {
-            "dag_refresh": maxRefrash,
+            "dag_refresh": maxRefresh,
             "prepare_edit": maxPrepareScript,
             "dag_create": maxCreate
         }

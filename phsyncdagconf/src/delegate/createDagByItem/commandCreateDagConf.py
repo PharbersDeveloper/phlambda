@@ -69,27 +69,27 @@ class CommandCreateDagConf(Command):
         return check
 
 
-    def update_targetId(self, dag_conf):
-        # 判断input 如果是某个item的output
-        # 则将当前jobId 添加到input Item 的targetJobId
-        data = {}
-        data.update({"table_name": "dagconf"})
-        data.update({"partition_key": "projectId"})
-        data.update({"partition_value": dag_conf.get("projectId")})
-        data.update({"sort_key": "jobName"})
-        data.update({"sort_value": dag_conf.get("flowVersion")})
-        res = self.dynamodb.queryTableBeginWith(data)
-        if res.get("Items"):
-            for item in res.get("Items"):
-                for input in dag_conf.get("inputs"):
-                    # 如果当前 dag_conf的 input 是某个item的outputs 说明是item的 targetjob 更新item
-                    if json.dumps(input, ensure_ascii=False) in item.get("outputs"):
-                        # 更新 item 的 targetId
-                        targetJobId_list = eval(item.get("targetJobId"))
-                        targetJobId_list.append(dag_conf.get("jobId"))
-                        item["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
-                        # 更新 item
-                        UpdateAction().updateDagConf(item)
+    # def update_targetId(self, dag_conf):
+    #     # 判断input 如果是某个item的output
+    #     # 则将当前jobId 添加到input Item 的targetJobId
+    #     data = {}
+    #     data.update({"table_name": "dagconf"})
+    #     data.update({"partition_key": "projectId"})
+    #     data.update({"partition_value": dag_conf.get("projectId")})
+    #     data.update({"sort_key": "jobName"})
+    #     data.update({"sort_value": dag_conf.get("flowVersion")})
+    #     res = self.dynamodb.queryTableBeginWith(data)
+    #     if res.get("Items"):
+    #         for item in res.get("Items"):
+    #             for input in dag_conf.get("inputs"):
+    #                 # 如果当前 dag_conf的 input 是某个item的outputs 说明是item的 targetjob 更新item
+    #                 if json.dumps(input, ensure_ascii=False) in item.get("outputs"):
+    #                     # 更新 item 的 targetId
+    #                     targetJobId_list = eval(item.get("targetJobId"))
+    #                     targetJobId_list.append(dag_conf.get("jobId"))
+    #                     item["targetJobId"] = json.dumps(targetJobId_list, ensure_ascii=False)
+    #                     # 更新 item
+    #                     UpdateAction().updateDagConf(item)
 
 
     def update_targetId(self, dag_conf, dag_conf_list):
@@ -185,7 +185,7 @@ class CommandCreateDagConf(Command):
         update_dag_conf_list = self.get_all_dag_conf(dag_conf)
 
 
-        return update_dag_conf_list
+        return update_dag_conf_list, dag_conf
 
     def refresh_dagconf(self):
         dag_conf = json.loads(self.dag_item.get("message"))
@@ -197,6 +197,6 @@ class CommandCreateDagConf(Command):
 
         self.logger.debug("运行创建dagConf命令")
         self.logger.debug(self.dag_item)
-        dag_conf_list = self.__insert_dagconf(self.dag_item)
+        dag_conf_list, dag_conf = self.__insert_dagconf(self.dag_item)
 
-        return dag_conf_list
+        return dag_conf_list, dag_conf

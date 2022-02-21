@@ -1,5 +1,5 @@
 {
-  "body": "{\"projectName\": \"Auto_Raw_Data\", \"projectId\": \"hbzhao_test_projectId\", \"content_type\": \"start\", \"owner\": \"hbzhaotest_owner\", \"showName\": \"hbzhaotest_showName\"}",
+  "body": "{\"projectName\": \"Auto_Raw_Data\", \"projectId\": \"hbzhao_test_projectId\", \"content_type\": \"start\", \"owner\": \"hbzhaotest_owner\", \"showName\": \"hbzhaotest_showName\",\"operation_type\": \"get_status\"}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

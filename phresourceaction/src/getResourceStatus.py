@@ -55,6 +55,23 @@ class GetResourceStatus(object):
 
     def execute(self):
         # 192.168.16.119
+        operation_type= self.event.get("operation_type")
+        if operation_type == "get_status":
+            status = self.get_status_execute()
+        elif operation_type == "operate_resource":
+            status = self.resource_execute()
+        print(status)
+        return status
+
+    def get_status_execute(self):
+        project_name = self.event.get("projectName")
+        target_name = self.name_convert_to_camel(project_name)
+        status = self.get_resource_status(target_name)
+
+        return status
+
+    def resource_execute(self):
+
         project_name = self.event.get("projectName")
         target_name = self.name_convert_to_camel(project_name)
         status = self.get_resource_status(target_name)
@@ -66,6 +83,7 @@ class GetResourceStatus(object):
         elif self.resource_type == "close" and status == "started":
             status = "closed"
             self.insert_action(self.event, "project_delete")
-            self.put_resource_status(status)
+            self.put_resource_status(status)\
 
         return status
+

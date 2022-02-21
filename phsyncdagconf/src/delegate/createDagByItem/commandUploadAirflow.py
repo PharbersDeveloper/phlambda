@@ -9,6 +9,17 @@ from util.AWS import define_value as dv
 from handler.GenerateInvoker import GenerateInvoker
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
+python3_default_args = {
+    "phmain": dv.TEMPLATE_PHMAIN_FILE_PYTHON3,
+    "phgraphtemp": dv.TEMPLATE_PHPYTHON3GRAPHTEMP_FILE,
+    "phdagjob": dv.TEMPLATE_PHPYTHON3DAGJOB_FILE
+}
+
+pyspark_default_args = {
+    "phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
+    "phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
+    "phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
+}
 
 class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
@@ -64,11 +75,12 @@ class CommandUploadAirflow(Command):
                        "_" + dag_conf.get("dagName") + \
                        "_" + dag_conf.get("flowVersion")
 
-
+        runtime = dag_conf.get("runtime")
+        phmain = runtime +
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
 
-
+        phmain =
         f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHMAIN_FILE_PY)
         with open(job_path + "/phmain.py", "w") as file:
 
@@ -280,6 +292,7 @@ class CommandUploadAirflow(Command):
                     w.write(
                         line.replace("$alfred_dag_owner", dag_conf.get("owner")) \
                             .replace("$alfred_email_on_failure", str("False")) \
+                            .replace("$alfred_dag_showName", dag_conf.get("showName", "default_showName")) \
                             .replace("$alfred_email_on_retry", str("False")) \
                             .replace("$alfred_email", str("['airflow@example.com']")) \
                             .replace("$alfred_retries", str(0)) \

@@ -8,8 +8,14 @@ project_table = {
     "Test": Max,
     "Auto_max_refactor": Max,
     "ETL_Iterator": Max,
-    "专门测试用": Max,
+    "Test_Alex": Max,
+    "Auto_Raw_Data": Max,
     "max": Max,
+    "Auto_rf_factor": Max,
+    "Auto_weight": Max,
+    "Auto_max_check": Max,
+    "Auto_max_delivery": Max,
+    "Auto_cMax": Max
 }
 
 class Execute:

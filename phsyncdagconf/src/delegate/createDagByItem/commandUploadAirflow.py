@@ -174,7 +174,7 @@ class CommandUploadAirflow(Command):
         self.phs3.upload(
             file=job_path + "/phjob.py",
             bucket_name=dv.TEMPLATE_BUCKET,
-            object_name=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + jobDisplayName + "/phjob.py"
+            object_name=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py"
         )
 
         # 查询 dag_conf item 修改 operatorParameters 字段
@@ -214,12 +214,18 @@ class CommandUploadAirflow(Command):
         print("======打印operator_parameters=======")
         print(operator_parameters)
 
-        # 2. /phjob.py file
-        self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
-        operator_code = GenerateInvoker().execute(operator_parameters)
-        with open(job_path + "/phjob.py", "a") as file:
-            file.write("""def execute(**kwargs):\n""")
-            file.write(operator_code)
+        phjob_exist = False
+        # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
+        if "script" in operator_parameters:
+            phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py")
+
+        if not phjob_exist:
+            # 2. /phjob.py file
+            self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
+            operator_code = GenerateInvoker().execute(operator_parameters)
+            with open(job_path + "/phjob.py", "a") as file:
+                file.write("""def execute(**kwargs):\n""")
+                file.write(operator_code)
 
 
 

@@ -37,7 +37,7 @@ class UpdateAction:
         }
         self.dynamodb.updateData(data)
 
-    def updateNotification(self, item, table_name, dag_conf, status=" "):
+    def updateNotification(self, item, table_name, dag_conf={}, status={}):
         message = {
             "type": "notification",
             "opname": item.get("owner"),
@@ -45,17 +45,19 @@ class UpdateAction:
                 "jobName": str(dag_conf.get("jobName")),
                 "jobPath": str(dag_conf.get("job_path")),
                 "jobShowName": str(dag_conf.get("jobShowName")),
-                "status": status,
+                "status": status["status"],
                 "error": json.dumps({
                     "code": "123",
                     "message": {
-                        "zh": status,
-                        "en": status
+                        "zh": status["message"],
+                        "en": status["message"]
                     }
                 }, ensure_ascii=False)
             }
         }
-        item.update({"jobDesc": status})
+        item.update({"jobDesc": item["jobDesc"]})
+        item.update({"jobCat": "notification"})
+        item.update({"status": status["status"]})
         item.update({"message": json.dumps(message,  ensure_ascii=False)})
         Key = {
             "id": item.get("id", "default_id"),

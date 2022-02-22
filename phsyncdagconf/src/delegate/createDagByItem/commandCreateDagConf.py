@@ -151,7 +151,7 @@ class CommandCreateDagConf(Command):
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行input output检查input index只能作为输入，output index 只能作为输出
-        # self.check_max_index(dag_conf)
+        self.check_max_index(dag_conf)
 
         targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})
@@ -185,7 +185,7 @@ class CommandCreateDagConf(Command):
         update_dag_conf_list = self.get_all_dag_conf(dag_conf)
 
 
-        return update_dag_conf_list
+        return update_dag_conf_list, dag_conf
 
     def refresh_dagconf(self):
         dag_conf = json.loads(self.dag_item.get("message"))
@@ -197,6 +197,6 @@ class CommandCreateDagConf(Command):
 
         self.logger.debug("运行创建dagConf命令")
         self.logger.debug(self.dag_item)
-        dag_conf_list = self.__insert_dagconf(self.dag_item)
+        dag_conf_list, dag_conf = self.__insert_dagconf(self.dag_item)
 
-        return dag_conf_list
+        return dag_conf_list, dag_conf

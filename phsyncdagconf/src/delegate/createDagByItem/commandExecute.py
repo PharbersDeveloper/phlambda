@@ -27,7 +27,7 @@ def max_script(dag_item):
     except Exception as e:
         content["message"] = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
 
     try:
         # 根据dag_conf_list 创建 Level并返回 dag_item_level_list
@@ -38,7 +38,7 @@ def max_script(dag_item):
     except Exception as e:
         content["message"] = "创建dag_level时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
 
     try:
         # 创建dag 返回dag_data
@@ -48,7 +48,7 @@ def max_script(dag_item):
     except Exception as e:
         content["message"] = "创建dag_item时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag_item create success"
         content["status"] = "succeed"
@@ -60,7 +60,7 @@ def max_script(dag_item):
     except Exception as e:
         content["message"] = "上传dag_item时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag_item upload success"
         content["status"] = "succeed"
@@ -71,12 +71,12 @@ def max_script(dag_item):
     except Exception as e:
         content["message"] = "更新 phjob 运行文件时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag insert success"
         content["status"] = "succeed"
 
-    return content, dag_conf
+    return json.dumps(content, ensure_ascii=False), dag_conf
 
 
 def max_refresh(dag_item):
@@ -96,7 +96,7 @@ def max_refresh(dag_item):
     except Exception as e:
         content["message"] = "创建dag_conf时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
 
     try:
         # 根据dag_conf_list 创建 Level并返回 dag_item_level_list
@@ -107,7 +107,7 @@ def max_refresh(dag_item):
     except Exception as e:
         content["message"] = "创建dag_level时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
 
     try:
         # 创建dag 返回dag_data
@@ -117,7 +117,7 @@ def max_refresh(dag_item):
     except Exception as e:
         content["message"] = "创建dag_item时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag_item create success"
         content["status"] = "succeed"
@@ -129,7 +129,7 @@ def max_refresh(dag_item):
     except Exception as e:
         content["message"] = "上传dag_item时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag_item upload success"
         content["status"] = "succeed"
@@ -140,12 +140,12 @@ def max_refresh(dag_item):
     except Exception as e:
         content["message"] = "更新 phjob 运行文件时错误:" + json.dumps(str(e), ensure_ascii=False)
         content["status"] = "failed"
-        raise Exception(json.dumps(content))
+        raise Exception(json.dumps(content, ensure_ascii=False))
     else:
         content["message"] = "dag insert success"
         content["status"] = "succeed"
 
-    return content
+    return json.dumps(content, ensure_ascii=False)
 
 def max_prepare_script(dag_item):
     content = {
@@ -165,4 +165,4 @@ def max_prepare_script(dag_item):
         content["message"] = "dag insert success"
         content["status"] = "succeed"
 
-    return content
+    return json.dumps(content, ensure_ascii=False)

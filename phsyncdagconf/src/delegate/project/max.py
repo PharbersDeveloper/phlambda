@@ -42,7 +42,7 @@ class Max(Project):
             status = str(e)
             dag_conf = {}
         finally:
-            self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=status)
+            self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=json.loads(status))
             self.logger.debug("更新notification状态成功")
             self.logger.debug(status)
         # redis_cli.delete(redis_lock)

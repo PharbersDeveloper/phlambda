@@ -1,6 +1,7 @@
 from handler.gencode.Context import Context
 from handler.gencode.strategy.FilterOnValueStrategy import FilterOnValueStrategy
 from handler.gencode.strategy.FilterOnNumericalRangeStrategy import FilterOnNumericalRangeStrategy
+from handler.gencode.strategy.RemoveRowsOnEmptyStrategy import RemoveRowsOnEmptyStrategy
 from handler.gencode.strategy.SelectStrategy import SelectStrategy
 from handler.gencode.strategy.ScriptStrategy import ScriptStrategy
 
@@ -10,7 +11,7 @@ class GenCode:
         "Script": ScriptStrategy,
         "FilterOnValue": FilterOnValueStrategy,
         "FilterOnNumericalRange": FilterOnNumericalRangeStrategy,
-        "RemoveRowsOnEmpty": None,
+        "RemoveRowsOnEmpty": RemoveRowsOnEmptyStrategy,
         "Select": SelectStrategy,
     }
 

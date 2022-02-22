@@ -42,7 +42,7 @@
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
           },
           "jobCat": {
-            "S": "delete"
+            "S": "resource_delete"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

@@ -32,7 +32,7 @@ class Execute:
         return item_list
 
     def screen_regular_item(self, item_list):
-        jobCats = ["project_create", "project_delete"]
+        jobCats = ["resource_create", "resource_delete"]
         for item in item_list:
             if item.get("jobCat") in jobCats:
                 self.logger.debug("item符合创建project形式")

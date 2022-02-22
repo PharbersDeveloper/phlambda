@@ -34,7 +34,7 @@ class GenerateInvoker(object):
             setattr(self, key, val)
         self.operate_type = self.item.get("jobCat")
         self.project_message = json.loads(self.item.get("message"))
-        self.action_id = self.item.get("jobCat")
+        self.action_id = self.item.get("id")
         self.ssm = SSM()
 
     def name_convert_to_camel(self, name):
@@ -119,12 +119,12 @@ class GenerateInvoker(object):
             status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        try:
-            # 调用恢复clickhouse 数据的lmd
-            CommandStoreCH(target_ip=target_ip).execute()
-        except Exception as e:
-            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+        # try:
+        #     # 调用恢复clickhouse 数据的lmd
+        #     CommandStoreCH(target_ip=target_ip).execute()
+        # except Exception as e:
+        #     status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
 
         try:
             # 在dynamodb更新 resource 相关的参数
@@ -140,9 +140,9 @@ class GenerateInvoker(object):
             logger.debug(status)
 
         try:
-            CommandPutNotification(action_id=self.action_id).execute()
+            CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
         except Exception as e:
-            status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
     def delete_execute(self):
@@ -206,26 +206,26 @@ class GenerateInvoker(object):
             status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        try:
-            # 备份 clickhouse数据
-            CommandDumpsCH(resource_args=resource_args).execute()
-        except Exception as e:
-            status = "备份 clickhouse数据时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
         # try:
-        #     # 删除ec2 实例
-        #     CommandDelProject(target_name=target_name).execute()
+        #     # 备份 clickhouse数据
+        #     CommandDumpsCH(resource_args=resource_args).execute()
         # except Exception as e:
-        #     status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     status = "备份 clickhouse数据时错误:" + json.dumps(str(e), ensure_ascii=False)
         #     logger.debug(status)
+
+        try:
+            # 删除ec2 实例
+            CommandDelProject(target_name=target_name).execute()
+        except Exception as e:
+            status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
     def execute(self):
         logger = PhLogging().phLogger("选择对project的操作", LOG_DEBUG_LEVEL)
 
-        if self.operate_type == "create":
+        if self.operate_type == "resource_create":
             self.create_execute()
-        elif self.operate_type == "delete":
+        elif self.operate_type == "resource_delete":
             self.delete_execute()
 
 

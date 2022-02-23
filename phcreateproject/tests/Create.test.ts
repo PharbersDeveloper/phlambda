@@ -14,7 +14,7 @@ describe("Create Project", () => {
                 type: "projects",
                 attributes: {
                     provider: "pharbers",
-                    name: "AlexProject",
+                    name: "AlexProject1",
                     type: "paas",
                 },
                 relationships: {
@@ -30,7 +30,9 @@ describe("Create Project", () => {
         const event = template()
         event.path = "/phcreatereproject/projects"
         event.httpMethod = "POST"
-        event.pathParameters = "projects"
+        event.pathParameters = {
+            type: "projects"
+        }
         event.body = body
 
         const response = await app.lambdaHandler(event, undefined)

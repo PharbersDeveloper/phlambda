@@ -25,6 +25,10 @@ export default class OptEfsHandler {
         return execSync(`chmod -R 777 ${path}`)
     }
 
+    private removePath(path) {
+        return execSync(`rm -rf ${path}`)
+    }
+
     create(projectId) {
         const projectPath = this.mountPath + projectId + "/"
         this.paths.forEach((path) => {
@@ -37,5 +41,10 @@ export default class OptEfsHandler {
 
         this.copyPath(this.mountPath + "airflow/", projectPath)
         this.chmodPath(projectPath)
+    }
+
+    remove(projectId) {
+        const projectPath = this.mountPath + projectId + "/"
+        this.removePath(projectPath)
     }
 }

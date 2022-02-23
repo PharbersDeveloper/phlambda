@@ -126,6 +126,9 @@ export default class Platform {
                 record.id = ObjectUtil.generateId()
                 handler.create(record.id)
                 return record
+            case "delete":
+                handler.remove(record.id)
+                return null
         }
     }
 }

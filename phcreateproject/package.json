@@ -14,6 +14,8 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.53.0",
+    "@aws-sdk/client-sts": "^3.53.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

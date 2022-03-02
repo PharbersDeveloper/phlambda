@@ -1,5 +1,5 @@
 import * as fortune from "fortune"
-import GlueCatlogHandler from "../handler/GlueCatlogHandler"
+// import GlueCatlogHandler from "../handler/GlueCatlogHandler"
 import StepFunctionHandler from "../handler/StepFunctionHandler"
 
 export default class Platform {
@@ -316,8 +316,8 @@ export default class Platform {
         hooks: {
             file: [this.hooksDate],
             diagram: [this.hooksDate],
-            db: [null, this.hookDataBaseOutput],
-            table: [null, this.hookTableOutput],
+            // db: [null, this.hookDataBaseOutput],
+            // table: [null, this.hookTableOutput],
             account: [ this.hookAccountInput, this.hookAccountOutput],
         }
     }
@@ -348,48 +348,48 @@ export default class Platform {
     }
 
     // CatLog Start
-    protected async hookDataBaseOutput(context, record) {
-        const { request: { method, type } } = context
-        const { request: { uriObject: { query }} } = context
-        switch (method) {
-            case "find":
-                const content = await GlueCatlogHandler.getInstance.findDatabase(record.name)
-                record.created = content.Database.CreateTime.getTime()
-                record.description = content.Database.Description || ""
-        }
-        return record
-    }
-
-    protected async hookTableOutput(context, record) {
-        const { request: { method, type } } = context
-        const { request: { uriObject: { query }} } = context
-        switch (method) {
-            case "find":
-                try {
-                    const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
-                    record.created = content.Table.CreateTime.getTime()
-                    record.updated = content.Table.UpdateTime.getTime()
-                    record.retention = content.Table.Retention
-                    record.columns = content.Table.StorageDescriptor.Columns
-                    record.location = content.Table.StorageDescriptor.Location
-                    record.inputFormat = content.Table.StorageDescriptor.InputFormat
-                    record.outputFormat = content.Table.StorageDescriptor.OutputFormat
-                    record.compressed = content.Table.StorageDescriptor.Compressed
-                    record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
-                    record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
-                    record.sortColumns = content.Table.StorageDescriptor.SortColumns
-                    record.parameters = content.Table.Parameters
-                    record.partitionKeys = content.Table.PartitionKeys
-                    record.tableType = content.Table.TableType
-                    record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
-                } catch (e) {
-                    if (e.name === "EntityNotFoundException") {
-                        record.state = "Removed"
-                    }
-                }
-        }
-        return record
-    }
+    // protected async hookDataBaseOutput(context, record) {
+    //     const { request: { method, type } } = context
+    //     const { request: { uriObject: { query }} } = context
+    //     switch (method) {
+    //         case "find":
+    //             const content = await GlueCatlogHandler.getInstance.findDatabase(record.name)
+    //             record.created = content.Database.CreateTime.getTime()
+    //             record.description = content.Database.Description || ""
+    //     }
+    //     return record
+    // }
+    //
+    // protected async hookTableOutput(context, record) {
+    //     const { request: { method, type } } = context
+    //     const { request: { uriObject: { query }} } = context
+    //     switch (method) {
+    //         case "find":
+    //             try {
+    //                 const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
+    //                 record.created = content.Table.CreateTime.getTime()
+    //                 record.updated = content.Table.UpdateTime.getTime()
+    //                 record.retention = content.Table.Retention
+    //                 record.columns = content.Table.StorageDescriptor.Columns
+    //                 record.location = content.Table.StorageDescriptor.Location
+    //                 record.inputFormat = content.Table.StorageDescriptor.InputFormat
+    //                 record.outputFormat = content.Table.StorageDescriptor.OutputFormat
+    //                 record.compressed = content.Table.StorageDescriptor.Compressed
+    //                 record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
+    //                 record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
+    //                 record.sortColumns = content.Table.StorageDescriptor.SortColumns
+    //                 record.parameters = content.Table.Parameters
+    //                 record.partitionKeys = content.Table.PartitionKeys
+    //                 record.tableType = content.Table.TableType
+    //                 record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
+    //             } catch (e) {
+    //                 if (e.name === "EntityNotFoundException") {
+    //                     record.state = "Removed"
+    //                 }
+    //             }
+    //     }
+    //     return record
+    // }
 
     // CatLog End
 

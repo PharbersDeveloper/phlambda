@@ -25,11 +25,11 @@ import constants.Common as Common
 
 
 class Xlsx(Strategy):
+    clickhouse = None
     parameters = None
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.msg_receiver = MsgReceiver()
         self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
 
@@ -118,7 +118,7 @@ class Xlsx(Strategy):
             raise VersionAlreadyExist("version already exist")
 
         Excel(
-            f"{os.environ[DV.FILE_PATH]}{file_name}", sheet_name,
+            f"{os.environ[DV.FILE_PATH].replace('#projectid#', project_id)}{file_name}", sheet_name,
             skip_first + 1, skip_next,
             original_schema, int(os.environ.get(DV.BATCH_SIZE, 10000))
         ).batchReader(self.__xlsx_callback)
@@ -127,6 +127,9 @@ class Xlsx(Strategy):
         self.logger.debug("Excel Xlsx ====> \n")
 
         try:
+            # TODO 应该做成统一的外部服务的加载，后续重构
+            self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](data["projectId"])
+
             # TODO 应该在抽象一层参数类,以Build构造出数据，第一版本先这样
             parameters = {
                 "id": data["id"],
@@ -145,14 +148,15 @@ class Xlsx(Strategy):
                 "path": data["message"].get("path", ""),
                 "prop": data["message"].get("prop", ""),
                 "format": data["message"].get("format", ""),
-                "prefix": "project_file_to_DS_"
+                "prefix": data["jobDesc"],
+                "jobCat": "project_file_to_DS_"
             }
 
             self.parameters = parameters
 
             original_schema = list(map(
                 lambda item: {"src": item, "des": item, "type": "String"},
-                data.get("mapper", Excel.getSchema(os.environ[DV.FILE_PATH] + parameters["file_name"],
+                data.get("mapper", Excel.getSchema(os.environ[DV.FILE_PATH].replace('#projectid#', parameters['project_id']) + parameters["file_name"],
                                                    parameters["sheet_name"],
                                                    int(parameters["skip_first"]) + 1))
             ))
@@ -179,7 +183,7 @@ class Xlsx(Strategy):
                 label = ds_result[0]["label"]
 
             # writePathPrefix = "/Users/qianpeng/GitHub/phlambda/phxlsxtockhouse/tmp/"
-            writePathPrefix = DV.FILE_PATH
+            writePathPrefix = DV.FILE_PATH.replace("#projectid#", parameters['project_id'])
             writePathSuffix = f"""{self.parameters['provider']}/{self.parameters['project_id'].replace('_', '-')}/{self.parameters['ds_name']}"""
 
             parameters["original_schema"] = original_schema

@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          PATH_PREFIX: /mnt/tmp/max/tmp/
+          PATH_PREFIX: /mnt/tmp/#projectid#/tmp/
           BATCH_SIZE: 10000
           CLICKHOUSE_HOST: 192.168.16.117
           CLICKHOUSE_PORT: 9000

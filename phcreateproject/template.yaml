@@ -17,7 +17,7 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lbdauth:5
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phplatform:2
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phcreateproject:1
       Environment:
         Variables:
           MOUNTPATH: /mnt/tmp/

@@ -28,7 +28,8 @@ class RemoveDS:
                     "time": 60
                 })
                 SaveCommand(RemoveCKReceiver()).execute({
-                    "tableName": f"""{item["projectId"]}_{message["destination"]}"""
+                    "projectId": item["projectId"],
+                    "destination": message["destination"]
                 })
 
                 remove_s3_dir = f"""{message.get("provider", "pharbers")}/{item['project_id'].replace('_', '-')}/{message['destination']}"""

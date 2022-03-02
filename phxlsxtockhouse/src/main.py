@@ -56,13 +56,15 @@ def lambda_handler(event, context):
 
     except Errors as e:
         logger.debug(e)
+        jobDesc = history["jobDesc"]
         history["jobDesc"] = "failed"
         RollBackCommand().execute(history)
         SaveActionCommand(ActionReceiver()).execute(history)
         SendMsgFailCommand(MsgReceiver()).execute({
             "id": history["id"],
             "project_id": history["projectId"],
-            "prefix": "project_file_to_DS_",
+            "prefix": jobDesc,
+            "jobCat": "project_file_to_DS_",
             "owner": history["owner"],
             "showName": history["showName"],
             "opgroup": history["message"]["opgroup"],

@@ -12,7 +12,7 @@ export default class AWSGlue {
         })
     }
 
-    async getClient() {
+    getClient() {
         // const sts =
         //     new STS("AKIAWPBDTVEAI6LUCLPX", "Efi6dTMqXkZQ6sOpmBZA1IO1iu3rQyWAbvKJy599", AWSRegion)
         // let config = await sts.assumeRole("Pharbers-ETL-Roles",

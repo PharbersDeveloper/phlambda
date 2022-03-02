@@ -3,6 +3,7 @@ import constants.DefinValue as DV
 from util.ClieckHouse import ClickHouse
 from util.AWS.DynamoDB import DynamoDB
 from util.PhRedis import PhRedis
+from boto3.dynamodb.conditions import Attr
 
 
 def __create_dynamodb():
@@ -16,8 +17,18 @@ def __create_dynamodb():
     # return DynamoDB(sts=sts)
 
 
-def __create_clickhouse():
-    return ClickHouse(host=os.environ[DV.CLICKHOUSE_HOST], port=os.environ[DV.CLICKHOUSE_PORT])
+def __create_clickhouse(projectId):
+    dynamodb = EXTERNAL_SERVICES["dynamodb"]
+    result = dynamodb.scanTable({
+        "table_name": "resource",
+        "limit": 100000,
+        "expression": Attr("projectId").eq(projectId),
+        "start_key": ""
+    })["data"]
+    ip = os.environ[DV.CLICKHOUSE_HOST]
+    if len(result) > 0:
+        ip = result[0]["projectIp"]
+    return ClickHouse(host=ip, port=os.environ[DV.CLICKHOUSE_PORT])
 
 
 def __create_redis():
@@ -26,7 +37,7 @@ def __create_redis():
 
 EXTERNAL_SERVICES = {
     "dynamodb": __create_dynamodb(),
-    "clickhouse": __create_clickhouse(),
+    "clickhouse": __create_clickhouse,
     "redis": __create_redis(),
 }
 

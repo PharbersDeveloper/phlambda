@@ -32,7 +32,7 @@ class RemoveDS:
                     "destination": message["destination"]
                 })
 
-                remove_s3_dir = f"""{message.get("provider", "pharbers")}/{item['project_id'].replace('_', '-')}/{message['destination']}"""
+                remove_s3_dir = f"""{message.get("provider", "pharbers")}/{item['projectId'].replace('_', '-')}/{message['destination']}"""
                 RemoveS3Path().execute({
                     "bucket_name": "ph-platform",
                     "s3_dir": f"""2020-11-11/lake/{remove_s3_dir}"""

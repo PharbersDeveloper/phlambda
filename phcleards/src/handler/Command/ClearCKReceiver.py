@@ -10,18 +10,18 @@ from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 class ClearCKReceiver(Receiver):
 
     def __init__(self):
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.logger = PhLogging().phLogger("Clear ClickHouse", LOG_DEBUG_LEVEL)
 
     def exec(self, data):
         self.logger.debug(f"{data}")
-        table_name = data["tableName"]
+        clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](data["projectId"])
+        table_name = f"""{data["projectId"]}_{data["destination"]}"""
         version = data.get("version", "")
         sql = f"""ALTER TABLE {os.environ[DV.CLICKHOUSE_DB]}.`{table_name}` DELETE WHERE 1 = 1"""
         if version != "" and version is not None:
             sql = sql + f""" and version = '{version}'"""
         try:
-            self.clickhouse.exec_ddl_sql(sql)
+            clickhouse.exec_ddl_sql(sql)
         except ServerException as e:
             if e.code == 60 and "doesn't exist" in e.message:
                 print("table 没有找到")

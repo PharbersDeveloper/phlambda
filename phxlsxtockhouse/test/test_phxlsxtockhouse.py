@@ -16,7 +16,7 @@ class TestLmd:
 
 if __name__ == '__main__':
     os.environ["PATH_PREFIX"] = "/Users/qianpeng/Desktop/"
-    os.environ["BATCH_SIZE"] = "200"
+    os.environ["BATCH_SIZE"] = "10000"
     os.environ["CLICKHOUSE_HOST"] = "127.0.0.1"
     os.environ["CLICKHOUSE_PORT"] = "19000"
     os.environ["CLICKHOUSE_DB"] = "default"

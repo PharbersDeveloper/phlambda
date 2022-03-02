@@ -194,7 +194,7 @@ class Xlsx(Strategy):
 
             CheckSchemaConsistencyCommand(CheckSchemaReceiver()).execute({
                 "cur_schema": standard_schema,
-                "ds_schema": json.loads(ds_result[0]["schema"]) if len(ds_result) > 0 else None
+                "ds_schema": json.loads(ds_result[0]["schema"]) if len(ds_result) > 0 else []
             })
 
             self.__write2Clickhouse()  # 写数据

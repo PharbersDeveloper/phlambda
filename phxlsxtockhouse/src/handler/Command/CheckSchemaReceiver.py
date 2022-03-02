@@ -1,6 +1,7 @@
 from handler.Command.Receiver import Receiver
 from constants.Errors import SchemaNotMatched, ColumnDuplicate
 from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
+from collections import Counter
 
 
 class CheckSchemaReceiver(Receiver):
@@ -12,8 +13,11 @@ class CheckSchemaReceiver(Receiver):
         self.logger.debug(f"Alex Check Schema ====> \n {data}")
         cur_schema = list(map(lambda item: item["src"], data["cur_schema"]))
         ds_schema = list(map(lambda item: item["src"], data["ds_schema"]))
-        if len(set(ds_schema) - set(cur_schema)) > 0:  # 检测 Schema 在多次上传时是否与以前一直
+        if len(ds_schema) > 0 and (len(set(ds_schema)) - len(set(cur_schema))) != 0:  # 检测 Schema 在多次上传时是否与以前一直
             raise SchemaNotMatched("Schema Not Matched")
 
-        if len(cur_schema) != len(set(cur_schema)):  # 检测 Schema 中是否有重复的列
-            raise ColumnDuplicate("Duplicate Column Names")
+        lower_cur_schema = list(map(lambda item: item.lower(), cur_schema))
+        duplicate_col = [key for key, value in dict(Counter(lower_cur_schema)).items()if value > 1]
+        if len(duplicate_col) > 0:  # 检测 Schema 中是否有重复的列
+            cols = ",".join(duplicate_col)
+            raise ColumnDuplicate(cols)

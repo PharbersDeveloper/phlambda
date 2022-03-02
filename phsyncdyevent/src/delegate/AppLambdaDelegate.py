@@ -32,22 +32,22 @@ class AppLambdaDelegate:
             "item": {
                 "id": item["id"],
                 "projectId": propertys["projectId"],
-                "code": 0,
+                "code": "0",
                 "comments": "",
                 "date": int(round(time.time() * 1000)),
                 "jobCat": "notification",
-                "jobDesc": state,
+                "jobDesc": "project_files",
                 "message": json.dumps({
                     "type": "notification",
                     "opname": propertys["opname"],
                     "opgroup": propertys["opgroup"],
                     "cnotification": {
-                        "status": "upload_{}".format(state),
                         "error": error
                     }
                 }),
                 "owner": propertys["owner"],
-                "showName": propertys["showName"]
+                "showName": propertys["showName"],
+                "status": state
             }
         })
 

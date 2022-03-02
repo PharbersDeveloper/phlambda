@@ -54,7 +54,7 @@ class Excel:
 
         for iter_mapper in mapper:
             for iter_header in header:
-                if iter_mapper['src'] == iter_header["value"]:
+                if iter_mapper['src'] == str(iter_header["value"]):
                     result.append(
                         {'des': iter_mapper['des'],
                          'letter': iter_header["column_letter"],

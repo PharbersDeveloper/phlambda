@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda ph-phnotice-execution-status
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PH_NOTICE_IOT:7
+      FunctionName: lmd-phnoticeexecutionstatus-V2
+      Description: "DynamoDB executionStatus table 触发事件 转发消息到 MQTT"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Timeout: 30
+

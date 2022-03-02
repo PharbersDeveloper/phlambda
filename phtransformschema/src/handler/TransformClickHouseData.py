@@ -50,9 +50,25 @@ def transformClickHouseSchema(projectId, data):
         print(se)
         print(se.code)
         if se.code == 341 or se.code == 50:
-            raise Exception(f"column {schema['src']} cannot convert to {schema['type']}")
+            error = {
+                "code":  509,
+                "message": {
+                    "zh": f"列 {schema['src']} 不能转换到 {schema['type']} 类型",
+                    "en": f"column {schema['src']} cannot convert to {schema['type']}",
+                    "meta": "column convert type error"
+                }
+            }
+            raise Exception(json.dumps(error))
     except Exception as e:
-        raise Exception(f"unknown error")
+        error = {
+            "code": -1,
+            "message": {
+                "en": "unknown error",
+                "zh": "未知错误",
+                "meta": str(e)
+            }
+        }
+        raise Exception(json.dumps(error))
 
 
 # 修改DynamoDB的DS中的Schema类型
@@ -105,7 +121,6 @@ def updateActionData(tableName, projectId, date, state):
         "start_key": ""
     })["data"]
     if len(result) > 0:
-        result[0]["jobDesc"] = state
         dynamodb.putData({
             "table_name": tableName,
             "item": result[0]
@@ -129,18 +144,19 @@ def insertNotification(actionId, projectId, date, state, error):
             "comments": "",
             "date": int(round(time.time() * 1000)),
             "jobCat": "notification",
-            "jobDesc": state,
+            "jobDesc": result[0]["jobDesc"],
             "message": json.dumps({
                 "type": "operation",
                 "opname": result[0]["owner"],
-                "opgroup": message.get("opgroup", "0"),
+                "opgroup": message.get("opgroup", "-1"),
                 "cnotification": {
                     "status": "transform_schema_{}".format(state),
                     "error": error
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0]["showName"]
+            "showName": result[0]["showName"],
+            "status": state
         }
     })
 

@@ -21,17 +21,16 @@ def lambda_handler(event, context):
         if record["eventName"] != "REMOVE":
             print(record)
             data = finishingEventData(record["dynamodb"]["NewImage"])
-            projectId = data["projectId"]
-            ownerId = json.loads(data["message"])["opname"]
-
-            if projectId.find("_compute_") != -1:
-                projectId = json.loads(data["message"])["projectId"]
+            data["jobCat"] = "notification"
+            [projectId, ownerId] = data["id"].split("_")
 
             topic = f"""{projectId}/{ownerId}"""
             print("Topic =======> \n")
             print(topic)
-            message = json.dumps(data, ensure_ascii=False)
-            iot_data_client.publish(topic=topic,
-                                    qos=1,
-                                    retain=False,
-                                    payload=message)
+            if data["status"] == "failed":
+                message = json.dumps(data, ensure_ascii=False)
+                print(message)
+                iot_data_client.publish(topic=topic,
+                                        qos=1,
+                                        retain=False,
+                                        payload=message)

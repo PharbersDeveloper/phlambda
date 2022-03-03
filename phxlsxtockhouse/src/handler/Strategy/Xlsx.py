@@ -183,7 +183,7 @@ class Xlsx(Strategy):
                 label = ds_result[0]["label"]
 
             # writePathPrefix = "/Users/qianpeng/GitHub/phlambda/phxlsxtockhouse/tmp/"
-            writePathPrefix = DV.FILE_PATH.replace("#projectid#", parameters['project_id'])
+            writePathPrefix = os.environ.get(DV.FILE_PATH).replace("#projectid#", parameters['project_id'])
             writePathSuffix = f"""{self.parameters['provider']}/{self.parameters['project_id'].replace('_', '-')}/{self.parameters['ds_name']}"""
 
             parameters["original_schema"] = original_schema

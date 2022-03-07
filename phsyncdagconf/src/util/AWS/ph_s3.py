@@ -218,9 +218,7 @@ class PhS3(PhAWS):
             :param source_file_path: 资源路径
         :return:
         """
-        print("=============================================")
         dir_path = "/".join(source_file_path.split("/")[0:-1])
-        print(dir_path)
 
         response = self.s3_client.list_objects(
             Bucket=source_bucket,
@@ -230,8 +228,6 @@ class PhS3(PhAWS):
         if response.get("Contents"):
             for f in response.get("Contents"):
                 if f.get("Key") == source_file_path:
-                    print(f.get("Key"))
                     flag = True
 
-        print("=============================================")
         return flag

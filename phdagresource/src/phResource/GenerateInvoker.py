@@ -71,27 +71,28 @@ class GenerateInvoker(object):
         except Exception as e:
             status = "创建records时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
+            raise Exception(status)
         
         try:
             # 创建target group
             target_group_arn = CommandCreateTargetGroup(target_name=target_name).execute()
         except Exception as e:
             status = "创建 target group 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             # register targets
             CommandRegisterTarget(target_ip=target_ip, target_group_arn=target_group_arn).execute()
         except Exception as e:
             status = "register targets 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             # 向load balancer 添加rules
             rule_arn = CommandCreateRule(target_name=target_name, target_group_arn=target_group_arn).execute()
         except Exception as e:
             status = "向load balancer 添加rules 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             # 在efs里创建相关文件夹
@@ -100,14 +101,14 @@ class GenerateInvoker(object):
                 CommandCreateEfs(target_name=target_name).execute()
         except Exception as e:
             status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             # 创建ec2实例
-            CommandCreateProject(target_name=target_name, target_ip=target_ip).execute()
+            CommandCreateProject(target_name=target_name, target_ip=target_ip, project_id=project_id).execute()
         except Exception as e:
             status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             # 更新ssm
@@ -117,7 +118,7 @@ class GenerateInvoker(object):
             ).execute()
         except Exception as e:
             status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         # try:
         #     # 调用恢复clickhouse 数据的lmd
@@ -137,13 +138,13 @@ class GenerateInvoker(object):
             ).execute()
         except Exception as e:
             status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
         try:
             CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
         except Exception as e:
             status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+            raise Exception(status)
 
     def delete_execute(self):
         logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)

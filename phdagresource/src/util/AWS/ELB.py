@@ -1,4 +1,5 @@
 import boto3
+import random
 from util.AWS.PhAWS import PhAWS
 
 class ELB(PhAWS):
@@ -43,8 +44,16 @@ class ELB(PhAWS):
         response = self.elb_client.describe_rules(
             ListenerArn="arn:aws-cn:elasticloadbalancing:cn-northwest-1:444603803904:listener/app/alb-pharber-management-tools/66c1e8eef4d28433/27e4c643619d1c70",
         )
+        Prioritys = [rule.get("Priority") for rule in response["Rules"]]
 
-        return len(response["Rules"])
+        Priority = str(random.randint(1, 99))
+        while 1:
+            if Priority not in Prioritys:
+                break
+            elif Priority in Prioritys:
+                Priority = str(random.randint(1, 99))
+
+        return Priority
 
     def create_rule(self, target_name, target_group_arn):
 

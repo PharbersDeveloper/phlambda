@@ -18,4 +18,4 @@ class CommandCreateProject(Command):
         logger.debug(self.target_name)
         logger.debug(self.target_ip)
 
-        self.cfn.create_project(self.target_name, self.target_ip)
+        self.cfn.create_project(self.target_name, self.target_ip, self.project_id)

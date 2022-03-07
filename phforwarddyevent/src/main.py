@@ -5,7 +5,6 @@ from execute import Execute
 def lambda_handler(event, context):
     # 11261502
     print(event)
-    event = json.loads(event.get("Records")[0].get("body"))
     app = Execute(event=event, context=context)
     try:
         app.exec()

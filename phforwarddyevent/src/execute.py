@@ -1,8 +1,9 @@
 import json
 import logging
 
-from phResource.GenerateInvoker import GenerateInvoker
+from forwardEvent import ForwardEvent
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
+
 
 class Execute:
 
@@ -10,7 +11,6 @@ class Execute:
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.logger = PhLogging().phLogger("创建流程入口", LOG_DEBUG_LEVEL)
-
 
     def process_insert_event(self):
         # 获取新插入item的 partition_key, sort_key, message
@@ -48,13 +48,13 @@ class Execute:
         if item_list:
             self.logger.debug("item_list生成成功")
             for item in item_list:
-                GenerateInvoker(item=item).execute()
+                ForwardEvent(event=self.event).execute()
         else:
             self.logger.debug("action不是INSERT")
 
 
 if __name__ == '__main__':
-    with open("../events/event_delete_project.json") as f:
+    with open("../events/event_create_project.json") as f:
         event = json.load(f)
     app = Execute(event=event)
     app.exec()

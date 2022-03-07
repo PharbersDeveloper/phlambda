@@ -47,10 +47,7 @@ class Execute:
         if item_list:
             self.logger.debug("item_list生成成功")
             for item in item_list:
-                project_type = item.get("jobCat")
-                project_name = json.loads(item.get("message")).get("projectName")
-                project_id = json.loads(item.get("message")).get("projectId")
-                GenerateInvoker(project_type=project_type, project_name=project_name, project_id=project_id).execute()
+                GenerateInvoker(item=item).execute()
         else:
             self.logger.debug("action不是INSERT")
 

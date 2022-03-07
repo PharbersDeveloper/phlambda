@@ -174,7 +174,7 @@ class CommandUploadAirflow(Command):
         self.phs3.upload(
             file=job_path + "/phjob.py",
             bucket_name=dv.TEMPLATE_BUCKET,
-            object_name=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py"
+            object_name=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + jobDisplayName + "/phjob.py"
         )
 
         # 查询 dag_conf item 修改 operatorParameters 字段
@@ -228,7 +228,6 @@ class CommandUploadAirflow(Command):
                 file.write(operator_code)
 
 
-
     def upload_phjob_files(self, dag_conf):
 
         dag_name = dag_conf.get("projectName") + \
@@ -280,6 +279,7 @@ class CommandUploadAirflow(Command):
                     w.write(
                         line.replace("$alfred_dag_owner", dag_conf.get("owner")) \
                             .replace("$alfred_email_on_failure", str("False")) \
+                            .replace("$alfred_dag_showName", dag_conf.get("showName", "default_showName")) \
                             .replace("$alfred_email_on_retry", str("False")) \
                             .replace("$alfred_email", str("['airflow@example.com']")) \
                             .replace("$alfred_retries", str(0)) \

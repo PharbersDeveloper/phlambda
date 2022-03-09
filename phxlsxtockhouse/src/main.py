@@ -16,6 +16,7 @@ from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 def lambda_handler(event, context):
     logger = PhLogging().phLogger("import data to ds", LOG_DEBUG_LEVEL)
+    event = json.loads(event.get("Records")[0].get("body"))
     records = event["Records"]
     history = {}
     try:
@@ -55,7 +56,6 @@ def lambda_handler(event, context):
                     SendMsgSuccessCommand(MsgReceiver()).execute(result)
 
     except Errors as e:
-        logger.debug(e)
         jobDesc = history["jobDesc"]
         history["jobDesc"] = "failed"
         RollBackCommand().execute(history)

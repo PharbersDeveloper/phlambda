@@ -131,7 +131,7 @@ export default class Platform {
                 return record
             case "delete":
                 await optCrawlerHandler.delete(record.id, record.provider)
-                // optEfsHandler.remove(record.id)
+                optEfsHandler.remove(record.id)
                 return null
         }
     }

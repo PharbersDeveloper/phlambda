@@ -9,7 +9,6 @@ class RemoveDSReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.logger = PhLogging().phLogger("Remove DS", LOG_DEBUG_LEVEL)
 
     def __convert2obj(self, item):

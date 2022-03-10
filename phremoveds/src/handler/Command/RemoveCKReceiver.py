@@ -9,12 +9,13 @@ from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 class RemoveCKReceiver(Receiver):
 
     def __init__(self):
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.logger = PhLogging().phLogger("Remove ClickHouse", LOG_DEBUG_LEVEL)
 
     def exec(self, data):
         try:
-            self.clickhouse.exec_ddl_sql(f"""DROP TABLE {os.environ[DV.CLICKHOUSE_DB]}.`{data["tableName"]}`""")
+            tableName = f"""{data["projectId"]}_{data["destination"]}"""
+            clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](data["projectId"])
+            clickhouse.exec_ddl_sql(f"""DROP TABLE {os.environ[DV.CLICKHOUSE_DB]}.`{tableName}`""")
         except ServerException as e:
             if e.code == 60 and "doesn't exist" in e.message:
                 self.logger.debug("table 没有找到")

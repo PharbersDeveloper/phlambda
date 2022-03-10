@@ -7,7 +7,7 @@ class CheckSchemaConsistencyCommand(Command):
         self.receiver = receiver
 
     def execute(self, data):
-        if data["ds_schema"] is not None:
-            self.receiver.check(data)
+        self.receiver.check(data)
+
 
 

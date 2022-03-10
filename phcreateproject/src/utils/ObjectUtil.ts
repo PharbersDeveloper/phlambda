@@ -12,7 +12,7 @@ export default class ObjectUtil {
         const charset =
             'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
             'abcdefghijklmnopqrstuvwxyz' +
-            '0123456789-_'
+            '0123456789'
 
         const charsetLength = charset.length
 

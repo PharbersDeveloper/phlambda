@@ -11,19 +11,17 @@ export default class OptCrawlerHandler {
 
 
     async create(id, tenant) {
-        const projectId = id.replace("_", "-")
-        const companyId = tenant.replace("_", "-")
 
-        const s3Path = `s3://ph-platform/2020-11-11/lake/${companyId}/${projectId}/`
+        const s3Path = `s3://ph-platform/2020-11-11/lake/${tenant}/${id}/`
 
-        const crawlerName = `crawler-${companyId}-${projectId}`
+        const crawlerName = `crawler-${tenant}-${id}`
 
         const command = new CreateStackCommand({
             StackName: crawlerName,
             Parameters: [
                 {
                     ParameterKey: "DatabaseName",
-                    ParameterValue: projectId
+                    ParameterValue: id
                 },
                 {
                     ParameterKey: "CrawlerName",
@@ -41,9 +39,7 @@ export default class OptCrawlerHandler {
     }
 
     async delete(id, tenant) {
-        const projectId = id.replace("_", "-")
-        const companyId = tenant.replace("_", "-")
-        const crawlerName = `crawler-${companyId}-${projectId}`
+        const crawlerName = `crawler-${tenant}-${id}`
         const command = new DeleteStackCommand({
             StackName: crawlerName
         })

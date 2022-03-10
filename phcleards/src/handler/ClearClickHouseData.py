@@ -34,21 +34,22 @@ def run(eventName, jobCat, record):
         try:
             for message in item["message"]:
                 SaveCommand(ClearCKReceiver()).execute({
-                    "tableName": f"""{item["projectId"]}_{message["destination"]}""",
+                    "projectId": item["projectId"],
+                    "destination": message["destination"],
                     "version": message.get("version", "")
                 })
                 SaveCommand(ClearDSReceiver()).execute({
                     "dsid": message["dsid"]
                 })
-                SendMsgSuccessCommand(MsgReceiver()).execute({
-                    "data": item,
-                    "prefix": "clear_DS_"
-                })
+            SendMsgSuccessCommand(MsgReceiver()).execute({
+                "data": item,
+                "prefix": f"{item['jobDesc']}"
+            })
 
         except Error as e:
             SendMsgFailCommand(MsgReceiver()).execute({
                 "data": item,
-                "prefix": "clear_DS_",
+                "prefix": f"{item['jobDesc']}",
                 "error": {
                     "code": e.code,
                     "message": e.message,
@@ -59,7 +60,7 @@ def run(eventName, jobCat, record):
             print(e)
             SendMsgFailCommand(MsgReceiver()).execute({
                 "data": item,
-                "prefix": "clear_DS_",
+                "prefix": f"{item['jobDesc']}",
                 "error": {
                     "code": e.code,
                     "message": e.message,

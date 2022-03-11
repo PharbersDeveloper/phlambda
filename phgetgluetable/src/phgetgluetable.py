@@ -42,7 +42,9 @@ class DateEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self,obj)
 
 def lambda_handler(event,context):
-    database_name = event["glue_database_name"]
+
+    database_name = json.loads(event["body"])["glue_database_name"]
+
     statusCode, response = GetGlueTables().get_tables(database_name)
 
     return {

@@ -9,5 +9,5 @@ class Dashboard(Model):
         "dashboardId": fields.Str(required=True),
         "description": fields.Str(dump_default="unknown"),
         "title": fields.Str(dump_default="unknown"),
-        "uploading": fields.Int(dump_default="unknown")
+        "updating": fields.Int(dump_default="unknown")
     }

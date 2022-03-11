@@ -10,5 +10,6 @@ class Slide(Model):
         "slideId": fields.Str(required=True),
         "idx": fields.Int(dump_default=0),
         "title": fields.Str(dump_default="unknown"),
-        "content": fields.Str(dump_default="unknown")
+        "content": fields.Str(dump_default="unknown"),
+        "datasetName": fields.Str(dump_default="unknown")
     }

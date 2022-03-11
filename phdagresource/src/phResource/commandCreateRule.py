@@ -17,7 +17,7 @@ class CommandCreateRule(Command):
         logger = PhLogging().phLogger("creat_elb_rule", LOG_DEBUG_LEVEL)
         logger.debug("elb_rule 创建流程")
 
-        rule_arn = self.elb.create_rule(self.target_name, self.target_group_arn)
+        rule_arn = self.elb.create_rule(self.project_id, self.target_group_arn)
         logger.debug("elb_rule 创建完成")
 
         return rule_arn

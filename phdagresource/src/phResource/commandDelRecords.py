@@ -17,6 +17,6 @@ class CommandDelRecords(Command):
         logger = PhLogging().phLogger("delete_records", LOG_DEBUG_LEVEL)
         logger.debug("records 删除流程")
 
-        self.route53.delete_records(self.target_name)
+        self.route53.delete_records(self.project_id)
 
         logger.debug("records 删除成功")

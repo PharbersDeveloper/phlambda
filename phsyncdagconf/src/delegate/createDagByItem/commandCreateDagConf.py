@@ -32,7 +32,7 @@ class CommandCreateDagConf(Command):
 
         projectId = dag_conf.get("projectId")
         inputs = dag_conf.get("inputs")
-        input_cats = ["input_index", "uploaded", "intermediate"]
+        input_cats = ["input_index", "uploaded", "intermediate", "catalog"]
         for input in inputs:
             id = input.get("id")
             data = {
@@ -67,7 +67,6 @@ class CommandCreateDagConf(Command):
             else:
                 raise Exception("outputs选择错误")
         return check
-
 
     def update_targetId(self, dag_conf):
         # 判断input 如果是某个item的output

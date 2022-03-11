@@ -22,7 +22,7 @@ class CommandDelResourceArgs(Command):
             "table_name": "resource"
         }
         key = {}
-        key.update({"projectName": self.target_name})
+        key.update({"projectName": self.project_name})
         key.update({"projectId": self.project_id})
         data.update({"key": key})
         self.dynamodb.delete_item(data)

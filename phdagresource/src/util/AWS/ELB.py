@@ -8,10 +8,10 @@ class ELB(PhAWS):
 
         self.elb_client = boto3.client('elbv2')
 
-    def create_target_group(self, target_name, target_port):
+    def create_target_group(self, project_id, target_port):
 
         response = self.elb_client.create_target_group(
-            Name=target_name,
+            Name=project_id,
             Protocol='HTTP',
             ProtocolVersion='HTTP1',
             Port=target_port,
@@ -55,7 +55,7 @@ class ELB(PhAWS):
 
         return Priority
 
-    def create_rule(self, target_name, target_group_arn):
+    def create_rule(self, project_id, target_group_arn):
 
         Priority = self.get_rules_len()
         response = self.elb_client.create_rule(
@@ -66,7 +66,7 @@ class ELB(PhAWS):
                     "Field": "host-header",
                     # "Values": ['auto-max-refactor.pharbers.com'],
                     "HostHeaderConfig": {
-                        "Values": [target_name + ".pharbers.com"]
+                        "Values": [project_id + ".pharbers.com"]
                     }
                 }
             ],

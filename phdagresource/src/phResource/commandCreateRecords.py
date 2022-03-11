@@ -17,6 +17,6 @@ class CommandCreateRecords(Command):
         logger = PhLogging().phLogger("creat_records", LOG_DEBUG_LEVEL)
         logger.debug("records 创建流程")
 
-        self.route53.create_records(self.target_name)
+        self.route53.create_records(self.project_id)
 
         logger.debug("records 创建成功")

@@ -10,10 +10,10 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       #Layers:
-      FunctionName: lmd-phgetgluetable-V1
+      FunctionName: lmd-phgetgluetable-V2
       Description: "获取glue数据库table name"
       MemorySize: 512
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       Timeout: 120
       VpcConfig:
         SecurityGroupIds:

@@ -57,7 +57,7 @@ class HandleErrorMessage(Schema):
         type_ = "error_info"
 
 class GlueTable:
-    type = "guletables"
+    type = "gluetables"
     attributes = {
         'Name': fields.Str(required=True),
         'DatabaseName': fields.Str(),

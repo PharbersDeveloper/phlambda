@@ -23,7 +23,7 @@ class GetGlueTables:
     def get_tables(self, database_name):
         try:
             response = self.client.get_tables(DatabaseName=database_name)
-            response = Convert2JsonAPI(GlueTable, many=True).build().dumps(self.filter_resonse(response))
+            response = json.loads(Convert2JsonAPI(GlueTable, many=True).build().dumps(self.filter_resonse(response)))
         except Exception as e:
             response = PhError(message=str(e)).messages
         return response
@@ -114,14 +114,5 @@ def lambda_handler(event,context):
     database_name = json.loads(event["body"])["glue_database_name"]
     response = GetGlueTables().get_tables(database_name)
 
-    return {
-        'statusCode': 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-        },
-        'body': response
-    }
-    #return Response(body=response, code=200).build
+    return Response(body=response, code=200).build
 

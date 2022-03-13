@@ -2,6 +2,8 @@ import json
 import boto3
 import re
 from marshmallow_jsonapi import Schema, fields
+from marshmallow_jsonapi.exceptions import JSONAPIError
+
 
 class GetGlueTables:
     def __init__(self):
@@ -23,10 +25,7 @@ class GetGlueTables:
             response = self.client.get_tables(DatabaseName=database_name)
             response = Convert2JsonAPI(GlueTable, many=True).build().dumps(self.filter_resonse(response))
         except Exception as e:
-            response = HandleErrorMessage().dumps({'errors': [
-                {'status': 404,
-                 'details': str(e)}
-            ]})
+            response = PhError(message=str(e)).messages
         return response
 
 class Convert2JsonAPI:
@@ -52,13 +51,44 @@ class Convert2JsonAPI:
     def build(self):
         return self.mc
 
-class HandleErrorMessage(Schema):
-    id = fields.Str(dump_only=True)
-    errors = fields.List(fields.Dict)
+class Response:
+    headers = {
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+    }
 
-    class Meta:
-        type_ = "error-info"
+    statusCode = 200
 
+    body = ""
+
+    def __init__(self, body, code):
+        self.body = body
+        self.statusCode = code
+
+    @property
+    def build(self):
+        return {
+            "statusCode": self.statusCode,
+            "headers": self.headers,
+            "body": json.dumps(self.body)
+        }
+
+class PhError(JSONAPIError):
+    pointer = "/data/type"
+    default_message = 'Invalid type. Expected "{expected}".'
+    code = 0
+
+    def __init__(self, message=None, pointer=None):
+        self.detail = message or self.default_message
+        self.pointer = pointer or self.pointer
+        super().__init__(self.detail)
+
+    @property
+    def messages(self):
+        return {
+            "errors": [{"detail": self.detail, "source": {"pointer": self.pointer}}]
+        }
 
 class GlueTable:
     type = "gluetables"
@@ -79,20 +109,9 @@ class GlueTable:
         'CatalogId': fields.Str()
     }
 
-
 def lambda_handler(event,context):
 
     database_name = json.loads(event["body"])["glue_database_name"]
     response = GetGlueTables().get_tables(database_name)
-    return {
-        'statusCode': 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-        },
-        'body': response,
-    }
-
-
+    return Response(body=response, code=200).build
 

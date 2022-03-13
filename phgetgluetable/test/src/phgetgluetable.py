@@ -113,5 +113,15 @@ def lambda_handler(event,context):
 
     database_name = json.loads(event["body"])["glue_database_name"]
     response = GetGlueTables().get_tables(database_name)
-    return Response(body=response, code=200).build
+
+    return {
+        'statusCode': 200,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        },
+        'body': response
+    }
+    #return Response(body=response, code=200).build
 

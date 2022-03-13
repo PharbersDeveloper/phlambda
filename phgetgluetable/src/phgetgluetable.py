@@ -23,7 +23,10 @@ class GetGlueTables:
             response = self.client.get_tables(DatabaseName=database_name)
             response = Convert2JsonAPI(GlueTable, many=True).build().dumps(self.filter_resonse(response))
         except Exception as e:
-            response = HandleErrorMessage().dumps({"error_code": 404,"error_message": str(e)})
+            response = HandleErrorMessage().dumps({'errors': [
+                {'status': 404,
+                 'details': str(e)}
+            ]})
         return response
 
 class Convert2JsonAPI:
@@ -51,10 +54,11 @@ class Convert2JsonAPI:
 
 class HandleErrorMessage(Schema):
     id = fields.Str(dump_only=True)
-    error_code = fields.Integer()
-    error_message = fields.String()
+    errors = fields.List(fields.Dict)
+
     class Meta:
-        type_ = "error_info"
+        type_ = "error-info"
+
 
 class GlueTable:
     type = "gluetables"
@@ -74,7 +78,8 @@ class GlueTable:
         'IsRegisteredWithLakeFormation': fields.Str(),
         'CatalogId': fields.Str()
     }
-#---
+
+
 def lambda_handler(event,context):
 
     database_name = json.loads(event["body"])["glue_database_name"]

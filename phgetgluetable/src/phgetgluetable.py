@@ -8,7 +8,7 @@ from marshmallow_jsonapi.exceptions import JSONAPIError
 class GetGlueTables:
     def __init__(self):
         self.client = boto3.client('glue', 'cn-northwest-1')
-        self.filter_keys = ['Name', 'DatabaseName', 'Owner', 'CreateTime', 'UpdateTime', 'LastAccessTime', 'StorageDescriptor', 'PartitionKeys', 'Parameters']
+        self.filter_keys = ['Name', 'DatabaseName', 'Description', 'Owner', 'CreateTime', 'UpdateTime', 'LastAccessTime', 'StorageDescriptor', 'PartitionKeys', 'Parameters']
 
     def filter_resonse(self, response):
         response = response['TableList']

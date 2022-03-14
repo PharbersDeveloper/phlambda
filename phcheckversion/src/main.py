@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         args = eval(event["body"])
         res = executeSql(args["query"], "GET", args["projectId"])
 
-        rows = filter(lambda x: x != '', res.split("\n"))
+        rows = list(filter(lambda x: x != '', res.split("\n")))
 
         if len(rows) == 1 and "UNKNOWN_TABLE" in "".join(rows):
             raise Exception("UNKNOWN_TABLE")
@@ -45,9 +45,10 @@ def lambda_handler(event, context):
 
             tmp = {}
             for index in range(len(cells)):
-                tmp[columns[index]] = "0" if "UNKNOWN_TABLE" in cells[index] else cells[index]
+                tmp[columns[index]] = cells[index]
 
             final_res.append(tmp)
+            
         print(final_res)
         return {
             "statusCode": 200,
@@ -55,6 +56,7 @@ def lambda_handler(event, context):
             "body": json.dumps(final_res, ensure_ascii=False)
         }
     except Exception as e:
+        print("Error =>  \n")
         print(e)
         return {
             "statusCode": 200,

@@ -95,6 +95,7 @@ class GlueTable:
     attributes = {
         'Name': fields.Str(required=True),
         'DatabaseName': fields.Str(),
+        'Description': fields.Str(),
         'Owner': fields.Str(),
         'CreateTime': fields.Str(),
         'UpdateTime': fields.Str(),
@@ -115,4 +116,5 @@ def lambda_handler(event,context):
     response = GetGlueTables().get_tables(database_name)
 
     return Response(body=response, code=200).build
+
 

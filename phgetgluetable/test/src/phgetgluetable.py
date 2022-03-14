@@ -95,6 +95,7 @@ class GlueTable:
     attributes = {
         'Name': fields.Str(required=True),
         'DatabaseName': fields.Str(),
+        'Description': fields.Str(),
         'Owner': fields.Str(),
         'CreateTime': fields.Str(),
         'UpdateTime': fields.Str(),

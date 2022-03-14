@@ -102,9 +102,9 @@ class GlueTable:
         'LastAccessTime': fields.Str(),
         'Retention': fields.Str(),
         'StorageDescriptor': fields.Str(),
-        'PartitionKeys': fields.Str(),
+        'PartitionKeys': fields.List(fields.Dict),
         'TableType': fields.Str(),
-        'Parameters': fields.Str(),
+        'Parameters': fields.Dict(),
         'CreatedBy': fields.Str(),
         'IsRegisteredWithLakeFormation': fields.Str(),
         'CatalogId': fields.Str()
@@ -116,5 +116,4 @@ def lambda_handler(event,context):
     response = GetGlueTables().get_tables(database_name)
 
     return Response(body=response, code=200).build
-
 

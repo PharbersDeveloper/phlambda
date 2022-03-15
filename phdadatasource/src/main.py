@@ -29,7 +29,6 @@ def lambda_handler(event, context):
     args = eval(event["body"])
     res = executeSql(args["query"], "GET", args["projectId"])
 
-    print(res)
     rows = filter(lambda x: x != '', res.split("\n"))
 
     # 这里没有任何的错误处理

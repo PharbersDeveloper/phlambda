@@ -318,6 +318,12 @@ export default class Platform {
             name: String,
             css: String,
             script: String
+        },
+        // offweb article
+        article: {
+            title: String,
+            data: Number,
+            uri: String
         }
     }
 

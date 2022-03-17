@@ -11,6 +11,15 @@ def down_html(html_name):
 def lambda_handler(event, context):
     # 直接转proxy转发
     args = eval(event["body"])
-    html_name = args.get("uuid")
-    return down_html(html_name)
+    try:
+        html_name = args.get("uuid")
+        return {
+            'statusCode': 200,
+            'body': down_html(html_name)
+        }
+    except Exception as e:
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": str(e)})
+        }
 

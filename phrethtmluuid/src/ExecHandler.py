@@ -34,10 +34,11 @@ class Model:
 
 
 class Html(Model):
-    type = "Html"
+    type = "articles"
     attributes = {
-        "uuid": fields.Str(required=True),
-        "data": fields.Str(dump_default="unknown"),
+        "id": fields.Str(required=True),
+        "title": fields.Str(dump_default="unknown"),
+        "url": fields.Str(dump_default="unknown"),
     }
 
 
@@ -47,7 +48,5 @@ __table_structure = {
 
 
 def html(data):
-    # data = {'uuid': '虎年大吉福享新春，Pharbers邀请您来抢虎年鸿运红包', "titile": "abcde",}
-    result = __table_structure["html"](data)
-    json_api_data = json.loads(Convert2JsonAPI(__table_structure["html"], many=False).build().dumps(result))
-    return json_api_data
+    return Convert2JsonAPI(Html, many=True).build().dumps(data, ensure_ascii=False)
+

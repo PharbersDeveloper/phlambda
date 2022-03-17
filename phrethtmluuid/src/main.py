@@ -19,5 +19,5 @@ def read_file():
 
 
 def lambda_handler(event, context):
-    return json.dumps(html(read_file()))
+    return html(read_file())
 

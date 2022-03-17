@@ -20,5 +20,14 @@ def read_file():
 
 
 def lambda_handler(event, context):
-    return html(read_file())
+    try:
+        return {
+            'statusCode': 200,
+            'body': html(read_file())
+        }
+    except Exception as e:
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": str(e)})
+        }
 

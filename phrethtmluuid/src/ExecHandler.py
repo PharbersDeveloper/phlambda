@@ -39,6 +39,7 @@ class Html(Model):
         "id": fields.Str(required=True),
         "title": fields.Str(dump_default="unknown"),
         "url": fields.Str(dump_default="unknown"),
+        "date": fields.Str(dump_default="unknown"),
     }
 
 

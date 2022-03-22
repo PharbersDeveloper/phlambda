@@ -15,7 +15,7 @@ class CommandCreateProject(Command):
     def execute(self):
         # 192.168.16.119
         logger = PhLogging().phLogger("creat_ec2", LOG_DEBUG_LEVEL)
-        logger.debug(self.target_name)
+        logger.debug(self.project_id)
         logger.debug(self.target_ip)
 
-        self.cfn.create_project(self.target_name, self.target_ip)
+        self.cfn.create_project(self.project_id, self.target_ip, self.project_id)

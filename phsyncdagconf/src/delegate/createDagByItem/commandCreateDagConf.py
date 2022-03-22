@@ -32,7 +32,7 @@ class CommandCreateDagConf(Command):
 
         projectId = dag_conf.get("projectId")
         inputs = dag_conf.get("inputs")
-        input_cats = ["input_index", "uploaded", "intermediate"]
+        input_cats = ["input_index", "uploaded", "intermediate", "catalog"]
         for input in inputs:
             id = input.get("id")
             data = {
@@ -67,7 +67,6 @@ class CommandCreateDagConf(Command):
             else:
                 raise Exception("outputs选择错误")
         return check
-
 
     def update_targetId(self, dag_conf):
         # 判断input 如果是某个item的output
@@ -185,7 +184,7 @@ class CommandCreateDagConf(Command):
         update_dag_conf_list = self.get_all_dag_conf(dag_conf)
 
 
-        return update_dag_conf_list
+        return update_dag_conf_list, dag_conf
 
     def refresh_dagconf(self):
         dag_conf = json.loads(self.dag_item.get("message"))
@@ -197,6 +196,6 @@ class CommandCreateDagConf(Command):
 
         self.logger.debug("运行创建dagConf命令")
         self.logger.debug(self.dag_item)
-        dag_conf_list = self.__insert_dagconf(self.dag_item)
+        dag_conf_list, dag_conf = self.__insert_dagconf(self.dag_item)
 
-        return dag_conf_list
+        return dag_conf_list, dag_conf

@@ -1,0 +1,5 @@
+    logger=phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
+    spark=kwargs["spark"]()
+    result_path_prefix=kwargs["result_path_prefix"]
+    depends_path=kwargs["depends_path"]
+{}

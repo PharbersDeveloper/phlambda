@@ -44,6 +44,7 @@ class Execute:
     def exec(self):
         # 获取所有的item
         item_list = self.process_insert_event()
+
         if item_list:
             self.logger.debug("item_list生成成功")
             for item in item_list:

@@ -9,17 +9,19 @@ from util.AWS import define_value as dv
 from handler.GenerateInvoker import GenerateInvoker
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-python3_default_args = {
-    "phmain": dv.TEMPLATE_PHMAIN_FILE_PYTHON3,
-    "phgraphtemp": dv.TEMPLATE_PHPYTHON3GRAPHTEMP_FILE,
-    "phdagjob": dv.TEMPLATE_PHPYTHON3DAGJOB_FILE
+default_args = {
+    "python3_phmain": dv.TEMPLATE_PHMAIN_FILE_PYTHON3,
+    "python3_phgraphtemp": dv.TEMPLATE_PHPYTHON3GRAPHTEMP_FILE,
+    "python3_phdagjob": dv.TEMPLATE_PHPYTHON3DAGJOB_FILE,
+    "prepare_phmain": dv.TEMPLATE_PHMAIN_FILE_PYTHON3,
+    "prepare_phgraphtemp": dv.TEMPLATE_PHPYTHON3GRAPHTEMP_FILE,
+    "prepare_phdagjob": dv.TEMPLATE_PHPYTHON3DAGJOB_FILE,
+    "pyspark_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
+    "pyspark_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
+    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
 }
 
-pyspark_default_args = {
-    "phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
-    "phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
-    "phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
-}
+
 
 class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
@@ -28,9 +30,8 @@ class CommandUploadAirflow(Command):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
-        # self.job_path_prefix = "/tmp/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/max/airflow/dags/"
+        self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
@@ -76,12 +77,10 @@ class CommandUploadAirflow(Command):
                        "_" + dag_conf.get("flowVersion")
 
         runtime = dag_conf.get("runtime")
-        phmain = runtime +
+
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
-
-        phmain =
-        f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHMAIN_FILE_PY)
+        f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime+"_phmain"))
         with open(job_path + "/phmain.py", "w") as file:
 
             for line in f_lines:
@@ -90,10 +89,6 @@ class CommandUploadAirflow(Command):
                     file.write("@click.command()\n")
                     for must in dv.PRESET_MUST_ARGS.split(","):
                         file.write("@click.option('--{}')\n".format(must.strip()))
-                    # for input in json.loads(dag_conf.get("inputs")):
-                    #     file.write("@click.option('--" + input.get("name") + "')\n")
-                    # for output in json.loads(dag_conf.get("outputs")):
-                    #     file.write("@click.option('--" + output.get("name") + "')\n")
                     file.write("""def debug_execute(**kwargs):
     try:
         logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
@@ -102,6 +97,7 @@ class CommandUploadAirflow(Command):
         outputs = [$alfred_outputs_name]
         outputs_id = [$alfred_outputs_id]
         project_id = "$alfred_project_id"
+        project_name = "$alfred_project_name"
         runtime = "$alfred_runtime"
         
         ph_conf = json.loads(kwargs.get("ph_conf", {}))
@@ -122,7 +118,7 @@ class CommandUploadAirflow(Command):
         
         args.update(result if isinstance(result, dict) else {})
 
-        df_map = create_input_df(runtime, inputs, args, project_id, output_version, logger)
+        df_map = create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger)
         args.update(df_map)
         result = execute(**args)
 
@@ -130,7 +126,7 @@ class CommandUploadAirflow(Command):
         logger.debug("job脚本返回输出df")
         logger.debug(args)
         
-        createOutputs(args, ph_conf, outputs, outputs_id, project_id, inputs, output_version, logger)
+        createOutputs(args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
 
         for output in outputs:
             args.update({output: output})
@@ -151,6 +147,7 @@ class CommandUploadAirflow(Command):
                                .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
                                .replace('$alfred_name', dag_conf.get("jobDisplayName"))
                                .replace('$alfred_project_id', dag_conf.get("projectId"))
+                               .replace('$alfred_project_name', dag_conf.get("dagName"))
                                .replace('$alfred_runtime', dag_conf.get("runtime"))
                                )
                 else:
@@ -217,14 +214,7 @@ class CommandUploadAirflow(Command):
 
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
-
-        print("======打印 dag_conf====33===")
-        print(dag_conf.get("operatorParameters"))
-        print(type(dag_conf.get("operatorParameters")))
-        print(json.loads(dag_conf.get("operatorParameters")))
         operator_parameters = json.loads(dag_conf.get("operatorParameters"))
-        print("======打印operator_parameters=======")
-        print(operator_parameters)
 
         phjob_exist = False
         # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
@@ -239,20 +229,36 @@ class CommandUploadAirflow(Command):
                 file.write("""def execute(**kwargs):\n""")
                 file.write(operator_code)
 
-
-
     def upload_phjob_files(self, dag_conf):
+
+        def upload_pyspark_job(operator_dir_path, dag_name):
+            self.phs3.upload_dir(
+                dir=operator_dir_path,
+                bucket_name=dv.TEMPLATE_BUCKET,
+                s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + dag_conf.get("jobDisplayName")
+            )
+
+        def upload_python3_job(operator_dir_path, dag_name):
+            # 将operator_dir_path的内容 copy 到efs 中
+            efs_job_path = self.operator_path + dag_name
+            if not os.path.isdir(efs_job_path):
+                os.makedirs(efs_job_path)
+            print("上传Python脚本")
+            print(operator_dir_path)
+            print(efs_job_path)
+            os.system("cp -r " + operator_dir_path + " " + efs_job_path)
 
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
         operator_dir_path = self.job_path_prefix + dag_name + "/" + dag_conf.get("jobDisplayName")
-
-        self.phs3.upload_dir(
-            dir=operator_dir_path,
-            bucket_name=dv.TEMPLATE_BUCKET,
-            s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + dag_conf.get("jobDisplayName")
-        )
+        runtime = dag_conf.get("runtime")
+        if runtime == "pyspark":
+            upload_pyspark_job(operator_dir_path, dag_name)
+        elif runtime == "prepare":
+            upload_pyspark_job(operator_dir_path, dag_name)
+        elif runtime == "python3":
+            upload_python3_job(operator_dir_path, dag_name)
 
     def airflow_operator_file(self, dag_conf):
 
@@ -284,32 +290,38 @@ class CommandUploadAirflow(Command):
             return links
 
         def create_operator_file(operator_dir_path, dag_name, links):
-            for link in links:
-                w = open(operator_file_path, "a")
-                f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHGRAPHTEMP_FILE)
-                for line in f_lines:
-                    line = line + "\n"
-                    w.write(
-                        line.replace("$alfred_dag_owner", dag_conf.get("owner")) \
-                            .replace("$alfred_email_on_failure", str("False")) \
-                            .replace("$alfred_dag_showName", dag_conf.get("showName", "default_showName")) \
-                            .replace("$alfred_email_on_retry", str("False")) \
-                            .replace("$alfred_email", str("['airflow@example.com']")) \
-                            .replace("$alfred_retries", str(0)) \
-                            .replace("$alfred_retry_delay", str("minutes=5")) \
-                            .replace("$alfred_dag_id", str(dag_name)) \
-                            .replace("$alfred_dag_tags", str("'default'")) \
-                            .replace("$alfred_schedule_interval", str("None")) \
-                            .replace("$alfred_description", str("A Max Auto Job Example")) \
-                            .replace("$alfred_dag_timeout", str("3000.0")) \
-                            .replace("$alfred_start_date", str(1)) \
-                            .replace("$alfred_projectId", dag_conf.get("projectId"))
-                    )
+            # for link in links:
+            w = open(operator_file_path, "a")
+            self.logger.debug("脚本运行时")
+            self.logger.debug(dag_conf)
+            runtime = dag_conf.get("runtime")
+            self.logger.debug(runtime)
+            self.logger.debug(default_args.get(runtime + "_phgraphtemp"))
+            f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime + "_phgraphtemp"))
+            for line in f_lines:
+                line = line + "\n"
+                w.write(
+                    line.replace("$alfred_dag_owner", dag_conf.get("owner")) \
+                        .replace("$alfred_email_on_failure", str("False")) \
+                        .replace("$alfred_dag_showName", dag_conf.get("showName", "default_showName")) \
+                        .replace("$alfred_email_on_retry", str("False")) \
+                        .replace("$alfred_email", str("['airflow@example.com']")) \
+                        .replace("$alfred_retries", str(0)) \
+                        .replace("$alfred_retry_delay", str("minutes=5")) \
+                        .replace("$alfred_dag_id", str(dag_name)) \
+                        .replace("$alfred_dag_tags", str("'default'")) \
+                        .replace("$alfred_schedule_interval", str("None")) \
+                        .replace("$alfred_description", str("A Max Auto Job Example")) \
+                        .replace("$alfred_dag_timeout", str("3000.0")) \
+                        .replace("$alfred_start_date", str(1)) \
+                        .replace("$alfred_projectId", dag_conf.get("projectId"))
+                )
 
         def update_operator_file(operator_file_path, dag_name, links):
 
+            runtime = dag_conf.get("runtime")
             w = open(operator_file_path, "a")
-            jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHDAGJOB_FILE)
+            jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime + "_phdagjob"))
             for line in jf:
                 line = line + "\n"
                 w.write(
@@ -358,7 +370,7 @@ class CommandUploadAirflow(Command):
                        "_" + json.loads(item["message"]).get("flowVersion")
 
         operator_file_name = "ph_dag_" + dag_name + ".py"
-
+        
         operator_dir_path = self.operator_path
         operator_file_path = operator_dir_path + operator_file_name
 

@@ -7,7 +7,7 @@ class CFN(PhAWS):
 
         self.cfn_client = boto3.client("cloudformation")
 
-    def create_project(self, target_name, target_ip):
+    def create_project(self, target_name, target_ip, project_id):
 
         self.cfn_client.create_stack(
             StackName=target_name + "-project",
@@ -20,6 +20,10 @@ class CFN(PhAWS):
                 {
                     'ParameterKey': 'PrivateIpAddress',
                     'ParameterValue': target_ip,
+                },
+                {
+                    'ParameterKey': 'ProjectId',
+                    'ParameterValue': project_id,
                 }
             ]
         )

@@ -8,6 +8,7 @@ from handler.Command.LockCommand import LockCommand, UnLockCommand, WatchLockCom
 from handler.Command.RemoveCKReceiver import RemoveCKReceiver
 from handler.Command.RemoveDSReceiver import RemoveDSReceiver
 from handler.Command.LockReceiver import LockReceiver
+from handler.Command.RemoveS3Path import RemoveS3Path
 
 
 class RemoveDS:
@@ -27,7 +28,14 @@ class RemoveDS:
                     "time": 60
                 })
                 SaveCommand(RemoveCKReceiver()).execute({
-                    "tableName": f"""{item["projectId"]}_{message["destination"]}"""
+                    "projectId": item["projectId"],
+                    "destination": message["destination"]
+                })
+
+                remove_s3_dir = f"""{message.get("provider", "pharbers")}/{item['projectId'].replace('_', '-')}/{message['destination']}"""
+                RemoveS3Path().execute({
+                    "bucket_name": "ph-platform",
+                    "s3_dir": f"""2020-11-11/lake/{remove_s3_dir}"""
                 })
 
                 SaveCommand(RemoveDSReceiver()).execute({

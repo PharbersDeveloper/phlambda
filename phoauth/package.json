@@ -32,7 +32,7 @@
     "eslint-config-boss": "^1.0.6",
     "jest": "^26.6.0",
     "jest-junit": "12.2.0",
-    "phnodelayer": "2.0.8",
+    "phnodelayer": "~2.0.12",
     "prettier": "^2.1.2",
     "ts-jest": "^26.4.1",
     "ts-node": "^10.2.0",

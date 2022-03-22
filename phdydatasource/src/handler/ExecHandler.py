@@ -12,6 +12,8 @@ from models.Notification import Notification
 from models.Dag import Dag
 from models.DagConf import DagConf
 from models.Log import Log
+from models.Dashboard import Dashboard
+from models.Slide import Slide
 
 # import base64
 # from util.AWS.STS import STS
@@ -41,7 +43,9 @@ __table_structure = {
     "notification": Notification,
     "dag": Dag,
     "dagconf": DagConf,
-    "logs": Log
+    "logs": Log,
+    "dashboard": Dashboard,
+    "slide": Slide
 }
 
 

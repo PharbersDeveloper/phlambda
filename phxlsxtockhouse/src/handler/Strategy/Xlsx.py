@@ -2,6 +2,8 @@ from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched
 from handler.Strategy.Strategy import Strategy
 from openpyxl.utils.exceptions import InvalidFileException
 
+from handler.Command.WriteReceiver import WriteReceiver
+from handler.Command.WriteS3Command import WriteS3Command
 from handler.Command.CheckSchemaReceiver import CheckSchemaReceiver
 from handler.Command.CheckCommand import CheckSchemaConsistencyCommand
 from handler.Command.DagReceiver import DagReceiver
@@ -9,6 +11,8 @@ from handler.Command.DataSetReceiver import DataSetReceiver
 from handler.Command.SaveCommand import SaveDataSetCommand, SaveDagCommand
 from handler.Command.MsgReceiver import MsgReceiver
 from handler.Command.SendMsgCommand import SendMsgRunCommand
+from handler.Command.UploadS3Command import UploadS3Command
+from handler.Command.RemovePathCommand import RemovePathCommand
 from boto3.dynamodb.conditions import Attr
 from util.execl import Excel
 from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
@@ -21,11 +25,11 @@ import constants.Common as Common
 
 
 class Xlsx(Strategy):
+    clickhouse = None
     parameters = None
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.msg_receiver = MsgReceiver()
         self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
 
@@ -44,6 +48,7 @@ class Xlsx(Strategy):
 
         sql = f"INSERT INTO {os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` ({cols_description}) VALUES"
 
+        # TODO: 该函数意义不明确，需要在下个阶段重构
         def add_col(col):
             value = {}
             for x in list(col.keys()):
@@ -69,6 +74,11 @@ class Xlsx(Strategy):
         self.logger.debug(f"sql ====> \n {sql}")
         execl_data = list(map(add_col, data))
         self.clickhouse.insert_data(sql, execl_data)
+
+        WriteS3Command(WriteReceiver()).execute({
+            "writePath": self.parameters["writePath"],
+            "execlData": execl_data
+        })
 
         # 主要做写入Notification操作的进度
         message = dict({}, **self.parameters)
@@ -108,7 +118,7 @@ class Xlsx(Strategy):
             raise VersionAlreadyExist("version already exist")
 
         Excel(
-            f"{os.environ[DV.FILE_PATH]}{file_name}", sheet_name,
+            f"{os.environ[DV.FILE_PATH].replace('#projectid#', project_id)}{file_name}", sheet_name,
             skip_first + 1, skip_next,
             original_schema, int(os.environ.get(DV.BATCH_SIZE, 10000))
         ).batchReader(self.__xlsx_callback)
@@ -117,6 +127,9 @@ class Xlsx(Strategy):
         self.logger.debug("Excel Xlsx ====> \n")
 
         try:
+            # TODO 应该做成统一的外部服务的加载，后续重构
+            self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](data["projectId"])
+
             # TODO 应该在抽象一层参数类,以Build构造出数据，第一版本先这样
             parameters = {
                 "id": data["id"],
@@ -130,18 +143,20 @@ class Xlsx(Strategy):
                 "sheet_name": data["message"]["fileSheet"],
                 "ds_name": data["message"]["destination"],
                 "opgroup": data["message"]["opgroup"],
+                "provider": data["message"].get("provider", "pharbers"),
                 "cat": data["message"].get("cat", "intermediate"),
                 "path": data["message"].get("path", ""),
                 "prop": data["message"].get("prop", ""),
                 "format": data["message"].get("format", ""),
-                "prefix": "project_file_to_DS_"
+                "prefix": data["jobDesc"],
+                "jobCat": "project_file_to_DS_"
             }
 
             self.parameters = parameters
 
             original_schema = list(map(
                 lambda item: {"src": item, "des": item, "type": "String"},
-                data.get("mapper", Excel.getSchema(os.environ[DV.FILE_PATH] + parameters["file_name"],
+                data.get("mapper", Excel.getSchema(os.environ[DV.FILE_PATH].replace('#projectid#', parameters['project_id']) + parameters["file_name"],
                                                    parameters["sheet_name"],
                                                    int(parameters["skip_first"]) + 1))
             ))
@@ -167,17 +182,28 @@ class Xlsx(Strategy):
                 ds_id = ds_result[0]["id"]
                 label = ds_result[0]["label"]
 
+            # writePathPrefix = "/Users/qianpeng/GitHub/phlambda/phxlsxtockhouse/tmp/"
+            writePathPrefix = os.environ.get(DV.FILE_PATH).replace("#projectid#", parameters['project_id'])
+            writePathSuffix = f"""{self.parameters['provider']}/{self.parameters['project_id'].replace('_', '-')}/{self.parameters['ds_name']}"""
+
             parameters["original_schema"] = original_schema
             parameters["standard_schema"] = standard_schema
             parameters["ds_id"] = ds_id
             parameters["label"] = label
+            parameters["writePath"] = writePathPrefix + writePathSuffix
 
             CheckSchemaConsistencyCommand(CheckSchemaReceiver()).execute({
                 "cur_schema": standard_schema,
-                "ds_schema": json.loads(ds_result[0]["schema"]) if len(ds_result) > 0 else None
+                "ds_schema": json.loads(ds_result[0]["schema"]) if len(ds_result) > 0 else []
             })
 
             self.__write2Clickhouse()  # 写数据
+            UploadS3Command().execute({
+                "source": parameters["writePath"],
+                "bucket_name": "ph-platform",
+                "s3_dir": f"2020-11-11/lake/{writePathSuffix}"
+            })
+            RemovePathCommand().execute(parameters["writePath"] + "/version=" + self.parameters["version"])
             SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
             self.logger.debug("SaveDataSetCommand")
             SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag

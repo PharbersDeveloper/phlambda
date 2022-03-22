@@ -309,6 +309,15 @@ export default class Platform {
             cat: String,
             level: Number,
             engine: String
+        },
+        // configuration web layout
+        layout: {
+            clientId: String,
+            clientName: String,
+            version: String,
+            name: String,
+            css: String,
+            script: String
         }
     }
 

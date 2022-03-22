@@ -5,6 +5,7 @@ from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
 from clickhouse_driver.errors import ServerException
 from util.ClieckHouse import ClickHouse
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = DynamoDB()
 # import base64
@@ -18,8 +19,17 @@ dynamodb = DynamoDB()
 # dynamodb = DynamoDB(sts=sts)
 
 
-def executeSql(sql):
-    client = ClickHouse(host="192.168.16.117", port="9000").getClient()
+def executeSql(projectId, sql):
+    result = dynamodb.scanTable({
+        "table_name": "resource",
+        "limit": 100000,
+        "expression": Attr("projectId").eq(projectId),
+        "start_key": ""
+    })["data"]
+    ip = "192.168.16.117"
+    if len(result) > 0:
+        ip = result[0]["projectIp"]
+    client = ClickHouse(host=ip, port="9000").getClient()
     # client = ClickHouse(host="localhost", port="19000").getClient()
     result = client.execute(sql)
     return result
@@ -44,15 +54,31 @@ def transformClickHouseSchema(projectId, data):
         for item in schemas:
             schema = item
             sql = f"""ALTER TABLE default.`{tableName}` MODIFY COLUMN `{item["src"]}` {item["type"]}"""
-            executeSql(sql)
+            executeSql(projectId, sql)
     except ServerException as se:
         print("ServerException  ==> \n")
         print(se)
         print(se.code)
         if se.code == 341 or se.code == 50:
-            raise Exception(f"column {schema['src']} cannot convert to {schema['type']}")
+            error = {
+                "code":  509,
+                "message": {
+                    "zh": f"列 {schema['src']} 不能转换到 {schema['type']} 类型",
+                    "en": f"column {schema['src']} cannot convert to {schema['type']}",
+                    "meta": "column convert type error"
+                }
+            }
+            raise Exception(json.dumps(error))
     except Exception as e:
-        raise Exception(f"unknown error")
+        error = {
+            "code": -1,
+            "message": {
+                "en": "unknown error",
+                "zh": "未知错误",
+                "meta": str(e)
+            }
+        }
+        raise Exception(json.dumps(error))
 
 
 # 修改DynamoDB的DS中的Schema类型
@@ -105,7 +131,6 @@ def updateActionData(tableName, projectId, date, state):
         "start_key": ""
     })["data"]
     if len(result) > 0:
-        result[0]["jobDesc"] = state
         dynamodb.putData({
             "table_name": tableName,
             "item": result[0]
@@ -125,22 +150,23 @@ def insertNotification(actionId, projectId, date, state, error):
         "item": {
             "id": actionId,
             "projectId": result[0]["projectId"],
-            "code": 0,
+            "code": "0",
             "comments": "",
             "date": int(round(time.time() * 1000)),
             "jobCat": "notification",
-            "jobDesc": state,
+            "jobDesc": result[0]["jobDesc"],
             "message": json.dumps({
                 "type": "operation",
                 "opname": result[0]["owner"],
-                "opgroup": message.get("opgroup", "0"),
+                "opgroup": message.get("opgroup", "-1"),
                 "cnotification": {
                     "status": "transform_schema_{}".format(state),
                     "error": error
                 }
             }),
             "owner": result[0]["owner"],
-            "showName": result[0]["showName"]
+            "showName": result[0]["showName"],
+            "status": state
         }
     })
 

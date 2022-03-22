@@ -13,15 +13,24 @@
             "S": "Zz4OaNcwWn1moae"
           },
           "projectId": {
+<<<<<<< Updated upstream
             "S": "JfSmQBYUpyb4jseitest"
+=======
+            "S": "JfSmQBYUpyb4jsei"
+>>>>>>> Stashed changes
           }
         },
         "NewImage": {
           "projectId": {
+<<<<<<< Updated upstream
             "S": "JfSmQBYUpyb4jseitest"
           },
           "message": {
             "S": "{\"project_name\":\"test_project\",\"flow_version\":\"developer\",\"conf\":{\"datasets\":[{\"name\":\"published\",\"version\":[\"common_2017\"],\"cat\":\"uploaded\",\"prop\":{\"path\":\"\",\"partitions\":1}}],\"scripts\":[],\"userConf\":{}}}"
+          },
+          "message": {
+            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_b\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"TEst12345\", \"id\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\"}, {\"name\": \"TEst111\", \"id\": \"f1c06c818ec5a31ceb7dfee1623a6afd.xlsx\"}],\"outputs\": [{\"name\": \"at1\", \"id\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"projectName\": \"max\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao1\",\"targetJobId\": \"1qaz4rfv\",\"labels\": [\"tag1\",\"tag2\"]}"
+>>>>>>> Stashed changes
           },
           "property": {
             "S": "{\"dataID\":\"data_1\",\"dataset\":\"data\"}"

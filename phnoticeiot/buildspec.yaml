@@ -6,8 +6,8 @@ phases:
   build:
     commands:
       - python3 -m pytest --junitxml=$PROJECT_NAME-report-directory/$PROJECT_NAME-report-file.xml
-      - sam package --template-file template.yaml --output-template-file /codebuild/output/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$PROJECT_NAME/samtem
-      - sam deploy --template-file /codebuild/output/package.yaml --stack-name lmd-$PROJECT_NAME-deploy-v2 --capabilities CAPABILITY_IAM
+      - sam package --template-file template.yaml --output-template-file package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phnoticeiot/samtem
+      - sam deploy --template-file package.yaml --stack-name lmd-phnoticeiot-deploy-v2 --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - src/**/**

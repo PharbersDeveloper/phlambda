@@ -13,6 +13,9 @@ Resources:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
       FunctionName: lmd-phs3down-dev
       Description: "phs3down-dev "
+      Environment:
+        Variables:
+          EDITION: "DEV"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 5

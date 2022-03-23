@@ -21,6 +21,7 @@ Resources:
       Environment:
         Variables:
           ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

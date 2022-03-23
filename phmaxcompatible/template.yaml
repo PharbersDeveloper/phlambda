@@ -14,3 +14,6 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 600
+      Environment:
+        Variables:
+          EDITION: "DEV"

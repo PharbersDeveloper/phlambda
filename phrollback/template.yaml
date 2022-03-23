@@ -14,6 +14,9 @@ Resources:
       Description: "数据回滚"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 120
       VpcConfig:
         SecurityGroupIds:

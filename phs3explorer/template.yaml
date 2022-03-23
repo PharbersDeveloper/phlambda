@@ -21,6 +21,7 @@ Resources:
       Environment:
         Variables:
           PATH_PREFIX: /mnt/tmp/
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

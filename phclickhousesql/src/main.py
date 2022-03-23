@@ -1,5 +1,6 @@
 import boto3
 import re
+import os
 from functools import reduce
 from clickhouse_driver import Client
 
@@ -31,7 +32,8 @@ def lambda_handler(event, context):
 
     # "ec2-user@ec2-69-230-210-235.cn-northwest-1.compute.amazonaws.com.cn"
     # 在lmd内 '192.168.0.66'
-    clickhouse_driver_client = Client(host='192.168.0.66')
+    clickhouse_host = os.getenv("CLICKHOUSE_HOST")
+    clickhouse_driver_client = Client(host=clickhouse_host)
     clickhouse_driver_client.execute(sql_content)
     run_id = event['parameter']['run_id']
     return {

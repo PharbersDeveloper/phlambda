@@ -18,9 +18,9 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          DBNAME: "phplatform"
-          USER: "pharbers"
-          PASSWORD: "Abcde196125"
+          DBNAME: "phplatform_dev"
+          USER: "pharbers_dev"
+          PASSWORD: "123456"
           HOST: "192.168.49.199"
           PORT: "5439"
       VpcConfig:

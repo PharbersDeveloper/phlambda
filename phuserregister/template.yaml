@@ -23,6 +23,7 @@ Resources:
           PASSWORD: "Abcde196125"
           HOST: "192.168.49.199"
           PORT: "5439"
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

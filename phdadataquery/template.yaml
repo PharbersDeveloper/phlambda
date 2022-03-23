@@ -21,6 +21,9 @@ Resources:
           HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
           PORT: "6379"
           APP_NAME: "phchdatasource"
+          Environment:
+            Variables:
+              EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

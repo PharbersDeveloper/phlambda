@@ -20,6 +20,7 @@ Resources:
         Variables:
           REDIS_HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
           REDIS_PORT: "6379"
+          EDITION: "DEV"
       Tags:
         edition: dev
         owner: hbzhao

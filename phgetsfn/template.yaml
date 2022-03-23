@@ -15,7 +15,7 @@ Resources:
       Description: "获取Stepfunction的 执行状态"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      #      Environment:
-      #        Variables:
-      #          PATH_PREFIX: /mnt/tmp/
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 30

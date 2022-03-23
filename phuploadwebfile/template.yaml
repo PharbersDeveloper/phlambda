@@ -14,5 +14,8 @@ Resources:
       FunctionName: lmd-phuploadwebfile-V2
       Description: "接收s3events 当offweb artifacts 上传时下载artifact分别上传file到指定位置"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 60
       MemorySize: 1024

@@ -68,6 +68,7 @@ class CommandCreateDagConf(Command):
                 raise Exception("outputs选择错误")
         return check
 
+
     def update_targetId(self, dag_conf):
         # 判断input 如果是某个item的output
         # 则将当前jobId 添加到input Item 的targetJobId
@@ -150,7 +151,7 @@ class CommandCreateDagConf(Command):
         jobId = GenerateID.generate()
         dag_conf.update({"jobId": jobId})
         # 进行input output检查input index只能作为输入，output index 只能作为输出
-        self.check_max_index(dag_conf)
+        # self.check_max_index(dag_conf)
 
         targetJobId = []
         dag_conf.update({"targetJobId": json.dumps(targetJobId, ensure_ascii=False)})

@@ -4,7 +4,6 @@ import time
 from util.AWS.DynamoDB import DynamoDB
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-
 class UpdateAction:
 
     def __init__(self, **kwargs):
@@ -38,7 +37,16 @@ class UpdateAction:
         }
         self.dynamodb.updateData(data)
 
-    def updateNotification(self, item, table_name, dag_conf={}, status={}):
+    def updateNotification(self, action_item, table_name, dag_conf, status=" "):
+
+        data = {
+            "table_name": "notification"
+        }
+        item = {}
+        job_status = "failed"
+        if status == "dag insert success":
+            job_status = "succeed"
+
         message = {
             "type": "notification",
             "opname": action_item.get("owner"),
@@ -46,35 +54,16 @@ class UpdateAction:
                 "jobName": str(dag_conf.get("jobName")),
                 "jobPath": str(dag_conf.get("job_path")),
                 "jobShowName": str(dag_conf.get("jobShowName")),
-                "status": status["status"],
+                "status": status,
                 "error": json.dumps({
                     "code": "123",
                     "message": {
-                        "zh": status["message"],
-                        "en": status["message"]
+                        "zh": status,
+                        "en": status
                     }
                 }, ensure_ascii=False)
             }
         }
-        item.update({"jobDesc": status})
-        item.update({"message": json.dumps(message,  ensure_ascii=False)})
-        Key = {
-            "id": item.get("id", "default_id"),
-            "projectId": item.get("projectId")
-        }
-        AttributeUpdates={}
-        for key, value in item.items():
-            update = {
-                key: {
-                    "Value": value,
-                    "Action": "PUT"
-                }
-            }
-            AttributeUpdates.update(update)
-        if AttributeUpdates.get("id"):
-            del AttributeUpdates["id"]
-        if AttributeUpdates.get("projectId"):
-            del AttributeUpdates["projectId"]
 
         item.update({"id": action_item.get("id", "default_id")})
         item.update({"projectId": action_item.get("projectId")})
@@ -92,6 +81,7 @@ class UpdateAction:
         print(data)
         self.dynamodb.putData(data)
         self.logger.debug("notification 创建完成")
+
 
     def updateDagConf(self, item):
 

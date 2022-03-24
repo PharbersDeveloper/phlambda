@@ -1,4 +1,3 @@
-import os
 import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
@@ -7,7 +6,6 @@ from util.GenerateID import GenerateID
 class DynamoDB:
 
     def __init__(self, **kwargs):
-        self.edition = "_dev" if os.getenv("EDITION") == "DEV" else ""
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:
@@ -35,7 +33,7 @@ class DynamoDB:
         return item
 
     def queryTable(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
@@ -59,7 +57,7 @@ class DynamoDB:
         }
 
     def scanTable(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]

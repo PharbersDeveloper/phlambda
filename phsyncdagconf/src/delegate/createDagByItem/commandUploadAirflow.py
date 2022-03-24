@@ -10,9 +10,9 @@ from handler.GenerateInvoker import GenerateInvoker
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 default_args = {
-    "python3_phmain": dv.TEMPLATE_PHMAIN_FILE_PYTHON3,
-    "python3_phgraphtemp": dv.TEMPLATE_PHPYTHON3GRAPHTEMP_FILE,
-    "python3_phdagjob": dv.TEMPLATE_PHPYTHON3DAGJOB_FILE,
+    "python3_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
+    "python3_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
+    "python3_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
     "prepare_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
     "prepare_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
     "prepare_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
@@ -128,11 +128,7 @@ class CommandUploadAirflow(Command):
         
         createOutputs(args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
 
-        for output in outputs:
-            args.update({output: output})
-        for input in inputs:
-            args.update({input: input})
-        result = exec_after(outputs=outputs, **args)
+
 
         return result
     except Exception as e:
@@ -239,14 +235,12 @@ class CommandUploadAirflow(Command):
             )
 
         def upload_python3_job(operator_dir_path, dag_name):
-            # 将operator_dir_path的内容 copy 到efs 中
-            efs_job_path = self.operator_path + dag_name
-            if not os.path.isdir(efs_job_path):
-                os.makedirs(efs_job_path)
-            print("上传Python脚本")
-            print(operator_dir_path)
-            print(efs_job_path)
-            os.system("cp -r " + operator_dir_path + " " + efs_job_path)
+            self.phs3.upload_dir(
+                dir=operator_dir_path,
+                bucket_name=dv.TEMPLATE_BUCKET,
+                s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + dag_conf.get("jobDisplayName")
+            )
+
 
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \

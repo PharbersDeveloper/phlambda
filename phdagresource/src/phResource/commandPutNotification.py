@@ -29,7 +29,13 @@ class CommandPutNotification(Command):
             'Cookie': 'AWSALBTG=4OrpUZOfa1M47ma2ZbTf3+hF+G9KxGadugIRMRgf0hp9lTl3XoBpx787sMy9kcswdrSRPyqVHZJSG5z7wwVbIxsWq1oMVZSLenr3lwdtAD72QjFmCipiSQCHaCT7uPWA8YD0CXkvbiigcCopsqFsGOgzxt2P+/S6Y97s89fipQ4B; AWSALBTGCORS=4OrpUZOfa1M47ma2ZbTf3+hF+G9KxGadugIRMRgf0hp9lTl3XoBpx787sMy9kcswdrSRPyqVHZJSG5z7wwVbIxsWq1oMVZSLenr3lwdtAD72QjFmCipiSQCHaCT7uPWA8YD0CXkvbiigcCopsqFsGOgzxt2P+/S6Y97s89fipQ4B; session=.eJwNjMEOAiEMRP-l5z3QDRjkZ0jBVo2VNdA9Gf_dnibzJm--UGXyekAR0sUb1A_PNw0eBsXm6aSvKdWOFw8oEK-8hyghxYy99RZiIpRLRsp9R0-Jgqll2OBG97qM7FxVnmo8XSdVX_TopOzVL39_4NUpnA.YhSU8g.tFj0xvOCbYQqgKadxDZxVHM2KO0'
         }
         while url:
-            response = requests.request("GET", url, headers=headers, data=payload, timeout=5)
+            time.sleep(30)
+            try:
+                response = requests.request("GET", url, headers=headers, data=payload, timeout=100)
+                print(response.status_code)
+                print(type(response.status_code))
+            except Exception as e:
+                print(e)
             if response.status_code == 200:
                 status = 200
                 break

@@ -21,7 +21,7 @@ class CommandPutResourceArgs(Command):
             "table_name": "resource"
         }
         item = {}
-        item.update({"projectName": self.project_name})
+        item.update({"projectName": self.target_name})
         item.update({"projectId": self.project_id})
         item.update({"projectIp": self.target_ip})
         item.update({"ruleArn": self.rule_arn})

@@ -25,7 +25,7 @@ class Execute:
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.logger = PhLogging().phLogger("创建流程入口", LOG_DEBUG_LEVEL)
-            
+
 
     def process_insert_event(self):
         # 获取新插入item的 partition_key, sort_key, message

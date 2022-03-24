@@ -19,7 +19,7 @@ class CommandCreateTargetGroup(Command):
         logger.debug("target_group 创建流程")
 
         target_port = 8080
-        target_group_arn = self.elb.create_target_group(self.project_id, target_port)
+        target_group_arn = self.elb.create_target_group(self.target_name, target_port)
 
         logger.debug("target_group 创建完成")
         return target_group_arn

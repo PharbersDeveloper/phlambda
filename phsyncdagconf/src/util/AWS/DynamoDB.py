@@ -1,5 +1,5 @@
 import json
-import os
+
 import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
@@ -9,7 +9,6 @@ from boto3.dynamodb.conditions import Key, Attr
 class DynamoDB(object):
 
     def __init__(self, **kwargs):
-        self.edition = "_dev" if os.getenv("EDITION") == "DEV" else ""
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:
@@ -24,7 +23,7 @@ class DynamoDB(object):
         self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
 
     def queryTable(self, data):
-        table_name = data.get("table_name") + self.edition
+        table_name = data.get("table_name")
         partition_key = data["partition_key"]
         partition_value = data["partition_value"]
         ds_table = self.dynamodb_resource.Table(table_name)
@@ -37,7 +36,7 @@ class DynamoDB(object):
         return res
 
     def queryTableBeginWith(self, data):
-        table_name = data.get("table_name") + self.edition
+        table_name = data.get("table_name")
         partition_key = data["partition_key"]
         partition_value = data["partition_value"]
         sort_key = data["sort_key"]
@@ -52,7 +51,7 @@ class DynamoDB(object):
         return res
 
     def scanTable(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
@@ -80,7 +79,7 @@ class DynamoDB(object):
             }
 
     def putData(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         item = data["item"]
         table = self.dynamodb_resource.Table(table_name)
         table.put_item(
@@ -91,7 +90,7 @@ class DynamoDB(object):
         }
 
     def updateData(self, data):
-        table_name = data.get("table_name") + self.edition
+        table_name = data.get("table_name")
         key = data.get("key")
         attributeUpdates = data.get("AttributeUpdates")
         table = self.dynamodb_resource.Table(table_name)
@@ -101,7 +100,7 @@ class DynamoDB(object):
         )
 
     def getItem(self, data):
-        table_name = data.get("table_name") + self.edition
+        table_name = data.get("table_name")
         key = data.get("key")
         table = self.dynamodb_resource.Table(table_name)
         res = table.get_item(
@@ -115,7 +114,7 @@ class DynamoDB(object):
         return res
 
     def query_attribute(self, data):
-        table_name= data.get("table_name") + self.edition
+        table_name= data.get("table_name")
         attribute_key = data["attribute"].get("key")
         attribute_value = data["attribute"].get("value")
         table = self.dynamodb_resource.Table(table_name)
@@ -125,7 +124,7 @@ class DynamoDB(object):
         return res
 
     def delete_item(self, data):
-        table_name = data.get("table_name") + self.edition
+        table_name = data.get("table_name")
         key = data.get("key")
         table = self.dynamodb_resource.Table(table_name)
         try:
@@ -150,7 +149,7 @@ class DynamoDB(object):
                 delete_sortKey: item.get(delete_sortKey),
             }
             data = {
-                "table_name": delete_data.get("table_name") + self.edition,
+                "table_name": delete_data.get("table_name"),
                 "key": key
             }
             self.delete_item(data)
@@ -169,7 +168,7 @@ class DynamoDB(object):
                     delete_sortKey: item.get(delete_sortKey),
                 }
                 data = {
-                    "table_name": delete_data.get("table_name") + self.edition,
+                    "table_name": delete_data.get("table_name"),
                     "key": key
                 }
                 self.delete_item(data)

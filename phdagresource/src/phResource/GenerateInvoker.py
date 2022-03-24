@@ -59,56 +59,65 @@ class GenerateInvoker(object):
         project_id = self.project_message.get("projectId")
         content = self.project_message.get("content")
 
+        target_name = self.name_convert_to_camel(project_name)
         # 分配Ip 并从SSM判断ip是否重复
         target_ip = self.create_ip_address()
+        logger.debug(target_name)
         logger.debug(target_ip)
 
         try:
             # 创建records
-            CommandCreateRecords(project_id=project_id).execute()
+            CommandCreateRecords(target_name=target_name).execute()
         except Exception as e:
             status = "创建records时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
-            raise Exception(status)
-        
+
         try:
             # 创建target group
-            target_group_arn = CommandCreateTargetGroup(project_id=project_id).execute()
+            target_group_arn = CommandCreateTargetGroup(target_name=target_name).execute()
         except Exception as e:
             status = "创建 target group 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
         try:
             # register targets
             CommandRegisterTarget(target_ip=target_ip, target_group_arn=target_group_arn).execute()
         except Exception as e:
             status = "register targets 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
         try:
             # 向load balancer 添加rules
-            rule_arn = CommandCreateRule(target_name=project_id, target_group_arn=target_group_arn).execute()
+            rule_arn = CommandCreateRule(target_name=target_name, target_group_arn=target_group_arn).execute()
         except Exception as e:
             status = "向load balancer 添加rules 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
+        try:
+            # 在efs里创建相关文件夹
+            # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
+            if content == "project":
+                CommandCreateEfs(target_name=target_name).execute()
+        except Exception as e:
+            status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
         try:
             # 创建ec2实例
-            CommandCreateProject(target_ip=target_ip, project_id=project_id).execute()
+            CommandCreateProject(target_name=target_name, target_ip=target_ip, project_id=project_id).execute()
         except Exception as e:
             status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
         try:
             # 更新ssm
             CommandPutParameter(
-                project_id=project_id,
+                target_name=target_name,
                 target_ip=target_ip
             ).execute()
         except Exception as e:
             status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
         # try:
         #     # 调用恢复clickhouse 数据的lmd
@@ -120,7 +129,7 @@ class GenerateInvoker(object):
         try:
             # 在dynamodb更新 resource 相关的参数
             CommandPutResourceArgs(
-                project_name=project_name,
+                target_name=target_name,
                 project_id=project_id,
                 target_ip=target_ip,
                 target_group_arn=target_group_arn,
@@ -128,13 +137,13 @@ class GenerateInvoker(object):
             ).execute()
         except Exception as e:
             status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
         try:
             CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
         except Exception as e:
             status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
-            raise Exception(status)
+            logger.debug(status)
 
     def delete_execute(self):
         logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)
@@ -143,46 +152,56 @@ class GenerateInvoker(object):
         project_name = self.project_message.get("projectName")
         project_id = self.project_message.get("projectId")
         content = self.project_message.get("content")
-        logger.debug(project_name)
+        target_name = self.name_convert_to_camel(project_name)
+        logger.debug(target_name)
 
         try:
             # 从dynamodb中获取 project 的相关参数
-            resource_args = CommandGetResourceArgs(project_name=project_name, project_id=project_id).execute()
+            resource_args = CommandGetResourceArgs(target_name=target_name, project_id=project_id).execute()
         except Exception as e:
             status = "从dynamodb获取project参数错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
+            # 删除efs 相关文件
+            # 不能直接创建efs 需要sns调用另一个lambda创建删除efs
+            if content == "project":
+                CommandDelEfs(target_name=target_name).execute()
+        except Exception as e:
+            status = "在efs里创建相关文件夹时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
+
+        try:
             # 删除 load balancer 里的 rule
-            CommandDelRule(project_id=project_id, resource_args=resource_args).execute()
+            CommandDelRule(target_name=target_name, resource_args=resource_args).execute()
         except Exception as e:
             status = "删除 load balancer 里的 rule 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
             # 删除 target group
-            CommandDelTargetGroup(project_id=project_id, resource_args=resource_args).execute()
+            CommandDelTargetGroup(target_name=target_name, resource_args=resource_args).execute()
         except Exception as e:
             status = "删除 target时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
             # 删除 records
-            CommandDelRecords(project_id=project_id).execute()
+            CommandDelRecords(target_name=target_name).execute()
         except Exception as e:
             status = "删除 records 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
             # 删除ssm 中当前project资源
-            CommandDelParameter(project_id=project_id).execute()
+            CommandDelParameter(target_name=target_name).execute()
         except Exception as e:
             status = "删除ssm 中当前project资源 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
             # 删除resource args
-            CommandDelResourceArgs(project_name=project_name, project_id=project_id).execute()
+            CommandDelResourceArgs(target_name=target_name, project_id=project_id).execute()
         except Exception as e:
             status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
@@ -196,7 +215,7 @@ class GenerateInvoker(object):
 
         try:
             # 删除ec2 实例
-            CommandDelProject(project_id=project_id).execute()
+            CommandDelProject(target_name=target_name).execute()
         except Exception as e:
             status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)

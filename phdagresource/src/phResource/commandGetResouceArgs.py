@@ -22,7 +22,7 @@ class CommandGetResourceArgs(Command):
         }
         key = {
             "projectId": self.project_id,
-            "projectName": self.project_name
+            "projectName": self.target_name
         }
         data.update({"key": key})
         resource_args = self.dynamodb.getItem(data)

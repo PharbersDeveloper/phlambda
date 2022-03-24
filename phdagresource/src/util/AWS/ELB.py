@@ -1,4 +1,5 @@
 import boto3
+import time
 import random
 from util.AWS.PhAWS import PhAWS
 
@@ -8,10 +9,10 @@ class ELB(PhAWS):
 
         self.elb_client = boto3.client('elbv2')
 
-    def create_target_group(self, project_id, target_port):
+    def create_target_group(self, target_name, target_port):
 
         response = self.elb_client.create_target_group(
-            Name=project_id,
+            Name=target_name,
             Protocol='HTTP',
             ProtocolVersion='HTTP1',
             Port=target_port,
@@ -44,6 +45,7 @@ class ELB(PhAWS):
         response = self.elb_client.describe_rules(
             ListenerArn="arn:aws-cn:elasticloadbalancing:cn-northwest-1:444603803904:listener/app/alb-pharber-management-tools/66c1e8eef4d28433/27e4c643619d1c70",
         )
+
         Prioritys = [rule.get("Priority") for rule in response["Rules"]]
 
         Priority = str(random.randint(1, 99))
@@ -53,20 +55,21 @@ class ELB(PhAWS):
             elif Priority in Prioritys:
                 Priority = str(random.randint(1, 99))
 
-        return Priority
+        return int(Priority)
 
-    def create_rule(self, project_id, target_group_arn):
+
+    def create_rule(self, target_name, target_group_arn):
 
         Priority = self.get_rules_len()
         response = self.elb_client.create_rule(
             ListenerArn="arn:aws-cn:elasticloadbalancing:cn-northwest-1:444603803904:listener/app/alb-pharber-management-tools/66c1e8eef4d28433/27e4c643619d1c70",
-            Priority=Priority,
+            Priority=Priority ,
             Conditions=[
                 {
                     "Field": "host-header",
                     # "Values": ['auto-max-refactor.pharbers.com'],
                     "HostHeaderConfig": {
-                        "Values": [project_id + ".pharbers.com"]
+                        "Values": [target_name + ".pharbers.com"]
                     }
                 }
             ],

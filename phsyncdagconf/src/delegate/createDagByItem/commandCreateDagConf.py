@@ -32,7 +32,7 @@ class CommandCreateDagConf(Command):
 
         projectId = dag_conf.get("projectId")
         inputs = dag_conf.get("inputs")
-        input_cats = ["input_index", "uploaded", "intermediate", "catalog"]
+        input_cats = ["input_index", "uploaded", "intermediate", "cata"]
         for input in inputs:
             id = input.get("id")
             data = {

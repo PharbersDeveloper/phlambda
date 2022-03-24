@@ -20,7 +20,7 @@ class PTP(Strategy):
 
         table_name = data["target"]
         if data["target"] == "notification":
-            conditions = {"id": ["=", data["id"]], "projectId": ["=", data["projectId"]]}
+            conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
         else:
             date = data["runnerId"].split("_")[-1]
             conditions = {"id": ["=", f"""{data["projectId"]}_{data["ownerId"]}"""], "date": ["=", date]}

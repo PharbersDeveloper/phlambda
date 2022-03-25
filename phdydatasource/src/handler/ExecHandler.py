@@ -37,6 +37,7 @@ __table_structure = {
     "execution": Execution,
     "step": Step,
     "action": Action,
+    "action_dev": Action,
     "project_files": ProjectFile,
     "partition": Partition,
     "dataset": DataSet,

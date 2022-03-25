@@ -4,6 +4,7 @@ import boto3
 import datetime
 import time
 import urllib
+from urllib import parse
 
 
 def down_data_with_time(bucket, key, file_name, **kwargs) -> tuple:

@@ -7,7 +7,6 @@ from util.GenerateID import GenerateID
 class DynamoDB:
 
     def __init__(self, **kwargs):
-        self.edition = "_dev" if os.getenv("EDITION") == "DEV" else ""
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:
@@ -35,7 +34,7 @@ class DynamoDB:
         return item
 
     def queryTable(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
@@ -67,7 +66,7 @@ class DynamoDB:
             }
 
     def scanTable(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
@@ -98,7 +97,7 @@ class DynamoDB:
             }
 
     def putData(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         item = data["item"]
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
@@ -111,7 +110,7 @@ class DynamoDB:
         }
 
     def deleteData(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         keys = data["conditions"]
         table = self.dynamodb_resource.Table(table_name)
         table.delete_item(
@@ -122,7 +121,7 @@ class DynamoDB:
         }
 
     def batchGetItem(self, data):
-        table_name = data["table_name"] + self.edition
+        table_name = data["table_name"]
         expression = data["expression"]
         result = self.dynamodb_client.batch_get_item(
             RequestItems={

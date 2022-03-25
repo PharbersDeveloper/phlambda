@@ -35,4 +35,4 @@ class PTP(Strategy):
         if len(payload) > 0:
             return json.dumps(Notification.transform_ptp(data["target"], payload.pop(),
                                                          data["projectId"], data["ownerId"], data["eventName"]))
-        return json.dumps(None)
+        return json.dumps({})

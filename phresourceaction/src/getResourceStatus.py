@@ -40,15 +40,18 @@ class GetResourceStatus(object):
         message = {}
         message.update({"projectId": self.event.get("projectId")})
         message.update({"projectName": event.get("projectName")})
+        message.update({"owner": event.get("owner")})
+        message.update({"showName": event.get("showName")})
         item.update({"id": self.generateId.generate()})
         item.update({"date": str(int(round(time.time() * 1000)))})
         item.update({"projectId": self.event.get("projectId")})
         item.update({"code": 0})
         item.update({"showName": event.get("showName")})
         item.update({"jobDesc": "created"})
-        item.update({"commnets": ""})
+        item.update({"comments": ""})
         item.update({"owner": event.get("owner")})
         item.update({"message": json.dumps(message,  ensure_ascii=False)})
+
         item.update({"jobCat": operate_type})
         data.update({"item": item})
         self.dynamodb.putData(data)
@@ -60,7 +63,6 @@ class GetResourceStatus(object):
             status = self.get_status_execute()
         elif operation_type == "operate_resource":
             status = self.resource_execute()
-        print(status)
         return status
 
     def get_status_execute(self):
@@ -78,12 +80,12 @@ class GetResourceStatus(object):
         if self.resource_type == "start" and status == "closed":
             # 创建action 并且 更新ssm
             status = "starting"
-            self.insert_action(self.event, "project_create")
+            self.insert_action(self.event, "resource_create")
             self.put_resource_status(status)
         elif self.resource_type == "close" and status == "started":
             status = "closed"
-            self.insert_action(self.event, "project_delete")
-            self.put_resource_status(status)\
+            self.insert_action(self.event, "resource_delete")
+            self.put_resource_status(status)
 
         return status
 

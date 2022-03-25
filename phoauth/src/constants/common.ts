@@ -35,7 +35,7 @@ export const PostgresConf: IPhConf = {
     entity: "db/oauth",
     database: "phplatform_dev",
     user: "pharbers_dev",
-    password: "Abcde196125",
+    password: "123456",
     host: "ph-db-lambda-2021-11-15.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
     port: 5432,
     poolMax: 1,

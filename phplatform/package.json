@@ -11,7 +11,8 @@
     "ltest": "yarn run build && jest --coverage",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "up": "yarn run build && mkdir lmdcode && cp -r dist lmdcode && cp app.js lmdcode"
   },
   "dependencies": {
     "@aws-sdk/client-glue": "~3.22.0",

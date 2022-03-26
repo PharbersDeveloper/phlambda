@@ -21,7 +21,7 @@
             "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": ,
+            "S": "{\"project_name\":\"demo\",\"flow_version\":\"developer\",\"conf\":{\"datasets\":[{\"name\":\"universe_other\",\"version\":[],\"cat\":\"catalog\",\"prop\":{\"path\":\"\",\"partitions\":1,\"format\":\"\",\"tableName\":\"universe_other\",\"databaseName\":\"zudIcG_17yj8CEUoCTHg\"}},{\"name\":\"universe_base_common_1\",\"version\":[],\"cat\":\"catalog\",\"prop\":{\"path\":\"\",\"partitions\":1,\"format\":\"\",\"tableName\":\"universe_base_common\",\"databaseName\":\"zudIcG_17yj8CEUoCTHg\"}},{\"name\":\"universe_base_0\",\"version\":[],\"cat\":\"catalog\",\"prop\":{\"path\":\"\",\"partitions\":1,\"format\":\"\",\"tableName\":\"universe_base\",\"databaseName\":\"zudIcG_17yj8CEUoCTHg\"}},{\"name\":\"universe_base_1\",\"version\":[],\"cat\":\"catalog\",\"prop\":{\"path\":\"\",\"partitions\":1,\"format\":\"\",\"tableName\":\"universe_base\",\"databaseName\":\"zudIcG_17yj8CEUoCTHg\"}},{\"name\":\"A\",\"version\":[],\"cat\":\"uploaded\",\"prop\":{\"path\":\"\",\"partitions\":1}},{\"name\":\"universe_base_common\",\"version\":[],\"cat\":\"catalog\",\"prop\":{\"path\":\"\",\"partitions\":1,\"format\":\"\",\"tableName\":\"universe_base_common\",\"databaseName\":\"zudIcG_17yj8CEUoCTHg\"}}],\"scripts\":[],\"userConf\":{},\"ownerId\":\"16dc4eb5-5ed3-4952-aaed-17b3cc5f638b\",\"showName\":\"赵浩博\",\"jobDesc\":\"runDag1648178799157\"}}",
           "code": {
             "S": "0"
           },

@@ -23,7 +23,7 @@ class PTP(Strategy):
             conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
         else:
             date = data["runnerId"].split("_")[-1]
-            conditions = {"id": ["=", f"""{data["projectId"]}_{data["ownerId"]}"""], "date": ["=", date]}
+            conditions = {"id": ["=", f"""{data["id"]}"""], "date": ["=", date]}
 
         expr = Expression().join_expr(conditions)
         payload = dynamodb.queryTable({

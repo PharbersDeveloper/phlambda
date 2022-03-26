@@ -1,55 +1,23 @@
 {
   "Records": [
     {
-      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
-      "eventName": "INSERT",
-      "eventVersion": "1.1",
-      "eventSource": "aws:dynamodb",
-      "awsRegion": "cn-northwest-1",
-      "dynamodb": {
-        "ApproximateCreationDateTime": 1635485706,
-        "Keys": {
-          "id": {
-            "S": "hbzhao_test_actionId"
-          },
-          "projectId": {
-            "S": "hbzhao_test_projectId"
-          }
-        },
-        "NewImage": {
-          "projectId": {
-            "S": "hbzhao_test_projectId"
-          },
-          "message": {
-            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\",\"projectId\": \"hbzhao_test_projectId\",\"owner\": \"hbzhao_test_owner\", \"showName\": \"hbzhao_test_showName\"}"
-          },
-          "code": {
-            "S": "0"
-          },
-          "id": {
-            "S": "hbzhao_test_actionId"
-          },
-          "date": {
-            "S": "1637756524405"
-          },
-          "jobDesc": {
-            "S": "succeed"
-          },
-          "comments": {
-            "S": "clear_dataset_tags"
-          },
-          "owner": {
-            "S": "c89b8123-a120-498f-963c-5be102ee9082"
-          },
-          "jobCat": {
-            "S": "resource_create"
-          }
-        },
-        "SequenceNumber": "4262900000000003683290840",
-        "SizeBytes": 193,
-        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      "messageId": "d238e4f6-e7b2-41f0-b163-cc5781212cc9",
+      "receiptHandle": "AQEBkiQ+z8dEdEuGZJvtnajp/jF+mF7OylAyZDmfsBX2zA7ukVVSRwdX4ViaCpdS45mI29Lkw5+5h8ZZvpHZeUP+Ekh6C32K39zudHpzJ4h40VaQfIOiJwn9l+afkX/E/69N/OkujxPSZ3lEsujkOwI763SzxfQSqZ4j2kXPCQIPTfXs+mH9eVrvI1sNgzBXsOye4JG43yu8DsWfLRH5erIZcGE8jN+PM12glLkAPZ1ULtBu+bH9NVi1mxAe9tXl3ePxdnO2Out4MffDYC2q+zb/BfME7OAlNZkiTl5Jw4yxDyOvC+XTbeaZwcSWG2ZrzIA9",
+      "body": "{\"Records\": [{\"eventID\": \"15ac5a09a97d61cf74589776e001ed8a\", \"eventName\": \"INSERT\", \"eventVersion\": \"1.1\", \"eventSource\": \"aws:dynamodb\", \"awsRegion\": \"cn-northwest-1\", \"dynamodb\": {\"ApproximateCreationDateTime\": 1635485706, \"Keys\": {\"id\": {\"S\": \"hbzhao_test_actionId\"}, \"projectId\": {\"S\": \"hbzhao_test_projectId\"}}, \"NewImage\": {\"projectId\": {\"S\": \"hbzhao_test_projectId\"}, \"message\": {\"S\": \"{\\\"projectName\\\": \\\"hbzhaotest\\\",\\\"flowVersion\\\": \\\"developer\\\",\\\"projectId\\\": \\\"B-ZsvIoB04XLLv3\\\",\\\"owner\\\": \\\"hbzhao_test_owner\\\", \\\"showName\\\": \\\"hbzhao_test_showName\\\"}\"}, \"code\": {\"S\": \"0\"}, \"id\": {\"S\": \"hbzhao_test_actionId\"}, \"date\": {\"S\": \"1637756524405\"}, \"jobDesc\": {\"S\": \"succeed\"}, \"comments\": {\"S\": \"clear_dataset_tags\"}, \"owner\": {\"S\": \"c89b8123-a120-498f-963c-5be102ee9082\"}, \"jobCat\": {\"S\": \"resource_create\"}}, \"SequenceNumber\": \"4262900000000003683290840\", \"SizeBytes\": 193, \"StreamViewType\": \"NEW_AND_OLD_IMAGES\"}, \"eventSourceARN\": \"arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435\"}]}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1648201432493",
+        "SequenceNumber": "18868683640427759616",
+        "MessageGroupId": "mviwE7d3OLOSvDd",
+        "SenderId": "AROAWPBDTVEAOT2FRNDG3:lmd-phforwarddyevent-dev",
+        "MessageDeduplicationId": "c37fe932955bea5fbf67e01bd1bf563376c318ebda7b69f011e0f28905fb9757",
+        "ApproximateFirstReceiveTimestamp": "1648201432493"
       },
-      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+      "messageAttributes": {},
+      "md5OfBody": "87e5288ba75f4f0a6630ab46b4e4a73a",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws-cn:sqs:cn-northwest-1:444603803904:ph-dagtrigger-pipeline.fifo",
+      "awsRegion": "cn-northwest-1"
     }
   ]
 }

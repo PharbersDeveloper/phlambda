@@ -7,11 +7,11 @@ class CFN(PhAWS):
 
         self.cfn_client = boto3.client("cloudformation")
 
-    def create_project(self, target_name, target_ip, project_id):
+    def create_project(self, target_name, target_ip, project_id, Priority):
 
         self.cfn_client.create_stack(
-            StackName=target_name + "-project",
-            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn-tmp.yaml',
+            StackName=target_name + "-resource",
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-resource.yaml',
             Parameters=[
                 {
                     'ParameterKey': 'ProjectName',
@@ -24,6 +24,10 @@ class CFN(PhAWS):
                 {
                     'ParameterKey': 'ProjectId',
                     'ParameterValue': project_id,
+                },
+                {
+                    'ParameterKey': 'Priority',
+                    'ParameterValue': Priority,
                 }
             ]
         )
@@ -31,5 +35,5 @@ class CFN(PhAWS):
     def delete_project(self, stack_name):
 
         self.cfn_client.delete_stack(
-            StackName=stack_name + "-project"
+            StackName=stack_name + "-resource"
         )

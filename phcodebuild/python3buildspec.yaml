@@ -11,6 +11,7 @@ phases:
 
   build:
     commands:
+      - aws s3 sync s3://ph-platform/2020-11-11/cicd/template/dev/phlambdadeploy/ ./phlambda
       - cd phlambda
       - cd phchupdatesql
       - cp ../../README.md src/

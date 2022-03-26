@@ -1,7 +1,9 @@
-from handler.Command.Receiver import Receiver
-import constants.Common as Common
+import os
 import json
 import time
+import constants.Common as Common
+import constants.DefinValue as DV
+from handler.Command.Receiver import Receiver
 from util.log.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
@@ -12,11 +14,12 @@ class MsgReceiver(Receiver):
         self.logger = PhLogging().phLogger("Message", LOG_DEBUG_LEVEL)
 
     def __update_action(self, status, data):
+        dev = "_" + os.environ[DV.DEV].lower() if os.environ[DV.DEV] else ""
         action_item = dict({}, **data["data"])
         action_item["message"] = json.dumps(action_item["message"], ensure_ascii=False)
         action_item["jobDesc"] = status
         self.dynamodb.putData({
-            "table_name": "action",
+            "table_name": "action" + dev,
             "item": action_item
         })
 

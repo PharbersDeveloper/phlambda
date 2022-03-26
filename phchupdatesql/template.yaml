@@ -15,6 +15,12 @@ Resources:
       Description: "http proxy call chproxy execution to clickhouse"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Environment:
+        Variables:
+          HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
+          PORT: "6379"
+          APP_NAME: "phchdatasource"
+          EDITION: "DEV"
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

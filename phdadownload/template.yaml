@@ -16,6 +16,9 @@ Resources:
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 5
+      Environment:
+        Variables:
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

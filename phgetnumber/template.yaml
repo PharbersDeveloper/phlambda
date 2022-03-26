@@ -15,16 +15,10 @@ Resources:
       Description: "获取DS、Script、Model、IDE、Analysis等数量"
       MemorySize: 1024
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 30
-      Tags:
-        - Key: edition
-          Value: dev
-        - Key: owner
-          Value: pqian
-        - Key: version
-          Value: Alpha # Beta 0.0.1-Release
-        - Key: api
-          Value: v1
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

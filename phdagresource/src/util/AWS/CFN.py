@@ -7,7 +7,7 @@ class CFN(PhAWS):
 
         self.cfn_client = boto3.client("cloudformation")
 
-    def create_project(self, target_name, target_ip, project_id, Priority):
+    def create_project(self, target_name, target_ip, project_id, Priority, volumeId):
 
         self.cfn_client.create_stack(
             StackName=target_name + "-resource",
@@ -28,6 +28,10 @@ class CFN(PhAWS):
                 {
                     'ParameterKey': 'Priority',
                     'ParameterValue': Priority,
+                },
+                {
+                    'ParameterKey': 'VolumeId',
+                    'ParameterValue': volumeId,
                 }
             ]
         )

@@ -55,5 +55,6 @@ class Execute:
 if __name__ == '__main__':
     with open("../events/event_create_project.json") as f:
         event = json.load(f)
+        event = json.loads(event.get("Records")[0].get("body"))
     app = Execute(event=event)
     app.exec()

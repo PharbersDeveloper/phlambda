@@ -318,7 +318,16 @@ export default class Platform {
             name: String,
             css: String,
             script: String
-        }
+        },
+        // assets
+        asset: {
+            projectId: String,
+            name: String,
+            resourceType: String,
+            tenant: String,
+            accounts: Array(String),
+            concrets: Array(String),
+        },
     }
 
     operations = {

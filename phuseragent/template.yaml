@@ -18,7 +18,7 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Environment:
         Variables:
-          TEST: test
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

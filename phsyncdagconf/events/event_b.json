@@ -26,9 +26,7 @@
             "S": "JfSmQBYUpyb4jseitest"
           },
           "message": {
-            "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_b1\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"测试DS_004\", \"id\": \"61b80c3b92e8519b2675e0d18c7b560e.xlsx\"}, {\"name\": \"测试DS_003\", \"id\": \"769d8def35b1121c054ee478a192673d.xlsx\"}],\"outputs\": [{\"name\": \"测试DS_005\", \"id\": \"9d05f15c3cd41aa257829fe2681ef093.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jseitest\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao\",\"targetJobId\": \"1qaz4rfv\",\"projectName\":\"max\",\"labels\":[\"tag1\",\"tag2\"]}"
-=======
-            "S": "JfSmQBYUpyb4jsei"
+            "S": "{\"project_name\":\"test_project\",\"flow_version\":\"developer\",\"conf\":{\"datasets\":[{\"name\":\"published\",\"version\":[\"common_2017\"],\"cat\":\"uploaded\",\"prop\":{\"path\":\"\",\"partitions\":1}}],\"scripts\":[],\"userConf\":{}}}"
           },
           "message": {
             "S": "{\"dagName\": \"test_dag\",\"flowVersion\": \"developer\",\"jobName\": \"test_job_b\",\"jobId\": \"1qaz8ikm\",\"inputs\": [{\"name\": \"TEst12345\", \"id\": \"851d636356d4db5e5ac9e2247130cd5f.xlsx\"}, {\"name\": \"TEst111\", \"id\": \"f1c06c818ec5a31ceb7dfee1623a6afd.xlsx\"}],\"outputs\": [{\"name\": \"at1\", \"id\": \"6284c6d4db1fb7bd815db40482984ded.xlsx\"}],\"jobVersion\": \"job_version1\",\"projectId\": \"JfSmQBYUpyb4jsei\",\"projectName\": \"max\",\"timeout\": \"1000\",\"runtime\": \"python3\",\"owner\": \"hbzhao1\",\"targetJobId\": \"1qaz4rfv\",\"labels\": [\"tag1\",\"tag2\"]}"

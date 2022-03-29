@@ -14,5 +14,7 @@ Resources:
       MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource
       Timeout: 180
-
+      Environment:
+        Variables:
+          EDITION: "DEV"
 

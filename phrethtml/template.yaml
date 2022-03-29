@@ -12,6 +12,9 @@ Resources:
       FunctionName: lmd-phrethtml-dev
       Description: "检查ds version"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Environment:
+        Variables:
+          EDITION: "DEV"
       MemorySize: 1024
       Timeout: 120
       VpcConfig:

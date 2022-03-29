@@ -2,7 +2,7 @@ from marshmallow_jsonapi import fields
 from models.Model import Model
 
 
-class DataSet(Model):
+class Version(Model):
     type = "versions"
     attributes = {
         "projectId": fields.Str(required=True),

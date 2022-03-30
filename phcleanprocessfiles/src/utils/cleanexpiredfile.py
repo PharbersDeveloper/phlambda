@@ -10,6 +10,7 @@ class SearchFilesPath:
     def handle_base_path(self):
         full_base_path = list(map(lambda x: os.path.join(self.base_path, x), [x for x in os.listdir(self.base_path) if x not in self.metal_key]))
         full_base_path = [os.path.join(x, "tmp") for x in full_base_path if os.path.isdir(x) and "tmp" in os.listdir(x)]
+        print(full_base_path)
         return full_base_path
 
 

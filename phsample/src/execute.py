@@ -1,7 +1,7 @@
 import json
 import logging
 
-
+from editSample import EditSample
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
 
@@ -48,7 +48,7 @@ class Execute:
         if item_list:
             self.logger.debug("item_list生成成功")
             for item in item_list:
-                GenerateInvoker(item=item).execute()
+                EditSample(item=item).execute()
         else:
             self.logger.debug("action不是INSERT")
 

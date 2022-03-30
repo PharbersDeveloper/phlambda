@@ -1,4 +1,5 @@
 import json
+import time
 from util.AWS.DynamoDB import DynamoDB
 
 
@@ -8,9 +9,11 @@ class EditSample(object):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.dynamodb = DynamoDB()
+        self.project_message = json.loads(self.item.get("message"))
+        self.action_id = self.item.get("id")
 
-    def run_emr_step(dag_name, job_full_name, args_list=None):
-        cluster_id = get_cluster_id()
+    def run_emr_step(self, dag_name, job_full_name, args_list=None):
+        cluster_id = self.get_cluster_id()
         step_name = dag_name + "_" + job_full_name
 
         step = {}
@@ -57,7 +60,7 @@ class EditSample(object):
         return cluster_ids[0]
 
 
-    def create_step_args(self, dag_name, job_full_name, run_id):
+    def create_step_args(self, dag_name, job_full_name, run_id, parameters):
         args = ["spark-submit",
                 "--deploy-mode", "cluster",
                 "--conf", "spark.driver.cores=1",
@@ -82,6 +85,53 @@ class EditSample(object):
         return args
 
     def put_notification(self):
+        data = {
+            "table_name": "notification"
+        }
+        item = {}
+        status = "sample edit success"
+        message = {
+            "type": "notification",
+            "opname": "*",
+            "cnotification": {
+                "status": status,
+                "error": json.dumps({
+                    "code": "123",
+                    "message": {
+                        "zh": status,
+                        "en": status
+                    }
+                }, ensure_ascii=False)
+            }
+        }
 
+        item.update({"id": self.action_id})
+        item.update({"projectId": self.project_message.get("projectId")})
+        item.update({"category": ""})
+        item.update({"code": "0"})
+        item.update({"comments": ""})
+        item.update({"date": str(int(round(time.time() * 1000)))})
+        item.update({"jobCat": "notification"})
+        item.update({"jobDesc": self.operate_type})
+        item.update({"message": json.dumps(message, ensure_ascii=False)})
+        item.update({"owner": self.project_message.get("owner")})
+        item.update({"showName": self.project_message.get("showName")})
+        item.update({"status": "succeed"})
+        data.update({"item": item})
+        
+        pass
+
+    def execute(self):
+        # 获取参数 创建ph_conf
+        parameters = {}
+        parameters.update({"projectId": self.project_message.get("projectId")})
+        parameters.update({"projectName": self.project_message.get("projectName")})
+        parameters.update({"datasetName": self.project_message.get("datasetName")})
+        parameters.update({"datasetVersion": self.project_message.get("datasetVersion")})
+        parameters.update({"sample": self.project_message.get("sample")})
+        parameters.update({"company": "pharbers"})
+        # 创建emr 的运行参数
+        self.create_step_args("sample_developer", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()))
+        # put_notification
         pass
 

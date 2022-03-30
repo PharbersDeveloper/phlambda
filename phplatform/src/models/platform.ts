@@ -321,12 +321,13 @@ export default class Platform {
         },
         // assets
         asset: {
-            projectId: String,
             name: String,
             resourceType: String,
+            created: Date,
             tenant: String,
             accounts: Array(String),
-            concrets: Array(String),
+            projectId: String,
+            concrets: String,
         },
     }
 

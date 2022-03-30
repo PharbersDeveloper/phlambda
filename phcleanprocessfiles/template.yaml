@@ -9,8 +9,24 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phcleanprocessfiles-dev
+      FunctionName: lmd-phcleanprocessfiles-V2
       Description: "定期清理中间文件"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 120
+      Environment:
+        Variables:
+          BASE_PATH: "/mnt/tmp"
+          EXPIRED_TIME: 24
+          EDITION: "V2"
+      FileSystemConfigs:
+        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+          LocalMountPath: /mnt/tmp
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+
 

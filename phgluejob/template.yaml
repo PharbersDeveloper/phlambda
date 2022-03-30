@@ -14,4 +14,7 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       MemorySize: 128
       Timeout: 240
+      Environment:
+        Variables:
+          EDITION: "DEV"
 

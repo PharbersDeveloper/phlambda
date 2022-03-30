@@ -3,6 +3,7 @@ import json
 import boto3
 import datetime
 import traceback
+import re
 
 
 # ssm get url
@@ -20,11 +21,9 @@ def lambda_handler(event, context):
     flow_version = msg.get("flow_version", "developer")
     conf = msg.get("conf", {})
     dag_id = "_".join([project_name, project_name, flow_version])
+    target_name = re.sub(r'(_[a-z])', lambda x: x.group(1)[1], project_name.lower())
 
-    if project_name in ["default", "max"]:
-        url = ssm_dict.get(project_name)
-    else:
-        url = ssm_dict.get("max")
+    url = ssm_dict.get(target_name)
     print(url)
 
     res = {}
@@ -36,6 +35,7 @@ def lambda_handler(event, context):
     # 如果存在dag_id将状态改为激活
     # update_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id
     update_url = "http://" + url + "/api/v1/dags/" + dag_id
+    print("update_url = " + update_url)
     try:
         body = {"is_paused": False}
         result = requests.patch(url=update_url, data=json.dumps(body), headers=headers)
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
     # dag_id状态激活后即可开始run
     # runs_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/dagRuns"
     runs_url = "http://" + url + "/api/v1/dags/" + dag_id + "/dagRuns"
-
+    print("runs_url = " + runs_url)
     try:
         execution_date = datetime.datetime.utcnow()
         # dag_run_id = "_".join([project_name, dag_id, flow_version])
@@ -61,6 +61,7 @@ def lambda_handler(event, context):
             "conf": conf
         }
         dag_runs = requests.post(url=runs_url, data=json.dumps(body), headers=headers)
+        print(dag_runs)
         if dag_runs.status_code == 200:
             airflow_result = dag_runs.json()
             res["status"] = "success"
@@ -80,7 +81,7 @@ def lambda_handler(event, context):
         res["msg"] = runs_url + " api error"
 
     return {
-        "headers": { "Access-Control-Allow-Origin": "*"},
-        "statusCode": 200 if res["status"] == "success" else 502,
+        "headers": {"Access-Control-Allow-Origin": "*"},
+        "statusCode": 200,
         "body": json.dumps(res)
     }

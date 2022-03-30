@@ -14,6 +14,9 @@ Resources:
       FunctionName: lmd-phquerylogfile-dev
       Description: "phquerylogfile-dev "
       MemorySize: 512
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 5
       VpcConfig:

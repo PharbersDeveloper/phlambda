@@ -1,3 +1,4 @@
+import os
 import json
 import time
 
@@ -17,6 +18,9 @@ dynamodb = DynamoDB()
 #     "Ph-Back-RW"
 # )
 # dynamodb = DynamoDB(sts=sts)
+
+dev = "_" + os.environ["EDITION"].lower() if os.environ["EDITION"] else ""
+action_table = "action" + dev
 
 
 def executeSql(projectId, sql):
@@ -139,7 +143,7 @@ def updateActionData(tableName, projectId, date, state):
 
 def insertNotification(actionId, projectId, date, state, error):
     result = dynamodb.queryTable({
-        "table_name": "action",
+        "table_name": action_table,
         "limit": 1000,
         "expression": Key('projectId').eq(projectId) & Key("date").eq(date),
         "start_key": ""
@@ -190,14 +194,14 @@ def run(eventName, jobCat, record):
             print(type(message))
             transformClickHouseSchema(item["projectId"], message)
             transformDataSetSchema(item["projectId"], message)
-            updateActionData("action", item["projectId"], item["date"], "succeed")
+            updateActionData(action_table, item["projectId"], item["date"], "succeed")
             insertNotification(item["id"], item["projectId"], item["date"], "succeed", "")
 
         except Exception as e:
             print("Error ====> \n")
             print(str(e))
             rollBackType(json.loads(item["message"])["dsid"], item["projectId"])
-            updateActionData("action", item["projectId"], item["date"], "failed")
+            updateActionData(action_table, item["projectId"], item["date"], "failed")
             insertNotification(item["id"], item["projectId"], item["date"], "failed", str(e))
     else:
         print("未命中")

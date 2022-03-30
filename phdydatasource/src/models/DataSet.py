@@ -14,5 +14,6 @@ class DataSet(Model):
         "path": fields.Str(dump_default=""),
         "format": fields.Str(dump_default=""),
         "prop": fields.Str(dump_default=""),
-        "date": fields.Int(dump_default=-1)
+        "date": fields.Int(dump_default=-1),
+        "sample": fields.Str(dump_default="F_1")
     }

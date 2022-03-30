@@ -14,6 +14,9 @@ Resources:
       FunctionName: lmd-phgetgluetable-V2
       Description: "获取glue数据库table name"
       MemorySize: 512
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       Timeout: 120
       VpcConfig:

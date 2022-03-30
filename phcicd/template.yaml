@@ -12,6 +12,7 @@ Resources:
       Environment:
         Variables:
           GIT_URL: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git
+          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhCICD:3
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lambda-git:3

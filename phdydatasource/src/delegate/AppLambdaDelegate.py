@@ -13,18 +13,18 @@ class AppLambdaDelegate:
 
     def exec(self):
         try:
-            method = self.event.get("httpMethod")
+            method = self.event.get("httpMethod").lower()
             type = self.event.get("pathParameters").get("type")
             body = json.loads(self.event.get("body"))
             re_type = r"(^query$)|(^scan$)|(^put_item$)|(^delete_item$)"
             re_method = r"^post$"
-            if bool(re.match(re_method, method)) | bool(re.match(re_type, type)):
-                return Response(PhError("invalid parameter", f"{method}:{type}").messages, 403)
+            if (not bool(re.match(re_method, method))) | (not bool(re.match(re_type, type))):
+                return Response(PhError("invalid parameter", f"{method}:{type}").messages, 403).build
 
             table = body["table"]
 
             json_api_data = ExecHandler.makeData(table, body, type)
 
-            return Response(json_api_data, 200)
+            return Response(json_api_data, 200).build
         except Exception as e:
-            return Response(PhError(str(e)).messages, 500)
+            return Response(PhError(str(e)).messages, 500).build

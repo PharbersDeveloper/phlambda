@@ -9,6 +9,9 @@ export interface IPhConf {
     readonly host: string
     readonly port: number
     readonly poolMax: number
+    readonly ssl: false,
+    readonly idleTimeoutMs: number,
+    readonly connectionTimeoutMs: number
 }
 
 export const RedisConf: IPhConf = {
@@ -19,7 +22,10 @@ export const RedisConf: IPhConf = {
     password: "",
     host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
     port: 6379,
-    poolMax: 2
+    poolMax: 1,
+    ssl: false,
+    idleTimeoutMs: 10000,
+    connectionTimeoutMs: 5000
 }
 
 export const PostgresConf: IPhConf = {
@@ -27,10 +33,13 @@ export const PostgresConf: IPhConf = {
     entity: "auth",
     database: "phplatform",
     user: "pharbers",
-    password: "Abcde196125",
-    host: "ph-db-lambda.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
+    password: "123456",
+    host: "ph-db-lambda-2021-11-15.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn",
     port: 5432,
-    poolMax: 2
+    poolMax: 1,
+    ssl: false,
+    idleTimeoutMs: 10000,
+    connectionTimeoutMs: 5000
 }
 
 export const Permissions = ["R::GET", "W::POST::PUT::PATCH", "X::DELETE", "A::*"]

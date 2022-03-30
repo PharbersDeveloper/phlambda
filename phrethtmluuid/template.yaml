@@ -10,9 +10,14 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       FunctionName: lmd-phrethtmluuid-dev
+      Layers:
+  		- arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       Description: "return html uid titile数据"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 120
       VpcConfig:
         SecurityGroupIds:

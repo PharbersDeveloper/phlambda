@@ -8,6 +8,7 @@ from models.Action import Action
 from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
+from models.Version import Version
 from models.Notification import Notification
 from models.Dag import Dag
 from models.DagConf import DagConf
@@ -37,6 +38,7 @@ __table_structure = {
     "execution": Execution,
     "step": Step,
     "action": Action,
+    "action_dev": Action,
     "project_files": ProjectFile,
     "partition": Partition,
     "dataset": DataSet,
@@ -45,7 +47,8 @@ __table_structure = {
     "dagconf": DagConf,
     "logs": Log,
     "dashboard": Dashboard,
-    "slide": Slide
+    "slide": Slide,
+    "version": Version
 }
 
 

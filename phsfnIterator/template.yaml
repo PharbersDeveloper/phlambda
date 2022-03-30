@@ -12,5 +12,8 @@ Resources:
       FunctionName: lmd-phsfnIterator-V2
       Description: "ETL流程中迭代器"
       MemorySize: 1024
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 30
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-lmd

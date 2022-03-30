@@ -20,6 +20,7 @@ Resources:
           REDIS_PORT: 6379
           LOCK_APP_NAME: ds2clickhouse
           CHECK_APP_NAME: rmds
+          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1

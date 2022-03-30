@@ -24,8 +24,6 @@ class CommandPutResourceArgs(Command):
         item.update({"projectName": self.target_name})
         item.update({"projectId": self.project_id})
         item.update({"projectIp": self.target_ip})
-        item.update({"ruleArn": self.rule_arn})
-        item.update({"targetGroupArn": self.target_group_arn})
         data.update({"item": item})
         self.dynamodb.putData(data)
         logger.debug("resource_args 创建完成")

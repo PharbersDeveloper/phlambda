@@ -20,10 +20,10 @@ class PTP(Strategy):
 
         table_name = data["target"]
         if data["target"] == "notification":
-            conditions = {"id": ["=", data["id"]], "projectId": ["=", data["projectId"]]}
+            conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
         else:
             date = data["runnerId"].split("_")[-1]
-            conditions = {"id": ["=", f"""{data["projectId"]}_{data["ownerId"]}"""], "date": ["=", date]}
+            conditions = {"id": ["=", f"""{data["id"]}"""], "date": ["=", date]}
 
         expr = Expression().join_expr(conditions)
         payload = dynamodb.queryTable({
@@ -35,4 +35,4 @@ class PTP(Strategy):
         if len(payload) > 0:
             return json.dumps(Notification.transform_ptp(data["target"], payload.pop(),
                                                          data["projectId"], data["ownerId"], data["eventName"]))
-        return json.dumps(None)
+        return json.dumps({})

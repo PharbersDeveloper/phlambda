@@ -1,6 +1,8 @@
 import json
 import time
+import boto3
 from util.AWS.DynamoDB import DynamoDB
+# from phdydatasource_layer.handler.ExecHandler import makeData
 
 
 class EditSample(object):
@@ -8,9 +10,11 @@ class EditSample(object):
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
-        self.dynamodb = DynamoDB()
         self.project_message = json.loads(self.item.get("message"))
         self.action_id = self.item.get("id")
+        self.jobDesc = self.item.get("jobDesc")
+        self.emr_client = boto3.client("emr")
+        self.dynamodb = DynamoDB()
 
     def run_emr_step(self, dag_name, job_full_name, args_list=None):
         cluster_id = self.get_cluster_id()
@@ -18,20 +22,21 @@ class EditSample(object):
 
         step = {}
         step.update({"Name": step_name})
-        step.update({"ActionOnFailure": ACTIONONFAILURE})
+        step.update({"ActionOnFailure": "CONTINUE"})
         step.update({"HadoopJarStep": {}})
-        step["HadoopJarStep"].update({"Jar": STEP_JAR})
+        step["HadoopJarStep"].update({"Jar": "command-runner.jar"})
         step["HadoopJarStep"].update({"Args": args_list})
         steps=[]
         steps.append(step)
-        run_step_response = emr_client.add_job_flow_steps(
+        run_step_response = self.emr_client.add_job_flow_steps(
             JobFlowId=cluster_id,
             Steps=steps
         )
 
         while run_step_response:
+            print("query emr status")
             time.sleep(30)
-            step_information_response = emr_client.describe_step(
+            step_information_response = self.emr_client.describe_step(
                 ClusterId=cluster_id,
                 StepId=run_step_response["StepIds"][0]
             )
@@ -42,15 +47,10 @@ class EditSample(object):
                 step_status = step_information_response['Step']['Status']['State']
                 break
 
-        emr_log = "s3://ph-platform/2020-11-11/emr/logs/" + cluster_id + "/steps/" + step_id + "/"
+        return step_status
 
-        return {
-            "emr_log": emr_log,
-            "step_status": step_status
-        }
-
-    def get_cluster_id():
-        res = emr_client.list_clusters(
+    def get_cluster_id(self):
+        res = self.emr_client.list_clusters(
             ClusterStates=[
                 "WAITING",
                 "RUNNING"
@@ -84,22 +84,29 @@ class EditSample(object):
 
         return args
 
-    def put_notification(self):
-        data = {
-            "table_name": "notification"
-        }
+    def put_notification(self, step_status):
+
+        if step_status == "COMPLETED":
+            status = "succeed"
+            zh_status = "sample修改成功"
+            en_status = "sample edit success"
+        else:
+            status = "failed"
+            zh_status = "sample修改失败"
+            en_status = "sample edit failed"
+
+        table_name = "notification"
         item = {}
-        status = "sample edit success"
         message = {
             "type": "notification",
-            "opname": "*",
+            "opname": self.project_message.get("owner"),
             "cnotification": {
                 "status": status,
                 "error": json.dumps({
                     "code": "123",
                     "message": {
-                        "zh": status,
-                        "en": status
+                        "zh": zh_status,
+                        "en": en_status
                     }
                 }, ensure_ascii=False)
             }
@@ -112,14 +119,19 @@ class EditSample(object):
         item.update({"comments": ""})
         item.update({"date": str(int(round(time.time() * 1000)))})
         item.update({"jobCat": "notification"})
-        item.update({"jobDesc": self.operate_type})
+        item.update({"jobDesc": self.jobDesc})
         item.update({"message": json.dumps(message, ensure_ascii=False)})
         item.update({"owner": self.project_message.get("owner")})
         item.update({"showName": self.project_message.get("showName")})
         item.update({"status": "succeed"})
-        data.update({"item": item})
-        
-        pass
+        data = {
+            "table_name": table_name,
+            "item": item
+        }
+
+        self.dynamodb.putData(data)
+        # type_name = "put_item"
+        # makeData(table_name, body, type_name)
 
     def execute(self):
         # 获取参数 创建ph_conf
@@ -130,8 +142,13 @@ class EditSample(object):
         parameters.update({"datasetVersion": self.project_message.get("datasetVersion")})
         parameters.update({"sample": self.project_message.get("sample")})
         parameters.update({"company": "pharbers"})
+        print(parameters)
         # 创建emr 的运行参数
-        self.create_step_args("sample_developer", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()))
+        args = self.create_step_args("sample_developer", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
+        print(args)
+        # 运行emr
+        step_status = self.run_emr_step("sample_developer", "sample", args)
         # put_notification
+        self.put_notification(step_status)
         pass
 

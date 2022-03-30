@@ -395,26 +395,15 @@ def createOutputs(args, ph_conf, outputs, outputs_id, project_id, project_name, 
 @click.option('--run_id')
 @click.option('--job_full_name')
 @click.option('--job_id')
-@click.option('--conf')
+@click.option('--ph_conf')
 def debug_execute(**kwargs):
     try:
         logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
-        args = {"name": "hbzhaotest_hbzhaotest_developer_compute_universe_base_out"}
-        inputs = ["universe_base"]
-        outputs = ["universe_base_out"]
-        outputs_id = ["a25cea4f88474fc39e73aa1a3d621e8f"]
-        project_id = "B-ZsvIoB04XLLv3"
-        project_name = "hbzhaotest"
-        runtime = "python3"
-
+        args = {}
         args.update(kwargs)
-        output_version = args.get("run_id") + "_" + ph_conf.get("showName")
         result = exec_before(**args)
         
         args.update(result if isinstance(result, dict) else {})
-
-        df_map = create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger)
-        args.update(df_map)
         result = execute(**args)
 
         args.update(result if isinstance(result, dict) else {})

@@ -5,7 +5,7 @@ from models.Model import Model
 class DataSet(Model):
     type = "datasets"
     attributes = {
-        "projectID": fields.Str(required=True),
+        "projectId": fields.Str(required=True),
         "name": fields.Str(required=True),
         "schema": fields.Str(dump_default="unknown"),
         "version": fields.Str(required=True),

@@ -208,7 +208,7 @@ export default class Platform {
         project: {
             provider: String,
             name: String,
-            owner: { link: "resource", isArray: false, inverse: "accounts", }, // Link 一对一
+            owner: String,
             type: String, // saas 无 Flow  pass有Flow
             created: Date,
             models: { link: "model", isArray: true, inverse: "project" }, // Link 一对多
@@ -318,7 +318,17 @@ export default class Platform {
             name: String,
             css: String,
             script: String
-        }
+        },
+        // assets
+        asset: {
+            name: String,
+            resourceType: String,
+            created: Date,
+            tenant: String,
+            accounts: Array(String),
+            projectId: String,
+            concrets: String,
+        },
     }
 
     operations = {

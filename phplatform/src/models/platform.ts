@@ -202,7 +202,8 @@ export default class Platform {
             resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter
             created: Date,
             tenant: String, // Link To tenant Table ID（Logic）
-            accounts: { link: "project", isArray: true, inverse: "owner" },
+            // accounts: { link: "project", isArray: true, inverse: "owner" },
+            accounts: Array(String),
             concrets: Array(String), // Link To table or project Table ID（Logic）
         },
         project: {

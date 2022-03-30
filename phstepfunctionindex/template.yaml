@@ -22,6 +22,7 @@ Resources:
         Variables:
           TEST: test
           configs: '[ { "name": "Postgres", "entity": "index", "database": "phentry", "user": "pharbers", "password": "Abcde196125", "host": "192.168.49.199", "port": 5440, "poolMax": 1 } ]'
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

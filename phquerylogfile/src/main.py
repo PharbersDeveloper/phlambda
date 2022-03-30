@@ -19,7 +19,7 @@ def if_exit(bucket, key):
 def down_file(bucket, key, path):
     _s3 = boto3.client('s3')
     _s3.download_file(Filename=f"/tmp/{path}",
-                     Bucket=bucket, Key=key)
+                      Bucket=bucket, Key=key)
     return True
 
 
@@ -86,12 +86,12 @@ def lambda_handler(event, context):
         data = run(**eval(event["body"]))
         if not data:
             return {
-                        "statusCode": 200,
-                        'headers': {
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
-                    }
+                "statusCode": 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*'
+                },
+                "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
+            }
         return {
             "statusCode": 200,
             "headers": {

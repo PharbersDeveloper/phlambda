@@ -16,6 +16,9 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phjwt:1
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Environment:
+        Variables:
+          EDITION: "DEV"
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

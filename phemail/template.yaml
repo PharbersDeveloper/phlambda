@@ -25,6 +25,7 @@ Resources:
           PORT: "465"
           SENDER: "project@data-pharbers.com"
           SENDER_NAME: "法伯科技"
+          EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

@@ -14,4 +14,6 @@ Resources:
       MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
       Timeout: 30
-
+      Environment:
+        Variables:
+          EDITION: "DEV"

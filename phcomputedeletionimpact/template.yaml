@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          GIT_URL: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git
+          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phcomputedeletionimpact-V2

@@ -4,6 +4,7 @@ from handleeventmessage import HandleEventMessage
 from util.AWS.DynamoDB import DynamoDB
 import time
 from util.GenerateID import GenerateID
+import os
 
 # ssm get url
 client = boto3.client('ssm')
@@ -34,16 +35,19 @@ def handle_key_and_value(input_dict,key,value):
     try:
         import re
         original_str = str(input_dict)
-        patter_rule = f"[\"\']{key}.*?{value}[\"\']"
+        patter_rule = f"[\"\']{key}[\"\']:\s+?.'S':\s+?[\"\']{value}[\"\'].,"
         match_result = re.findall(pattern=patter_rule, string=original_str)
         if len(match_result) == 0:
             message = f"key: {key} or value: {value} not exist !"
+            status = False
         else:
             message = f"key: {key} and value: {value} is ok, match_result is: {match_result}"
+            status = True
     except Exception as e:
         message = str(e)
+        status = False
     print(message)
-    return message
+    return status, message
 
 def insert_action(event, operate_type):
     try:
@@ -78,19 +82,22 @@ def insert_action(event, operate_type):
 # 运行指定dag
 def lambda_handler(event, context):
     event = json.loads(event.get("Records")[0].get("body"))
-    handle_key_and_value(event,'jobCat','upload')
-    item_event = process_insert_event(event)
-    item_event[0]['message'] = format_args
-    msg = item_event[0]['message']
-    #--实例化
-    handle_event = HandleEventMessage(ssm_dict, msg)
-    handle_event.handle_dag_id()
-    handle_event.handle_run_status()
+    jobcat_value = os.getenv("JOBCAT_VALUE")
+    status, status_message = handle_key_and_value(event, 'jobCat', jobcat_value)
+    if status == True:
+        item_event = process_insert_event(event)
+        item_event[0]['message'] = format_args
+        msg = item_event[0]['message']
+        #--实例化
+        handle_event = HandleEventMessage(ssm_dict, msg)
+        handle_event.handle_dag_id()
+        handle_event.handle_run_status()
+        insert_action(msg, str(status_message))
 
-    insert_action(msg, "mzhang_opt_type")
-    
-    return {
-        "headers": { "Access-Control-Allow-Origin": "*"},
-        "statusCode": 200 if handle_event.res["status"] == "success" else 502,
-        "body": json.dumps(handle_event.res)
-    }
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 200 if handle_event.res["status"] == "success" else 502,
+            "body": json.dumps(handle_event.res)
+        }
+    else:
+        print(status_message)

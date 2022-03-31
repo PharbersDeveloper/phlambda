@@ -29,19 +29,19 @@ ENV_CUR_RUNTIME_DEFAULT = 'python3'
 TEMPLATE_PHCONF_FILE = "/template/python/phcli/maxauto/phconf-20210104.yaml"
 
 # Python & pyspark
-TEMPLATE_PHJOB_FILE_PY = "/template/python/phcli/maxauto/phjob-20210104.tmp"
-TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20220210.tmp"
-TEMPLATE_PHMAIN_FILE_PYTHON3 = "/template/python/phcli/maxauto/phmain-20220210.tmp"
+TEMPLATE_PHJOB_FILE_PY = "/template/python/phcli/maxauto/phjob-20220331_dev.tmp"
+TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20220331_dev.tmp"
+# TEMPLATE_PHMAIN_FILE_PYTHON3 = "/template/python/phcli/maxauto/phmain-20220210.tmp"
 
 # R & SparkR
-TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20210122.tmp"
-TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r-20210122.tmp"
+TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20220331_dev.tmp"
+TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r-20220331_dev.tmp"
 
 # 低代码
 TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_SELECT_FILE_PY = "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_OPERATION_NULL_FILE_PY = "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp"
-TEMPLATE_OPERATOR_SCRIPT_FILE_PY = "/template/python/phcli/maxauto/script-20211229.tmp"
+TEMPLATE_OPERATOR_SCRIPT_FILE_PY = "/template/python/phcli/maxauto/script-20220331_dev.tmp"
 
 # 废弃 Phcli 脚本
 TEMPLATE_JUPYTER_PYTHON_FILE = '/template/python/phcli/maxauto/phJupyterPython-20210322.json'
@@ -51,8 +51,8 @@ TEMPLATE_JUPYTER_R_FILE = '/template/python/phcli/maxauto/phJupyterR-20210122.js
 # 废弃
 TEMPLATE_PHDAG_FILE = "/template/python/phcli/maxauto/phdag-20210104.yaml"
 
-TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phgraphtemp-20220210.tmp"
-TEMPLATE_PHDAGJOB_FILE = "/template/python/phcli/maxauto/phDagJob-20220210.tmp"
+TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phGraphTemp-20220331_dev.tmp"
+TEMPLATE_PHDAGJOB_FILE = "/template/python/phcli/maxauto/phDagJob-20220331_dev.tmp"
 # TEMPLATE_PHPYTHON3DAGJOB_FILE = "/template/python/phcli/maxauto/phPython3DagJob-20220215.tmp"
 # TEMPLATE_PHPYTHON3GRAPHTEMP_FILE = "/template/python/phcli/maxauto/phpython3temp-20220215.tmp"
 

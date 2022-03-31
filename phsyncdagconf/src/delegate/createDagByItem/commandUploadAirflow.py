@@ -18,10 +18,17 @@ default_args = {
     "prepare_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
     "pyspark_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
     "pyspark_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
-    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
+    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
+    "r_phmain": "",
+    "r_phgraphtemp": "",
+    "r_phdagjob": "",
+    "sparkr_phmain": "",
+    "sparkr_phgraphtemp": "",
+    "sparkr_phdagjob": ""
 }
 
-
+# 最终生成模板的重构为 外观 -> 构造 -> 工厂/策略
+# 外观统一接口 构造按照顺序产出结构 工厂/策略拿到结构进行核心代码拼装
 
 class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
@@ -199,8 +206,6 @@ class CommandUploadAirflow(Command):
             "item": item
         }
         self.dynamodb.putData(edit_data)
-
-
 
     def create_phjobs(self, dag_conf):
         # 通过 phcli 创建 phjobs 相关文件

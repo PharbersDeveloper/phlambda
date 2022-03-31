@@ -1,19 +1,19 @@
 from handler.Context import Context
 from handler.Xlsx import Xlsx
 from handler.Csv import Csv
-from handler.Xls import Xls
-from handler.Avro import Avro
-from handler.Parquet import Parquet
+# from handler.Xls import Xls
+# from handler.Avro import Avro
+# from handler.Parquet import Parquet
 from constants.Errors import NoImplError
 
 
 class Reader:
     functions = {
-        "parquet": Parquet,
-        "avro": Avro,
+        # "parquet": Parquet,
+        # "avro": Avro,
         "txt": Csv,
         "csv": Csv,
-        "xls": Xls,
+        # "xls": Xls,
         "xlsx": Xlsx,
     }
 

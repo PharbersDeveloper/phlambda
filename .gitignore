@@ -205,3 +205,5 @@ phdadatasource/buildspec.yaml
 phremoveds/src/handler/RMDS_Online.py
 
 phremoveds/src/handler/RMJob_Online.py
+
+phcreateproject/lmdcode/

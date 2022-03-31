@@ -73,6 +73,8 @@ class Xlsx(Strategy):
 
         self.logger.debug(f"sql ====> \n {sql}")
         execl_data = list(map(add_col, data))
+
+        # TODO： 只写 sample： 前10000条
         self.clickhouse.insert_data(sql, execl_data)
 
         WriteS3Command(WriteReceiver()).execute({
@@ -169,6 +171,7 @@ class Xlsx(Strategy):
             if "version" not in standard_schema:
                 standard_schema = standard_schema + [{"src": "version", "des": "version", "type": "String"}]
 
+            # TODO: 这个scan要改
             ds_result = self.dynamodb.scanTable({
                 "table_name": "dataset",
                 "limit": 100000,

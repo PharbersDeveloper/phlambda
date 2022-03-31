@@ -13,7 +13,7 @@ export default class Platform {
             tenant: String, // Link To tenant Table ID（Logic）
             accounts: Array(String),
             concrets: Array(String), // Link To table or project Table ID（Logic）
-            project: { link: "project", isArray: false, inverse: "resource"}
+            project: { link: "project", isArray: false, inverse: "resources"}
         },
         project: {
             provider: String,
@@ -115,6 +115,7 @@ export default class Platform {
             project: [ this.hookProjectInput ],
         }
     }
+
 
     async hookProjectInput(context, record, update) {
         const optEfsHandler = new OptEfsHandler()

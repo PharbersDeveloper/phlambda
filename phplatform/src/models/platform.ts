@@ -205,7 +205,7 @@ export default class Platform {
             // accounts: { link: "project", isArray: true, inverse: "owner" },
             accounts: Array(String),
             concrets: Array(String), // Link To table or project Table ID（Logic）
-            project: { link: "project", isArray: false, inverse: "resource"}
+            project: { link: "project", isArray: false, inverse: "resources"}
         },
         project: {
             provider: String,

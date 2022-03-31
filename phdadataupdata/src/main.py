@@ -28,14 +28,14 @@ def run(timespan, **kwargs):
 
     if int(timespan) > last_time:
         up_data(**kwargs)
-        return 'up data success'
+        return ['up data success', 1]
     else:
-        return 'timespan error'
+        return ['timespan error', 0]
 
 
 def lambda_handler(event, context):
     try:
-        result = run(**eval(event["body"]))
+        result, status = run(**eval(event["body"]))
 
     except Exception as e:
         return {
@@ -51,7 +51,7 @@ def lambda_handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin": "*",
             },
-            "body": json.dumps({"message": result})
+            "body": json.dumps({"message": result, "status": status})
         }
 
 

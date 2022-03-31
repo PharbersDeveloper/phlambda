@@ -101,3 +101,11 @@ def lambda_handler(event, context):
         }
     else:
         print(status_message)
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 502,
+            "body": json.dumps({
+                "status": "failed",
+                "msg": f"jobCat is  error, detail:{status_message}"
+        })
+        }

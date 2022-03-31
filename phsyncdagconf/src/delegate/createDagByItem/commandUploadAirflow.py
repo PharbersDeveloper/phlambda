@@ -18,10 +18,17 @@ default_args = {
     "prepare_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
     "pyspark_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
     "pyspark_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
-    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
+    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
+    "r_phmain": "",
+    "r_phgraphtemp": "",
+    "r_phdagjob": "",
+    "sparkr_phmain": "",
+    "sparkr_phgraphtemp": "",
+    "sparkr_phdagjob": ""
 }
 
-
+# 最终生成模板的重构为 外观 -> 构造 -> 工厂/策略
+# 外观统一接口 构造按照顺序产出结构 工厂/策略拿到结构进行核心代码拼装
 
 class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
@@ -29,9 +36,11 @@ class CommandUploadAirflow(Command):
             setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/tmp/phjobs/"
+        self.job_path_prefix = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        # self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        self.operator_path = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
@@ -200,8 +209,6 @@ class CommandUploadAirflow(Command):
         }
         self.dynamodb.putData(edit_data)
 
-
-
     def create_phjobs(self, dag_conf):
         # 通过 phcli 创建 phjobs 相关文件
         dag_name = dag_conf.get("projectName") + \
@@ -314,6 +321,7 @@ class CommandUploadAirflow(Command):
         def update_operator_file(operator_file_path, dag_name, links):
 
             runtime = dag_conf.get("runtime")
+            output_id = dag_conf.get("outputs")[0].get("id")
             w = open(operator_file_path, "a")
             jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime + "_phdagjob"))
             for line in jf:
@@ -323,6 +331,8 @@ class CommandUploadAirflow(Command):
                         .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                         .replace("$alfred_projectName", str(dag_conf.get("projectName")))
                         .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
+                        .replace("$alfred_runtime", runtime)
+                        .replace("$alfred_output_id", output_id)
                 )
             w.close()
 

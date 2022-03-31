@@ -36,9 +36,11 @@ class CommandUploadAirflow(Command):
             setattr(self, key, val)
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
-        self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/tmp/phjobs/"
+        self.job_path_prefix = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        # self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        self.operator_path = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/dags/"
         # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
@@ -319,6 +321,7 @@ class CommandUploadAirflow(Command):
         def update_operator_file(operator_file_path, dag_name, links):
 
             runtime = dag_conf.get("runtime")
+            output_id = dag_conf.get("outputs")[0].get("id")
             w = open(operator_file_path, "a")
             jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime + "_phdagjob"))
             for line in jf:
@@ -328,6 +331,8 @@ class CommandUploadAirflow(Command):
                         .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                         .replace("$alfred_projectName", str(dag_conf.get("projectName")))
                         .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
+                        .replace("$alfred_runtime", runtime)
+                        .replace("$alfred_output_id", output_id)
                 )
             w.close()
 

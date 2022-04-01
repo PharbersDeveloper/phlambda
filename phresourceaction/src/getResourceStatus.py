@@ -72,7 +72,7 @@ class GetResourceStatus(object):
         item.update({"projectId": self.event.get("projectId")})
         item.update({"code": 0})
         item.update({"showName": event.get("showName")})
-        item.update({"jobDesc": "created"})
+        item.update({"jobDesc": operate_type})
         item.update({"comments": ""})
         item.update({"owner": event.get("owner")})
         item.update({"message": json.dumps(message,  ensure_ascii=False)})

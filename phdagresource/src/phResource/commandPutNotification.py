@@ -54,7 +54,7 @@ class CommandPutNotification(Command):
         status = "resource create success"
         message = {
             "type": "notification",
-            "opname": "*",
+            "opname": self.project_message.get("owner"),
             "cnotification": {
                 "status": status,
                 "error": json.dumps({
@@ -96,7 +96,7 @@ class CommandPutNotification(Command):
         for resource in res:
             if resource.get("projectName") == self.target_name:
                 args_index = res.index(resource)
-                project_args = res.pop[args_index]
+                project_args = res[args_index]
                 res.pop(args_index)
         project_args.update({"status": "started"})
         res.append(project_args)

@@ -33,6 +33,6 @@ class PTP(Strategy):
             "start_key": None
         })["data"]
         if len(payload) > 0:
-            return json.dumps(Notification.transform_ptp(data["target"], payload.pop(),
-                                                         data["projectId"], data["ownerId"], data["eventName"]))
+            return json.dumps(Notification().transform_ptp(data["target"], payload,
+                                                           data["projectId"], data["ownerId"], data["eventName"]))
         return json.dumps({})

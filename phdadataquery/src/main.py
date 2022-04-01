@@ -8,15 +8,16 @@ def down_data_with_time(bucket, key, file_name, **kwargs) -> tuple:
     response = client.get_object(Bucket=bucket, Key=(key+file_name))
     binaryarray = response.get('Body').read().decode()
     last_time = response.get('LastModified')
-    print(response)
-    print(last_time)
+    # print(response)
+    # print(binaryarray)
+    # print(last_time)
     return binaryarray, int(time.mktime(last_time.timetuple()))+3600*8
 
 
 # def up_data(bucket, key, file_name, data):
-    # s3 = boto3.client('s3')
-    # s3.put_object(Body=data.encode(), Bucket=bucket, Key=(key+file_name))
-    # print(1)
+# s3 = boto3.client('s3')
+# s3.put_object(Body=data.encode(), Bucket=bucket, Key=(key+file_name))
+# print(1)
 
 
 def run(**kwargs):
@@ -27,8 +28,10 @@ def run(**kwargs):
 def lambda_handler(event, context):
     try:
         result = run(**eval(event["body"]))
+        print(result)
 
     except Exception as e:
+        print(e)
         return {
             "statusCode": 503,
             'headers': {

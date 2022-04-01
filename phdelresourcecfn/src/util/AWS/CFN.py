@@ -1,4 +1,5 @@
 import boto3
+import os
 from util.AWS.PhAWS import PhAWS
 
 class CFN(PhAWS):
@@ -11,7 +12,7 @@ class CFN(PhAWS):
 
         self.cfn_client.create_stack(
             StackName=target_name + "-project",
-            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn.yaml',
+            TemplateURL=os.getenv("CFN_TEMPLATE_URL"),
             Parameters=[
                 {
                     'ParameterKey': 'ProjectName',

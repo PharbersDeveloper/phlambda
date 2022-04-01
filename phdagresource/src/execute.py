@@ -32,7 +32,7 @@ class Execute:
         return item_list
 
     def screen_regular_item(self, item_list):
-        jobCats = ["project_create", "project_delete"]
+        jobCats = ["resource_create", "resource_delete"]
         for item in item_list:
             if item.get("jobCat") in jobCats:
                 self.logger.debug("item符合创建project形式")
@@ -53,7 +53,8 @@ class Execute:
 
 
 if __name__ == '__main__':
-    with open("../events/event_delete_project.json") as f:
+    with open("../events/event_create_project.json") as f:
         event = json.load(f)
+        event = json.loads(event.get("Records")[0].get("body"))
     app = Execute(event=event)
     app.exec()

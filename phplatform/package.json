@@ -11,7 +11,8 @@
     "ltest": "yarn run build && jest --coverage",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "up": "yarn run build && mkdir lmdcode && cp -r dist lmdcode && cp app.js lmdcode"
   },
   "dependencies": {
     "@aws-sdk/client-glue": "~3.22.0",
@@ -27,7 +28,7 @@
     "jest": "^26.6.0",
     "jest-junit": "12.2.0",
     "phauthlayer": "^0.0.1",
-    "phnodelayer": "~2.0.10",
+    "phnodelayer": "^2.0.12",
     "prettier": "^2.1.2",
     "source-map-support": "^0.5.13",
     "ts-jest": "^26.4.1",

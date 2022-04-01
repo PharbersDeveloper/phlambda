@@ -4,13 +4,20 @@ import logging
 from delegate.project.max import Max
 from util.phLog.phLogging import PhLogging, LOG_DEBUG_LEVEL
 
-project_table = {
-    "Test": Max,
-    "Auto_max_refactor": Max,
-    "ETL_Iterator": Max,
-    "专门测试用": Max,
-    "max": Max,
-}
+# project_table = {
+#     "Test": Max,
+#     "Auto_max_refactor": Max,
+#     "ETL_Iterator": Max,
+#     "Test_Alex": Max,
+#     "Auto_Raw_Data": Max,
+#     "max": Max,
+#     "Auto_rf_factor": Max,
+#     "Auto_weight": Max,
+#     "Auto_max_check": Max,
+#     "Auto_max_delivery": Max,
+#     "Auto_cMax": Max,
+#     "test_python3": Max
+# }
 
 class Execute:
 
@@ -18,7 +25,7 @@ class Execute:
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.logger = PhLogging().phLogger("创建流程入口", LOG_DEBUG_LEVEL)
-            
+
 
     def process_insert_event(self):
         # 获取新插入item的 partition_key, sort_key, message
@@ -57,14 +64,14 @@ class Execute:
             for item in item_list:
                 dag_type = item.get("jobCat")
                 self.logger.debug(json.loads(item.get("message")).get("projectName"))
-                project_init = project_table[json.loads(item.get("message")).get("projectName")]()
-                project_init.exec(item, dag_type)
+                # project_init = project_table[json.loads(item.get("message")).get("projectName")]()
+                Max().exec(item, dag_type)
         else:
             self.logger.debug("action不是INSERT")
 
 
 if __name__ == '__main__':
-    with open("../events/event_a.json") as f:
+    with open("../../events/event_r.json") as f:
         event = json.load(f)
     app = Execute(event=event)
     app.exec()

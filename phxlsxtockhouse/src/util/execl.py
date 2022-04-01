@@ -118,6 +118,7 @@ class Excel:
                 # 老方法
                 # func(self.replace_cell_none(self.remove_none_value(values)), self.adapted_mapper, len(self.step_indeies), batch_hit_time)
                 values.clear()
+                break
                 if batch_hit_time == len(self.step_indeies):
                     break
 

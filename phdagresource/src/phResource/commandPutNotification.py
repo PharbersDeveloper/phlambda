@@ -96,8 +96,9 @@ class CommandPutNotification(Command):
         for resource in res:
             if resource.get("projectName") == self.target_name:
                 args_index = res.index(resource)
-                project_args = res.pop(args_index)
-        project_args = project_args.update({self.target_name: "started"})
+                project_args = res.pop[args_index]
+                res.pop(args_index)
+        project_args.update({"status": "started"})
         res.append(project_args)
         self.ssm.put_ssm_parameter("resource_status_dev", json.dumps(res))
 

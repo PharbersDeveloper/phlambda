@@ -18,10 +18,17 @@ default_args = {
     "prepare_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
     "pyspark_phmain": dv.TEMPLATE_PHMAIN_FILE_PY,
     "pyspark_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
-    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
+    "pyspark_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
+    "r_phmain": dv.TEMPLATE_PHMAIN_FILE_R,
+    "r_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
+    "r_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE,
+    "sparkr_phmain": dv.TEMPLATE_PHMAIN_FILE_R,
+    "sparkr_phgraphtemp": dv.TEMPLATE_PHGRAPHTEMP_FILE,
+    "sparkr_phdagjob": dv.TEMPLATE_PHDAGJOB_FILE
 }
 
-
+# 最终生成模板的重构为 外观 -> 构造 -> 工厂/策略
+# 外观统一接口 构造按照顺序产出结构 工厂/策略拿到结构进行核心代码拼装
 
 class CommandUploadAirflow(Command):
     def __init__(self, **kwargs):
@@ -30,9 +37,11 @@ class CommandUploadAirflow(Command):
         self.phs3 = PhS3()
         self.dynamodb = DynamoDB()
         self.job_path_prefix = "/tmp/phjobs/"
+        # self.job_path_prefix = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
-        # self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
+        # self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        # self.operator_path = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/dags/"
+        self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)
 
     def create_init(self, dag_conf, path=None):
@@ -81,15 +90,16 @@ class CommandUploadAirflow(Command):
         job_full_name = dag_conf.get("jobDisplayName")
         job_path = self.job_path_prefix + dag_name + "/" + job_full_name
         f_lines = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime+"_phmain"))
-        with open(job_path + "/phmain.py", "w") as file:
 
-            for line in f_lines:
-                line = line + "\n"
-                if line == "$alfred_debug_execute\n":
-                    file.write("@click.command()\n")
-                    for must in dv.PRESET_MUST_ARGS.split(","):
-                        file.write("@click.option('--{}')\n".format(must.strip()))
-                    file.write("""def debug_execute(**kwargs):
+        def write_python():
+            with open(job_path + "/phmain.py", "w") as file:
+                for line in f_lines:
+                    line = line + "\n"
+                    if line == "$alfred_debug_execute\n":
+                        file.write("@click.command()\n")
+                        for must in dv.PRESET_MUST_ARGS.split(","):
+                            file.write("@click.option('--{}')\n".format(must.strip()))
+                        file.write("""def debug_execute(**kwargs):
     try:
         logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
         args = {"name": "$alfred_name"}
@@ -126,7 +136,7 @@ class CommandUploadAirflow(Command):
         logger.debug("job脚本返回输出df")
         logger.debug(args)
         
-        createOutputs(args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
+        createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
 
 
 
@@ -138,16 +148,69 @@ class CommandUploadAirflow(Command):
         raise e
 
 """
-                               .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_inputs', ', '.join(['"'+input.get("name")+'"' for input in json.loads(dag_conf.get("inputs"))])) \
-                               .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
-                               .replace('$alfred_name', dag_conf.get("jobDisplayName"))
-                               .replace('$alfred_project_id', dag_conf.get("projectId"))
-                               .replace('$alfred_project_name', dag_conf.get("dagName"))
-                               .replace('$alfred_runtime', dag_conf.get("runtime"))
-                               )
-                else:
-                    file.write(line)
+                                   .replace('$alfred_outputs_name', ', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                                   .replace('$alfred_inputs', ', '.join(['"'+input.get("name")+'"' for input in json.loads(dag_conf.get("inputs"))])) \
+                                   .replace('$alfred_outputs_id', ', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])) \
+                                   .replace('$alfred_name', dag_conf.get("jobDisplayName"))
+                                   .replace('$alfred_project_id', dag_conf.get("projectId"))
+                                   .replace('$alfred_project_name', dag_conf.get("dagName"))
+                                   .replace('$alfred_runtime', dag_conf.get("runtime"))
+                                   )
+                    else:
+                        file.write(line)
+
+        def write_r():
+            with open(job_path + "/phmain.R", "w") as file:
+                for line in f_lines:
+                    line = line + "\n"
+                    if line == "$alfred_debug_execute\n":
+                        file.write(f"""
+args <- list(name="{dag_conf.get("jobDisplayName")}")
+
+inputs <- list({', '.join(['"'+input.get("name")+'"' for input in json.loads(dag_conf.get("inputs"))])})
+outputs <- list({', '.join(['"'+output.get("name")+'"' for output in json.loads(dag_conf.get("outputs"))])})
+
+outputs_id <- list({', '.join(['"'+output.get("id")+'"' for output in json.loads(dag_conf.get("outputs"))])})
+project_id <- "{dag_conf.get("projectId")}"
+project_name <- "{dag_conf.get("dagName")}"
+runtime <- "{runtime}"
+
+# 差一个json转结构的库
+ph_conf <- fromJSON(input_args$ph_conf, simplifyVector=FALSE)
+
+user_conf <- ph_conf$userConf
+
+ds_conf <- as.list(ph_conf$datasets)
+
+args <- c(args, user_conf)
+args[["ds_conf"]] <- ds_conf
+args <- c(args, input_args)
+
+output_version = paste(args$run_id, "_", ph_conf$showName, sep="")
+
+df_map <- create_input_df(runtime, inputs, args, project_id, project_name, output_version)
+
+args <- c(args, df_map)
+
+result <- exec(args)
+
+args <- c(args, result)
+
+createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version)
+                        """)
+                    else:
+                        file.write(line)
+
+        choose_main = {
+            "python3": write_python,
+            "pyspark": write_python,
+            "r": write_r,
+            "sparkr": write_r,
+            "prepare": write_python
+        }
+
+        choose_main[runtime]()
+
 
     def edit_prepare_phjob(self, message):
         jobDisplayName = message.get("jobDisplayName")
@@ -200,9 +263,9 @@ class CommandUploadAirflow(Command):
         }
         self.dynamodb.putData(edit_data)
 
-
-
     def create_phjobs(self, dag_conf):
+        runtime = dag_conf.get("runtime")
+
         # 通过 phcli 创建 phjobs 相关文件
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
@@ -213,46 +276,66 @@ class CommandUploadAirflow(Command):
         operator_parameters = json.loads(dag_conf.get("operatorParameters"))
 
         phjob_exist = False
+
+        job_name = "phjob"
+
+        def write_r():
+            return job_name + ".R"
+
+        def write_python():
+            return job_name + ".py"
+
+        job_head_temps = {
+            "python3": dv.TEMPLATE_PHJOB_FILE_PY,
+            "pyspark": dv.TEMPLATE_PHJOB_FILE_PY,
+            "r": dv.TEMPLATE_PHJOB_FILE_R,
+            "sparkr": dv.TEMPLATE_PHJOB_FILE_R,
+            "prepare": dv.TEMPLATE_PHJOB_FILE_PY
+        }
+
+        choose_job = {
+            "python3": write_python,
+            "pyspark": write_python,
+            "r": write_r,
+            "sparkr": write_r,
+            "prepare": write_python
+        }
+
+        choose_job_head = {
+            "python3": """def execute(**kwargs):\n""",
+            "pyspark": """def execute(**kwargs):\n""",
+            "prepare": """def execute(**kwargs):\n""",
+            "r": "",
+            "sparkr": ""
+        }
+
         # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
         if "script" in operator_parameters:
-            phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/phjob.py")
+            phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/" + choose_job[runtime]())
 
         if not phjob_exist:
             # 2. /phjob.py file
-            self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
-            operator_code = GenerateInvoker().execute(operator_parameters)
-            with open(job_path + "/phjob.py", "a") as file:
-                file.write("""def execute(**kwargs):\n""")
+            self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + job_head_temps[runtime], job_path + "/" + choose_job[runtime]())
+            operator_code = GenerateInvoker().execute(operator_parameters, runtime)
+            with open(job_path + "/" + choose_job[runtime](), "a") as file:
+                file.write(choose_job_head[runtime])
                 file.write(operator_code)
 
     def upload_phjob_files(self, dag_conf):
 
-        def upload_pyspark_job(operator_dir_path, dag_name):
+        def upload_job(operator_dir_path, dag_name):
             self.phs3.upload_dir(
                 dir=operator_dir_path,
                 bucket_name=dv.TEMPLATE_BUCKET,
                 s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + dag_conf.get("jobDisplayName")
             )
-
-        def upload_python3_job(operator_dir_path, dag_name):
-            self.phs3.upload_dir(
-                dir=operator_dir_path,
-                bucket_name=dv.TEMPLATE_BUCKET,
-                s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + dag_conf.get("jobDisplayName")
-            )
-
 
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
         operator_dir_path = self.job_path_prefix + dag_name + "/" + dag_conf.get("jobDisplayName")
-        runtime = dag_conf.get("runtime")
-        if runtime == "pyspark":
-            upload_pyspark_job(operator_dir_path, dag_name)
-        elif runtime == "prepare":
-            upload_pyspark_job(operator_dir_path, dag_name)
-        elif runtime == "python3":
-            upload_python3_job(operator_dir_path, dag_name)
+        # runtime = dag_conf.get("runtime")
+        upload_job(operator_dir_path, dag_name)
 
     def airflow_operator_file(self, dag_conf):
 
@@ -314,6 +397,7 @@ class CommandUploadAirflow(Command):
         def update_operator_file(operator_file_path, dag_name, links):
 
             runtime = dag_conf.get("runtime")
+            output_id = json.loads(dag_conf.get("outputs"))[0].get("id")
             w = open(operator_file_path, "a")
             jf = self.phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + default_args.get(runtime + "_phdagjob"))
             for line in jf:
@@ -323,6 +407,8 @@ class CommandUploadAirflow(Command):
                         .replace("$alfred_name", str(dag_conf.get("jobDisplayName")))
                         .replace("$alfred_projectName", str(dag_conf.get("projectName")))
                         .replace("$alfred_jobShowName", str(dag_conf.get("jobShowName")))
+                        .replace("$alfred_runtime", runtime)
+                        .replace("$alfred_output_id", output_id)
                 )
             w.close()
 

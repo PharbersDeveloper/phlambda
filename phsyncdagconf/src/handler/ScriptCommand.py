@@ -12,6 +12,7 @@ class ScriptCommand(Command):
 
     def execute(self, data=None):
         path = "/tmp/phjobs/script.template"
+        # path = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/script.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
                            dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_SCRIPT_FILE_PY,
                            path)

@@ -21,12 +21,10 @@ def lambda_handler(event, context):
         if type(event) == str:
             event = json.loads(event)
         resource_type = event.get("content_type")
-        status = execute(resource_type, event)
+        msg = execute(resource_type, event)
         result_message = {
             "status": "ok",
-            "data": {
-                "resource_status": status
-            }
+            "data": msg
         }
     except Exception as e:
         result_message = {

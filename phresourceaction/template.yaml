@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourceaction-V2
+      FunctionName: lmd-phresourceaction-dev
       Description: "通过传递的消息 对resource进行操作"
       MemorySize: 128
       Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource

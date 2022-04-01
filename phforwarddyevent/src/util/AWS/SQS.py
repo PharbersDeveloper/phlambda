@@ -10,13 +10,29 @@ class SQS():
 
     def sqs_send_message(self, message):
         print("message id ========================")
+
         response = self.sqs_client.send_message(
-            QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-dyevent-pipeline.fifo",
+            QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-xlsxtockhouse-pipeline-dev.fifo",
             MessageBody=json.dumps(message, ensure_ascii=False),
             MessageGroupId=GenerateID().generate()
         )
+
+        # response = self.sqs_client.send_message(
+        #     QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-dagtrigger-pipeline.fifo",
+        #     MessageBody=json.dumps(message, ensure_ascii=False),
+        #     MessageGroupId=GenerateID().generate()
+        # )
+
+        print("发送消息到sample")
         response = self.sqs_client.send_message(
-            QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-dsevent-pipeline.fifo",
+            QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-sample.fifo",
             MessageBody=json.dumps(message, ensure_ascii=False),
             MessageGroupId=GenerateID().generate()
         )
+
+        response = self.sqs_client.send_message(
+            QueueUrl="https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph-dagresource-pipeline-dev.fifo",
+            MessageBody=json.dumps(message, ensure_ascii=False),
+            MessageGroupId=GenerateID().generate()
+        )
+

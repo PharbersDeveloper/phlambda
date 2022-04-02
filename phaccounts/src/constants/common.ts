@@ -22,20 +22,34 @@ export const RedisConf: IPhConf = {
     password: "",
     host: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn",
     port: 6379,
-    poolMax: 2,
+    poolMax: 1,
     ssl: false,
     idleTimeoutMs: 3000,
     connectionTimeoutMs: 3000
 }
 
+// export const PostgresConf: IPhConf = {
+//     name: StoreEnum.POSTGRES,
+//     entity: "common",
+//     database: "phplatform",
+//     user: "pharbers",
+//     password: "Abcde196125",
+//     host: "192.168.49.199",
+//     port: 5439,
+//     poolMax: 1,
+//     ssl: false,
+//     idleTimeoutMs: 3000,
+//     connectionTimeoutMs: 3000
+// }
+
 export const PostgresConf: IPhConf = {
     name: StoreEnum.POSTGRES,
-    entity: "common",
-    database: "phplatform",
-    user: "pharbers",
-    password: "Abcde196125",
-    host: "192.168.49.199",
-    port: 5439,
+    entity: process.env.ENTITY,
+    database: process.env.DATABASE,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    host: process.env.HOST,
+    port: Number(process.env.PORT),
     poolMax: 1,
     ssl: false,
     idleTimeoutMs: 3000,

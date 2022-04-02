@@ -178,7 +178,9 @@ class CommandCreateDagConf(Command):
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
-        job_path = dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + "/phjob.py"
+        R_runtime = ["r", "sparkr"]
+        job_path_prefix = "/phjob.R" if dag_conf.get("runtime") in R_runtime else "/phjob.py"
+        job_path = dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + job_path_prefix
         dag_conf.update({"jobPath": job_path})
         data.update({"item": dag_conf})
 

@@ -20,7 +20,7 @@ Resources:
         Variables:
           REDIS_HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
           REDIS_PORT: "6379"
-          EDITION: "DEV"
+          EDITION: "V2"
       Tags:
         edition: dev
         owner: hbzhao
@@ -34,9 +34,9 @@ Resources:
 #            StartingPosition: TRIM_HORIZON
 #            BatchSize: 1
 #            Enabled: No
-#      FileSystemConfigs:
-#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
-#          LocalMountPath: /mnt/tmp
+      FileSystemConfigs:
+        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+          LocalMountPath: /mnt/tmp
       Timeout: 600
       VpcConfig:
         SecurityGroupIds:

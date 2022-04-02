@@ -21,7 +21,7 @@ class GetResourceStatus(object):
         return re.sub(r'(_[a-z])', lambda x: x.group(1)[1], name.lower())
 
     def get_resource_status(self, target_name):
-        res = self.ssm.get_ssm_parameter("resource_status_dev")
+        res = self.ssm.get_ssm_parameter("resource_status")
         status = "closed"
         started_number = 0
         action_id = "default_action_id"
@@ -39,7 +39,7 @@ class GetResourceStatus(object):
         return msg
 
     def put_resource_status(self, status, action_id):
-        res = self.ssm.get_ssm_parameter("resource_status_dev")
+        res = self.ssm.get_ssm_parameter("resource_status")
         target_name = self.name_convert_to_camel(self.event.get("projectName"))
         for resource in res:
             if resource.get("projectName") == target_name:
@@ -52,7 +52,7 @@ class GetResourceStatus(object):
             "projectId": self.event.get("projectId")
         }
         res.append(resource)
-        self.ssm.put_ssm_parameter("resource_status_dev", json.dumps(res))
+        self.ssm.put_ssm_parameter("resource_status", json.dumps(res))
         msg = {
             "resource_status": status,
             "action_id": action_id
@@ -62,7 +62,7 @@ class GetResourceStatus(object):
     def insert_action(self, event, operate_type):
 
         data = {
-            "table_name": "action_dev"
+            "table_name": "action"
         }
         item = {}
         message = {}

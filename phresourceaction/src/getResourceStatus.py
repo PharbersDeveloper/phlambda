@@ -23,14 +23,18 @@ class GetResourceStatus(object):
     def get_resource_status(self, target_name):
         res = self.ssm.get_ssm_parameter("resource_status_dev")
         status = "closed"
+        started_number = 0
         action_id = "default_action_id"
         for resource in res:
             if resource.get("projectName") == target_name:
                 status = resource.get("status", "closed")
                 action_id = resource.get("actionId", "default_actionId")
+            if resource.get("status") == "started":
+                started_number = started_number + 1
         msg = {
             "resource_status": status,
-            "action_id": action_id
+            "action_id": action_id,
+            "started_number": started_number
         }
         return msg
 

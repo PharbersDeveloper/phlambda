@@ -39,7 +39,7 @@ class CommandUploadAirflow(Command):
         self.job_path_prefix = "/tmp/phjobs/"
         # self.job_path_prefix = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/"
         # 这个位置挂载 efs 下 /pharbers/projects
-        # self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
+        self.operator_path = "/mnt/tmp/" + json.loads(self.dag_item["message"]).get("projectId") + "/airflow/dags/"
         # self.operator_path = "/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/dags/"
         self.efs_operator_path = "/mnt/tmp/max/airflow/dags/"
         self.logger = PhLogging().phLogger("upload_airflow_file", LOG_DEBUG_LEVEL)

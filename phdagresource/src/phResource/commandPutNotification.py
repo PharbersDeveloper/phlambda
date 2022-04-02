@@ -54,7 +54,7 @@ class CommandPutNotification(Command):
         status = "resource create success"
         message = {
             "type": "notification",
-            "opname": "*",
+            "opname": self.project_message.get("owner"),
             "cnotification": {
                 "status": status,
                 "error": json.dumps({
@@ -85,9 +85,22 @@ class CommandPutNotification(Command):
         logger.debug("notification 创建完成")
 
     def update_ssm(self):
-        res = self.ssm.get_ssm_parameter("resource_status")
-        res.update({self.target_name: "started"})
-        self.ssm.put_ssm_parameter("resource_status", json.dumps(res))
+        res = self.ssm.get_ssm_parameter("resource_status_dev")
+        project_args = {
+            "projectName": self.target_name,
+            "status": "default_status",
+            "actionId": self.action_id,
+            "projectId": self.project_message.get("projectId")
+        }
+        # 取出list中元素 在进行append
+        for resource in res:
+            if resource.get("projectName") == self.target_name:
+                args_index = res.index(resource)
+                project_args = res[args_index]
+                res.pop(args_index)
+        project_args.update({"status": "started"})
+        res.append(project_args)
+        self.ssm.put_ssm_parameter("resource_status_dev", json.dumps(res))
 
     def execute(self):
         airflow_status = self.airflow_status()

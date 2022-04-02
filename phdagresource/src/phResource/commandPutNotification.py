@@ -85,7 +85,7 @@ class CommandPutNotification(Command):
         logger.debug("notification 创建完成")
 
     def update_ssm(self):
-        res = self.ssm.get_ssm_parameter("resource_status_dev")
+        res = self.ssm.get_ssm_parameter("resource_status")
         project_args = {
             "projectName": self.target_name,
             "status": "default_status",
@@ -100,7 +100,7 @@ class CommandPutNotification(Command):
                 res.pop(args_index)
         project_args.update({"status": "started"})
         res.append(project_args)
-        self.ssm.put_ssm_parameter("resource_status_dev", json.dumps(res))
+        self.ssm.put_ssm_parameter("resource_status", json.dumps(res))
 
     def execute(self):
         airflow_status = self.airflow_status()

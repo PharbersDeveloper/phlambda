@@ -106,13 +106,13 @@ class GetResourceStatus(object):
 
         project_name = self.event.get("projectName")
         target_name = self.name_convert_to_camel(project_name)
-        status = self.get_resource_status(target_name)
-        if self.resource_type == "start" and status.get("resource_status") == "closed":
+        msg = self.get_resource_status(target_name)
+        if self.resource_type == "start" and msg.get("resource_status") == "closed":
             # 创建action 并且 更新ssm
             status = "starting"
             action_id = self.insert_action(self.event, "resource_create")
             msg = self.put_resource_status(status, action_id)
-        elif self.resource_type == "close" and status.get("resource_status") == "started":
+        elif self.resource_type == "close" and msg.get("resource_status") == "started":
             status = "closed"
             action_id = self.insert_action(self.event, "resource_delete")
             msg = self.put_resource_status(status, action_id)

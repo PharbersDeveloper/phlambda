@@ -6,7 +6,6 @@ export default class OptEfsHandler {
         "/airflow",
         "/tmp",
         "/worksapce",
-        "/clickhouse"
     ]
     private mountPath = process.env.MOUNTPATH
 

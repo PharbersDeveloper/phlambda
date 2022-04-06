@@ -32,6 +32,16 @@ class SSM(PhAWS):
 
         return value
 
+    def get_str_ssm_parameter(self, parameter_name):
+
+        response = self.ssm_client.get_parameter(
+            Name=parameter_name,
+        )
+        value = response["Parameter"]["Value"]
+
+        return value
+
+
     def delete_parameter(self, parameter_name):
 
         response = self.ssm_client.delete_parameter(

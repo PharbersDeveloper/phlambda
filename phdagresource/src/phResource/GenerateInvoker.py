@@ -55,39 +55,32 @@ class GenerateInvoker(object):
         logger.debug(target_ip)
 
         try:
-            # 创建ec2实例
-            CommandCreateProject(target_name=target_name, target_ip=target_ip, project_id=project_id).execute()
-        except Exception as e:
-            status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
             # 更新ssm
             CommandPutParameter(
                 target_name=target_name,
-                target_ip=target_ip
+                target_ip=target_ip,
+                project_id=project_id
             ).execute()
         except Exception as e:
             status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-
         try:
-            # 在dynamodb更新 resource 相关的参数
-            CommandPutResourceArgs(
+            # 创建ec2实例
+            CommandCreateProject(
                 target_name=target_name,
+                target_ip=target_ip,
                 project_id=project_id,
-                target_ip=target_ip
-            ).execute()
+                action_id=self.action_id).execute()
         except Exception as e:
-            status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        try:
-            CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
-        except Exception as e:
-            status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+        # try:
+        #     CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
+        # except Exception as e:
+        #     status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
+        #     logger.debug(status)
 
     def delete_execute(self):
         logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)

@@ -175,7 +175,6 @@ project_id <- "{dag_conf.get("projectId")}"
 project_name <- "{dag_conf.get("dagName")}"
 runtime <- "{runtime}"
 
-# 差一个json转结构的库
 ph_conf <- fromJSON(input_args$ph_conf, simplifyVector=FALSE)
 
 user_conf <- ph_conf$userConf
@@ -196,7 +195,7 @@ result <- exec(args)
 
 args <- c(args, result)
 
-createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version)
+create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version)
                         """)
                     else:
                         file.write(line)

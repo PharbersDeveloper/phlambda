@@ -148,6 +148,7 @@ class EditSample(object):
         print(args)
         # 运行emr
         step_status = self.run_emr_step("sample_developer", "sample", args)
+        print(step_status)
         # put_notification
         self.put_notification(step_status)
         pass

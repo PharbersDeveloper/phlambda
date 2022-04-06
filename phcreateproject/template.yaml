@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Deploy lmd lmd-phcreateproject-dev
+Description: Deploy lmd lmd-phcreateproject-V2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phcreateproject-dev
+      FunctionName: lmd-phcreateproject-V2
       Description: "创建Project同时在挂载EFS创建文件"
       Timeout: 600
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
@@ -24,7 +24,13 @@ Resources:
       Environment:
         Variables:
           MOUNTPATH: /mnt/tmp/
-          EDITION: "DEV"
+          EDITION: "V2"
+          ENTITY: "platform"
+          DATABASE: "phplatform"
+          USER: "pharbers"
+          PASSWORD: "Abcde196125"
+          HOST: "192.168.26.64"
+          PORT: "5439"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

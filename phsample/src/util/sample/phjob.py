@@ -62,22 +62,16 @@ def execute(**kwargs):
             return sql_scheme
         return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
 
-    def addVersion(df, version, version_colname='version'):
-        df = df.withColumn(version_colname, lit(version))
-        return df
-
     spark = kwargs["spark"]()
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
     projectId = ph_conf.get("projectId")
     projectName = ph_conf.get("projectName")
     datasetName = ph_conf.get("datasetName")
-    version = ph_conf.get("datasetVersion")
     sample = ph_conf.get("sample")
     company = ph_conf.get("company")
     # 从s3 读取数据
     path = f"s3://ph-platform/2020-11-11/lake/{company}/{projectId}/{datasetName}/"
     df = spark.read.parquet(path)
-    df = df.where(df["version"].isin(version))
 
     # 按照 sample 对数据进行处理
     df_sample = sample.split("_")[0]
@@ -107,8 +101,6 @@ def execute(**kwargs):
     sql_create_table = createClickhouseTableSql(sample_df, table_name)
     logger.debug(sql_create_table)
     ch_client.execute(sql_create_table)
-
-    sample_df = addVersion(sample_df, version)
 
     # 写入clickhouse
     sample_df.write.format("jdbc").mode("append") \

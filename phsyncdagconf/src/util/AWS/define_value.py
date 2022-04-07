@@ -34,8 +34,8 @@ TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20220331_dev.tm
 # TEMPLATE_PHMAIN_FILE_PYTHON3 = "/template/python/phcli/maxauto/phmain-20220210.tmp"
 
 # R & SparkR
-TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r-20220331_dev.tmp"
-TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r-20220331_dev.tmp"
+TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r_dev.tmp"
+TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r_dev.tmp"
 
 # 低代码
 TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"

@@ -185,7 +185,7 @@ args <- c(args, user_conf)
 args[["ds_conf"]] <- ds_conf
 args <- c(args, input_args)
 
-output_version = paste(args$run_id, "_", ph_conf$showName, sep="")
+output_version <- paste(args$run_id, "_", ph_conf$showName, sep="")
 
 df_map <- create_input_df(runtime, inputs, args, project_id, project_name, output_version)
 
@@ -482,7 +482,10 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         res = self.dynamodb.queryTableBeginWith(data)
         # 创建airflow_operator
         self.airflow_operator_exec(item, res)
-
+        dag_name = json.loads(item["message"]).get("projectName") + \
+                   "_" + json.loads(item["message"]).get("dagName") + \
+                   "_" + json.loads(item["message"]).get("flowVersion")
+        os.system("rm -rf " + self.job_path_prefix + "/" + dag_name)
         # 创建上传job文件
         for dag_item in res.get("Items"):
             # 创建args_properties

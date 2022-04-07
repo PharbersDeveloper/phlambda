@@ -3,7 +3,7 @@ import constants.DefinValue as DV
 from handler.Command.DagReceiver import DagReceiver
 from handler.Command.DataSetReceiver import DataSetReceiver
 from handler.Command.SaveCommand import SaveDataSetCommand, SaveDagCommand
-
+from util.AWS.ph_s3 import PhS3
 import pandas as pd
 import boto3
 from boto3.dynamodb.conditions import Attr
@@ -24,7 +24,9 @@ class Csv:
         # self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
         self.file_name_list = []
         self.schema = None
+        self.whileonce = True
         self.clickhouse_client = None
+        self.PhS3 = PhS3()
         self.dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1",
                                                 aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
                                                 aws_secret_access_key="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")
@@ -33,7 +35,7 @@ class Csv:
         result = self.scanTable({
             "table_name": "resource",
             "limit": 100000,
-            "expression": Attr("projectId").eq("ggjpDje0HUC2JW"),
+            "expression": Attr("projectId").eq(projectId),
             "start_key": ""
         })["data"]
         ip = os.environ.get("CLICKHOUSE_HOST")
@@ -89,32 +91,32 @@ class Csv:
             }
 
     def createClickhouTableSql(self, table_name, database='default', order_by='', partition_by='version'):
+        print(table_name)
         def getSchemeSql():
             sql_scheme = ""
-            new_schema = self.schema + ["version"]
-            for i in new_schema:
+            for i in self.schema:
                 sql_scheme += f"`{i}` String,"
             sql_scheme = re.sub(r",$", "", sql_scheme)
             return sql_scheme
+        return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}` ({getSchemeSql()}) ENGINE=MergeTree() PRIMARY KEY version"
 
-        return f"CREATE TABLE IF NOT EXISTS {database}.{table_name}({getSchemeSql()}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
+    def toS3(self, path, key):
+        self.PhS3.upload_dir(path, 'ph-platform', key)
 
-    def toS3(self):
-        s3 = boto3.resource('s3')
-        for i in self.file_name_list:
-            s3.meta.client.upload_file(i, 'ph-platform', f'2020-11-11/download/parquet/{i.split("/")[-1]}')
-            os.remove(i)
 
     def do_parquet(self, dataf, file_name):
-        # dataf = pd.DataFrame(data_list)
-        dataf.columns = self.schema
-        dataf.to_parquet(file_name, index=False)
+        dataf.to_parquet(file_name, index=False, partition_cols="version")
 
     def toclickhouse(self, table_name, data):
         print("to clickhouse -------------------------")
         print(data)
-        self.exists_table(table_name)
-        self.createClickhouTableSql(table_name)
+        # self.exists_table(table_name)
+        # self.createClickhouTableSql(table_name)
+        create_sql = self.createClickhouTableSql(table_name)
+        print(create_sql)
+        print(table_name)
+        print(data)
+        self.clickhouse_client.execute(create_sql)
         self.clickhouse_client.execute(f'INSERT INTO {table_name} VALUES', data)
 
     def do_exec(self, data):
@@ -137,6 +139,8 @@ class Csv:
             "prop": data["message"].get("prop", ""),
             "format": data["message"].get("format", ""),
             "prefix": data["jobDesc"],
+            "ds_id": data["message"]["fileId"],
+            "label": "[]",
             "jobCat": "project_file_to_DS_",
         }
 
@@ -146,34 +150,26 @@ class Csv:
         filename = parameters.get("file_name")
         ds_name = parameters.get("ds_name")
         projectId = parameters.get("project_id")
-        path = f"/Users/moke/worker_space/phlambda/phxlsxtockhouse/src/handler/Strategy/{filename}"
         path = f"/mnt/tmp/{projectId}/tmp/{filename}"
         data_list = pd.read_csv(path, chunksize=10)
         table_name = f"{projectId}_{ds_name}"
 
-        # ds_name = "test2222222222"
-        # version = data.get("version")
-        # file_name = data.get("file_name")
-        # temp_file = data.get("path")
-        # projectId = data.get("projectId")
-        # data_list = pd.read_csv(temp_file, chunksize=10)
-        # table_name = f"{projectId}_{ds_name}"
 
         self.__create_clickhouse(projectId)
-
+        out_file_name = f"/mnt/tmp/{projectId}/tmp/pharbers/{projectId}/{ds_name}/"
         for i, dataf in enumerate(data_list):
+            dataf["version"] = version
             data_l = dataf.values.tolist()
-            if not self.schema:
+            if self.whileonce:
                 print("not schema insert to clickhouse-------------------")
                 self.schema = dataf.columns.values.tolist()
+                parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
+                self.whileonce = False
                 new_data = self.parse_data(data_l, version)
                 self.toclickhouse(table_name, new_data)
-            out_file_name = f"/mnt/tmp/{projectId}/tmp/" + filename.split(".")[0] + "_" + str(i + 1) + ".parquet"
-            # out_file_name = f"/Users/moke/worker_space/phlambda/phxlsxtockhouse/src/handler/Strategy/parquet/" + filename + "_" + str(i + 1) + ".parquet"
             self.do_parquet(dataf, out_file_name)
-            self.file_name_list.append(out_file_name)
 
-        self.toS3()
+        self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
         print("success------------------------------------------------------------------------")
         # SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
         # SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag

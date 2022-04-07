@@ -124,9 +124,6 @@ class CommandUploadAirflow(Command):
     
         args.update(kwargs)
         output_version =  args.get("run_id") + "_" + ph_conf.get("showName")
-        result = exec_before(**args)
-        
-        args.update(result if isinstance(result, dict) else {})
 
         df_map = create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger)
         args.update(df_map)
@@ -137,8 +134,6 @@ class CommandUploadAirflow(Command):
         logger.debug(args)
         
         createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
-
-
 
         return result
     except Exception as e:

@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import DBModel from "../common/models/DBModel"
 import {StoreEnum} from "../common/enum/StoreEnum"
-import PhLogger from "../common/logger/PhLogger"
+import PhLogger from "../common/logger/phLogger"
 
 
 const createDBModel = jest.fn(() => {

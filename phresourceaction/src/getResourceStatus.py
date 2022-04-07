@@ -29,7 +29,7 @@ class GetResourceStatus(object):
             if resource.get("projectName") == target_name:
                 status = resource.get("status", "closed")
                 action_id = resource.get("actionId", "default_actionId")
-            if resource.get("status") == "started":
+            if resource.get("status") == "started" or resource.get("status") == "starting":
                 started_number = started_number + 1
         msg = {
             "resource_status": status,

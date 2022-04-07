@@ -11,10 +11,10 @@ Resources:
       CodeUri: ./src
       FunctionName: lmd-phresourceaction-V2
       Description: "通过传递的消息 对resource进行操作"
-      MemorySize: 128
+      MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource
       Timeout: 180
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
 

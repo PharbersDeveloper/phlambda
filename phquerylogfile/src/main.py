@@ -33,16 +33,6 @@ def read_file(bucket, key):
             data += i.decode("utf-8", "ignore")
         return data
 
-# def read_file(path):
-#     filehandler = open(path, "rb")
-#     file = open('./test/test1.txt', "w+")
-#     a = filehandler.readlines()
-#     for i in a:
-#         print(i.decode("utf-8", "ignore"))
-#         file.write(i.decode("utf-8", "ignore"))
-#     file.close()
-#     filehandler.close()
-
 
 def read_gz(gz_data):
     gzipfile = BytesIO(gz_data)
@@ -59,26 +49,23 @@ def query_logfile(bucket, file_key):
 
 
 def run(bucket, key, **kwargs):
-    result = if_exit(bucket, key+"stderr.gz")
-    if not result:
-        return
-    log_file = read_gz(result).decode()
-    file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_')+30]
-    logkey_list = query_logfile(bucket, file_nmae)
+    try:
+        result = if_exit(bucket, key + "stderr.gz")
+        print(result)
+        if not result:
+            return
+        log_file = read_gz(result).decode()
+        file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_') + 30]
+        print(file_nmae)
+        logkey_list = query_logfile(bucket, file_nmae)
+        print(logkey_list)
 
-    # with open('test1.txt', 'wb') as f:
-    #     for i in logkey_list:
-    #         f.write(if_exit(bucket, i))
-    # for i in logkey_list:
-    #     reasult = if_exit(bucket, i)
-    #     base64_data = base64.b64encode(reasult)
-    #     print(json.dumps(base64_data))
-    #     print(type(base64_data))
-    #     base64_str = base64_data.decode('utf-8')
-    data = ""
-    for i in logkey_list:
-        data += read_file(bucket, i)
-    return data
+        data = ""
+        for i in logkey_list:
+            data += read_file(bucket, i)
+        return data
+    except:
+        return
 
 
 def lambda_handler(event, context):

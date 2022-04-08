@@ -15,6 +15,9 @@ class ProjectArgs(object):
             raise ResourceNotCreateError("资源未启动")
         return args
 
+    def get_parameter(self, parameter_key):
+        return self.__args.get(parameter_key)
+
     def get_project_name(self):
         return self.__args.get("projectName")
 

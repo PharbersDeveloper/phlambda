@@ -3,6 +3,7 @@ import time
 import boto3
 from util.AWS.DynamoDB import DynamoDB
 # from phdydatasource_layer.handler.ExecHandler import makeData
+from phlambda.phbaselayer.python.phprojectargslayer.phprojectargs.projectArgs import ProjectArgs
 
 
 class EditSample(object):
@@ -16,8 +17,13 @@ class EditSample(object):
         self.emr_client = boto3.client("emr")
         self.dynamodb = DynamoDB()
 
-    def run_emr_step(self, dag_name, job_full_name, args_list=None):
-        cluster_id = self.get_cluster_id()
+    def run_emr_step(self, dag_name, job_full_name, project_id, args_list=None):
+        args = ProjectArgs(project_id)
+        clusters = args.get_cluster_list()
+        for cluster in clusters:
+            if cluster.get("type") == "emr":
+                cluster_id = cluster.get("id")
+
         step_name = dag_name + "_" + job_full_name
 
         step = {}
@@ -147,7 +153,7 @@ class EditSample(object):
         args = self.create_step_args("sample_developer", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
         print(args)
         # 运行emr
-        step_status = self.run_emr_step("sample_developer", "sample", args)
+        step_status = self.run_emr_step("sample_developer", "sample", self.project_message.get("projectId"), args)
         # put_notification
         self.put_notification(step_status)
         pass

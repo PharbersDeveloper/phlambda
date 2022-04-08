@@ -4,6 +4,7 @@ from util.ClieckHouse import ClickHouse
 from util.AWS.DynamoDB import DynamoDB
 from util.PhRedis import PhRedis
 from boto3.dynamodb.conditions import Attr
+from phlambda.phbaselayer.python.phprojectargslayer.phprojectargs.projectArgs import ProjectArgs
 
 
 def __create_dynamodb():
@@ -18,16 +19,18 @@ def __create_dynamodb():
 
 
 def __create_clickhouse(projectId):
-    dynamodb = EXTERNAL_SERVICES["dynamodb"]
-    result = dynamodb.scanTable({
-        "table_name": "resource",
-        "limit": 100000,
-        "expression": Attr("projectId").eq(projectId),
-        "start_key": ""
-    })["data"]
+    args = ProjectArgs(projectId)
+    proxies = args.get_proxy_list()
+    # dynamodb = EXTERNAL_SERVICES["dynamodb"]
+    # result = dynamodb.scanTable({
+    #     "table_name": "resource",
+    #     "limit": 100000,
+    #     "expression": Attr("projectId").eq(projectId),
+    #     "start_key": ""
+    # })["data"]
     ip = os.environ[DV.CLICKHOUSE_HOST]
-    if len(result) > 0:
-        ip = result[0]["projectIp"]
+    if len(proxies) > 0:
+        ip = proxies[0]
     return ClickHouse(host=ip, port=os.environ[DV.CLICKHOUSE_PORT])
 
 

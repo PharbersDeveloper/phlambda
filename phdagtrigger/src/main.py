@@ -5,13 +5,18 @@ from util.AWS.DynamoDB import DynamoDB
 import time
 from util.GenerateID import GenerateID
 import os
+from phprojectargs.projectArgs import ProjectArgs
 
-# ssm get url
-client = boto3.client('ssm')
-response = client.get_parameter(
-    Name='airflow_args'
-)
-ssm_dict = json.loads(response.get("Parameter").get("Value"))
+
+def get_airflow_url(project_id):
+    args = ProjectArgs(project_id)
+    airflow_url = args.get_project_dns() + "airflow"
+    # client = boto3.client('ssm')
+    # response = client.get_parameter(
+    #     Name='airflow_args'
+    # )
+    # ssm_dict = json.loads(response.get("Parameter").get("Value"))
+    return airflow_url
 
 format_args = {"project_name":"demo","flow_version":"developer","conf":{"datasets":[{"name":"universe_other","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_other","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_common_1","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base_common","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_0","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_1","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"A","version":[],"cat":"uploaded","prop":{"path":"","partitions":1}},{"name":"universe_base_common","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base_common","databaseName":"zudIcG_17yj8CEUoCTHg"}}],"scripts":[],"userConf":{},"ownerId":"16dc4eb5-5ed3-4952-aaed-17b3cc5f638b","showName":"赵浩博","jobDesc":"runDag1648178799157"}}
 
@@ -88,8 +93,10 @@ def lambda_handler(event, context):
         item_event = process_insert_event(event)
         item_event[0]['message'] = format_args
         msg = item_event[0]['message']
+        project_id = msg.get("project_id")
+        airflow_url = get_airflow_url(project_id)
         #--实例化
-        handle_event = HandleEventMessage(ssm_dict, msg)
+        handle_event = HandleEventMessage(airflow_url, msg)
         handle_event.handle_dag_id()
         handle_event.handle_run_status()
         insert_action(msg, str(status_message))

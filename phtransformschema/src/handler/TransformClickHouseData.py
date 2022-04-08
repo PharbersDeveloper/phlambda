@@ -7,6 +7,7 @@ from boto3.dynamodb.conditions import Key
 from clickhouse_driver.errors import ServerException
 from util.ClieckHouse import ClickHouse
 from boto3.dynamodb.conditions import Attr
+from phprojectargs.projectArgs import ProjectArgs
 
 dynamodb = DynamoDB()
 # import base64
@@ -24,15 +25,17 @@ action_table = "action" + dev
 
 
 def executeSql(projectId, sql):
-    result = dynamodb.scanTable({
-        "table_name": "resource",
-        "limit": 100000,
-        "expression": Attr("projectId").eq(projectId),
-        "start_key": ""
-    })["data"]
+    args = ProjectArgs(projectId)
+    proxies = args.get_proxy_list()
+    # result = dynamodb.scanTable({
+    #     "table_name": "resource",
+    #     "limit": 100000,
+    #     "expression": Attr("projectId").eq(projectId),
+    #     "start_key": ""
+    # })["data"]
     ip = "192.168.16.117"
-    if len(result) > 0:
-        ip = result[0]["projectIp"]
+    if len(proxies) > 0:
+        ip = proxies[0]
     client = ClickHouse(host=ip, port="9000").getClient()
     # client = ClickHouse(host="localhost", port="19000").getClient()
     result = client.execute(sql)

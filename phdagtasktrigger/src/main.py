@@ -1,21 +1,24 @@
 import requests
 import json
 import boto3
+import time
+import os
 from handleeventmessage import HandleTaskMessage
 from util.AWS.DynamoDB import DynamoDB
 from util.GenerateID import GenerateID
-import time
-import os
+from phprojectargs.projectArgs import ProjectArgs
+
 
 # ssm get url
-
-def get_ssm_dict():
-    client = boto3.client('ssm')
-    response = client.get_parameter(
-        Name='airflow_args'
-    )
-    ssm_dict = json.loads(response.get("Parameter").get("Value"))
-    return ssm_dict
+def get_airflow_url(project_id):
+    args = ProjectArgs(project_id)
+    airflow_url = args.get_project_dns() + "airflow"
+    # client = boto3.client('ssm')
+    # response = client.get_parameter(
+    #     Name='airflow_args'
+    # )
+    # ssm_dict = json.loads(response.get("Parameter").get("Value"))
+    return airflow_url
 
 format_args = {"project_name":"demo","flow_version":"developer","run_id":"demo_demo_developer_2022-03-28T03:27:44+00:00","task_id":"demo_demo_developer_compute_B","clean_cat":"self_only"}
 
@@ -92,9 +95,10 @@ def lambda_handler(event, context):
         item_event = process_insert_event(event)
         item_event[0]['message'] = format_args
         msg = item_event[0]['message']
-        ssm_dict = get_ssm_dict()
+        project_id = msg.get("project_id")
+        airflow_url = get_airflow_url(project_id)
 
-        res = HandleTaskMessage(ssm_dict, msg).handle_retry_process()
+        res = HandleTaskMessage(airflow_url, msg).handle_retry_process()
         insert_action(msg, str(jobcat_value))
 
         return {

@@ -5,8 +5,8 @@ import boto3
 
 class HandleTaskMessage:
 
-    def __init__(self, ssm_dict, msg):
-        self.ssm_dict = ssm_dict
+    def __init__(self, airflow_url, msg):
+        self.airflow_url = airflow_url
         self.msg = msg
         self.project_name = self.msg.get("project_name", "max")
         self.flow_version = self.msg.get("flow_version", "developer")
@@ -21,8 +21,8 @@ class HandleTaskMessage:
             "Content-type": "application/json",
             "Accept": "application/json"
         }
-        airflow_url = self.ssm_dict.get(project_name)
-        url = "http://" + airflow_url + "/api/v1/dags/" + dag_id + "/clearTaskInstances"
+        # airflow_url = self.ssm_dict.get(project_name)
+        url = "http://" + self.airflow_url + "/api/v1/dags/" + dag_id + "/clearTaskInstances"
         print("clearTaskInstances的 url")
         print(url)
         # url = "http://" + url + "/api/v1/dags/" + dag_id
@@ -52,8 +52,8 @@ class HandleTaskMessage:
         }
         # 1. 第一步先全部改成success, 这样做的原因在于，将所有的下线全部统一一个状态
         # url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/clearTaskInstances"
-        airflow_url = self.ssm_dict.get(project_name)
-        url = "http://" + airflow_url + "/api/v1/dags/" + dag_id + "/updateTaskInstancesState"
+        # airflow_url = self.ssm_dict.get(project_name)
+        url = "http://" + self.airflow_url + "/api/v1/dags/" + dag_id + "/updateTaskInstancesState"
         print("updateTaskInstancesState url")
         print(url)
         # url = "http://" + url + "/api/v1/dags/" + dag_id

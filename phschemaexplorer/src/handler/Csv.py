@@ -1,13 +1,11 @@
-from Strategy import Strategy
-
 from constants.Errors import Errors, FileNotFound, NotCsvFile
 from handler.Strategy import Strategy
 from openpyxl.utils.exceptions import InvalidFileException
 import os
+import csv
 # import openpyxl
 import constants.Common as Common
 import logging
-import pandas as pd
 
 
 class Csv(Strategy):
@@ -19,14 +17,22 @@ class Csv(Strategy):
         skip_next = int(skip_next)
         out_number = int(out_number)
         out_num = out_number if out_number > 0 else 20
-        data = pd.read_csv(temp_file, encoding="utf-8")
-        body = data.values.tolist()
-        body = body[skip_next:]
-        body = body[:out_num]
+        data_list = []
+        with open(temp_file, 'r') as f:
+            reader = csv.reader(f)
+            for i, rows in enumerate(reader):
+                if i == 0:
+                    schema = rows
+                if i <= skip_next:
+                    continue
+                data_list.append(rows)
+                if i >= out_num + skip_next:
+                    break
+
         return {'readNumber': 1,
                 'sheet': 'csv',
-                'schema': data.columns.values.tolist(),
-                'data': body
+                'schema': schema,
+                'data': data_list
                 }
 
     def do_exec(self, data):

@@ -9,10 +9,12 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phdagtrigger-V2
-      Description: "phdagtrigger"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      FunctionName: lmd-phdagtrigger-dev
+      Description: "创建dag的run id"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 120
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phairflow:2
       Environment:
         Variables:
           EDITION: "DEV"
@@ -23,3 +25,4 @@ Resources:
         SubnetIds:
           - subnet-0260eab5acd58bc53
           - subnet-0e3daa88acef9b136
+

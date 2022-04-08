@@ -1,3 +1,4 @@
+import json
 import handler.TransformClickHouseData as TCH
 
 
@@ -9,6 +10,7 @@ class AppLambdaDelegate:
 
     def exec(self):
         event = self.event
+        event = json.loads(event.get("Records")[0].get("body"))
         records = event["Records"]
         for record in records:
             print('EventID: ' + record['eventID'])

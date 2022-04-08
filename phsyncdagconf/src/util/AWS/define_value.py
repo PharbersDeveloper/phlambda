@@ -29,8 +29,8 @@ ENV_CUR_RUNTIME_DEFAULT = 'python3'
 TEMPLATE_PHCONF_FILE = "/template/python/phcli/maxauto/phconf-20210104.yaml"
 
 # Python & pyspark
-TEMPLATE_PHJOB_FILE_PY = "/template/python/phcli/maxauto/phjob-20220331_dev.tmp"
-TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-20220331_dev.tmp"
+TEMPLATE_PHJOB_FILE_PY = "/template/python/phcli/maxauto/phjob-py_dev.tmp"
+TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-py_dev.tmp"
 # TEMPLATE_PHMAIN_FILE_PYTHON3 = "/template/python/phcli/maxauto/phmain-20220210.tmp"
 
 # R & SparkR

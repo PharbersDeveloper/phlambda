@@ -101,6 +101,7 @@ class Csv:
         return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}` ({getSchemeSql()}) ENGINE=MergeTree() PRIMARY KEY version"
 
     def toS3(self, path, key):
+        print(key)
         self.PhS3.upload_dir(path, 'ph-platform', key)
 
 

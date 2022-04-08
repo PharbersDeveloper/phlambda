@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import constants.Common as Common
@@ -21,9 +22,12 @@ class RemoveJob:
                     "job_name": message["jobName"],
                     "flow_version": message["flowVersion"]
                 })
-
+            
+            suffix = ""
+            if os.environ["EDITION"] == "DEV":
+                suffix = "_dev"
             self.dynamodb.putData({
-                "table_name": "action",
+                "table_name": "action" + suffix,
                 "item": {
                     "projectId": item["projectId"],
                     "code": 0,

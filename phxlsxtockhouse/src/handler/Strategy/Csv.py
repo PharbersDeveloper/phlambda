@@ -171,5 +171,6 @@ class Csv:
 
         self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
         print("success------------------------------------------------------------------------")
-        # SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
-        # SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag
+        SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
+        SaveDagCommand(DagReceiver()).execute(parameters)  #
+        return parameters

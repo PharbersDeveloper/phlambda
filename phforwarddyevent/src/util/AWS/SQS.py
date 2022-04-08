@@ -2,22 +2,25 @@ import boto3
 import json
 from util.GenerateID import GenerateID
 from phmetrixlayer import aws_cloudwatch_put_metric_data
+import os
 
+evn_mode = "V2" if str(os.getenv("EDITION")).strip().lower() == "v2" else "dev"
+evn_queue_url = f"_{evn_mode}.fifo"
 jobcat_queue_urls = {
-    "project_file_to_DS": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phxlsxtockhouse_V2.fifo",  #ph_lmd_phxlsxtockhouse_V2
-    "remove_DS": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phremoveds_V2.fifo",    #lmd-phremoveds-V2
-    "remove_Job": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phremoveds_V2.fifo",   #lmd-phremoveds-V2
-    "clear_DS_data": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phcleards_V2.fifo",       #lmd-phcleards-V2
-    "transform_schema": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phtransformschema_V2.fifo",   #lmd-phtransformschema-V2
-    "project_files": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdyevent_V2.fifo",     #lmd-phsyncdyevent-V2
-    "resource_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_dagresource_V2.fifo",   #lmd-dagresource-V2
-    "resource_delete": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_dagresource_V2.fifo",   #lmd-dagresource-V2
-    "dag_refresh": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",      #lmd-phsyncdagconf-V2
-    "prepare_edit": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",      #lmd-phsyncdagconf-V2
-    "dag_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",       #lmd-phsyncdagconf-V
-    "edit_sample": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_sample_V2.fifo", #lmd-sample-V2
-    "catalog": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible_V2.fifo", #lmd-phmaxcompatible-dev
-    "max1.0": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible_V2.fifo", #lmd-phmaxcompatible-dev
+    "project_file_to_DS": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phxlsxtockhouse"+evn_queue_url,  #ph_lmd_phxlsxtockhouse_V2
+    "remove_DS": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phremoveds"+evn_queue_url,    #lmd-phremoveds-V2
+    "remove_Job": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phremoveds"+evn_queue_url,   #lmd-phremoveds-V2
+    "clear_DS_data": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phcleards"+ evn_queue_url,    #lmd-phcleards-V2
+    "transform_schema": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phtransformschema"+evn_queue_url,  #lmd-phtransformschema-V2
+    "project_files": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdyevent"+evn_queue_url,     #lmd-phsyncdyevent-V2
+    "resource_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_dagresource"+evn_queue_url,   #lmd-dagresource-V2
+    "resource_delete": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_dagresource"+evn_queue_url,   #lmd-dagresource-V2
+    "dag_refresh": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf" + evn_queue_url,  #lmd-phsyncdagconf-V2
+    "prepare_edit": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf" + evn_queue_url, #lmd-phsyncdagconf-V2
+    "dag_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf" + evn_queue_url,  #lmd-phsyncdagconf-V2
+    "edit_sample": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_sample"+evn_queue_url,  #lmd-sample-V2
+    "catalog": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible"+evn_queue_url, #lmd-phmaxcompatible-dev
+    "max1.0": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible"+evn_queue_url,  #lmd-phmaxcompatible-dev
 }
 
 def handle_sqs_key(input_dict):
@@ -41,8 +44,7 @@ class SQS(object):
         return jobcat_name, sqs_url
 
     def parse_event_parameters(self, event):
-        body_data = json.loads(event['Records'][0]['body'])
-        dynamodb = body_data['Records'][0]['dynamodb']
+        dynamodb = event['Records'][0]['dynamodb']
         dynamodb_data = dynamodb['NewImage']
         message_data = json.loads(dynamodb_data['message']['S'])
         return dynamodb_data, message_data

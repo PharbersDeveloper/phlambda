@@ -14,6 +14,7 @@ from clickhouse_driver import Client
 
 def execute(**kwargs):
     logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
+
     def deleteTableSql(table, database='default'):
         sql_content = f"DROP TABLE IF EXISTS {database}.`{table}`"
         return sql_content
@@ -37,7 +38,6 @@ def execute(**kwargs):
         project_ip = resource_item.get("projectIp")
 
         return project_ip
-
 
     def clickhouse_client(project_id, project_name):
         project_ip = get_project_ip(project_id, project_name)
@@ -64,13 +64,14 @@ def execute(**kwargs):
 
     spark = kwargs["spark"]()
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
-    projectId = ph_conf.get("projectId")
+    sourceProjectId = ph_conf.get("sourceProjectId")
+    targetProjectId = ph_conf.get("targetProjectId")
     projectName = ph_conf.get("projectName")
     datasetName = ph_conf.get("datasetName")
     sample = ph_conf.get("sample")
     company = ph_conf.get("company")
     # 从s3 读取数据
-    path = f"s3://ph-platform/2020-11-11/lake/{company}/{projectId}/{datasetName}/"
+    path = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{datasetName}/"
     df = spark.read.parquet(path)
 
     # 按照 sample 对数据进行处理
@@ -87,13 +88,13 @@ def execute(**kwargs):
 
     logger.debug("sample_df 创建完成")
     # 获取projectip
-    projectIp = get_project_ip(projectId, projectName)
+    projectIp = get_project_ip(targetProjectId, projectName)
     logger.debug("ip 获取完成")
     logger.debug(projectIp)
     # 创建clickhouse client
-    ch_client = clickhouse_client(projectId, projectName)
+    ch_client = clickhouse_client(targetProjectId, projectName)
     # 如果表已经存在 删除已有的表
-    table_name = projectId + "_" + datasetName
+    table_name = targetProjectId + "_" + datasetName
     delete_sql = deleteTableSql(table_name)
     ch_client.execute(delete_sql)
 

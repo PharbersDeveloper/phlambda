@@ -152,7 +152,7 @@ class Csv:
         ds_name = parameters.get("ds_name")
         projectId = parameters.get("project_id")
         path = f"/mnt/tmp/{projectId}/tmp/{filename}"
-        data_list = pd.read_csv(path, chunksize=10)
+        data_list = pd.read_csv(path, chunksize=10000)
         table_name = f"{projectId}_{ds_name}"
 
 

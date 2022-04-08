@@ -14,8 +14,10 @@ jobcat_queue_urls = {
     "resource_delete": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_dagresource_V2.fifo",   #lmd-dagresource-V2
     "dag_refresh": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",      #lmd-phsyncdagconf-V2
     "prepare_edit": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",      #lmd-phsyncdagconf-V2
-    "dag_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",       #lmd-phsyncdagconf-V2
+    "dag_create": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phsyncdagconf_V2.fifo",       #lmd-phsyncdagconf-V
     "edit_sample": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_sample_V2.fifo", #lmd-sample-V2
+    "catalog": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible_V2.fifo", #lmd-phmaxcompatible-dev
+    "max1.0": "https://sqs.cn-northwest-1.amazonaws.com.cn/444603803904/ph_lmd_phmaxcompatible_V2.fifo", #lmd-phmaxcompatible-dev
 }
 
 def handle_sqs_key(input_dict):
@@ -39,10 +41,10 @@ class SQS(object):
         return jobcat_name, sqs_url
 
     def parse_event_parameters(self, event):
-        body_data = eval(event['Records'][0]['body'])
+        body_data = json.loads(event['Records'][0]['body'])
         dynamodb = body_data['Records'][0]['dynamodb']
         dynamodb_data = dynamodb['NewImage']
-        message_data = eval(dynamodb_data['message']['S'])
+        message_data = json.loads(dynamodb_data['message']['S'])
         return dynamodb_data, message_data
 
     #--埋点

@@ -3,20 +3,23 @@ import http.client
 import urllib.parse
 from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Attr
+from phprojectargs.projectArgs import ProjectArgs
 
 
 def executeSql(sql, method, projectId):
     dynamodb = DynamoDB()
+    args = ProjectArgs(projectId)
+    proxies = args.get_proxy_list()
 
-    result = dynamodb.scanTable({
-        "table_name": "resource",
-        "limit": 100000,
-        "expression": Attr("projectId").eq(projectId),
-        "start_key": ""
-    })["data"]
+    # result = dynamodb.scanTable({
+    #     "table_name": "resource",
+    #     "limit": 100000,
+    #     "expression": Attr("projectId").eq(projectId),
+    #     "start_key": ""
+    # })["data"]
     ip = "192.168.16.117"
-    if len(result) > 0:
-        ip = result[0]["projectIp"]
+    if len(proxies) > 0:
+        ip = proxies[0]
 
     conn = http.client.HTTPConnection(host=ip, port="8123")
     url = urllib.parse.quote("/ch/?query=" + sql, safe=":/?=&")

@@ -7,7 +7,7 @@ import urllib.request
 import logging
 from urllib.parse import urlencode
 from redis import Redis, ConnectionPool
-from returen_data_type import adapter_list_of_dict, adapter_list_of_list
+from returen_data_type import adapter_list_of_dict, adapter_list_of_listz
 
 # app_name = 'phchdatasource'
 app_name = os.environ.get('APP_NAME')

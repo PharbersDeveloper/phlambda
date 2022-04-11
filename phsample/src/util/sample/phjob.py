@@ -152,7 +152,6 @@ def execute(**kwargs):
     logger.debug(sql_create_table)
     ch_client.execute(sql_create_table)
 
-    putOutputSchema(datasetId, targetProjectId, sample_df, version)
 
     # 写入clickhouse
     sample_df.write.format("jdbc").mode("append") \
@@ -166,6 +165,8 @@ def execute(**kwargs):
         .option("numPartitions", 2) \
         .option("rewriteBatchedStatements", True) \
         .save()
+
+    putOutputSchema(datasetId, targetProjectId, sample_df, version)
 
     return {'out_df': {}}
 

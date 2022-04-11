@@ -9,7 +9,9 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phforwarddyevent-V2
+      FunctionName: lmd-phforwarddyevent-dev
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phmetrixlayer:9
       Description: "创建dag的resource"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
 #      FileSystemConfigs:
@@ -19,5 +21,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
+          NAME_SPACE: "pharbers-project"
+          METRIC_NAME: "project-monitor"
+
 
 

@@ -119,7 +119,7 @@ class EditSample(object):
         }
 
         item.update({"id": self.action_id})
-        item.update({"projectId": self.project_message.get("projectId")})
+        item.update({"projectId": self.project_message.get("targetProjectId")})
         item.update({"category": ""})
         item.update({"code": "0"})
         item.update({"comments": ""})

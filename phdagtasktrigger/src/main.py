@@ -1,163 +1,114 @@
 import requests
 import json
 import boto3
-import datetime
-import traceback
+from handleeventmessage import HandleTaskMessage
+from util.AWS.DynamoDB import DynamoDB
+from util.GenerateID import GenerateID
+import time
+import os
 
 # ssm get url
-client = boto3.client('ssm')
-response = client.get_parameter(
-    Name='airflow_args'
-)
-ssm_dict = json.loads(response.get("Parameter").get("Value"))
 
+def get_ssm_dict():
+    client = boto3.client('ssm')
+    response = client.get_parameter(
+        Name='airflow_args'
+    )
+    ssm_dict = json.loads(response.get("Parameter").get("Value"))
+    return ssm_dict
 
-def updateTaskInstancesState(dag_id, task_id, execution_date, is_downstream, is_upstream):
-    headers = {
-        "Content-type": "application/json",
-        "Accept": "application/json"
-    }
-    # 1. 第一步先全部改成success, 这样做的原因在于，将所有的下线全部统一一个状态
-    # url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/clearTaskInstances"
-    url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/updateTaskInstancesState"
-    # url = "http://" + url + "/api/v1/dags/" + dag_id
-    body = {
-        "dry_run": False,
-        "task_id": task_id,
-        "include_future": False,
-        "include_past": False,
-        "include_upstream": is_upstream,
-        "include_downstream": is_downstream,
-        "new_state": "success",
-        "execution_date": execution_date
-    }
+format_args = {"project_name":"demo","flow_version":"developer","run_id":"demo_demo_developer_2022-03-28T03:27:44+00:00","task_id":"demo_demo_developer_compute_B","clean_cat":"self_only"}
 
-    result = requests.post(url=url, data=json.dumps(body), headers=headers)
-    if result.status_code != 200:
-        raise Exception()
+def process_insert_event(event):
+    # 获取新插入item的 partition_key, sort_key, message
+    item_list = []
+    records = event.get("Records")
+    for record in records:
+        if record.get("eventName") == "INSERT":
+            new_image = record["dynamodb"]["NewImage"]
+            item = {}
+            for item_key in list(new_image.keys()):
+                value = new_image[item_key]
+                item_value = list(value.keys())[0]
+                item[item_key] = value[item_value]
+            item_list.append(item)
 
-    # 2. 第一步先全部改成failed, 这样做的原因在于, 能一次性得到所有的下线或上线的task_id
-    body = {
-        "dry_run": False,
-        "task_id": task_id,
-        "include_future": False,
-        "include_past": False,
-        "include_upstream": is_upstream,
-        "include_downstream": is_downstream,
-        "new_state": "failed",
-        "execution_date": execution_date
-    }
-    result = requests.post(url=url, data=json.dumps(body), headers=headers)
-    if result.status_code != 200:
-        raise Exception()
+    return item_list
 
-    task_instances = result.json()['task_instances']
-    reVal = []
-    for ins in task_instances:
-        reVal.append(ins["task_id"])
+def handle_key_and_value(input_dict,key,value):
+    try:
+        import re
+        original_str = str(input_dict)
+        patter_rule = f"[\"\']{key}[\"\']:\s+?.'S':\s+?[\"\']{value}[\"\'].,"
+        match_result = re.findall(pattern=patter_rule, string=original_str)
+        if len(match_result) == 0:
+            message = f"key: {key} or value: {value} not exist !"
+            status = False
+        else:
+            message = f"key: {key} and value: {value} is ok, match_result is: {match_result}"
+            status = True
+    except Exception as e:
+        message = str(e)
+        status = False
+    print(message)
+    return status, message
 
-    print(reVal)
-    return reVal
-
-
-def clearTaskInstances(dag_id, clean_tasks, execution_date):
-    headers = {
-        "Content-type": "application/json",
-        "Accept": "application/json"
-    }
-    url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/clearTaskInstances"
-    # url = "http://" + url + "/api/v1/dags/" + dag_id
-    body = {
-        "dry_run": False,
-        "task_ids": clean_tasks,
-        "start_date": execution_date,
-        "end_date": execution_date,
-        "only_failed": False,
-        "only_running": False,
-        "include_subdags": True,
-        "include_parentdag": True,
-        "reset_dag_runs": True
-    }
-    result = requests.post(url=url, data=json.dumps(body), headers=headers)
-    print(result)
-    if result.status_code != 200:
-        raise Exception()
-
-    return
-
-
-def delete_dy_item(item):
-    run_id = item["run_id"]
-    task_ids = item["task_ids"]
-    dynamodb_resource = boto3.resource('dynamodb')
-    table = dynamodb_resource.Table("notification")
-    for tid in task_ids:
-        table.delete_item(
-            Key = {
-                "id": run_id,
-                "projectId": tid
-            }
-        )
-
-
+def insert_action(event, operate_type):
+    try:
+        dynamodb = DynamoDB()
+        data = {
+            "table_name": "notification"
+        }
+        tmp_msg = {"type": "operation", "opname": "35cca7e1-45d9-4a6e-80f6-09e5417feb33", "opgroup": "-1",
+                   "cnotification": {"status": "remove_Job_succeed", "data": "{}", "error": "{}"}}
+        item = {}
+        message = {}
+        message.update({"projectId": event.get("projectId")})
+        message.update({"projectName": event.get("projectName")})
+        item.update({"id": GenerateID().generate()})
+        item.update({"date": str(int(round(time.time() * 1000)))})
+        item.update({"projectId": event.get("projectId")})
+        item.update({"code": 0})
+        item.update({"showName": event.get("showName")})
+        item.update({"jobDesc": "created"})
+        item.update({"comments": ""})
+        item.update({"owner": event.get("owner")})
+        item.update({"message": json.dumps(tmp_msg,  ensure_ascii=False)})
+        item.update({"jobCat": operate_type})
+        data.update({"item": item})
+        dynamodb.putData(data)
+        exec_info = "insert action success"
+    except Exception as e:
+        exec_info = str(e)
+    return exec_info
 
 # 运行指定dag
 def lambda_handler(event, context):
-    msg = eval(event["body"])
-    project_name = msg.get("project_name", "max")
-    flow_version = msg.get("flow_version", "developer")
-    dag_run_id = msg.get("run_id", "ETL_Iterator_ETL_Iterator_developer_2021-12-15T05:09:13+00:00")
-    task_id = msg.get("task_id", "ETL_Iterator_ETL_Iterator_developer_compute_vvv_r1cjJ3Kz7yGyLv1")
-    execution_date = dag_run_id[dag_run_id.rfind("_") + 1:]
-    dag_id = "_".join([project_name, project_name, flow_version])
-    clear_task_cat = msg.get("clean_cat", "self_only")  # self_only, upstream, downstream
 
-    if project_name in ["default", "max"]:
-        url = ssm_dict.get(project_name)
+    event = json.loads(event.get("Records")[0].get("body"))
+    jobcat_value = os.getenv("JOBCAT_VALUE")
+    status, status_message = handle_key_and_value(event,'jobCat', jobcat_value)
+    if status == True:
+        item_event = process_insert_event(event)
+        item_event[0]['message'] = format_args
+        msg = item_event[0]['message']
+        ssm_dict = get_ssm_dict()
+
+        res = HandleTaskMessage(ssm_dict, msg).handle_retry_process()
+        insert_action(msg, str(jobcat_value))
+
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 200 if res["status"] == "success" else 502,
+            "body": json.dumps(res)
+        }
     else:
-        url = ssm_dict.get("max")
-    print(url)
-
-    try:
-        clean_tasks = [task_id]
-
-        if clear_task_cat != "self_only":
-            clean_tasks = updateTaskInstancesState(dag_id, task_id, execution_date,
-                                                   is_upstream=True if clear_task_cat == "upstream" else False,
-                                                   is_downstream=True if clear_task_cat == "downstream" else False)
-
-        delete_dy_item({
-            "run_id": dag_run_id,
-            "task_ids": clean_tasks
-        })
-        print(clean_tasks)
-
-        clearTaskInstances(dag_id, clean_tasks, execution_date)
-        res = {
-            "status": "success",
-            "data": {
-                "execution_date": execution_date,
-                "project_name": project_name,
-                "flow_version": flow_version,
-                "task_id": task_id,
-                "clean_cat": clear_task_cat
-            }
+        print(status_message)
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 502,
+            "body": json.dumps({
+                "status": "failed",
+                "msg": f"jobCat is  error, detail:{status_message}"
+            })
         }
-    except Exception as e:
-        res = {
-            "status": "error",
-            "data": {
-                "execution_date": execution_date,
-                "project_name": project_name,
-                "flow_version": flow_version,
-                "task_id": task_id,
-                "clean_cat": clear_task_cat
-            },
-            "message": "something wrong"
-        }
-
-    return {
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "statusCode": 200 if res["status"] == "success" else 502,
-        "body": json.dumps(res)
-    }

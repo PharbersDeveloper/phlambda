@@ -202,13 +202,15 @@ export default class Platform {
             resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter
             created: Date,
             tenant: String, // Link To tenant Table ID（Logic）
-            accounts: { link: "project", isArray: true, inverse: "owner" },
+            // accounts: { link: "project", isArray: true, inverse: "owner" },
+            accounts: Array(String),
             concrets: Array(String), // Link To table or project Table ID（Logic）
+            project: { link: "project", isArray: false, inverse: "resources"}
         },
         project: {
             provider: String,
             name: String,
-            owner: { link: "resource", isArray: false, inverse: "accounts", }, // Link 一对一
+            owner: String,
             type: String, // saas 无 Flow  pass有Flow
             created: Date,
             models: { link: "model", isArray: true, inverse: "project" }, // Link 一对多
@@ -218,6 +220,7 @@ export default class Platform {
             analysis: { link: "analysis", isArray: false, inverse: "project", }, // Link 一对一
             notebooks: { link: "notebook", isArray: true, inverse: "project"}, // Link 一对多
             dashBoards: { link: "dashBoard", isArray: true, inverse: "project" }, // Link 一对多
+            resources: { link: "resource", isArray: true, inverse: "project" }, // Link 一对多
             wikis: { link: "wiki", isArray: true, inverse: "project" }, // Link 一对多
             tasks: Array(String), // 暂时不做
             actions: Array(String) // 原样不动，详细的actions根据project id带入到DynamoDB中去查找
@@ -309,6 +312,30 @@ export default class Platform {
             cat: String,
             level: Number,
             engine: String
+        },
+        // configuration web layout
+        layout: {
+            clientId: String,
+            clientName: String,
+            version: String,
+            name: String,
+            css: String,
+            script: String
+        },
+        // offweb article
+        article: {
+            title: String,
+            data: Number,
+            uri: String
+        },
+        asset: {
+            name: String,
+            resourceType: String,
+            created: Date,
+            tenant: String,
+            accounts: Array(String),
+            projectId: String,
+            concrets: String,
         }
     }
 

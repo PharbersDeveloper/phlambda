@@ -18,6 +18,7 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
+          EDITION: "DEV"
           REDIS_HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
           REDIS_PORT: "6379"
       Tags:

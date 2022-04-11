@@ -1,4 +1,6 @@
 import json
+import time
+
 import boto3
 from io import BytesIO
 import gzip
@@ -12,6 +14,24 @@ def if_exit(bucket, key):
         return response.get('Body').read()
     except:
         return
+
+
+def down_file(bucket, key, path):
+    _s3 = boto3.client('s3')
+    _s3.download_file(Filename=f"/tmp/{path}",
+                      Bucket=bucket, Key=key)
+    return True
+
+
+def read_file(bucket, key):
+    path = key.split('/')[-1]
+    if down_file(bucket, key, path):
+        filehandler = open("/tmp/"+path, "rb")
+        filelines = filehandler.readlines()
+        data = ''
+        for i in filelines:
+            data += i.decode("utf-8", "ignore")
+        return data
 
 
 def read_gz(gz_data):
@@ -29,23 +49,23 @@ def query_logfile(bucket, file_key):
 
 
 def run(bucket, key, **kwargs):
-    result = if_exit(bucket, key+"stderr.gz")
-    if not result:
-        return
-    log_file = read_gz(result).decode()
-    file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_')+30]
-    logkey_list = query_logfile(bucket, file_nmae)
+    try:
+        result = if_exit(bucket, key + "stderr.gz")
+        print(result)
+        if not result:
+            return
+        log_file = read_gz(result).decode()
+        file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_') + 30]
+        print(file_nmae)
+        logkey_list = query_logfile(bucket, file_nmae)
+        print(logkey_list)
 
-    # with open('test1.txt', 'wb') as f:
-    #     for i in logkey_list:
-    #         f.write(if_exit(bucket, i))
-    # for i in logkey_list:
-    #     reasult = if_exit(bucket, i)
-    #     base64_data = base64.b64encode(reasult)
-    #     print(json.dumps(base64_data))
-    #     print(type(base64_data))
-    #     base64_str = base64_data.decode('utf-8')
-    return [base64.b64encode(if_exit(bucket, i)).decode('utf-8') for i in logkey_list]
+        data = ""
+        for i in logkey_list:
+            data += read_file(bucket, i)
+        return data
+    except:
+        return
 
 
 def lambda_handler(event, context):
@@ -53,12 +73,12 @@ def lambda_handler(event, context):
         data = run(**eval(event["body"]))
         if not data:
             return {
-                        "statusCode": 200,
-                        'headers': {
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
-                    }
+                "statusCode": 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*'
+                },
+                "body": json.dumps({"message": "error", "status": 0}, ensure_ascii=False)
+            }
         return {
             "statusCode": 200,
             "headers": {
@@ -75,3 +95,4 @@ def lambda_handler(event, context):
             },
             "body": json.dumps({"message": str(e), "status": 0}, ensure_ascii=False)
         }
+

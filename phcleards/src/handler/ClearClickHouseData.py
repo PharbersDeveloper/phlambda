@@ -34,7 +34,8 @@ def run(eventName, jobCat, record):
         try:
             for message in item["message"]:
                 SaveCommand(ClearCKReceiver()).execute({
-                    "tableName": f"""{item["projectId"]}_{message["destination"]}""",
+                    "projectId": item["projectId"],
+                    "destination": message["destination"],
                     "version": message.get("version", "")
                 })
                 SaveCommand(ClearDSReceiver()).execute({

@@ -1,9 +1,10 @@
-import requests
 import json
 import boto3
-import datetime
-import traceback
-
+from handleeventmessage import HandleEventMessage
+from util.AWS.DynamoDB import DynamoDB
+import time
+from util.GenerateID import GenerateID
+import os
 
 # ssm get url
 client = boto3.client('ssm')
@@ -12,75 +13,99 @@ response = client.get_parameter(
 )
 ssm_dict = json.loads(response.get("Parameter").get("Value"))
 
+format_args = {"project_name":"demo","flow_version":"developer","conf":{"datasets":[{"name":"universe_other","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_other","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_common_1","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base_common","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_0","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"universe_base_1","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base","databaseName":"zudIcG_17yj8CEUoCTHg"}},{"name":"A","version":[],"cat":"uploaded","prop":{"path":"","partitions":1}},{"name":"universe_base_common","version":[],"cat":"catalog","prop":{"path":"","partitions":1,"format":"","tableName":"universe_base_common","databaseName":"zudIcG_17yj8CEUoCTHg"}}],"scripts":[],"userConf":{},"ownerId":"16dc4eb5-5ed3-4952-aaed-17b3cc5f638b","showName":"赵浩博","jobDesc":"runDag1648178799157"}}
+
+def process_insert_event(event):
+    # 获取新插入item的 partition_key, sort_key, message
+    item_list = []
+    records = event.get("Records")
+    for record in records:
+        if record.get("eventName") == "INSERT":
+            new_image = record["dynamodb"]["NewImage"]
+            item = {}
+            for item_key in list(new_image.keys()):
+                value = new_image[item_key]
+                item_value = list(value.keys())[0]
+                item[item_key] = value[item_value]
+            item_list.append(item)
+
+    return item_list
+
+def handle_key_and_value(input_dict,key,value):
+    try:
+        import re
+        original_str = str(input_dict)
+        patter_rule = f"[\"\']{key}[\"\']:\s+?.'S':\s+?[\"\']{value}[\"\'].,"
+        match_result = re.findall(pattern=patter_rule, string=original_str)
+        if len(match_result) == 0:
+            message = f"key: {key} or value: {value} not exist !"
+            status = False
+        else:
+            message = f"key: {key} and value: {value} is ok, match_result is: {match_result}"
+            status = True
+    except Exception as e:
+        message = str(e)
+        status = False
+    print(message)
+    return status, message
+
+def insert_action(event, operate_type):
+    try:
+        dynamodb = DynamoDB()
+        data = {
+            "table_name": "notification"
+        }
+        tmp_msg = {"type": "operation", "opname": "35cca7e1-45d9-4a6e-80f6-09e5417feb33", "opgroup": "-1",
+               "cnotification": {"status": "remove_Job_succeed", "data": "{}", "error": "{}"}}
+        item = {}
+        message = {}
+        message.update({"projectId": event.get("projectId")})
+        message.update({"projectName": event.get("projectName")})
+        item.update({"id": GenerateID().generate()})
+        item.update({"date": str(int(round(time.time() * 1000)))})
+        item.update({"projectId": event.get("projectId")})
+        item.update({"code": 0})
+        item.update({"showName": event.get("showName")})
+        item.update({"jobDesc": "created"})
+        item.update({"comments": ""})
+        item.update({"owner": event.get("owner")})
+        item.update({"message": json.dumps(tmp_msg,  ensure_ascii=False)})
+        item.update({"jobCat": operate_type})
+        data.update({"item": item})
+        dynamodb.putData(data)
+        exec_info = "insert action success"
+    except Exception as e:
+        exec_info = str(e)
+    return exec_info
+
 
 # 运行指定dag
 def lambda_handler(event, context):
-    msg = eval(event["body"])
-    project_name = msg.get("project_name", "max")
-    flow_version = msg.get("flow_version", "developer")
-    conf = msg.get("conf", {})
-    dag_id = "_".join([project_name, project_name, flow_version])
+    event = json.loads(event.get("Records")[0].get("body"))
+    jobcat_value = os.getenv("JOBCAT_VALUE")
+    status, status_message = handle_key_and_value(event, 'jobCat', jobcat_value)
+    if status == True:
+        item_event = process_insert_event(event)
+        item_event[0]['message'] = format_args
+        msg = item_event[0]['message']
+        #--实例化
+        handle_event = HandleEventMessage(ssm_dict, msg)
+        handle_event.handle_dag_id()
+        handle_event.handle_run_status()
+        insert_action(msg, str(status_message))
 
-    if project_name in ["default", "max"]:
-        url = ssm_dict.get(project_name)
-    else:
-        url = ssm_dict.get("max")
-    print(url)
-
-    res = {}
-    headers = {
-        "Content-type": "application/json",
-        "Accept": "application/json"
-    }
-
-    # 如果存在dag_id将状态改为激活
-    # update_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id
-    update_url = "http://" + url + "/api/v1/dags/" + dag_id
-    try:
-        body = {"is_paused": False}
-        result = requests.patch(url=update_url, data=json.dumps(body), headers=headers)
-        if result.status_code != 200:
-            res["status"] = "failed"
-            res["msg"] = dag_id + " Activation failed"
-
-    except:
-        res["status"] = "failed"
-        res["msg"] = update_url + "api error"
-
-    # dag_id状态激活后即可开始run
-    # runs_url = "https://max.pharbers.com/airflow/api/v1/dags/" + dag_id + "/dagRuns"
-    runs_url = "http://" + url + "/api/v1/dags/" + dag_id + "/dagRuns"
-
-    try:
-        execution_date = datetime.datetime.utcnow()
-        # dag_run_id = "_".join([project_name, dag_id, flow_version])
-        dag_run_id = "_".join([project_name, project_name, flow_version, execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00")])
-        body = {
-            "dag_run_id": dag_run_id,
-            "execution_date": execution_date.strftime("%Y-%m-%dT%H:%M:%S+00:00"),
-            "conf": conf
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 200 if handle_event.res["status"] == "success" else 502,
+            "body": json.dumps(handle_event.res)
         }
-        dag_runs = requests.post(url=runs_url, data=json.dumps(body), headers=headers)
-        if dag_runs.status_code == 200:
-            airflow_result = dag_runs.json()
-            res["status"] = "success"
-            res["data"] = {
-                "dag_run_id": airflow_result["dag_run_id"],
-                "dag_id": airflow_result["dag_id"],
-                "run_id": dag_run_id,
-                "project_name": project_name
-            }
-        else:
-            res["status"] = "failed"
-            res["msg"] = dag_id + " Trigger failure"
-
-    except:
-        print(traceback.format_exc())
-        res["status"] = "failed"
-        res["msg"] = runs_url + " api error"
-
-    return {
-        "headers": { "Access-Control-Allow-Origin": "*"},
-        "statusCode": 200 if res["status"] == "success" else 502,
-        "body": json.dumps(res)
-    }
+    else:
+        print(status_message)
+        return {
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "statusCode": 502,
+            "body": json.dumps({
+                "status": "failed",
+                "msg": f"jobCat is  error, detail:{status_message}"
+        })
+        }

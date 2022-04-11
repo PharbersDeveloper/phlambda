@@ -91,7 +91,10 @@ class CommandCreateDag(Command):
             }
             data.update({"key":key})
             res = self.dynamodb.getItem(data)
-            prop = res["Item"].get("prop")
+            if res.get("Item"):
+                prop = res["Item"].get("prop")
+            else:
+                prop = "empty"
             return prop
 
         def create_ds_item(dag_item, dag_conf_list):

@@ -9,12 +9,13 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FileSystemConfigs:
-        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
-          LocalMountPath: /mnt/tmp
+#      FileSystemConfigs:
+#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+#          LocalMountPath: /mnt/tmp
       Environment:
         Variables:
-          UPLOAD_PATH: "/mnt/tmp/max/tmp/"
+          UPLOAD_PATH: "/mnt/tmp/#projectId#/tmp/"
+          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phsyncdyevent-V2
@@ -22,11 +23,11 @@ Resources:
       Description: "DynamoDB Event Sync"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 600
-      Events:
-        Type: DynamoDB
-        Properties:
-          Stream: arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files
-          StartingPosition: TRIM_HORIZON
-          BatchSize: 1
-          Enabled: No
+#      Events:
+#        Type: DynamoDB
+#        Properties:
+#          Stream: arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files
+#          StartingPosition: TRIM_HORIZON
+#          BatchSize: 1
+#          Enabled: No
 

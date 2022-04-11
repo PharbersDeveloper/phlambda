@@ -16,6 +16,7 @@ Resources:
           README_FILE_PATH: /tmp/README.md
           BUILDSEPC_S3_PATH: 2020-11-11/cicd/template/codebuild/frontendbuildspec.yaml
           BUILDSEPC_FILE_PATH: /tmp/frontendbuildspec.yaml
+          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhCICD:3
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:lambda-git:3

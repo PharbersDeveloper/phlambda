@@ -9,12 +9,17 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-dagresource-dev
+      FunctionName: lmd-dagresource-V2
       Description: "创建dag的resource"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phairflow:2
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource
+      Environment:
+        Variables:
+          EDITION: "V2"
 #      FileSystemConfigs:
 #        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
 #          LocalMountPath: /mnt/tmp
@@ -26,5 +31,4 @@ Resources:
 #        SubnetIds:
 #          - subnet-0260eab5acd58bc53
 #          - subnet-0e3daa88acef9b136
-
 

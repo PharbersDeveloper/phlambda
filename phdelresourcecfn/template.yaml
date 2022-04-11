@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda ph-notice-email
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phdelresourcecfn-dev
+      Description: "根据触发事件 对资源的cfn进行操作"
+      MemorySize: 128
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Environment:
+        Variables:
+          CFN_TEMPLATE_URL: "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/automation/bastionhost-cfn.yaml"
+      Timeout: 180
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+

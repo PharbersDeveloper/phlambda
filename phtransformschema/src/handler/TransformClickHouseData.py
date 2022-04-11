@@ -1,3 +1,4 @@
+import os
 import json
 import time
 
@@ -5,6 +6,7 @@ from util.AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
 from clickhouse_driver.errors import ServerException
 from util.ClieckHouse import ClickHouse
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = DynamoDB()
 # import base64
@@ -17,9 +19,21 @@ dynamodb = DynamoDB()
 # )
 # dynamodb = DynamoDB(sts=sts)
 
+dev = "_" + os.environ["EDITION"].lower() if os.environ["EDITION"] else ""
+action_table = "action" + dev
 
-def executeSql(sql):
-    client = ClickHouse(host="192.168.16.117", port="9000").getClient()
+
+def executeSql(projectId, sql):
+    result = dynamodb.scanTable({
+        "table_name": "resource",
+        "limit": 100000,
+        "expression": Attr("projectId").eq(projectId),
+        "start_key": ""
+    })["data"]
+    ip = "192.168.16.117"
+    if len(result) > 0:
+        ip = result[0]["projectIp"]
+    client = ClickHouse(host=ip, port="9000").getClient()
     # client = ClickHouse(host="localhost", port="19000").getClient()
     result = client.execute(sql)
     return result
@@ -44,7 +58,7 @@ def transformClickHouseSchema(projectId, data):
         for item in schemas:
             schema = item
             sql = f"""ALTER TABLE default.`{tableName}` MODIFY COLUMN `{item["src"]}` {item["type"]}"""
-            executeSql(sql)
+            executeSql(projectId, sql)
     except ServerException as se:
         print("ServerException  ==> \n")
         print(se)
@@ -129,7 +143,7 @@ def updateActionData(tableName, projectId, date, state):
 
 def insertNotification(actionId, projectId, date, state, error):
     result = dynamodb.queryTable({
-        "table_name": "action",
+        "table_name": action_table,
         "limit": 1000,
         "expression": Key('projectId').eq(projectId) & Key("date").eq(date),
         "start_key": ""
@@ -140,7 +154,7 @@ def insertNotification(actionId, projectId, date, state, error):
         "item": {
             "id": actionId,
             "projectId": result[0]["projectId"],
-            "code": 0,
+            "code": "0",
             "comments": "",
             "date": int(round(time.time() * 1000)),
             "jobCat": "notification",
@@ -180,14 +194,14 @@ def run(eventName, jobCat, record):
             print(type(message))
             transformClickHouseSchema(item["projectId"], message)
             transformDataSetSchema(item["projectId"], message)
-            updateActionData("action", item["projectId"], item["date"], "succeed")
+            updateActionData(action_table, item["projectId"], item["date"], "succeed")
             insertNotification(item["id"], item["projectId"], item["date"], "succeed", "")
 
         except Exception as e:
             print("Error ====> \n")
             print(str(e))
             rollBackType(json.loads(item["message"])["dsid"], item["projectId"])
-            updateActionData("action", item["projectId"], item["date"], "failed")
+            updateActionData(action_table, item["projectId"], item["date"], "failed")
             insertNotification(item["id"], item["projectId"], item["date"], "failed", str(e))
     else:
         print("未命中")

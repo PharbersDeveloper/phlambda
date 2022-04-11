@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phrethtmluuid-dev
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phrethtmluuid-dev
+      Layers:
+  		- arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+      Description: "return html uid titile数据"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      MemorySize: 1024
+      Environment:
+        Variables:
+          EDITION: "DEV"
+      Timeout: 120
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136

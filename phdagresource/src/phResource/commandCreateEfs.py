@@ -1,7 +1,9 @@
+import json
 import subprocess
 import os
 
 from phResource.command import Command
+from util.AWS.SNS import SNS
 
 
 class CommandCreateEfs(Command):
@@ -9,25 +11,16 @@ class CommandCreateEfs(Command):
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
-        self.efs_path = "/mnt/tmp/"
+        self.sns = SNS()
 
     def create_dir(self):
-
-        project_path = self.efs_path + self.target_name + "/"
-        if not os.path.exists(project_path):
-            dir_list = ["airflow", "chdumps", "tmp", "workspace"]
-            for dir in dir_list:
-                subprocess.call(["mkdir", "-p", project_path + dir])
-            # 复制airflow 文件
-            # 复制/mnt/tmp/airflow 文件夹 到 project_path + airflow
-            subprocess.call(["cp", "-r", self.efs_path + "airflow/", project_path])
-
-            # 复制 chdumps 文件
-            # 复制 /mnt/tmp/chdumps 文件夹到 project_path + chdumps
-            subprocess.call(["cp", "-r", self.efs_path + "airflow/", project_path])
-
-        subprocess.call(["chmod", "777", "-r", project_path])
-
+        # 发送sns消息到  sns topic ph_dag_resource
+        topic_arn = "arn:aws-cn:sns:cn-northwest-1:444603803904:ph_dag_resource"
+        message = {
+            "project_name": self.target_name,
+            "operator_type": "create"
+        }
+        self.sns.sns_publish(topic_arn, json.dumps(message, ensure_ascii=False))
 
     def execute(self):
         # 192.168.16.119

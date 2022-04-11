@@ -26,6 +26,9 @@ class AppLambdaDelegate:
 
     def insertNotification(self, item, state, error):
         propertys = json.loads(item["property"])
+        print("Alex insertNotification ===> \n")
+        print(propertys)
+
         # TODO： 硬code + 无防御，有机会重构
         self.dynamodb.putData({
             "table_name": "notification",
@@ -36,12 +39,13 @@ class AppLambdaDelegate:
                 "comments": "",
                 "date": int(round(time.time() * 1000)),
                 "jobCat": "notification",
-                "jobDesc": "project_files",
+                "jobDesc": "uploadfiles",
                 "message": json.dumps({
                     "type": "notification",
                     "opname": propertys["opname"],
                     "opgroup": propertys["opgroup"],
                     "cnotification": {
+                        "status": "upload_{}".format(state),
                         "error": error
                     }
                 }),
@@ -53,13 +57,14 @@ class AppLambdaDelegate:
 
     def insterProjectFile(self, item, state):
         if state != "failed":
-            path = os.getenv("UPLOAD_PATH")
+            propertys = json.loads(item["property"])
+            path = os.getenv("UPLOAD_PATH").replace("#projectId#", propertys["projectId"])
             size = self.size_format(os.path.getsize(path + item["id"]))
             item["size"] = size
         else:
             item["size"] = -1
         item["status"] = "upload_{}".format(state)
-        print("Alex ====> \n")
+        print("Alex insterProjectFile ====> \n")
         print(item)
 
         self.dynamodb.putData({
@@ -68,6 +73,7 @@ class AppLambdaDelegate:
         })
 
     def exec(self):
+        event = json.loads(event.get("Records")[0].get("body"))
         event = self.event
         records = event["Records"]
         history = {}
@@ -76,6 +82,8 @@ class AppLambdaDelegate:
             for record in records:
                 print('EventID: ' + record['eventID'])
                 print('EventName: ' + record['eventName'])
+                print('record =====>> \n')
+                print(record)
                 if record["eventName"].lower() == "insert":
                     new_image = record["dynamodb"]["NewImage"]
                     item = {}
@@ -91,7 +99,7 @@ class AppLambdaDelegate:
                 self.insertNotification(item, "succeed", "")
 
         except Exception as e:
-            print("Alex =====> \n")
+            print("Alex Exception =====> \n")
             print(history)
             self.insterProjectFile(history, "failed")
             self.insertNotification(history, "failed", str(e))

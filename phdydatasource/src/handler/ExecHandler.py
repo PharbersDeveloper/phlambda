@@ -8,10 +8,13 @@ from models.Action import Action
 from models.ProjectFile import ProjectFile
 from models.Partition import Partition
 from models.DataSet import DataSet
+from models.Version import Version
 from models.Notification import Notification
 from models.Dag import Dag
 from models.DagConf import DagConf
 from models.Log import Log
+from models.Dashboard import Dashboard
+from models.Slide import Slide
 
 # import base64
 # from util.AWS.STS import STS
@@ -35,13 +38,17 @@ __table_structure = {
     "execution": Execution,
     "step": Step,
     "action": Action,
+    "action_dev": Action,
     "project_files": ProjectFile,
     "partition": Partition,
     "dataset": DataSet,
     "notification": Notification,
     "dag": Dag,
     "dagconf": DagConf,
-    "logs": Log
+    "logs": Log,
+    "dashboard": Dashboard,
+    "slide": Slide,
+    "version": Version
 }
 
 

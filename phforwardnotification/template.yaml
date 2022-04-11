@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda create-dag-runid
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phforwardnotification-dev
+      Description: "创建dag的resource"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+#      FileSystemConfigs:
+#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+#          LocalMountPath: /mnt/tmp
+      Timeout: 600
+      Environment:
+        Variables:
+          EDITION: "DEV"

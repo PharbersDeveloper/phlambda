@@ -9,7 +9,6 @@ class RemoveDSReceiver(Receiver):
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
-        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"]
         self.logger = PhLogging().phLogger("Remove DS", LOG_DEBUG_LEVEL)
 
     def __convert2obj(self, item):
@@ -24,14 +23,14 @@ class RemoveDSReceiver(Receiver):
         dag_ds_result = self.dynamodb.scanTable({
             "table_name": "dag",
             "expression": Attr("projectId").eq(project_id) & Attr("representId").eq(ds_id),
-            "limit": 1000,
+            "limit": 100000000,
             "start_key": ""
         })["data"]
         if len(dag_ds_result) > 0:
             dag_link_result = self.dynamodb.scanTable({
                 "table_name": "dag",
                 "expression": Attr("projectId").eq(project_id) & Attr("ctype").eq("link"),
-                "limit": 1000,
+                "limit": 100000000,
                 "start_key": ""
             })["data"]
 

@@ -21,7 +21,7 @@
             "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\"}"
+            "S": "{\"projectName\": \"Auto_Raw_Data\",\"flowVersion\": \"developer\", \"projectId\": \"hbzhao_test_projectId\", \"target\": \"project\"}"
           },
           "code": {
             "S": "0"
@@ -42,7 +42,7 @@
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
           },
           "jobCat": {
-            "S": "project_delete"
+            "S": "resource_delete"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

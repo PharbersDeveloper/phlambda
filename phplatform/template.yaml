@@ -21,6 +21,13 @@ Resources:
       Environment:
         Variables:
           ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
+          EDITION: "V2"
+          ENTITY: "platform"
+          DATABASE: "phplatform"
+          USER: "pharbers"
+          PASSWORD: "Abcde196125"
+          HOST: "192.168.26.64"
+          PORT: "5439"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

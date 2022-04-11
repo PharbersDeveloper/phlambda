@@ -4,6 +4,7 @@ from delegate.execute import Execute
 
 def lambda_handler(event, context):
     # 11261502
+    event = json.loads(event.get("Records")[0].get("body"))
     print(event)
     app = Execute(event=event, context=context)
     try:

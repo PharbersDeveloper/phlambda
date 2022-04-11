@@ -13,8 +13,11 @@ Resources:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
       FunctionName: lmd-phdadatasource-V2
       Description: "phdadatasource-v2 "
+      Environment:
+        Variables:
+          EDITION: "DEV"
       MemorySize: 512
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 5
       VpcConfig:
         SecurityGroupIds:

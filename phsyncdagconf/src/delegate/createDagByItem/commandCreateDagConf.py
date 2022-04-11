@@ -32,7 +32,7 @@ class CommandCreateDagConf(Command):
 
         projectId = dag_conf.get("projectId")
         inputs = dag_conf.get("inputs")
-        input_cats = ["input_index", "uploaded", "intermediate"]
+        input_cats = ["input_index", "uploaded", "intermediate", "cata"]
         for input in inputs:
             id = input.get("id")
             data = {
@@ -178,14 +178,16 @@ class CommandCreateDagConf(Command):
         dag_name = dag_conf.get("projectName") + \
                    "_" + dag_conf.get("dagName") + \
                    "_" + dag_conf.get("flowVersion")
-        job_path = dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + "/phjob.py"
+        R_runtime = ["r", "sparkr"]
+        job_path_prefix = "/phjob.R" if dag_conf.get("runtime") in R_runtime else "/phjob.py"
+        job_path = dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_display_full_name + job_path_prefix
         dag_conf.update({"jobPath": job_path})
         data.update({"item": dag_conf})
 
         update_dag_conf_list = self.get_all_dag_conf(dag_conf)
 
 
-        return update_dag_conf_list
+        return update_dag_conf_list, dag_conf
 
     def refresh_dagconf(self):
         dag_conf = json.loads(self.dag_item.get("message"))
@@ -197,6 +199,6 @@ class CommandCreateDagConf(Command):
 
         self.logger.debug("运行创建dagConf命令")
         self.logger.debug(self.dag_item)
-        dag_conf_list = self.__insert_dagconf(self.dag_item)
+        dag_conf_list, dag_conf = self.__insert_dagconf(self.dag_item)
 
-        return dag_conf_list
+        return dag_conf_list, dag_conf

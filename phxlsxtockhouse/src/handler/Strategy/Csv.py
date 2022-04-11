@@ -2,6 +2,7 @@
 import constants.DefinValue as DV
 from handler.Command.DagReceiver import DagReceiver
 from handler.Command.DataSetReceiver import DataSetReceiver
+from handler.Command.VersionReceiver import VersionReceiver
 from handler.Command.SaveCommand import SaveDataSetCommand, SaveDagCommand
 from util.AWS.ph_s3 import PhS3
 import pandas as pd
@@ -173,5 +174,6 @@ class Csv:
         self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
         print("success------------------------------------------------------------------------")
         SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
-        SaveDagCommand(DagReceiver()).execute(parameters)  #
+        SaveDagCommand(DagReceiver()).execute(parameters)
+        SaveDagCommand(VersionReceiver).execute(parameters)
         return parameters

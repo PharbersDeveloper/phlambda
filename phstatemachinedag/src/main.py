@@ -53,8 +53,8 @@ def lambda_handler(event, context):
             },
             {
                 'ParameterKey': 'S3TemplateKey',
-                'ParameterValue': '2020-08-11/steps-sm.json'
-            }
+                'ParameterValue': '2020-08-11/' + event['runnerId'] + ".json"
+             }
         ])
     print(response)
 

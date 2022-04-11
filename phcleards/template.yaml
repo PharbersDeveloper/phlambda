@@ -20,10 +20,11 @@ Resources:
           LOCK_APP_NAME: rmds
           EDITION: DEV
       Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-      FunctionName: lmd-phcleards-V2
+      FunctionName: lmd-phcleards-dev
       MemorySize: 1024
       Description: "DynamoDB Action Table Event 触发清除对应DS的ClickHouse数据"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

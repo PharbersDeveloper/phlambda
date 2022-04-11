@@ -129,7 +129,7 @@ class EditSample(object):
         item.update({"message": json.dumps(message, ensure_ascii=False)})
         item.update({"owner": self.project_message.get("owner")})
         item.update({"showName": self.project_message.get("showName")})
-        item.update({"status": "succeed"})
+        item.update({"status": status})
         data = {
             "table_name": table_name,
             "item": item
@@ -145,13 +145,15 @@ class EditSample(object):
         parameters.update({"sourceProjectId": self.project_message.get("sourceProjectId")})
         parameters.update({"targetProjectId": self.project_message.get("targetProjectId")})
         parameters.update({"projectName": self.project_message.get("projectName")})
+        parameters.update({"showName": self.project_message.get("showName")})
+        parameters.update({"datasetId": self.project_message.get("datasetId")})
         parameters.update({"datasetName": self.project_message.get("datasetName")})
         parameters.update({"datasetVersion": self.project_message.get("datasetVersion")})
         parameters.update({"sample": self.project_message.get("sample")})
         parameters.update({"company": "pharbers"})
         print(parameters)
         # 创建emr 的运行参数
-        args = self.create_step_args("sample_developer", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
+        args = self.create_step_args("sample_developer_dev", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
         print(args)
         # 运行emr
         step_status = self.run_emr_step("sample_developer", "sample", self.project_message.get("projectId"), args)

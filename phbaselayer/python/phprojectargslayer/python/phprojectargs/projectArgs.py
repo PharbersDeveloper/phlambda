@@ -1,5 +1,5 @@
-from utils.AWS.SSM import SSM
-from utils.Errors import ResourceNotCreateError
+from phprojectargs.utils.AWS.SSM import SSM
+from phprojectargs.utils.Errors import ResourceNotCreateError
 
 
 class ProjectArgs(object):

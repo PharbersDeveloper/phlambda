@@ -142,7 +142,8 @@ class EditSample(object):
     def execute(self):
         # 获取参数 创建ph_conf
         parameters = {}
-        parameters.update({"projectId": self.project_message.get("projectId")})
+        parameters.update({"sourceProjectId": self.project_message.get("sourceProjectId")})
+        parameters.update({"targetProjectId": self.project_message.get("targetProjectId")})
         parameters.update({"projectName": self.project_message.get("projectName")})
         parameters.update({"datasetName": self.project_message.get("datasetName")})
         parameters.update({"datasetVersion": self.project_message.get("datasetVersion")})

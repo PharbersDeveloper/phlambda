@@ -124,9 +124,6 @@ class CommandUploadAirflow(Command):
     
         args.update(kwargs)
         output_version =  args.get("run_id") + "_" + ph_conf.get("showName")
-        result = exec_before(**args)
-        
-        args.update(result if isinstance(result, dict) else {})
 
         df_map = create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger)
         args.update(df_map)
@@ -137,8 +134,6 @@ class CommandUploadAirflow(Command):
         logger.debug(args)
         
         createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
-
-
 
         return result
     except Exception as e:
@@ -175,7 +170,6 @@ project_id <- "{dag_conf.get("projectId")}"
 project_name <- "{dag_conf.get("dagName")}"
 runtime <- "{runtime}"
 
-# 差一个json转结构的库
 ph_conf <- fromJSON(input_args$ph_conf, simplifyVector=FALSE)
 
 user_conf <- ph_conf$userConf
@@ -186,7 +180,7 @@ args <- c(args, user_conf)
 args[["ds_conf"]] <- ds_conf
 args <- c(args, input_args)
 
-output_version = paste(args$run_id, "_", ph_conf$showName, sep="")
+output_version <- paste(args$run_id, "_", ph_conf$showName, sep="")
 
 df_map <- create_input_df(runtime, inputs, args, project_id, project_name, output_version)
 
@@ -196,7 +190,7 @@ result <- exec(args)
 
 args <- c(args, result)
 
-createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version)
+create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version)
                         """)
                     else:
                         file.write(line)
@@ -483,7 +477,10 @@ createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_n
         res = self.dynamodb.queryTableBeginWith(data)
         # 创建airflow_operator
         self.airflow_operator_exec(item, res)
-
+        dag_name = json.loads(item["message"]).get("projectName") + \
+                   "_" + json.loads(item["message"]).get("dagName") + \
+                   "_" + json.loads(item["message"]).get("flowVersion")
+        os.system("rm -rf " + self.job_path_prefix + "/" + dag_name)
         # 创建上传job文件
         for dag_item in res.get("Items"):
             # 创建args_properties

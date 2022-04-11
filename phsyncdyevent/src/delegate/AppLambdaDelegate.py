@@ -73,6 +73,7 @@ class AppLambdaDelegate:
         })
 
     def exec(self):
+        event = json.loads(event.get("Records")[0].get("body"))
         event = self.event
         records = event["Records"]
         history = {}

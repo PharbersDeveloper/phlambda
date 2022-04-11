@@ -80,6 +80,7 @@ class AppLambdaDelegate:
 
 
 def lambda_handler(event, context):
+    event = json.loads(event.get("Records")[0].get("body"))
     records = event["Records"]
     # try:
     for record in records:

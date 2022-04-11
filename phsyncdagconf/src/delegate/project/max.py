@@ -36,6 +36,7 @@ class Max(Project):
         #
         # if redis_cli.setnx(redis_lock, time.time()):
         #     redis_cli.expire(redis_lock, 60)
+        # status, dag_conf = max_job_cats.get(dag_type)(dag_item)
         try:
             status, dag_conf = max_job_cats.get(dag_type)(dag_item)
         except Exception as e:

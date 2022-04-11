@@ -1,16 +1,19 @@
+import json
 from handler.Command import Command
-from handler.FilterCommand import FilterCommand
+from handler.FilterOnValueCommand import FilterOnValueCommand
+from handler.FilterOnNumericalRangeCommand import FilterOnNumericalRangeCommand
+from handler.RemoveRowsOnEmptyCommand import RemoveRowsOnEmptyCommand
 from handler.Receiver import Receiver
 from handler.SelectCommand import SelectCommand
-from handler.OperationNullCommand import OperationNullCommand
 from handler.ScriptCommand import ScriptCommand
 
 
 class GenerateInvoker:
     commands = {
-        "filter": FilterCommand,
+        "filteronvalue": FilterOnValueCommand,
+        "filteronnumericalrange": FilterOnNumericalRangeCommand,
+        "removerowsonempty": RemoveRowsOnEmptyCommand,
         "select": SelectCommand,
-        "operation_null": OperationNullCommand,
         "script": ScriptCommand
     }
 
@@ -58,8 +61,6 @@ class GenerateInvoker:
         return funcs[runtime]()
 
     def execute(self, operator_parameters, runtime):
-        operators = operator_parameters[::2]
-        parameters = operator_parameters[1::2]
-        cmd_instance = list(map(lambda item: self.commands[item[-1]](Receiver(), parameters[item[0]]),
-                                enumerate(operators)))
+        cmd_instance = list(map(lambda item: self.commands[item["type"].lower()](Receiver(), json.dumps(item)),
+                                operator_parameters))
         return self.__execute(cmd_instance, runtime)

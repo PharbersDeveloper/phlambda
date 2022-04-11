@@ -4,7 +4,7 @@ from util.ClieckHouse import ClickHouse
 from util.AWS.DynamoDB import DynamoDB
 from util.PhRedis import PhRedis
 from boto3.dynamodb.conditions import Attr
-from phlambda.phbaselayer.python.phprojectargslayer.phprojectargs.projectArgs import ProjectArgs
+from phprojectargs.projectArgs import ProjectArgs
 
 
 def __create_dynamodb():

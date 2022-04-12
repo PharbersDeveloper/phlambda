@@ -7,6 +7,8 @@ from handler.FilterOnValueCommand import FilterOnValueCommand
 from handler.FilterOnNumericalRangeCommand import FilterOnNumericalRangeCommand
 from handler.FillEmptyWithValueCommand import FillEmptyWithValueCommand
 from handler.RemoveRowsOnEmptyCommand import RemoveRowsOnEmptyCommand
+from handler.ColumnReplaceCommand import ColumnReplaceCommand
+from handler.ValueReplaceCommand import ValueReplaceCommand
 
 
 class GenerateInvoker:
@@ -15,6 +17,8 @@ class GenerateInvoker:
         "filteronnumericalrange": FilterOnNumericalRangeCommand,
         "fillemptywithvalue": FillEmptyWithValueCommand,
         "removerowsonempty": RemoveRowsOnEmptyCommand,
+        "columnreplace": ColumnReplaceCommand,
+        "valuereplace": ValueReplaceCommand,
         "select": SelectCommand,
         "script": ScriptCommand
     }
@@ -25,6 +29,7 @@ class GenerateInvoker:
 
         def write_prepare():
             codes = """    data_frame = kwargs.get("input_df")\n\n"""
+            codes += """    import pyspark.sql.functions as F\n\n"""
             return_df = ""
             for code in list(commands):
                 content = code.execute()

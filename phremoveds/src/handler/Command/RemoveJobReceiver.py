@@ -38,14 +38,14 @@ class RemoveJobReceiver(Receiver):
         dag_job_result = self.dynamodb.scanTable({
             "table_name": "dag",
             "expression": Key("projectId").eq(project_id) & Key("representId").eq(target_id),
-            "limit": 1000,
+            "limit": 100000000,
             "start_key": ""
         })["data"]
         if len(dag_job_result) > 0:
             dag_link_result = self.dynamodb.scanTable({
                 "table_name": "dag",
                 "expression": Attr("projectId").eq(project_id) & Attr("ctype").eq("link"),
-                "limit": 1000,
+                "limit": 100000000,
                 "start_key": ""
             })["data"]
 
@@ -73,14 +73,14 @@ class RemoveJobReceiver(Receiver):
         dag_conf_result = self.dynamodb.queryTable({
             "table_name": "dagconf",
             "expression": Key("projectId").eq(project_id) & Key("jobName").eq(job_name),
-            "limit": 1000,
+            "limit": 100000000,
             "start_key": ""
         })["data"]
 
         dag_conf_results = self.dynamodb.scanTable({
             "table_name": "dagconf",
             "expression": Attr("projectId").eq(project_id) & Attr("flowVersion").eq(flow_version),
-            "limit": 10000,
+            "limit": 1000000000,
             "start_key": ""
         })["data"]
 

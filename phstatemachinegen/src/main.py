@@ -184,109 +184,68 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
          "Next": curJ["name"]
     }
     # 1. job 
-    sm['States'][curJ['name']] = {
-        "Type": "Task",
-         "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
-         "Parameters": {
-            "ClusterId": event['engine']['id'],
-            "Step": {
-               "Name": curJ['name'],
-               "ActionOnFailure": "CONTINUE",
-               "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
-            }
-         },
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": curJ["name"] + "FailedHook"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": curJ["name"] + "FailedHook"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": curJ["name"] + "FailedHook"
-         } ],
-         "ResultPath": None,
-         "Next": curJ["name"] + "EndHook"
-    }
-    # 4. failed hook
     if len(parallelSteps) == 0:
-        sm['States'][curJ['name'] + "FailedHook"] = {
+        sm['States'][curJ['name']] = {
             "Type": "Task",
-             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+             "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
              "Parameters": {
-                "runnerId.$": "$.common.runnerId",
-                "projectId.$": "$.common.projectId",
-                "projectName.$": "$.common.projectName",
-                "owner.$": "$.common.owner",
-                "showName.$": "$.common.showName",
-                "jobName": curJ["name"],
-                "hook": "start",
-                "cat": "step",
-                "status": "failed"
+                "ClusterId": event['engine']['id'],
+                "Step": {
+                   "Name": curJ['name'],
+                   "ActionOnFailure": "CONTINUE",
+                   "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
+                }
              },
+             "Catch": [ {
+                "ErrorEquals": [ "States.Runtime" ],
+                "ResultPath": "$.error",
+                "Next": "StateMachineFailedHook"
+             }, {
+                "ErrorEquals": [ "States.TaskFailed" ],
+                "ResultPath": "$.error",
+                "Next": "StateMachineFailedHook"
+             }, {
+                "ErrorEquals": [ "States.ALL" ],
+                "ResultPath": "$.error",
+                "Next": "StateMachineFailedHook"
+             } ],
              "ResultPath": None,
-             "Next": "StateMachineFailedHook"
+             "Next": curJ["name"] + "EndHook"
         }
     else:
-        sm['States'][curJ['name'] + "FailedHook"] = {
+        sm['States'][curJ['name']] = {
             "Type": "Task",
-             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+             "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
              "Parameters": {
-                "runnerId.$": "$.common.runnerId",
-                "projectId.$": "$.common.projectId",
-                "projectName.$": "$.common.projectName",
-                "owner.$": "$.common.owner",
-                "showName.$": "$.common.showName",
-                "jobName": curJ["name"],
-                "hook": "start",
-                "cat": "step",
-                "status": "failed"
+                "ClusterId": event['engine']['id'],
+                "Step": {
+                   "Name": curJ['name'],
+                   "ActionOnFailure": "CONTINUE",
+                   "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
+                }
              },
              "ResultPath": None,
-             "Next": "ParalleEndHook" + parallelSteps
+             "Next": curJ["name"] + "EndHook"
         }
-
 
     # 3. end hook
-    if len(parallelSteps) == 0:
-        sm['States'][curJ['name'] + "EndHook"] = {
-            "Type": "Task",
-             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
-             "Parameters": {
-                "runnerId.$": "$.common.runnerId",
-                "projectId.$": "$.common.projectId",
-                "projectName.$": "$.common.projectName",
-                "owner.$": "$.common.owner",
-                "showName.$": "$.common.showName",
-                "jobName": curJ["name"],
-                "hook": "start",
-                "cat": "step",
-                "status": "success"
-             },
-             "ResultPath": None
-             # "Next": "StateMachineEndHook"
-        }
-    else: 
-        sm['States'][curJ['name'] + "EndHook"] = {
-            "Type": "Task",
-             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
-             "Parameters": {
-                "runnerId.$": "$.common.runnerId",
-                "projectId.$": "$.common.projectId",
-                "projectName.$": "$.common.projectName",
-                "owner.$": "$.common.owner",
-                "showName.$": "$.common.showName",
-                "jobName": curJ["name"],
-                "hook": "start",
-                "cat": "step",
-                "status": "success"
-             },
-             "ResultPath": None,
-             "Next": "ParalleEndHook" + parallelSteps
-        }
+    sm['States'][curJ['name'] + "EndHook"] = {
+        "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobName": curJ["name"],
+            "hook": "start",
+            "cat": "step",
+            "status": "success"
+         },
+         "ResultPath": None
+         # "Next": "StateMachineEndHook"
+    }
 
 
 def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
@@ -383,11 +342,11 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
 
             stack2smdefs(iter, event, tmpsm, tmpPrevJobName, tmpParallelSteps + tmpindex)
             tmpsm['StartAt'] = list(tmpsm['States'].keys())[0]
-            tmpsm['States']['ParalleEndHook' + tmpParallelSteps + tmpindex] = {
-                "Type": "Pass",
-                "Result": None,
-                "End": True
-            }
+            # tmpsm['States']['ParalleEndHook' + tmpParallelSteps + tmpindex] = {
+            #     "Type": "Pass",
+            #     "Result": None,
+            #     "End": True
+            # }
             sm['States']['Parallel' + tmpParallelSteps]['Branches'].append(tmpsm)
 
         if 'End' in sm['States'][prevJobName]:
@@ -403,12 +362,17 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
                 del sm['States'][prevJobName]['End']
             sm['States'][prevJobName]['Next'] = curJ['name'] + 'StartHook'
 
-        if len(parallelSteps) == 0:
-            prevJobName = curJ['name'] + 'EndHook'
+        # if len(parallelSteps) == 0:
+        #     prevJobName = curJ['name'] + 'EndHook'
+        prevJobName = curJ['name'] + 'EndHook'
         
     stack2smdefs(stack, event, sm, prevJobName, parallelSteps)
+    
     if len(prevJobName) > 0 and 'Next' not in sm['States'][prevJobName]:
-        sm['States'][prevJobName]['Next'] = 'StateMachineEndHook'
+        if len(parallelSteps) == 0:
+            sm['States'][prevJobName]['Next'] = 'StateMachineEndHook'
+        else:
+            sm['States'][prevJobName]['End'] = True
 
 
 def stack2smargs(stack, event, args):

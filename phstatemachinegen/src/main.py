@@ -165,12 +165,6 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
 
-    print('======> alfred test')
-    print(curJ['name'])
-    print('======> alfred test parallelSteps')
-    print(len(parallelSteps) == 0)
-    print(len(parallelSteps))
-
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
@@ -296,10 +290,6 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
 
 
 def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
-    print('===============>')
-    print(stack)
-    print(prevJobName)
-    print(parallelSteps)
     if len(stack) == 0:
         return
 

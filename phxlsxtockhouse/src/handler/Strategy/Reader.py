@@ -1,11 +1,13 @@
 from handler.Strategy.Context import Context
 from handler.Strategy.Xlsx import Xlsx
+from handler.Strategy.Csv import Csv
 from constants.Errors import NoImplError
 
 
 class Reader:
     functions = {
         "xlsx": Xlsx,
+        "csv": Csv
     }
 
     def __init__(self, data):

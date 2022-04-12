@@ -78,10 +78,19 @@ class AppLambdaDelegate:
         # except:
         #     return False
 
+def parse_sqs_event_message(sqs_event):
+    body_string = sqs_event['Records'][0]
+    body_message = (json.loads(body_string['body']))
+    return body_message
 
 def lambda_handler(event, context):
-    event = json.loads(event.get("Records")[0].get("body"))
-    records = event["Records"]
+
+    # records = event["Records"]
+    records = parse_sqs_event_message(event)
+
+    # event = json.loads(event.get("Records")[0].get("body"))
+    # records = event["Records"]
+
     # try:
     for record in records:
         if record["eventName"].lower() != "insert":

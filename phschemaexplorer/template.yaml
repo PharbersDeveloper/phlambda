@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda ph-schema-explorer-v2
+Description: cicd lambda ph-schema-explorer-dev
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,12 +9,13 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-#      FileSystemConfigs:
-#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
-#          LocalMountPath: /mnt/tmp
+      FileSystemConfigs:
+        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
+          LocalMountPath: /mnt/tmp
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phschemaexplorer-V2
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpandas:2
+      FunctionName: lmd-phschemaexplorer-dev
       Description: "根据前端传入excel获取schema与sample data 默认取出100行"
       MemorySize: 1024
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

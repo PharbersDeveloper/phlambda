@@ -27,6 +27,7 @@ import constants.Common as Common
 class Xlsx(Strategy):
     clickhouse = None
     parameters = None
+    sample = None
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
@@ -75,7 +76,9 @@ class Xlsx(Strategy):
         execl_data = list(map(add_col, data))
 
         # TODO： 只写 sample： 前10000条
-        self.clickhouse.insert_data(sql, execl_data)
+        if not self.sample:
+            self.clickhouse.insert_data(sql, execl_data)
+            self.sample = 1
 
         WriteS3Command(WriteReceiver()).execute({
             "writePath": self.parameters["writePath"],

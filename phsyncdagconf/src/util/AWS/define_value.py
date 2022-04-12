@@ -87,4 +87,5 @@ LOW_CODE_TEMPLATE_OPERATOR = {
     "filter_on_numerical_range_for_pyspark": "/template/python/phcli/maxauto/filter_on_numerical_range_for_pyspark_dev.tmp",
     "select_for_pyspark": "/template/python/phcli/maxauto/select_for_pyspark_dev.tmp",
     "remove_row_on_empty_for_pyspark": "/template/python/phcli/maxauto/remove_row_on_empty_for_pyspark_dev.tmp",
+    "fill_empty_with_value_for_pyspark": "/template/python/phcli/maxauto/"
 }

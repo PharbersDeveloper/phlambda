@@ -1,17 +1,19 @@
 import json
 from handler.Command import Command
-from handler.FilterOnValueCommand import FilterOnValueCommand
-from handler.FilterOnNumericalRangeCommand import FilterOnNumericalRangeCommand
-from handler.RemoveRowsOnEmptyCommand import RemoveRowsOnEmptyCommand
 from handler.Receiver import Receiver
 from handler.SelectCommand import SelectCommand
 from handler.ScriptCommand import ScriptCommand
+from handler.FilterOnValueCommand import FilterOnValueCommand
+from handler.FilterOnNumericalRangeCommand import FilterOnNumericalRangeCommand
+from handler.FillEmptyWithValueCommand import FillEmptyWithValueCommand
+from handler.RemoveRowsOnEmptyCommand import RemoveRowsOnEmptyCommand
 
 
 class GenerateInvoker:
     commands = {
         "filteronvalue": FilterOnValueCommand,
         "filteronnumericalrange": FilterOnNumericalRangeCommand,
+        "fillemptywithvalue": FillEmptyWithValueCommand,
         "removerowsonempty": RemoveRowsOnEmptyCommand,
         "select": SelectCommand,
         "script": ScriptCommand

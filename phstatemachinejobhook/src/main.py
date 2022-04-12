@@ -5,7 +5,7 @@ from datetime import datetime
 # from phmetrixlayer import aws_cloudwatch_put_metric_data
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,  
-    jobCat='notification', jobDesc='executionSuccess', message='', status='queued',
+    jobCat='notification', jobDesc='executionSuccess', message='', status='success',
     dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -44,24 +44,13 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
-    if event['stage'] == 'start':
-        pid = event['projectId']
-        pn = event['projectName']
-        flowVersion = 'developer'
+    pn = event['projectName']
+    flowVersion = 'developer'
+    tmpJobName = '_'.join([pn, pn, flowVersion, event['jobName']])
+    status = event['status']
 
-        # 1. put notification for dag
-        put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'])
-        # 2. put notification for every job
-        for iter in event['Input'].keys():
-            if iter == 'common':
-                continue
-
-            tmpJobName = '_'.join([pn, pn, flowVersion, iter])
-            put_notification(event['runnerId'], tmpJobName, None, 0, "", int(ts), event['owner'], event['showName'])
-        
-    else:
-        pid = event['projectId']
-        # 1. put notification for dag
-        put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'], status='success')
-    
+    # 1. put notification
+    put_notification(event['runnerId'], tmpJobName, None, 0, "", int(ts), event['owner'], event['showName'], status = status)
+    # 2. put metrics
+    # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
     return { "status": "ok"  }

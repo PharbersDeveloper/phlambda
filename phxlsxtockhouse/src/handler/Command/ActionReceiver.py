@@ -12,7 +12,7 @@ class ActionReceiver(Receiver):
         self.logger = PhLogging().phLogger("Action", LOG_DEBUG_LEVEL)
 
     def save(self, data):
-        dev = "_" + os.environ[DV.DEV].lower() if os.environ[DV.DEV] else ""
+        dev = "_" + os.environ[DV.DEV].lower() if os.environ[DV.DEV].lower() == "dev" else ""
         self.logger.debug(f"Alex Save Action ====> \n {data}")
 
         self.dynamodb.putData({

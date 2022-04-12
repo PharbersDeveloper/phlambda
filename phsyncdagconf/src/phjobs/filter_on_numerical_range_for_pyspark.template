@@ -1,0 +1,30 @@
+    #  Filter Numerical Range Start
+    filter_numerical_range_parameter = #filter_parameter#
+
+    def filter_not_expr(exprs):
+        return list(map(lambda expr: f"!{expr}", exprs))
+
+    filter_actions = {
+        "REMOVE_ROW": filter_not_expr
+    }
+
+    mode = filter_numerical_range_parameter["params"]["booleanMode"]
+    action = filter_numerical_range_parameter["params"]["action"]
+    min = filter_numerical_range_parameter["params"]["min"]
+    max = filter_numerical_range_parameter["params"]["max"]
+    value = f"""{min} and {max}"""
+    columns = filter_numerical_range_parameter["params"]["columns"]
+
+    expr_list = list(map(lambda col: f"(`{col}` between {value})", columns))
+    function = filter_actions.get(action, None)
+    if function is not None:
+        expr_list = function(expr_list)
+    expr = f" {mode} ".join(expr_list)
+
+    data_frame = data_frame.filter(expr)
+
+    #  Filter Numerical Range End
+data_frame
+
+
+

@@ -1,5 +1,5 @@
 import constants.DefinValue as DV
-# from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched, VersionAlreadyExist, ColumnDuplicate
+from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched, VersionAlreadyExist, ColumnDuplicate
 from handler.Command.DagReceiver import DagReceiver
 from handler.Command.DataSetReceiver import DataSetReceiver
 from handler.Command.VersionReceiver import VersionReceiver
@@ -53,7 +53,7 @@ class Csv:
     def exists_table(self, table_name):
         clickhouse_tables = [clickhouse_table[0] for clickhouse_table in self.clickhouse_client.execute("show tables")]
         print("exists_table-------------------------------")
-        print(clickhouse_tables)
+        # print(clickhouse_tables)
         if not table_name in clickhouse_tables:
             sql_create_table = self.createClickhouTableSql(table_name)
             print(sql_create_table)
@@ -108,92 +108,97 @@ class Csv:
         self.PhS3.upload_dir(path, 'ph-platform', key)
 
     def do_parquet(self, dataf, file_name):
+        dataf.columns = self.schema
         dataf.to_parquet(file_name, index=False, partition_cols="version")
 
     def toclickhouse(self, table_name, data):
         print("to clickhouse -------------------------")
+        print(self.schema)
         print(data)
-        print(len(self.schema))
-        print(len(data[0]))
         if len(self.schema) != len(data[0]):
-            print("error---------------------")
-            # raise ColumnDuplicate("column duplication")
+            print("col-----error---------------------")
+            return False
         create_sql = self.createClickhouTableSql(table_name)
+        print(create_sql)
+
         self.clickhouse_client.execute(create_sql)
         self.clickhouse_client.execute(f'INSERT INTO {table_name} VALUES', data)
+        return True
 
     def do_exec(self, data):
-        # try:
-        parameters = {
-            "id": data["id"],
-            "owner": data["owner"],
-            "showName": data["showName"],
-            "project_id": data["projectId"],
-            "skip_first": data["message"]["skipValue"],
-            "skip_next": data["message"]["jumpValue"],
-            "version": data["message"].get("version", "0.0.0"),
-            "file_name": data["message"]["fileId"],
-            "sheet_name": data["message"]["fileSheet"],
-            "ds_name": data["message"]["destination"],
-            "opgroup": data["message"]["opgroup"],
-            "provider": data["message"].get("provider", "pharbers"),
-            "cat": data["message"].get("cat", "intermediate"),
-            "path": data["message"].get("path", ""),
-            "prop": data["message"].get("prop", ""),
-            "format": data["message"].get("format", ""),
-            "prefix": data["jobDesc"],
-            "ds_id": data["message"]["fileId"],
-            "label": "[]",
-            "jobCat": "project_file_to_DS_",
-        }
+        try:
+            parameters = {
+                "id": data["id"],
+                "owner": data["owner"],
+                "showName": data["showName"],
+                "project_id": data["projectId"],
+                "skip_first": data["message"]["skipValue"],
+                "skip_next": data["message"]["jumpValue"],
+                "version": data["message"].get("version", "0.0.0"),
+                "file_name": data["message"]["fileId"],
+                "sheet_name": data["message"]["fileSheet"],
+                "ds_name": data["message"]["destination"],
+                "opgroup": data["message"]["opgroup"],
+                "provider": data["message"].get("provider", "pharbers"),
+                "cat": data["message"].get("cat", "intermediate"),
+                "path": data["message"].get("path", ""),
+                "prop": data["message"].get("prop", ""),
+                "format": data["message"].get("format", ""),
+                "prefix": data["jobDesc"],
+                "ds_id": data["message"]["fileId"],
+                "label": "[]",
+                "jobCat": "project_file_to_DS_",
+            }
 
-        version = parameters.get("version")
-        filename = parameters.get("file_name")
-        ds_name = parameters.get("ds_name")
-        projectId = parameters.get("project_id")
-        path = f"/mnt/tmp/{projectId}/tmp/{filename}"
-        data_list = pd.read_csv(path, chunksize=10000)
-        table_name = f"{projectId}_{ds_name}"
-        skip_first = int(parameters.get("skip_first"))
-        skip_next = int(parameters.get("skip_next"))
-        print(skip_next)
-        print(skip_first)
+            version = parameters.get("version")
+            filename = parameters.get("file_name")
+            ds_name = parameters.get("ds_name")
+            projectId = parameters.get("project_id")
+            path = f"/mnt/tmp/{projectId}/tmp/{filename}"
+            data_list = pd.read_csv(path, chunksize=10000, header=None)
+            table_name = f"{projectId}_{ds_name}"
+            skip_first = int(parameters.get("skip_first"))
+            skip_next = int(parameters.get("skip_next"))
+            print(skip_next)
+            print(skip_first)
 
-        self.__create_clickhouse(projectId)
-        out_file_name = f"/mnt/tmp/{projectId}/tmp/pharbers/{projectId}/{ds_name}/"
-        for i, dataf in enumerate(data_list):
-            dataf["version"] = version
-            # dataf1 = dataf.drop(labels=skip,axis=0)
-            data_l = dataf.values.tolist()
-            if self.whileonce:
-                print("not schema insert to clickhouse-------------------")
-                if not skip_first:
-                    self.schema = dataf.columns.values.tolist()
-                if skip_first:
-                    data_l = data_l[skip_first - 1:]
-                    schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
-                               enumerate(data_l.pop(0))]
-                    # for c, l in enumerate(data_l.pop(0)):
-                    #     print(l)
-                    #     print(f"col_{c}" if str(l) == )
-                    self.schema = ["version" if schem == version else schem for schem in schemas]
-                    print(self.schema)
-                for i in range(skip_next):
-                    data_l.pop(0)
-                parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
-                self.whileonce = False
-                new_data = self.parse_data(data_l, version)
-                self.toclickhouse(table_name, new_data)
-            self.do_parquet(dataf, out_file_name)
+            self.__create_clickhouse(projectId)
+            out_file_name = f"/mnt/tmp/{projectId}/tmp/pharbers/{projectId}/{ds_name}/"
+            for i, dataf in enumerate(data_list):
+                dataf["version"] = version
+                # dataf1 = dataf.drop(labels=skip,axis=0)
+                data_l = dataf.values.tolist()
+                if self.whileonce:
+                    print("not schema insert to clickhouse-------------------")
+                    if not skip_first:
+                        schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
+                                   enumerate(data_l.pop(0))]
+                        self.schema = ["version" if schem == version else schem for schem in schemas]
+                    if skip_first:
+                        print("will to clickhosue-------------------------------------")
+                        data_l = data_l[skip_first:]
+                        schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
+                                   enumerate(data_l.pop(0))]
+                        self.schema = ["version" if schem == version else schem for schem in schemas]
+                        print(self.schema)
+                    for i in range(skip_next):
+                        data_l.pop(0)
+                    parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
+                    self.whileonce = False
+                    new_data = self.parse_data(data_l, version)
+                    if not self.toclickhouse(table_name, new_data):
+                        raise ColumnDuplicate("column duplication")
 
-        self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
-        print("success------------------------------------------------------------------------")
-        SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
-        SaveDagCommand(DagReceiver()).execute(parameters)
-        SaveDagCommand(VersionReceiver()).execute(parameters)
+                self.do_parquet(dataf, out_file_name)
 
-        # except ColumnDuplicate as e:
-        #     raise e
-        # except Exception as e:
-        #     raise Errors(e)
+            self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
+            print("success------------------------------------------------------------------------")
+            SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
+            SaveDagCommand(DagReceiver()).execute(parameters)
+            SaveDagCommand(VersionReceiver()).execute(parameters)
+
+        except ColumnDuplicate as e:
+            raise e
+        except Exception as e:
+            raise Errors(e)
         return parameters

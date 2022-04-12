@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda  from glue table add record to versiontable of dynamodb
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phadddydbversionrecord-dev
+      Description: "add records to  version of dynamodb "
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
+      Timeout: 120
+      Environment:
+        Variables:
+          EDITION: "dev"
+          DATABASE: "zudicg_17yj8ceuocthg"
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+
+

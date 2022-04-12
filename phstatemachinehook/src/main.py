@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         flowVersion = 'developer'
 
         # 1. put notification for dag
-        put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'])
+        put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'], status='running')
         # 2. put notification for every job
         for iter in event['Input'].keys():
             if iter == 'common':

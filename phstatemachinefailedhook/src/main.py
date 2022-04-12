@@ -2,10 +2,10 @@ import os
 import json
 import boto3
 from datetime import datetime
-from phmetrixlayer import aws_cloudwatch_put_metric_data
+# from phmetrixlayer import aws_cloudwatch_put_metric_data
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,  
-    jobCat='notification', jobDesc='executionSuccess', message='', status='success',
+    jobCat='notification', jobDesc='executionSuccess', message='', status='failed',
     dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -44,11 +44,52 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
-    pid = event['jobName']
-    status = event['status']
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('notification')
+    items = table.query(
+        Select='ALL_ATTRIBUTES',
+        Limit=1000,
+        ExpressionAttributeValues={
+            ':v1': event['runnerId']
+        },
+        KeyConditionExpression='id=:v1'
+    )['Items']
 
-    # 1. put notification
-    put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'], status = status)
-    # 2. put metrics
-    # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
+    # 1. 看看是不是gen dag的错误，也就是说不能两个runnid 同时执行
+    error = event['error']
+    if 'genDagError' in event['error'] and event['error']['genDagError']['Error'] == 'AlreadyExistsException':
+        message = ''
+        for item in items:
+            if item['projectId'] == event['projectId']:
+                message = event['error']['genDagError']['Cause']        
+                put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed', message=message)
+            else:
+                if item['status'] == 'running':
+                    put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed')
+                elif item['status'] == 'queued':
+                    put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='canceled')
+    
+    # 2. 看看是不是dag的错误
+    if 'executeError' in event['error']:
+        executionArn = ':'.join(['arn:aws-cn:states:cn-northwest-1:444603803904:execution', event['runnerId'], event['runnerId']])
+        client = boto3.client('stepfunctions')
+        events = client.get_execution_history(executionArn=executionArn)['events']
+        eventsCount = len(events)
+        errorEvent = events[eventsCount - 1]
+        detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
+        print(detail)
+        message = detail['Message']
+        jobName = detail['Name']
+
+        for item in items:
+            if item['projectId'] == event['projectId']:
+                put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed', message=message)
+            else:
+                if item['status'] == 'running':
+                    put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed')
+                elif item['status'] == 'queued':
+                    put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='canceled')
+
+
+        
     return { "status": "ok"  }

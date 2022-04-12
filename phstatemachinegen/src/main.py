@@ -77,8 +77,8 @@ def calDatasetPath(datasetName, datasets, jobs, links, stack):
             cstack = deque()
             for iter in nljoblk:
                 tstack = deque()
-                tmpJ = list(filter(lambda x: x['name'] == iter['ll']['sourceName'], jobs))[0]
-                tstack.append(tmpJ)
+                # tmpJ = list(filter(lambda x: x['name'] == iter['ll']['sourceName'], jobs))[0]
+                # tstack.append(tmpJ)
                 calNextLevelJob(iter, tstack)
                 cstack.append(tstack)
             stack.append(cstack)
@@ -164,6 +164,13 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
+
+    print('======> alfred test')
+    print(curJ['name'])
+    print('======> alfred test parallelSteps')
+    print(len(parallelSteps) == 0)
+    print(len(parallelSteps))
+
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
@@ -179,6 +186,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "cat": "step",
             "status": "running"
          },
+         "ResultPath": None,
          "Next": curJ["name"]
     }
     # 1. job 
@@ -206,6 +214,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "ResultPath": "$.error",
             "Next": curJ["name"] + "FailedHook"
          } ],
+         "ResultPath": None,
          "Next": curJ["name"] + "EndHook"
     }
     # 4. failed hook
@@ -224,6 +233,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "cat": "step",
                 "status": "failed"
              },
+             "ResultPath": None,
              "Next": "StateMachineFailedHook"
         }
     else:
@@ -241,6 +251,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "cat": "step",
                 "status": "failed"
              },
+             "ResultPath": None,
              "Next": "ParalleEndHook" + parallelSteps
         }
 
@@ -260,7 +271,8 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "hook": "start",
                 "cat": "step",
                 "status": "success"
-             }
+             },
+             "ResultPath": None
              # "Next": "StateMachineEndHook"
         }
     else: 
@@ -278,6 +290,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "cat": "step",
                 "status": "success"
              },
+             "ResultPath": None,
              "Next": "ParalleEndHook" + parallelSteps
         }
 
@@ -286,10 +299,11 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
     print('===============>')
     print(stack)
     print(prevJobName)
+    print(parallelSteps)
     if len(stack) == 0:
         return
 
-    curJ = stack.popleft()    
+    curJ = stack.pop()    
 
     if len(sm) == 0:
         sm['Comment'] = event['runnerId']
@@ -308,6 +322,7 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
                 "cat": "execute",
                 "status": "running"
              },
+             "ResultPath": None,
              "Next": ""
           },
           "StateMachineEndHook": {
@@ -343,9 +358,10 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
         }
 
     if type(curJ) == deque:
-        parallelSteps = str(id(curJ))
-        sm['States']['Parallel' + parallelSteps] = {
+        tmpParallelSteps = str(id(curJ))
+        sm['States']['Parallel' + tmpParallelSteps] = {
             "Type": "Parallel",
+            "InputPath": "$",
             "Branches": [
                 
             ],
@@ -361,7 +377,8 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
                 "ErrorEquals": [ "States.ALL" ],
                 "ResultPath": "$.error",
                 "Next": "StateMachineFailedHook"
-             } ],   
+             } ],
+             "ResultPath": None,
         }
 
         index = 0
@@ -374,30 +391,20 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
                 'States': {}
             }
 
-            stack2smdefs(iter, event, tmpsm, tmpPrevJobName, parallelSteps + tmpindex)
+            stack2smdefs(iter, event, tmpsm, tmpPrevJobName, tmpParallelSteps + tmpindex)
             tmpsm['StartAt'] = list(tmpsm['States'].keys())[0]
-            tmpsm['States']['ParalleEndHook' + parallelSteps + tmpindex] = {
-                "Type": "Task",
-                 "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
-                 "Parameters": {
-                    "runnerId.$": "$.common.runnerId",
-                    "projectId.$": "$.common.projectId",
-                    "projectName.$": "$.common.projectName",
-                    "owner.$": "$.common.owner",
-                    "showName.$": "$.common.showName",
-                    "hook": "end",
-                    "cat": "execute",
-                    "status": "success"
-                 },
-                 "End": True
+            tmpsm['States']['ParalleEndHook' + tmpParallelSteps + tmpindex] = {
+                "Type": "Pass",
+                "Result": None,
+                "End": True
             }
-            sm['States']['Parallel' + parallelSteps]['Branches'].append(tmpsm)
+            sm['States']['Parallel' + tmpParallelSteps]['Branches'].append(tmpsm)
 
         if 'End' in sm['States'][prevJobName]:
             del sm['States'][prevJobName]['End']
-        sm['States'][prevJobName]['Next'] = 'Parallel' + parallelSteps
-        prevJobName = 'Parallel' + parallelSteps
-
+        sm['States'][prevJobName]['Next'] = 'Parallel' + tmpParallelSteps
+        prevJobName = 'Parallel' + tmpParallelSteps
+        
     else:
         linearJobWithHooksByJobName(curJ, event, sm, parallelSteps)
 

@@ -1,5 +1,5 @@
-
 import constants.DefinValue as DV
+# from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched, VersionAlreadyExist, ColumnDuplicate
 from handler.Command.DagReceiver import DagReceiver
 from handler.Command.DataSetReceiver import DataSetReceiver
 from handler.Command.VersionReceiver import VersionReceiver
@@ -47,8 +47,8 @@ class Csv:
     def parse_data(self, data: list, version):
         print(data)
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
-        return list(map(lambda x: dict(zip(self.schema + ["version"], x)),
-                        [[str(j) if str(j) != "nan" else "None" for j in i + [version]] for i in data]))
+        return list(map(lambda x: dict(zip(self.schema, x)),
+                        [[str(j) if str(j) != "nan" else "None" for j in i] for i in data]))
 
     def exists_table(self, table_name):
         clickhouse_tables = [clickhouse_table[0] for clickhouse_table in self.clickhouse_client.execute("show tables")]
@@ -93,18 +93,19 @@ class Csv:
 
     def createClickhouTableSql(self, table_name, database='default', order_by='', partition_by='version'):
         print(table_name)
+
         def getSchemeSql():
             sql_scheme = ""
             for i in self.schema:
                 sql_scheme += f"`{i}` String,"
             sql_scheme = re.sub(r",$", "", sql_scheme)
             return sql_scheme
+
         return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}` ({getSchemeSql()}) ENGINE=MergeTree() PRIMARY KEY version"
 
     def toS3(self, path, key):
         print(key)
         self.PhS3.upload_dir(path, 'ph-platform', key)
-
 
     def do_parquet(self, dataf, file_name):
         dataf.to_parquet(file_name, index=False, partition_cols="version")
@@ -112,17 +113,17 @@ class Csv:
     def toclickhouse(self, table_name, data):
         print("to clickhouse -------------------------")
         print(data)
-        # self.exists_table(table_name)
-        # self.createClickhouTableSql(table_name)
+        print(len(self.schema))
+        print(len(data[0]))
+        if len(self.schema) != len(data[0]):
+            print("error---------------------")
+            # raise ColumnDuplicate("column duplication")
         create_sql = self.createClickhouTableSql(table_name)
-        print(create_sql)
-        print(table_name)
-        print(data)
         self.clickhouse_client.execute(create_sql)
         self.clickhouse_client.execute(f'INSERT INTO {table_name} VALUES', data)
 
     def do_exec(self, data):
-
+        # try:
         parameters = {
             "id": data["id"],
             "owner": data["owner"],
@@ -146,8 +147,6 @@ class Csv:
             "jobCat": "project_file_to_DS_",
         }
 
-
-
         version = parameters.get("version")
         filename = parameters.get("file_name")
         ds_name = parameters.get("ds_name")
@@ -155,16 +154,32 @@ class Csv:
         path = f"/mnt/tmp/{projectId}/tmp/{filename}"
         data_list = pd.read_csv(path, chunksize=10000)
         table_name = f"{projectId}_{ds_name}"
-
+        skip_first = int(parameters.get("skip_first"))
+        skip_next = int(parameters.get("skip_next"))
+        print(skip_next)
+        print(skip_first)
 
         self.__create_clickhouse(projectId)
         out_file_name = f"/mnt/tmp/{projectId}/tmp/pharbers/{projectId}/{ds_name}/"
         for i, dataf in enumerate(data_list):
             dataf["version"] = version
+            # dataf1 = dataf.drop(labels=skip,axis=0)
             data_l = dataf.values.tolist()
             if self.whileonce:
                 print("not schema insert to clickhouse-------------------")
-                self.schema = dataf.columns.values.tolist()
+                if not skip_first:
+                    self.schema = dataf.columns.values.tolist()
+                if skip_first:
+                    data_l = data_l[skip_first - 1:]
+                    schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
+                               enumerate(data_l.pop(0))]
+                    # for c, l in enumerate(data_l.pop(0)):
+                    #     print(l)
+                    #     print(f"col_{c}" if str(l) == )
+                    self.schema = ["version" if schem == version else schem for schem in schemas]
+                    print(self.schema)
+                for i in range(skip_next):
+                    data_l.pop(0)
                 parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                 self.whileonce = False
                 new_data = self.parse_data(data_l, version)
@@ -175,5 +190,10 @@ class Csv:
         print("success------------------------------------------------------------------------")
         SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
         SaveDagCommand(DagReceiver()).execute(parameters)
-        SaveDagCommand(VersionReceiver).execute(parameters)
+        SaveDagCommand(VersionReceiver()).execute(parameters)
+
+        # except ColumnDuplicate as e:
+        #     raise e
+        # except Exception as e:
+        #     raise Errors(e)
         return parameters

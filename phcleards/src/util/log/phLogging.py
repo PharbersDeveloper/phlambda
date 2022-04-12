@@ -15,10 +15,10 @@ class PhLogging(metaclass=SingletonMetaClass):
 
     def phLogger(self, logger_name, level=LOG_DEFAULT_LEVEL):
 
-        root = logging.getLogger()
-        if root.handlers:
-            for handler in root.handlers:
-                root.removeHandler(handler)
+        # root = logging.getLogger()
+        # if root.handlers:
+        #     for handler in root.handlers:
+        #         root.removeHandler(handler)
 
         logging.basicConfig(level=level,
                             format="%(asctime)s %(name)s %(module)s %(levelname)s %(message)s",

@@ -14,7 +14,7 @@ class MsgReceiver(Receiver):
         self.logger = PhLogging().phLogger("Message", LOG_DEBUG_LEVEL)
 
     def __update_action(self, status, data):
-        dev = "_" + os.environ[DV.DEV].lower() if os.environ[DV.DEV] else ""
+        dev = "_" + os.environ[DV.DEV].lower() if os.environ[DV.DEV].lower() == "dev" else ""
         action_item = dict({}, **data["data"])
         action_item["message"] = json.dumps(action_item["message"], ensure_ascii=False)
         action_item["jobDesc"] = status

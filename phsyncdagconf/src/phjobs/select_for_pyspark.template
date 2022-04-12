@@ -1,8 +1,0 @@
-    #  Select Start
-    select_parameter = #select_parameter#
-    cols = "*" if len(select_parameter["params"]["columns"]) == 0 else list(map(lambda x: f"`{x}`", select_parameter["params"]["columns"]))
-    data_frame = data_frame.select(cols)
-    #  Select End
-data_frame
-
-

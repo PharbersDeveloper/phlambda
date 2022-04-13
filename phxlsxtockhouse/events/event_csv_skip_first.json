@@ -1,0 +1,58 @@
+{
+        "Records": [
+          {
+            "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+            "eventName": "INSERT",
+            "eventVersion": "1.1",
+            "eventSource": "aws:dynamodb",
+            "awsRegion": "cn-northwest-1",
+            "dynamodb": {
+              "ApproximateCreationDateTime": 1635485706,
+              "Keys": {
+                "projectId": {
+                  "S": "ggjpDje0HUC2JW"
+                },
+                "id": {
+                  "S": "alexId"
+                }
+              },
+              "NewImage": {
+                "projectId": {
+                  "S": "ggjpDje0HUC2JW"
+                },
+                "id": {
+                  "S": "alexId"
+                },
+                "code": {
+                  "N": "0"
+                },
+                "comments": {
+                  "S": "project file to Data set"
+                },
+                "jobCat": {
+                  "S": "project_file_to_DS"
+                },
+                "jobDesc": {
+                  "S": "creating"
+                },
+                "message": {
+                  "S": "{\"skipValue\": 1,\"jumpValue\":0,\"fileType\":\"csv\",\"fileSheet\":\"csv\",\"fileId\":\"test1.csv\",\"fileName\":\"test1\",\"isAppend\":false,\"destination\":\"8b0c9svvsfsd95dsfsf3d\",\"opname\":\"c89b8123-a120-498f-963c-5be102ee9082\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}"
+                },
+                "date": {
+                  "N": "1636010256565"
+                },
+                "owner": {
+                  "S": "c89b8123-a120-498f-963c-5be102ee9082"
+                },
+                "showName": {
+                  "S": "钱鹏"
+                }
+              },
+              "SequenceNumber": "4262900000000003683290840",
+              "SizeBytes": 193,
+              "StreamViewType": "NEW_AND_OLD_IMAGES"
+            },
+            "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+          }
+        ]
+      }

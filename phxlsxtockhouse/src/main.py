@@ -51,7 +51,7 @@ def lambda_handler(event, context):
                         "time": 60 * 60
                     })
                     result = Reader(item).reader()
-                    item["jobDesc"] = "created"
+                    # item["jobDesc"] = "created"
                     SaveActionCommand(ActionReceiver()).execute(item)
                     SendMsgSuccessCommand(MsgReceiver()).execute(result)
 

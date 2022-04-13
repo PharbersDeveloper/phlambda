@@ -1,9 +1,10 @@
 import json
 import time
+import os
 import boto3
 from util.AWS.DynamoDB import DynamoDB
 # from phdydatasource_layer.handler.ExecHandler import makeData
-from phlambda.phbaselayer.python.phprojectargslayer.phprojectargs.projectArgs import ProjectArgs
+from phprojectargs.projectArgs import ProjectArgs
 
 
 class EditSample(object):
@@ -152,11 +153,12 @@ class EditSample(object):
         parameters.update({"sample": self.project_message.get("sample")})
         parameters.update({"company": "pharbers"})
         print(parameters)
+        dag_name = "sample_developer_dev" if os.getenv("EDITION") == "DEV" else "sample_developer"
         # 创建emr 的运行参数
-        args = self.create_step_args("sample_developer_dev", "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
+        args = self.create_step_args(dag_name, "sample", time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()), parameters)
         print(args)
         # 运行emr
-        step_status = self.run_emr_step("sample_developer", "sample", self.project_message.get("projectId"), args)
+        step_status = self.run_emr_step("sample_developer", "sample", self.project_message.get("targetProjectId"), args)
         # put_notification
         self.put_notification(step_status)
         pass

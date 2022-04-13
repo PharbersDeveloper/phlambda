@@ -14,7 +14,7 @@ Resources:
           CLICK_HOST: 192.168.16.117
           CLICK_PORT: 8123
           CLICK_DB: default
-          EDITION: V2
+          EDITION: DEV
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1

@@ -10,6 +10,8 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       FunctionName: lmd-sample-dev
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
       Description: "sample"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 600

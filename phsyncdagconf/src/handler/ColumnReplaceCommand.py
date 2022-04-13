@@ -1,9 +1,10 @@
+import json
 from handler.Command import Command
 from util.AWS.ph_s3 import PhS3
 from util.AWS import define_value as dv
 
 
-class FilterCommand(Command):
+class ColumnReplaceCommand(Command):
 
     def __init__(self, receiver, args):
         self.receiver = receiver
@@ -11,14 +12,17 @@ class FilterCommand(Command):
         self.phs3 = PhS3()
 
     def execute(self, data=None):
-        path = "/tmp/phjobs/filter_for_pyspark.template"
+        data = json.loads(self.args)
+        runtime = data["code"]
+        file = f"column_replace_for_{runtime}"
+        path = f"/tmp/phjobs/${file}.template"
+        # path = f"/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/{file}.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
-                           dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_FILTER_FILE_PY,
+                           dv.CLI_VERSION + dv.LOW_CODE_TEMPLATE_OPERATOR[file],
                            path)
-
         content = list(filter(lambda line: line != "", self.receiver.execute(path).split("\n")))
         return_data = content[-1]
-        code = "\n".join(content[:-1]).replace("#filter_kvs#", str(self.args))
+        code = "\n".join(content[:-1]).replace("#column_replace_parameter#", str(data))
         return {
             "code": code,
             "return_data": return_data

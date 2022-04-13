@@ -227,7 +227,7 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
 
         # 2. /phjob.py file
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
-        operator_code = GenerateInvoker().execute(operatorParameters)
+        operator_code = GenerateInvoker().execute(operatorParameters, "prepare")
         with open(job_path + "/phjob.py", "a") as file:
             file.write("""def execute(**kwargs):\n""")
             file.write(operator_code)

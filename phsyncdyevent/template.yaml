@@ -15,7 +15,7 @@ Resources:
       Environment:
         Variables:
           UPLOAD_PATH: "/mnt/tmp/#projectId#/tmp/"
-          EDITION: "DEV"
+          EDITION: V2
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phsyncdyevent-V2

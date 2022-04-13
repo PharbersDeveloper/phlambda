@@ -37,7 +37,7 @@ TEMPLATE_PHMAIN_FILE_PY = "/template/python/phcli/maxauto/phmain-py_dev.tmp"
 TEMPLATE_PHMAIN_FILE_R = "/template/python/phcli/maxauto/phmain-r_dev.tmp"
 TEMPLATE_PHJOB_FILE_R = "/template/python/phcli/maxauto/phjob-r_dev.tmp"
 
-# 低代码
+# 低代码 废弃
 TEMPLATE_OPERATOR_FILTER_FILE_PY = "/template/python/phcli/maxauto/filter_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_SELECT_FILE_PY = "/template/python/phcli/maxauto/select_for_pyspark_20211228.tmp"
 TEMPLATE_OPERATOR_OPERATION_NULL_FILE_PY = "/template/python/phcli/maxauto/operation_null_for_pyspark_20211228.tmp"
@@ -80,3 +80,14 @@ DEFAULT_MACHINE_ARN_SUFFIX = 'arn:aws-cn:states:cn-northwest-1:444603803904:stat
 
 # 针对Python Click模块
 PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, job_id, ph_conf'
+
+# 针对低代码
+LOW_CODE_TEMPLATE_OPERATOR = {
+    "filter_on_value_for_pyspark": "/template/python/phcli/maxauto/filter_on_value_for_pyspark_dev.tmp",
+    "filter_on_numerical_range_for_pyspark": "/template/python/phcli/maxauto/filter_on_numerical_range_for_pyspark_dev.tmp",
+    "select_for_pyspark": "/template/python/phcli/maxauto/select_for_pyspark_dev.tmp",
+    "remove_row_on_empty_for_pyspark": "/template/python/phcli/maxauto/remove_row_on_empty_for_pyspark_dev.tmp",
+    "fill_empty_with_value_for_pyspark": "/template/python/phcli/maxauto/fill_empty_with_value_for_pyspark_dev.tmp",
+    "column_replace_for_pyspark": "/template/python/phcli/maxauto/column_replace_for_pyspark_dev.tmp",
+    "value_replace_for_pyspark": "/template/python/phcli/maxauto/value_replace_for_pyspark_dev.tmp"
+}

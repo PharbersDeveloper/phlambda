@@ -27,25 +27,27 @@ class AppLambdaDelegate:
             "schema": "[]",
             "version": self.data.get("version"),
             "cat": self.data.get("cat"),
-            "path": self.data.get("message"),
+            "path": self.data.get("keys"),
             "format": self.data.get("format"),
             "prop": self.data.get("prop")
         }
 
     @property
     def notification(self):
+
         return {
             "id": self.data.get("id"),
             "projectId": self.data.get("projectId"),
             "category": self.data.get("category"),
             "code": self.data.get("code"),
             "comments": self.data.get("comments"),
-            "date": int(time.time()),
-            "jobCat": self.data.get("jobCat"),
+            "date": int(time.time()*1000),
+            "jobCat": "notification",
             "jobDesc": self.data.get("jobDesc"),
-            "message": self.data.get("message"),
+            "message": json.dumps(self.message),
             "owner": self.data.get("owner"),
             "showName": self.data.get("showName"),
+            "status": "succeed",
         }
 
     @property
@@ -67,27 +69,34 @@ class AppLambdaDelegate:
 
     def run(self):
         # try:
+        self.message = {"type": "operation", 
+                        "opname": self.data.get("message").get("opname"), 
+                        "opgroup": self.data.get("message").get("opgroup"), 
+                        "cnotification": {"data": "{}", "error": "{}"}}
+                        
         self.dynamodb.putData({"table_name": "dataset", "item": self.dataset})
-        print(self.dataset)
-        print(self.notification)
         self.dynamodb.putData({"table_name": "notification", "item": self.notification})
-        print(1111)
         self.dynamodb.putData({"table_name": "dag", "item": self.dag})
-        print(222222)
+        print(1111)
+        print(self.notification)
         #     return True
         # except:
         #     return False
 
 
+
 def lambda_handler(event, context):
     event = json.loads(event.get("Records")[0].get("body"))
     records = event["Records"]
+    
     # try:
     for record in records:
         if record["eventName"].lower() != "insert":
             continue
 
         new_image = record["dynamodb"]["NewImage"]
+        print("new_image------------------------------")
+        print(new_image)
         jobCat = new_image.get("jobCat", {"S": "None"})["S"]
         if record["eventName"].lower() == "insert" and (jobCat == "max1.0" or jobCat == "catalog"):
 
@@ -95,12 +104,13 @@ def lambda_handler(event, context):
                 "id": new_image.get("id")["S"],
                 "dataset_id": json.loads(new_image.get("message")["S"]).get('id'),
                 "projectId": new_image.get("projectId")["S"],
-                "category": "",
+                "category": " ",
                 "code": 0,
-                "comments": "",
+                "comments": " ",
                 "jobCat": "max1.0",
                 "jobDesc": new_image.get("jobDesc")["S"],
-                "message": json.loads(new_image.get("message")["S"]).get('keys'),
+                "message": json.loads(new_image.get("message")["S"]),
+                "keys": json.loads(new_image.get("message")["S"]).get('keys'),
                 "owner": new_image.get("owner")["S"],
                 "showName": new_image.get("showName")["S"],
                 "name": json.loads(new_image.get("message")["S"]).get('name'),

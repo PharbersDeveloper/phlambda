@@ -20,7 +20,7 @@ dynamodb = DynamoDB()
 # )
 # dynamodb = DynamoDB(sts=sts)
 
-dev = "_" + os.environ["EDITION"].lower() if os.environ["EDITION"] else ""
+dev = "_" + os.environ["EDITION"].lower() if os.environ["EDITION"].lower() == "dev" else ""
 action_table = "action" + dev
 
 

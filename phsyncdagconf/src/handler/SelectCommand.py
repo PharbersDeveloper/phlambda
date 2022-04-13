@@ -1,3 +1,4 @@
+import json
 from handler.Command import Command
 from util.AWS.ph_s3 import PhS3
 from util.AWS import define_value as dv
@@ -11,13 +12,17 @@ class SelectCommand(Command):
         self.phs3 = PhS3()
 
     def execute(self, data=None):
-        path = "/tmp/phjobs/select_for_pyspark.template"
+        data = json.loads(self.args)
+        runtime = data["code"]
+        file = f"select_for_{runtime}"
+        path = f"/tmp/phjobs/${file}.template"
+        # path = f"/Users/qianpeng/GitHub/phlambda/phsyncdagconf/src/phjobs/{file}.template"
         self.phs3.download(dv.TEMPLATE_BUCKET,
-                           dv.CLI_VERSION + dv.TEMPLATE_OPERATOR_SELECT_FILE_PY,
+                           dv.CLI_VERSION + dv.LOW_CODE_TEMPLATE_OPERATOR[file],
                            path)
         content = list(filter(lambda line: line != "", self.receiver.execute(path).split("\n")))
         return_data = content[-1]
-        code = "\n".join(content[:-1]).replace("#select_cols#", str(self.args))
+        code = "\n".join(content[:-1]).replace("#select_parameter#", str(data))
         return {
             "code": code,
             "return_data": return_data

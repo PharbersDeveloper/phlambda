@@ -53,12 +53,14 @@ class SQS(object):
     def event_tracking(self, event):
         dynamodb_data, message_data = self.parse_event_parameters(event)
         project_id = dynamodb_data['projectId']['S']
-        project_name = message_data['project_name']
-        current_user_id = message_data['conf']['ownerId']
+        #project_name = message_data['project_name']
+        #project_name = message_data.get("project_name", message_data.get("projectName"))
+        project_name = message_data["project_name"] if "project_name" in list(message_data.keys()) else message_data["projectName"]
+        current_user_id = message_data.get("opname") if "opname" in list(message_data.keys()) else message_data["conf"]["ownerId"]
         current_name = dynamodb_data['owner']['S']
         action_mode = dynamodb_data['jobCat']['S']
         #action_detail = dynamodb_data['jobDesc']['S']
-        action_detail = message_data['conf']['jobDesc']
+        action_detail = dynamodb_data["jobDesc"]["S"] if "jobDesc" in list(dynamodb_data.keys()) else message_data['conf']['jobDesc']
 
         return aws_cloudwatch_put_metric_data(project_id,
                                        project_name,

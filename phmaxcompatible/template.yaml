@@ -16,4 +16,4 @@ Resources:
       Timeout: 600
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"

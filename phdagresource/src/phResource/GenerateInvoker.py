@@ -77,11 +77,11 @@ class GenerateInvoker(object):
             status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-        # try:
-        #     CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
-        # except Exception as e:
-        #     status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
-        #     logger.debug(status)
+        try:
+            CommandPutNotification(action_id=self.action_id, operate_type=self.operate_type, project_message=self.project_message).execute()
+        except Exception as e:
+            status = "put notification  时错误:" + json.dumps(str(e), ensure_ascii=False)
+            logger.debug(status)
 
     def delete_execute(self):
         logger = PhLogging().phLogger("delete_project", LOG_DEBUG_LEVEL)
@@ -94,29 +94,8 @@ class GenerateInvoker(object):
         logger.debug(target_name)
 
         try:
-            # 从dynamodb中获取 project 的相关参数
-            resource_args = CommandGetResourceArgs(target_name=target_name, project_id=project_id).execute()
-        except Exception as e:
-            status = "从dynamodb获取project参数错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
-            # 删除ssm 中当前project资源
-            CommandDelParameter(target_name=target_name).execute()
-        except Exception as e:
-            status = "删除ssm 中当前project资源 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
-            # 删除resource args
-            CommandDelResourceArgs(target_name=target_name, project_id=project_id).execute()
-        except Exception as e:
-            status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
             # 删除ec2 实例
-            CommandDelProject(target_name=target_name).execute()
+            CommandDelProject(target_name=project_id).execute()
         except Exception as e:
             status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)

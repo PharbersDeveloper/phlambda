@@ -1,3 +1,4 @@
+
 from constants.Errors import Errors, FileNotFound, NotCsvFile
 from handler.Strategy import Strategy
 from openpyxl.utils.exceptions import InvalidFileException
@@ -13,22 +14,28 @@ class Csv(Strategy):
     def __init__(self):
         pass
 
-    def __get_data(self, temp_file, skip_next, out_number=0, **kwargs):
+    def __get_data(self, temp_file, skip_next, skip_first, out_number=0, **kwargs):
         skip_next = int(skip_next)
+        skip_first = int(skip_first)
         out_number = int(out_number)
         out_num = out_number if out_number > 0 else 20
         data_list = []
         with open(temp_file, 'r') as f:
             reader = csv.reader(f)
             for i, rows in enumerate(reader):
-                if i == 0:
+                if i == skip_first:
                     schema = rows
-                if i <= skip_next:
+
+                if i <= skip_first:
                     continue
+                if i <= skip_next+skip_first:
+                    continue
+
                 data_list.append(rows)
-                if i >= out_num + skip_next:
+                if i >= out_num + skip_next + skip_first:
                     break
 
+        schema = [sch if sch else f"col{j}" for j, sch in enumerate(schema)]
         return {'readNumber': 1,
                 'sheet': 'csv',
                 'schema': schema,

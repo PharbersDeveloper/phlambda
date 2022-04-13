@@ -11,6 +11,7 @@ from boto3.dynamodb.conditions import Attr
 import os
 import re
 from clickhouse_driver import Client
+import constants.Common as Common
 import json
 
 
@@ -20,7 +21,7 @@ class Csv:
     write_once = None
 
     def __init__(self):
-        # self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
         # self.msg_receiver = MsgReceiver()
         # self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
         self.file_name_list = []
@@ -196,6 +197,24 @@ class Csv:
                 self.do_parquet(datal, out_file_name)
 
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
+
+            # TODO: 这个scan要改
+            ds_result = self.dynamodb.scanTable({
+                "table_name": "dataset",
+                "limit": 100000,
+                "expression": Attr("name").eq(parameters["ds_name"]) & Attr("projectId").eq(parameters["project_id"]),
+                "start_key": ""
+            })["data"]
+
+            ds_id = parameters["file_name"]
+            label = "[]"
+            if len(ds_result) > 0:
+                ds_id = ds_result[0]["id"]
+                label = ds_result[0]["label"]
+
+            parameters["ds_id"] = ds_id
+            parameters["label"] = label
+
             print("success------------------------------------------------------------------------")
             SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
             SaveDagCommand(DagReceiver()).execute(parameters)

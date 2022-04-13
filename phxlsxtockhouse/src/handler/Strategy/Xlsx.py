@@ -2,6 +2,7 @@ from constants.Errors import Errors, FileNotFound, NotXlsxFile, SchemaNotMatched
 from handler.Strategy.Strategy import Strategy
 from openpyxl.utils.exceptions import InvalidFileException
 
+from handler.Command.VersionReceiver import VersionReceiver
 from handler.Command.WriteReceiver import WriteReceiver
 from handler.Command.WriteS3Command import WriteS3Command
 from handler.Command.CheckSchemaReceiver import CheckSchemaReceiver
@@ -214,6 +215,7 @@ class Xlsx(Strategy):
             self.logger.debug("SaveDataSetCommand")
             SaveDagCommand(DagReceiver()).execute(parameters)  # 写Dag
             self.logger.debug("SaveDagCommand")
+            SaveDagCommand(VersionReceiver()).execute(parameters)
 
         except FileNotFoundError as e:
             raise FileNotFound(e)

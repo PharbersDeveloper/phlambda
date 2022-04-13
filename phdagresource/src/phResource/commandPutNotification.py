@@ -15,7 +15,7 @@ class CommandPutNotification(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.target_name = self.name_convert_to_camel(self.project_message.get("projectName"))
-        self.project_id = self.name_convert_to_camel(self.project_message.get("projectId"))
+        self.project_id = self.project_message.get("projectId")
         self.dynamodb = DynamoDB()
         self.ssm = SSM()
 
@@ -69,7 +69,7 @@ class CommandPutNotification(Command):
         }
 
         item.update({"id": self.action_id})
-        item.update({"projectId": self.project_message.get("projectId")})
+        item.update({"projectId": self.project_id})
         item.update({"category": ""})
         item.update({"code": "0"})
         item.update({"comments": ""})
@@ -95,7 +95,7 @@ class CommandPutNotification(Command):
         }
         # 取出list中元素 在进行append
         for resource in res:
-            if resource.get("projectName") == self.target_name:
+            if resource.get("projectId") == self.project_id:
                 args_index = res.index(resource)
                 project_args = res[args_index]
                 res.pop(args_index)

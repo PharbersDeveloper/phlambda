@@ -24,7 +24,7 @@ class CommandCreateProject(Command):
         cluster_id = self.ssm.get_str_ssm_parameter("cluster_id")
         return cluster_id
 
-    def create_parameter(self):
+    def create_ssm_parameter(self):
         parameter = {
             "projectName": self.target_name,
             "currentContext": os.getenv("EDITION"),
@@ -79,7 +79,45 @@ class CommandCreateProject(Command):
         # 获取当前project 的 volume id
         volumeId = self.ec2.get_volume_id(self.project_id)
         # 创建当前project的 parameter
-        parameter = self.create_parameter()
+        ssm_parameter = self.create_ssm_parameter()
         logger.debug("print ssm parameter")
-        logger.debug(parameter)
-        self.cfn.create_project(self.target_name, self.target_ip, self.project_id, str(Priority), volumeId, parameter)
+        logger.debug(ssm_parameter)
+        parameters = [
+            {
+                'ParameterKey': 'ActionId',
+                'ParameterValue': self.action_id,
+            },
+            {
+                'ParameterKey': 'ShowName',
+                'ParameterValue': self.project_message.get("showName"),
+            },
+            {
+                'ParameterKey': 'OwnerId',
+                'ParameterValue': self.project_message.get("owner"),
+            },
+            {
+                'ParameterKey': 'ProjectName',
+                'ParameterValue': self.target_name,
+            },
+            {
+                'ParameterKey': 'PrivateIpAddress',
+                'ParameterValue': self.target_ip,
+            },
+            {
+                'ParameterKey': 'ProjectId',
+                'ParameterValue': self.project_id,
+            },
+            {
+                'ParameterKey': 'Priority',
+                'ParameterValue': str(Priority),
+            },
+            {
+                'ParameterKey': 'VolumeId',
+                'ParameterValue': volumeId,
+            },
+            {
+                'ParameterKey': 'SSMParameterValue',
+                'ParameterValue': ssm_parameter,
+            }
+        ]
+        self.cfn.create_project(self.project_id, parameters)

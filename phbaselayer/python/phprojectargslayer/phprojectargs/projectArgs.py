@@ -15,6 +15,10 @@ class ProjectArgs(object):
             raise ResourceNotCreateError("资源未启动")
         return args
 
+    def get_project_status(self):
+        status = "closed" if self.__args == "参数不存在" else "started"
+        return status
+
     def get_parameter(self, parameter_key):
         return self.__args.get(parameter_key)
 

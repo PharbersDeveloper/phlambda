@@ -71,6 +71,7 @@ class GenerateInvoker(object):
                 target_name=target_name,
                 target_ip=target_ip,
                 project_id=project_id,
+                project_message=self.project_message,
                 action_id=self.action_id).execute()
         except Exception as e:
             status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)

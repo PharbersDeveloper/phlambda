@@ -20,13 +20,13 @@ class GetResourceStatus(object):
     def name_convert_to_camel(self, name):
         return re.sub(r'(_[a-z])', lambda x: x.group(1)[1], name.lower())
 
-    def get_resource_status(self, target_name):
+    def get_resource_status(self, project_id):
         res = self.ssm.get_ssm_parameter("resource_status")
         status = "closed"
         started_number = 0
         action_id = "default_action_id"
         for resource in res:
-            if resource.get("projectName") == target_name:
+            if resource.get("projectId") == project_id:
                 status = resource.get("status", "closed")
                 action_id = resource.get("actionId", "default_actionId")
             if resource.get("status") == "started" or resource.get("status") == "starting":
@@ -40,13 +40,12 @@ class GetResourceStatus(object):
 
     def put_resource_status(self, status, action_id):
         res = self.ssm.get_ssm_parameter("resource_status")
-        target_name = self.name_convert_to_camel(self.event.get("projectName"))
+        project_id = self.event.get("projectId")
         for resource in res:
-            if resource.get("projectName") == target_name:
+            if resource.get("projectId") == project_id:
                 args_index = res.index(resource)
                 res.pop(args_index)
         resource = {
-            "projectName": target_name,
             "status": status,
             "actionId": action_id,
             "projectId": self.event.get("projectId")
@@ -96,17 +95,15 @@ class GetResourceStatus(object):
         return msg
 
     def get_status_execute(self):
-        project_name = self.event.get("projectName")
-        target_name = self.name_convert_to_camel(project_name)
-        msg = self.get_resource_status(target_name)
+        project_id = self.event.get("projectId")
+        msg = self.get_resource_status(project_id)
 
         return msg
 
     def resource_execute(self):
 
-        project_name = self.event.get("projectName")
-        target_name = self.name_convert_to_camel(project_name)
-        msg = self.get_resource_status(target_name)
+        project_id = self.event.get("projectId")
+        msg = self.get_resource_status(project_id)
         if self.resource_type == "start" and msg.get("resource_status") == "closed":
             # 创建action 并且 更新ssm
             status = "starting"

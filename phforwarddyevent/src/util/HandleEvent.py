@@ -2,6 +2,13 @@ import json
 #from phmetrixlayer import aws_cloudwatch_put_metric_data
 from util.phmetrixlayer import aws_cloudwatch_put_metric_data
 
+# TODO: HandlerEvent与EventTracking这层抽象继承其实是没有必要的原因有以下几点
+# 1、你的HandlerEvent只是对数据进行解析而已，最简单的形式是将整个event你需要的数据进行Map化也就是形式Python的字典，根据字典这种数据结构进行操作
+# 2、从考虑层面上看JobCat如果有增加并且格式又不一样的情况下，你的EventTracking必然要进行较大幅度的改动，这不符合里氏替换原则与模块化解耦
+# 3、尽量不要使用Python的推导式，在数据量大的情况下有很大的问题
+# 4、有logger模块要使用logger模块，不要用print来替代logger的作用
+# 5、将项目中与你的逻辑无关的代码请删除，以免造成不必要的误会
+# 6、单元测试是有pytest这个库来操作、对应的功能点要有对应的test测试用例，结果用assert进行断言判断
 class HandleEvent(object):
     def __init__(self, event):
         self.Records = event['Records'][0]

@@ -168,7 +168,7 @@ class Csv:
             for i, dataf in enumerate(data_list):
                 dataf["version"] = version
                 # dataf1 = dataf.drop(labels=skip,axis=0)
-                data_l = dataf.values.tolist()
+                datal = dataf.values.tolist()
 
 
 
@@ -176,24 +176,24 @@ class Csv:
                     print("not schema insert to clickhouse-------------------")
                     if not skip_first:
                         schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
-                                   enumerate(data_l.pop(0))]
+                                   enumerate(datal.pop(0))]
                         self.schema = ["version" if schem == version else schem for schem in schemas]
                     if skip_first:
                         print("will to clickhosue-------------------------------------")
-                        data_l = data_l[skip_first:]
+                        datal = datal[skip_first:]
                         schemas = [f"col_{count}" if str(col) == "nan" or not col else str(col) for count, col in
-                                   enumerate(data_l.pop(0))]
+                                   enumerate(datal.pop(0))]
                         self.schema = ["version" if schem == version else schem for schem in schemas]
                         print(self.schema)
                     for i in range(skip_next):
-                        data_l.pop(0)
+                        datal.pop(0)
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
-                    new_data = self.parse_data(data_l, version)
+                    new_data = self.parse_data(datal, version)
                     if not self.toclickhouse(table_name, new_data):
                         raise ColumnDuplicate("column duplication")
 
-                self.do_parquet(data_l, out_file_name)
+                self.do_parquet(datal, out_file_name)
 
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
             print("success------------------------------------------------------------------------")

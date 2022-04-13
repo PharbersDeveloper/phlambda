@@ -21,7 +21,7 @@
             "S": "hbzhao_test_projectId"
           },
           "message": {
-            "S": "{\"actionName\":\"csv1\",\"dsid\":\"e0d777fe169007f8c3ebb88c273d145e.csv\",\"projectName\":\"dag_refresh_mzhang_test\",\"opname\":\"test_mzhang\",\"destination\":\"csv1\",\"schema\":[{\"src\":\"包装数量\",\"des\":\"包装数量\",\"type\":\"Double\"}]}"
+            "S": "{\"actionName\":\"csv1\",\"dsid\":\"e0d777fe169007f8c3ebb88c273d145e.csv\",\"projectName\":\"project_file_to_DS_test_mzhang_test\",\"opname\":\"test_mzhang\",\"destination\":\"csv1\",\"schema\":[{\"src\":\"包装数量\",\"des\":\"包装数量\",\"type\":\"Double\"}]}"
           },
           "code": {
             "S": "0"
@@ -42,7 +42,7 @@
             "S": "c89b8123-a120-498f-963c-5be102ee9082"
           },
           "jobCat": {
-            "S": "dag_refresh"
+            "S": "project_file_to_DS"
           }
         },
         "SequenceNumber": "4262900000000003683290840",

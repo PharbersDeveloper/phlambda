@@ -1,7 +1,7 @@
 import boto3
 import json
 from util.GenerateID import GenerateID
-from phmetrixlayer import aws_cloudwatch_put_metric_data
+from util.HandleEvent import HandleEvent, EventTracking
 import os
 
 evn_mode = "V2" if str(os.getenv("EDITION")).strip().lower() == "v2" else "dev"
@@ -28,14 +28,13 @@ def handle_sqs_key(input_dict):
     return sqs_dict
 jobcat_queue_urls = handle_sqs_key(jobcat_queue_urls)
 
+
 class SQS(object):
 
     def __init__(self, **kwargs):
         self.sqs_client = boto3.client('sqs')
 
-    def handle_jobcat(self, event):
-        dynamodb_data, message_data = self.parse_event_parameters(event)
-        jobcat_name = dynamodb_data['jobCat']['S']
+    def handle_jobcat(self, jobcat_name):
         if str(jobcat_name).lower() in list(jobcat_queue_urls.keys()):
             sqs_url = jobcat_queue_urls[str(jobcat_name).lower()]
         else:
@@ -43,37 +42,12 @@ class SQS(object):
             sqs_url = None
         return jobcat_name, sqs_url
 
-    def parse_event_parameters(self, event):
-        dynamodb = event['Records'][0]['dynamodb']
-        dynamodb_data = dynamodb['NewImage']
-        message_data = json.loads(dynamodb_data['message']['S'])
-        return dynamodb_data, message_data
-
-    #--埋点
-    def event_tracking(self, event):
-        dynamodb_data, message_data = self.parse_event_parameters(event)
-        project_id = dynamodb_data['projectId']['S']
-        #project_name = message_data['project_name']
-        #project_name = message_data.get("project_name", message_data.get("projectName"))
-        project_name = message_data["project_name"] if "project_name" in list(message_data.keys()) else message_data["projectName"]
-        current_user_id = message_data.get("opname") if "opname" in list(message_data.keys()) else message_data["conf"]["ownerId"]
-        current_name = dynamodb_data['owner']['S']
-        action_mode = dynamodb_data['jobCat']['S']
-        #action_detail = dynamodb_data['jobDesc']['S']
-        action_detail = dynamodb_data["jobDesc"]["S"] if "jobDesc" in list(dynamodb_data.keys()) else message_data['conf']['jobDesc']
-
-        return aws_cloudwatch_put_metric_data(project_id,
-                                       project_name,
-                                       current_user_id,
-                                       current_name,
-                                       action_mode,
-                                       action_detail)
-
     def sqs_send_message(self, message):
 
-       #--基于jobcat 分发
+        handle_event = HandleEvent(message)
+        jobcat_name, Queue_Url = self.handle_jobcat(handle_event.get_jobCat())
+        #--基于jobcat 分发
         try:
-            jobcat_name, Queue_Url = self.handle_jobcat(message)
             if Queue_Url == None:
                 print(f"jobCat: {jobcat_name}, 发消息到队列 {Queue_Url} 失败")
             else:
@@ -84,9 +58,10 @@ class SQS(object):
                     MessageDeduplicationId=GenerateID().generate()
                 )
                 print(f"jobCat: {jobcat_name}, 发消息到队列 {Queue_Url} 成功")
-                print("*"*50 + "event tracking" + "*"*50)
-                self.event_tracking(message)
+                #--埋点触发
+                print("-------->> 埋点触发")
+                EventTracking(message).event_tracking_with_jobcat()
         except Exception as e:
-            #print(f"jobCat: {jobcat_name}, 发消息到队列{Queue_Url}失败")
+            #print(f"jobCat: {jobcat_name}, 发消息到队列 {Queue_Url} 失败")
             print("*"*50 + "错误信息" + "*"*50)
             print(str(e))

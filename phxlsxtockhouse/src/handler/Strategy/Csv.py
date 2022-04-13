@@ -190,8 +190,8 @@ class Csv:
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
                     new_data = self.parse_data(data_l, version)
-                    if not self.toclickhouse(table_name, new_data):
-                        raise ColumnDuplicate("column duplication")
+                    # if not self.toclickhouse(table_name, new_data):
+                    #     raise ColumnDuplicate("column duplication")
 
                 self.do_parquet(data_l, out_file_name)
 

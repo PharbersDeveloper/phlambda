@@ -16,12 +16,13 @@ class VersionReceiver(Receiver):
 
         des_table_name = data["ds_name"]
         dsId = data["ds_id"]
+        version = data.get("version")
 
         self.dynamodb.putData({
             "table_name": "version",
             "item": {
                 "id": data["project_id"]+"_"+dsId,
-                "name": des_table_name,
+                "name": version,
                 "projectId": data["project_id"],
                 "datasetId": dsId,
                 "date": str(int(time.time() * 1000)),

@@ -13,3 +13,12 @@ def lambda_handler(event, context):
     else:
         status = "success"
         print(status)
+
+
+
+'''
+if __name__ == '__main__':
+    with open("../events/event_create_project.json") as f:
+        event = json.load(f)
+    lambda_handler(event, "")
+'''

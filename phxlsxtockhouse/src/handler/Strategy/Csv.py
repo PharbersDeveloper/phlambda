@@ -107,7 +107,8 @@ class Csv:
         print(key)
         self.PhS3.upload_dir(path, 'ph-platform', key)
 
-    def do_parquet(self, dataf, file_name):
+    def do_parquet(self, datal, file_name):
+        dataf = pd.DataFrame(datal)
         dataf.columns = self.schema
         dataf.to_parquet(file_name, index=False, partition_cols="version")
 
@@ -168,6 +169,9 @@ class Csv:
                 dataf["version"] = version
                 # dataf1 = dataf.drop(labels=skip,axis=0)
                 data_l = dataf.values.tolist()
+
+
+
                 if self.whileonce:
                     print("not schema insert to clickhouse-------------------")
                     if not skip_first:
@@ -189,13 +193,14 @@ class Csv:
                     if not self.toclickhouse(table_name, new_data):
                         raise ColumnDuplicate("column duplication")
 
-                self.do_parquet(dataf, out_file_name)
+                self.do_parquet(data_l, out_file_name)
 
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
             print("success------------------------------------------------------------------------")
             SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
             SaveDagCommand(DagReceiver()).execute(parameters)
             SaveDagCommand(VersionReceiver()).execute(parameters)
+            print("dynamodb---------------success--------------------------------------------------")
 
         except ColumnDuplicate as e:
             raise e

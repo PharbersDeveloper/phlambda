@@ -1,0 +1,55 @@
+{
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "id": {
+            "S": "hbzhao_test_actionId"
+          },
+          "projectId": {
+            "S": "hbzhao_test_projectId"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "hbzhao_test_projectId"
+          },
+          "message": {
+            "S": "[{\"actionName\":\"csv1\",\"dsid\":\"e0d777fe169007f8c3ebb88c273d145e.csv\",\"projectName\":\"clear_ds_data_test_mzhang\",\"opname\":\"test_mzhang\",\"destination\":\"csv1\",\"schema\":[{\"src\":\"包装数量\",\"des\":\"包装数量\",\"type\":\"Double\"}]}]"
+          },
+          "code": {
+            "S": "0"
+          },
+          "id": {
+            "S": "hbzhao_test_actionId"
+          },
+          "date": {
+            "S": "1637756524405"
+          },
+          "jobDesc": {
+            "S": "succeed"
+          },
+          "comments": {
+            "S": "clear_dataset_tags"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "clear_DS_data"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
+}

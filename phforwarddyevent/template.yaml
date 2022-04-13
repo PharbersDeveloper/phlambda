@@ -20,7 +20,7 @@ Resources:
       Timeout: 600
       Environment:
         Variables:
-          EDITION: "V2"
+          EDITION: "dev"
           NAME_SPACE: "pharbers-project"
           METRIC_NAME: "project-monitor"
 

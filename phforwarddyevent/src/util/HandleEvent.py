@@ -1,5 +1,5 @@
 import json
-#from phmetrixlayer import aws_cloudwatch_put_metric_data
+from phmetrixlayer import aws_cloudwatch_put_metric_data
 from util.phmetrixlayer import aws_cloudwatch_put_metric_data
 
 # TODO: HandlerEvent与EventTracking这层抽象继承其实是没有必要的原因有以下几点

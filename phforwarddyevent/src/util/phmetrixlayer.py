@@ -2,10 +2,8 @@ import boto3
 import os
 
 def aws_cloudwatch_put_metric_data(project_id, project_name, current_user_id, current_name, action_mode, action_detail, value=None, unit=None):
-    #name_space = os.getenv("NAME_SPACE")
-    #metric_name = os.getenv("METRIC_NAME")
-    name_space = "pharbers-project"
-    metric_name = "project-monitor"
+    name_space = os.getenv("NAME_SPACE")
+    metric_name = os.getenv("METRIC_NAME")
     prefix_of_dict = ["Name", "Value"]
     dimensions_parmateters = [("projectId", project_id),
                               ("projectName", project_name),

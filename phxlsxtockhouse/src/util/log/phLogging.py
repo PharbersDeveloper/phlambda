@@ -1,5 +1,4 @@
 import logging
-from util.ClieckHouse import SingletonMetaClass
 
 LOG_DEBUG_LEVEL = logging.DEBUG
 LOG_INFO_LEVEL = logging.INFO
@@ -8,7 +7,7 @@ LOG_ERROR_LEVEL = logging.ERROR
 LOG_DEFAULT_LEVEL = LOG_INFO_LEVEL
 
 
-class PhLogging(metaclass=SingletonMetaClass):
+class PhLogging(object):
 
     def __init__(self):
         pass

@@ -29,9 +29,7 @@ class Csv:
         self.whileonce = True
         self.clickhouse_client = None
         self.PhS3 = PhS3()
-        self.dynamodb_resource = boto3.resource("dynamodb", region_name=os.environ.get("REGION_NAME"),
-                                                aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-                                                aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
+        self.dynamodb_resource = boto3.resource("dynamodb")
 
     def __create_clickhouse(self, projectId):
         result = self.scanTable({

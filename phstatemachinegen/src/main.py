@@ -33,6 +33,11 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     return response
 
 
+def messageAdapter(x):
+    x['ll'] = json.loads(x['cmessage'])
+    return x
+
+
 def lambda_handler(event, context):
     print(event)
     dt = datetime.now()

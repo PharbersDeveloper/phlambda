@@ -2,11 +2,6 @@ import json
 from collections import deque
 
 
-def messageAdapter(x):
-    x['ll'] = json.loads(x['cmessage'])
-    return x
-
-
 def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     projectName = event['projectName']
     flowVersion = 'developer'

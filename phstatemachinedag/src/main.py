@@ -34,18 +34,19 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
+    stackName = event['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
     # 1. put notification
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'])
     
     # 2. create state via cloudformation
     client = boto3.client('cloudformation')
     response = client.create_stack(
-        StackName=event['runnerId'],
+        StackName=stackName, # event['runnerId'],
         TemplateURL='https://ph-max-auto.s3.cn-northwest-1.amazonaws.com.cn/2020-08-11/steps-cfn.yaml',
         Parameters=[
             {
                 'ParameterKey': 'StateMachineName',
-                'ParameterValue': event['runnerId']
+                'ParameterValue': stackName #event['runnerId']
             },
             {
                 'ParameterKey': 'S3Bucket',
@@ -61,7 +62,7 @@ def lambda_handler(event, context):
     # 3. sync the creation status
     while True:
         response = client.describe_stacks(
-            StackName=event['runnerId']
+            StackName=stackName # event['runnerId']
         )
         print(response)
         
@@ -70,4 +71,4 @@ def lambda_handler(event, context):
 
         # TODO: Failed logic  AlreadyExistsException
     
-    return 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:' + event['runnerId']
+    return 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:' + stackName # event['runnerId']

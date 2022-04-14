@@ -32,51 +32,13 @@ class Csv:
         self.dynamodb_resource = boto3.resource("dynamodb")
 
     def __create_clickhouse(self, projectId):
-        result = self.scanTable({
-            "table_name": "resource",
-            "limit": 100000,
-            "expression": Attr("projectId").eq(projectId),
-            "start_key": ""
-        })["data"]
-        ip = os.environ.get("CLICKHOUSE_HOST")
-        if len(result) > 0:
-            ip = result[0]["projectIp"]
-        self.clickhouse_client = Client(host=ip, port=os.environ.get("CLICKHOUSE_PORT"))
+        self.clickhouse_client = Common.EXTERNAL_SERVICES["clickhouse"](projectId)
 
     def parse_data(self, data: list):
         print(data)
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
         return list(map(lambda x: dict(zip(self.schema, x)),
                         [[str(j) if str(j) != "nan" else "None" for j in i] for i in data]))
-
-    def scanTable(self, data):
-        table_name = data["table_name"]
-        limit = data["limit"]
-        expression = data["expression"]
-        start_key = data["start_key"]
-        table = self.dynamodb_resource.Table(table_name)
-        try:
-            if len(start_key) == 0:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                )
-            else:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                    ExclusiveStartKey=start_key
-                )
-            return {
-                "data": result.get("Items"),
-                "start_key": result.get("LastEvaluatedKey", "{}")
-            }
-        except Exception as e:
-            print(e)
-            return {
-                "data": [],
-                "start_key": {}
-            }
 
     def createClickhouTableSql(self, table_name, database='default', order_by='', partition_by='version'):
         print(table_name)
@@ -99,7 +61,18 @@ class Csv:
         dataf.columns = self.schema
         dataf.to_parquet(file_name, index=False, partition_cols="version")
 
-    def toclickhouse(self, table_name, data):
+
+    def check_version(self, table_name, version):
+        # Check Version
+        count_sql = f"SELECT COUNT(1) FROM " \
+                    f"{os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` " \
+                    f"WHERE version = '{version}'"
+
+        count = self.clickhouse.get_count(count_sql)
+        if count > 0:
+            return True
+
+    def toclickhouse(self, table_name, data, version):
         print("to clickhouse -------------------------")
         print(table_name)
         print(self.schema)
@@ -111,6 +84,9 @@ class Csv:
         print(create_sql)
 
         self.clickhouse_client.execute(create_sql)
+        if self.check_version(table_name, version):
+            print("version-----error------------------")
+            raise VersionAlreadyExist("version already exist")
         self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
         return True
 
@@ -178,7 +154,7 @@ class Csv:
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
                     new_data = self.parse_data(datal)
-                    if not self.toclickhouse(table_name, new_data):
+                    if not self.toclickhouse(table_name, new_data, version):
                         raise ColumnDuplicate("column duplication")
                     print("toclickhouse--------------success---------------------------------------------------------")
                 self.do_parquet(datal, out_file_name)
@@ -208,6 +184,8 @@ class Csv:
             SaveDagCommand(VersionReceiver()).execute(parameters)
             print("dynamodb---------------success--------------------------------------------------")
 
+        except VersionAlreadyExist as e:
+            raise e
         except ColumnDuplicate as e:
             raise e
         except Exception as e:

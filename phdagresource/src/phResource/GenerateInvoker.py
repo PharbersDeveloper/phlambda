@@ -89,13 +89,12 @@ class GenerateInvoker(object):
 
         project_name = self.project_message.get("projectName")
         project_id = self.project_message.get("projectId")
-        content = self.project_message.get("content")
         target_name = self.name_convert_to_camel(project_name)
-        logger.debug(target_name)
+        logger.debug(project_id)
 
         try:
             # 删除ec2 实例
-            CommandDelProject(target_name=project_id).execute()
+            CommandDelProject(project_id=project_id).execute()
         except Exception as e:
             status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)

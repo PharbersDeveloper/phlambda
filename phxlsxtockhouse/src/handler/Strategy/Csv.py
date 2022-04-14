@@ -32,51 +32,14 @@ class Csv:
         self.dynamodb_resource = boto3.resource("dynamodb")
 
     def __create_clickhouse(self, projectId):
-        result = self.scanTable({
-            "table_name": "resource",
-            "limit": 100000,
-            "expression": Attr("projectId").eq(projectId),
-            "start_key": ""
-        })["data"]
-        ip = os.environ.get("CLICKHOUSE_HOST")
-        if len(result) > 0:
-            ip = result[0]["projectIp"]
-        self.clickhouse_client = Client(host=ip, port=os.environ.get("CLICKHOUSE_PORT"))
+        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](projectId)
+        self.clickhouse_client = self.clickhouse.getClient()
 
-    def parse_data(self, data: list, version):
+    def parse_data(self, data: list):
         print(data)
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
         return list(map(lambda x: dict(zip(self.schema, x)),
                         [[str(j) if str(j) != "nan" else "None" for j in i] for i in data]))
-
-    def scanTable(self, data):
-        table_name = data["table_name"]
-        limit = data["limit"]
-        expression = data["expression"]
-        start_key = data["start_key"]
-        table = self.dynamodb_resource.Table(table_name)
-        try:
-            if len(start_key) == 0:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                )
-            else:
-                result = table.scan(
-                    FilterExpression=expression,
-                    Limit=limit,
-                    ExclusiveStartKey=start_key
-                )
-            return {
-                "data": result.get("Items"),
-                "start_key": result.get("LastEvaluatedKey", "{}")
-            }
-        except Exception as e:
-            print(e)
-            return {
-                "data": [],
-                "start_key": {}
-            }
 
     def createClickhouTableSql(self, table_name, database='default', order_by='', partition_by='version'):
         print(table_name)
@@ -99,19 +62,36 @@ class Csv:
         dataf.columns = self.schema
         dataf.to_parquet(file_name, index=False, partition_cols="version")
 
-    def toclickhouse(self, table_name, data):
+
+    def check_version(self, table_name, version):
+        # Check Version
+        count_sql = f"SELECT COUNT(1) FROM " \
+                    f"{os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` " \
+                    f"WHERE version = '{version}'"
+
+        count = self.clickhouse.get_count(count_sql)
+        if count > 0:
+            print("version-----error------------------")
+            raise VersionAlreadyExist("version already exist")
+
+    def toclickhouse(self, table_name, data, version):
         print("to clickhouse -------------------------")
+        print(table_name)
         print(self.schema)
         print(data)
         if len(self.schema) != len(data[0]):
             print("col-----error---------------------")
-            return False
+            raise ColumnDuplicate("column duplication")
         create_sql = self.createClickhouTableSql(table_name)
         print(create_sql)
 
         self.clickhouse_client.execute(create_sql)
-        self.clickhouse_client.execute(f'INSERT INTO {table_name} VALUES', data)
-        return True
+        self.check_version(table_name, version)
+        try:
+            self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
+        except:
+            print("schema----------error---------------")
+            raise SchemaNotMatched("schema not matched")
 
     def do_exec(self, data):
         try:
@@ -140,7 +120,7 @@ class Csv:
 
             version = parameters.get("version")
             filename = parameters.get("file_name")
-            ds_name = parameters.get("ds_name")
+            ds_name = parameters.get("ds_name").encode("utf-8").decode()
             projectId = parameters.get("project_id")
             path = f"/mnt/tmp/{projectId}/tmp/{filename}"
             data_list = pd.read_csv(path, chunksize=10000, header=None)
@@ -176,12 +156,11 @@ class Csv:
                         datal.pop(0)
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
-                    new_data = self.parse_data(datal, version)
-                    if not self.toclickhouse(table_name, new_data):
-                        raise ColumnDuplicate("column duplication")
-
+                    new_data = self.parse_data(datal)
+                    self.toclickhouse(table_name, new_data, version)
+                    print("toclickhouse--------------success---------------------------------------------------------")
                 self.do_parquet(datal, out_file_name)
-
+                print("doparquet--------------success---------------------------------------------------------")
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
 
             # TODO: 这个scan要改
@@ -207,6 +186,10 @@ class Csv:
             SaveDagCommand(VersionReceiver()).execute(parameters)
             print("dynamodb---------------success--------------------------------------------------")
 
+        except VersionAlreadyExist as e:
+            raise e
+        except SchemaNotMatched as e:
+            raise e
         except ColumnDuplicate as e:
             raise e
         except Exception as e:

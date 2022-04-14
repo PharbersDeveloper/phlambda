@@ -24,6 +24,10 @@ Resources:
           LOCK_APP_NAME: ds2clickhouse
           CHECK_APP_NAME: rmds
           EDITION: "DEV"
+          REGION_NAME: cn-northwest-1
+          AWS_ACCESS_KEY_ID: AKIAWPBDTVEANKEW2XNC
+          AWS_SECRET_ACCESS_KEY: 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
+
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1

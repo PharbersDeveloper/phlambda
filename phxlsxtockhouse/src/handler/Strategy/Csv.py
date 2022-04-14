@@ -29,9 +29,9 @@ class Csv:
         self.whileonce = True
         self.clickhouse_client = None
         self.PhS3 = PhS3()
-        self.dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                                                aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                                                aws_secret_access_key="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")
+        self.dynamodb_resource = boto3.resource("dynamodb", region_name=os.environ.get("REGION_NAME"),
+                                                aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+                                                aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
 
     def __create_clickhouse(self, projectId):
         result = self.scanTable({
@@ -50,18 +50,6 @@ class Csv:
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
         return list(map(lambda x: dict(zip(self.schema, x)),
                         [[str(j) if str(j) != "nan" else "None" for j in i] for i in data]))
-
-    def exists_table(self, table_name):
-        clickhouse_tables = [clickhouse_table[0] for clickhouse_table in self.clickhouse_client.execute("show tables")]
-        print("exists_table-------------------------------")
-        # print(clickhouse_tables)
-        if not table_name in clickhouse_tables:
-            sql_create_table = self.createClickhouTableSql(table_name)
-            print(sql_create_table)
-            self.clickhouse_client.execute(sql_create_table)
-            print(True)
-        print(False)
-        # outClickhouse(df, tb, clickhouse_ip, database=db)
 
     def scanTable(self, data):
         table_name = data["table_name"]
@@ -161,6 +149,7 @@ class Csv:
             table_name = f"{projectId}_{ds_name}"
             skip_first = int(parameters.get("skip_first"))
             skip_next = int(parameters.get("skip_next"))
+            version = version.encode("utf-8").decode()
             print(skip_next)
             print(skip_first)
 
@@ -170,7 +159,6 @@ class Csv:
                 dataf["version"] = version
                 # dataf1 = dataf.drop(labels=skip,axis=0)
                 datal = dataf.values.tolist()
-
 
 
                 if self.whileonce:
@@ -224,5 +212,6 @@ class Csv:
         except ColumnDuplicate as e:
             raise e
         except Exception as e:
+            print(e)
             raise Errors(e)
         return parameters

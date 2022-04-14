@@ -6,34 +6,38 @@ import src.app as app
 
 
 class TestLmd:
-    def test_lmd(self):
-        # event = json.loads(event.get("Records")[0].get("body"))
 
-        # event = open("../events/event_csv_skip_first.json", "r").read()
-        # event = {"Records": [{"body": event}]}
-        # result = main.lambda_handler(event, None)
-        # print(result)
+    def test_lmd_csv_skip_first(self):
+        event = open("../events/event_csv_skip_first.json", "r").read()
+        event = {"Records": [{"body": event}]}
+        result = main.lambda_handler(event, None)
+        print(result)
 
-        # event = open("../events/event_csv_skip_next.json", "r").read()
-        # event = {"Records": [{"body": event}]}
-        # result = main.lambda_handler(event, None)
-        # print(result)
+    def test_lmd_csv_skip_next(self):
+        event = open("../events/event_csv_skip_next.json", "r").read()
+        event = {"Records": [{"body": event}]}
+        result = main.lambda_handler(event, None)
+        print(result)
 
-        # event = open("../events/event_csv_skip_first_and_next.json", "r").read()
-        # event = {"Records": [{"body": event}]}
-        # result = main.lambda_handler(event, None)
-        # print(result)
+    def test_lmd_csv_skip_first_and_next(self):
+        event = open("../events/event_csv_skip_first_and_next.json", "r").read()
+        event = {"Records": [{"body": event}]}
+        result = main.lambda_handler(event, None)
+        print(result)
 
-        # event = open("../events/event_cpcol_csv_skip_first.json", "r").read()
-        # event = {"Records": [{"body": event}]}
-        # result = main.lambda_handler(event, None)
-        # print(result)
+    def test_lmd_cpcol_csv_skip_first(self):
+        event = open("../events/event_cpcol_csv_skip_first.json", "r").read()
+        event = {"Records": [{"body": event}]}
+        result = main.lambda_handler(event, None)
+        print(result)
 
-        # event = open("../events/event_cpcol_csv_skip_next.json", "r").read()
-        # event = {"Records": [{"body": event}]}
-        # result = main.lambda_handler(event, None)
-        # print(result)
+    def test_lmd_cpcol_csv_skip_next(self):
+        event = open("../events/event_cpcol_csv_skip_next.json", "r").read()
+        event = {"Records": [{"body": event}]}
+        result = main.lambda_handler(event, None)
+        print(result)
 
+    def test_lmd_cpcol_csv_skip_first_and_next(self):
         event = open("../events/event_cpcol_csv_skip_first_and_next.json", "r").read()
         event = {"Records": [{"body": event}]}
         result = main.lambda_handler(event, None)

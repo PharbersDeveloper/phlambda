@@ -11,6 +11,7 @@ from boto3.dynamodb.conditions import Attr
 import os
 import re
 from clickhouse_driver import Client
+import constants.Common as Common
 import json
 
 
@@ -20,7 +21,7 @@ class Csv:
     write_once = None
 
     def __init__(self):
-        # self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
+        self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
         # self.msg_receiver = MsgReceiver()
         # self.logger = PhLogging().phLogger("Excel XLSX TYPE", LOG_DEBUG_LEVEL)
         self.file_name_list = []
@@ -28,9 +29,7 @@ class Csv:
         self.whileonce = True
         self.clickhouse_client = None
         self.PhS3 = PhS3()
-        self.dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                                                aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                                                aws_secret_access_key="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")
+        self.dynamodb_resource = boto3.resource("dynamodb")
 
     def __create_clickhouse(self, projectId):
         result = self.scanTable({
@@ -49,18 +48,6 @@ class Csv:
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
         return list(map(lambda x: dict(zip(self.schema, x)),
                         [[str(j) if str(j) != "nan" else "None" for j in i] for i in data]))
-
-    def exists_table(self, table_name):
-        clickhouse_tables = [clickhouse_table[0] for clickhouse_table in self.clickhouse_client.execute("show tables")]
-        print("exists_table-------------------------------")
-        # print(clickhouse_tables)
-        if not table_name in clickhouse_tables:
-            sql_create_table = self.createClickhouTableSql(table_name)
-            print(sql_create_table)
-            self.clickhouse_client.execute(sql_create_table)
-            print(True)
-        print(False)
-        # outClickhouse(df, tb, clickhouse_ip, database=db)
 
     def scanTable(self, data):
         table_name = data["table_name"]
@@ -160,6 +147,7 @@ class Csv:
             table_name = f"{projectId}_{ds_name}"
             skip_first = int(parameters.get("skip_first"))
             skip_next = int(parameters.get("skip_next"))
+            version = version.encode("utf-8").decode()
             print(skip_next)
             print(skip_first)
 
@@ -169,7 +157,6 @@ class Csv:
                 dataf["version"] = version
                 # dataf1 = dataf.drop(labels=skip,axis=0)
                 datal = dataf.values.tolist()
-
 
 
                 if self.whileonce:
@@ -196,6 +183,24 @@ class Csv:
                 self.do_parquet(datal, out_file_name)
 
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
+
+            # TODO: 这个scan要改
+            ds_result = self.dynamodb.scanTable({
+                "table_name": "dataset",
+                "limit": 100000,
+                "expression": Attr("name").eq(parameters["ds_name"]) & Attr("projectId").eq(parameters["project_id"]),
+                "start_key": ""
+            })["data"]
+
+            ds_id = parameters["file_name"]
+            label = "[]"
+            if len(ds_result) > 0:
+                ds_id = ds_result[0]["id"]
+                label = ds_result[0]["label"]
+
+            parameters["ds_id"] = ds_id
+            parameters["label"] = label
+
             print("success------------------------------------------------------------------------")
             SaveDataSetCommand(DataSetReceiver()).execute(parameters)  # 建DynamoDB Dataset索引
             SaveDagCommand(DagReceiver()).execute(parameters)
@@ -205,5 +210,6 @@ class Csv:
         except ColumnDuplicate as e:
             raise e
         except Exception as e:
+            print(e)
             raise Errors(e)
         return parameters

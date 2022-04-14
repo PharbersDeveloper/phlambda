@@ -32,7 +32,8 @@ class Csv:
         self.dynamodb_resource = boto3.resource("dynamodb")
 
     def __create_clickhouse(self, projectId):
-        self.clickhouse_client = Common.EXTERNAL_SERVICES["clickhouse"](projectId)
+        self.clickhouse = Common.EXTERNAL_SERVICES["clickhouse"](projectId)
+        self.clickhouse_client = self.clickhouse.getClient()
 
     def parse_data(self, data: list):
         print(data)
@@ -87,7 +88,11 @@ class Csv:
         if self.check_version(table_name, version):
             print("version-----error------------------")
             raise VersionAlreadyExist("version already exist")
-        self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
+        try:
+            self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
+        except:
+            print("schema----------error---------------")
+            raise SchemaNotMatched("schema not matched")
         return True
 
     def do_exec(self, data):
@@ -185,6 +190,8 @@ class Csv:
             print("dynamodb---------------success--------------------------------------------------")
 
         except VersionAlreadyExist as e:
+            raise e
+        except SchemaNotMatched as e:
             raise e
         except ColumnDuplicate as e:
             raise e

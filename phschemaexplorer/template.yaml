@@ -23,7 +23,7 @@ Resources:
         Variables:
           PATH_PREFIX: /mnt/tmp/{}/tmp/
           EDITION: "DEV"
-      Timeout: 30
+      Timeout: 600
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

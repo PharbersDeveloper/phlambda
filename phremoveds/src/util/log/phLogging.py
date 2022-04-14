@@ -8,12 +8,17 @@ LOG_ERROR_LEVEL = logging.ERROR
 LOG_DEFAULT_LEVEL = LOG_INFO_LEVEL
 
 
-class PhLogging(metaclass=SingletonMetaClass):
+class PhLogging(object):
 
     def __init__(self):
         pass
 
     def phLogger(self, logger_name, level=LOG_DEFAULT_LEVEL):
+
+        # root = logging.getLogger()
+        # if root.handlers:
+        #     for handler in root.handlers:
+        #         root.removeHandler(handler)
 
         logging.basicConfig(level=level,
                             format="%(asctime)s %(name)s %(module)s %(levelname)s %(message)s",

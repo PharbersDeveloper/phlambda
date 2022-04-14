@@ -22,7 +22,7 @@ class RemoveJob:
                     "job_name": message["jobName"],
                     "flow_version": message["flowVersion"]
                 })
-            
+
             suffix = ""
             if os.environ["EDITION"] == "DEV":
                 suffix = "_dev"
@@ -38,7 +38,9 @@ class RemoveJob:
                     "message": json.dumps({
                         "projectId": item["projectId"],
                         "flowVersion": messages[0]["flowVersion"] if len(messages) > 0 else "developer",
-                        "jobCat": "dag_refresh"
+                        "jobCat": "dag_refresh",
+                        "opname": item["owner"],
+                        "projectName": messages[0].get("projectName", "") if len(messages) > 0 else ""
                     }),
                     "owner": item["owner"],
                     "showName": item["showName"]

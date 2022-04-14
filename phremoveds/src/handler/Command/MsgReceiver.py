@@ -18,7 +18,7 @@ class MsgReceiver(Receiver):
         action_item = dict({}, **data["data"])
         action_item["message"] = json.dumps(action_item["message"], ensure_ascii=False)
         # action_item["jobDesc"] = status
-        print(f"Action ====> {status}")
+        self.logger.debug(f"Action ====> {status}")
         self.dynamodb.putData({
             "table_name": "action" + dev,
             "item": action_item

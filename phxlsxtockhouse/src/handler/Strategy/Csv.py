@@ -111,7 +111,7 @@ class Csv:
         print(create_sql)
 
         self.clickhouse_client.execute(create_sql)
-        self.clickhouse_client.execute(f'INSERT INTO {table_name} VALUES', data)
+        self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
         return True
 
     def do_exec(self, data):

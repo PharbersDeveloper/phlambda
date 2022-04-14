@@ -2,7 +2,7 @@ from util.ClieckHouse import SingletonMetaClass
 from redis import ConnectionPool, Redis
 
 
-class PhRedis(metaclass=SingletonMetaClass):
+class PhRedis(object):
 
     def __init__(self, **kwargs):
         pool = ConnectionPool(**kwargs, max_connections=10, decode_responses=True)

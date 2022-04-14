@@ -8,7 +8,7 @@ class SingletonMetaClass(type):
         return cls._instance
 
 
-class ClickHouse(metaclass=SingletonMetaClass):
+class ClickHouse(object):
     def __init__(self, *args, **kwargs):
         self.__client = Client(*args, **kwargs)
 

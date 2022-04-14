@@ -1,6 +1,6 @@
 import json
 from phmetrixlayer import aws_cloudwatch_put_metric_data
-from util.phmetrixlayer import aws_cloudwatch_put_metric_data
+#from util.phmetrixlayer import aws_cloudwatch_put_metric_data
 
 # TODO: HandlerEvent与EventTracking这层抽象继承其实是没有必要的原因有以下几点
 # 1、你的HandlerEvent只是对数据进行解析而已，最简单的形式是将整个event你需要的数据进行Map化也就是形式Python的字典，根据字典这种数据结构进行操作

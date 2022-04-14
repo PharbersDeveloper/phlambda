@@ -177,7 +177,7 @@ class Csv:
                         datal.pop(0)
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
-                    new_data = self.parse_data(datal, version)
+                    new_data = self.parse_data(datal)
                     if not self.toclickhouse(table_name, new_data):
                         raise ColumnDuplicate("column duplication")
                     print("toclickhouse--------------success---------------------------------------------------------")

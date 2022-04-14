@@ -26,21 +26,12 @@ def execute(**kwargs):
 
     def get_project_ip(project_id, project_name):
 
-        def name_convert_to_camel(name):
-            return re.sub(r'(_[a-z])', lambda x: x.group(1)[1], name.lower())
-
-        target_name = name_convert_to_camel(project_name)
-
-        table = dynamodb_resource.Table("resource")
-        key = {
-            "projectName": target_name,
-            "projectId": project_id
-        }
-        res = table.get_item(
-            Key=key,
+        ssm_client = boto3.client('ssm', region_name="cn-northwest-1")
+        response = ssm_client.get_parameter(
+            Name=project_id,
         )
-        resource_item = res.get("Item")
-        project_ip = resource_item.get("projectIp")
+        value = json.loads(response["Parameter"]["Value"])
+        project_ip = value.get("proxies")[0]
 
         return project_ip
 

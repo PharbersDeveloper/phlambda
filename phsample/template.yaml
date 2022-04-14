@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-sample-dev
+      FunctionName: lmd-sample-V2
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
       Description: "sample"
@@ -18,4 +18,4 @@ Resources:
       MemorySize: 1024
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"

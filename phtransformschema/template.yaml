@@ -14,12 +14,12 @@ Resources:
           CLICK_HOST: 192.168.16.117
           CLICK_PORT: 8123
           CLICK_DB: default
-          EDITION: DEV
+          EDITION: V2
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
-      FunctionName: lmd-phtransformschema-dev
+      FunctionName: lmd-phtransformschema-V2
       MemorySize: 1024
       Description: "DynamoDB Action Table Event 触发修改ClickHouse中Table的Schema的类型或者Column Name(未实现)"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

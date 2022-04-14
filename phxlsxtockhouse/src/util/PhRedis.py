@@ -1,4 +1,4 @@
-from util.ClieckHouse import SingletonMetaClass
+
 from redis import ConnectionPool, Redis
 
 

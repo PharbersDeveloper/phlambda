@@ -1,5 +1,4 @@
 import logging
-from util.ClieckHouse import SingletonMetaClass
 
 LOG_DEBUG_LEVEL = logging.DEBUG
 LOG_INFO_LEVEL = logging.INFO

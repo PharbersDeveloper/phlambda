@@ -1,7 +1,6 @@
 import boto3
 import constants.DefinValue as Common
 from util.GenerateID import GenerateID
-from util.ClieckHouse import SingletonMetaClass
 
 
 class DynamoDB(object):

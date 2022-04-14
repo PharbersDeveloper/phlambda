@@ -43,7 +43,7 @@ class Csv:
             ip = result[0]["projectIp"]
         self.clickhouse_client = Client(host=ip, port=os.environ.get("CLICKHOUSE_PORT"))
 
-    def parse_data(self, data: list, version):
+    def parse_data(self, data: list):
         print(data)
         # return list(map(lambda x: dict(zip(self.schema+["version"], x)), [i + [version] for i in data]))
         return list(map(lambda x: dict(zip(self.schema, x)),
@@ -101,6 +101,7 @@ class Csv:
 
     def toclickhouse(self, table_name, data):
         print("to clickhouse -------------------------")
+        print(table_name)
         print(self.schema)
         print(data)
         if len(self.schema) != len(data[0]):
@@ -140,7 +141,7 @@ class Csv:
 
             version = parameters.get("version")
             filename = parameters.get("file_name")
-            ds_name = parameters.get("ds_name")
+            ds_name = parameters.get("ds_name").encode("utf-8").decode()
             projectId = parameters.get("project_id")
             path = f"/mnt/tmp/{projectId}/tmp/{filename}"
             data_list = pd.read_csv(path, chunksize=10000, header=None)
@@ -179,9 +180,9 @@ class Csv:
                     new_data = self.parse_data(datal, version)
                     if not self.toclickhouse(table_name, new_data):
                         raise ColumnDuplicate("column duplication")
-
+                    print("toclickhouse--------------success---------------------------------------------------------")
                 self.do_parquet(datal, out_file_name)
-
+                print("doparquet--------------success---------------------------------------------------------")
             self.toS3(out_file_name, f"2020-11-11/lake/pharbers/{projectId}/{ds_name}/")
 
             # TODO: 这个scan要改

@@ -71,7 +71,8 @@ class Csv:
 
         count = self.clickhouse.get_count(count_sql)
         if count > 0:
-            return True
+            print("version-----error------------------")
+            raise VersionAlreadyExist("version already exist")
 
     def toclickhouse(self, table_name, data, version):
         print("to clickhouse -------------------------")
@@ -80,20 +81,17 @@ class Csv:
         print(data)
         if len(self.schema) != len(data[0]):
             print("col-----error---------------------")
-            return False
+            raise ColumnDuplicate("column duplication")
         create_sql = self.createClickhouTableSql(table_name)
         print(create_sql)
 
         self.clickhouse_client.execute(create_sql)
-        if self.check_version(table_name, version):
-            print("version-----error------------------")
-            raise VersionAlreadyExist("version already exist")
+        self.check_version(table_name, version)
         try:
             self.clickhouse_client.execute(f'INSERT INTO `{table_name}` VALUES', data)
         except:
             print("schema----------error---------------")
             raise SchemaNotMatched("schema not matched")
-        return True
 
     def do_exec(self, data):
         try:
@@ -159,8 +157,7 @@ class Csv:
                     parameters["standard_schema"] = [{"src": sch, "des": sch, "type": "String"} for sch in self.schema]
                     self.whileonce = False
                     new_data = self.parse_data(datal)
-                    if not self.toclickhouse(table_name, new_data, version):
-                        raise ColumnDuplicate("column duplication")
+                    self.toclickhouse(table_name, new_data, version)
                     print("toclickhouse--------------success---------------------------------------------------------")
                 self.do_parquet(datal, out_file_name)
                 print("doparquet--------------success---------------------------------------------------------")

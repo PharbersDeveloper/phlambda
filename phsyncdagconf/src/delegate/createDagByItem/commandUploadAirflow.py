@@ -304,9 +304,14 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         }
 
         # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
-        if "script" in operator_parameters:
+        if "Script" in list(map(lambda item: item["type"], operator_parameters)):
             phjob_exist = self.phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/" + choose_job[runtime]())
-
+        print("Tobeey =======>>>>>>>>")
+        print("判断s3是否存在")
+        print(operator_parameters)
+        print(dag_name + "/" + job_full_name+ "/" + choose_job[runtime]())
+        print(phjob_exist)
+        print("Tobeey =======>>>>>>>>")
         if not phjob_exist:
             # 2. /phjob.py file
             self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + job_head_temps[runtime], job_path + "/" + choose_job[runtime]())
@@ -480,6 +485,8 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         dag_name = json.loads(item["message"]).get("projectName") + \
                    "_" + json.loads(item["message"]).get("dagName") + \
                    "_" + json.loads(item["message"]).get("flowVersion")
+
+
         os.system("rm -rf " + self.job_path_prefix + "/" + dag_name)
         # 创建上传job文件
         for dag_item in res.get("Items"):

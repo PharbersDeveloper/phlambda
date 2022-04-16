@@ -65,8 +65,7 @@ def transformClickHouseSchema(projectId, data):
     except ServerException as se:
         print("ServerException  ==> \n")
         print(se)
-        print(se.code)
-        if se.code == 341 or se.code == 50:
+        if se.code == 341 or se.code == 50 or "DB::Exception: ALTER of key column" in str(se):
             error = {
                 "code":  509,
                 "message": {

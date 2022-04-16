@@ -79,7 +79,7 @@ DEFAULT_MACHINE_TYPE = 'STANDARD'
 DEFAULT_MACHINE_ARN_SUFFIX = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:'
 
 # 针对Python Click模块
-PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, job_id, ph_conf'
+PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, ph_conf'
 
 # 针对低代码
 LOW_CODE_TEMPLATE_OPERATOR = {

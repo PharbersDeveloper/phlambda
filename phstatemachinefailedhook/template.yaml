@@ -11,30 +11,9 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          PATH_PREFIX: /mnt/tmp/#projectid#/tmp/
-          BATCH_SIZE: 10000
-          CLICKHOUSE_HOST: 192.168.16.117
-          CLICKHOUSE_PORT: 9000
-          CLICKHOUSE_DB: default
-          REDIS_HOST: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
-          REDIS_PORT: 6379
-          LOCK_APP_NAME: ds2clickhouse
-          CHECK_APP_NAME: rmds
           EDITION: "DEV"
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpandas:2
-      FunctionName: lmd-phxlsxtockhouse-V2
-      Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      FunctionName: lmd-phstatemachinefailedhook-dev
+      Description: "phstatemachinefailedhook"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-058404c2ad02dcbb9
-          - sg-09f5205a1194149ab
-        SubnetIds:
-          - subnet-0260eab5acd58bc53
-          - subnet-0e3daa88acef9b136

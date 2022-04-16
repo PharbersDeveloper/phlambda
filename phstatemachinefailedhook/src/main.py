@@ -10,6 +10,17 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
 
+    message = {
+        "type": "operation",
+        "opname": owner,
+        "projectId": projectId,
+        "cnotification": {
+            "data": "{}",
+            "error": "{}",
+            "runId": runnerId
+        }
+    }
+
     table = dynamodb.Table('notification')
     response = table.put_item(
        Item={
@@ -19,7 +30,7 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
             'status': status,
             'jobDesc': jobDesc,
             'comments': comments,
-            'message': message,
+            'message': json.dumps(message, ensure_ascii=False),
             'jobCat': jobCat,
             'code': code,
             'category': category,

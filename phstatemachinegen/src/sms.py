@@ -2,6 +2,11 @@ import json
 from collections import deque
 
 
+def messageAdapter(x):
+    x['ll'] = json.loads(x['cmessage'])
+    return x
+
+
 def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     projectName = event['projectName']
     flowVersion = 'developer'
@@ -11,8 +16,8 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
-         "Parameters": {
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
+        "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
@@ -20,31 +25,32 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "showName.$": "$.common.showName",
             "jobName": curJ["name"],
             "status": "running"
-         },
-         "ResultPath": None,
-         "Next": curJ["name"]
+
+        },
+        "ResultPath": None,
+        "Next": curJ["name"]
     }
     # 1. job 
     sm['States'][curJ['name']] = {
         "Type": "Task",
-         "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
-         "Parameters": {
+        "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
+        "Parameters": {
             "ClusterId": event['engine']['id'],
             "Step": {
-               "Name": curJ['name'],
-               "ActionOnFailure": "CONTINUE",
-               "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
+                "Name": curJ['name'],
+                "ActionOnFailure": "CONTINUE",
+                "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
             }
-         },
-         "ResultPath": None,
-         "Next": curJ["name"] + "EndHook"
+        },
+        "ResultPath": None,
+        "Next": curJ["name"] + "EndHook"
     }
 
     # 3. end hook
     sm['States'][curJ['name'] + "EndHook"] = {
         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
-         "Parameters": {
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
+        "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
@@ -52,9 +58,9 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "showName.$": "$.common.showName",
             "jobName": curJ["name"],
             "status": "success"
-         },
-         "ResultPath": None
-         # "Next": "StateMachineEndHook"
+        },
+        "ResultPath": None
+        # "Next": "StateMachineEndHook"
     }
 
 
@@ -62,7 +68,7 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
     if len(stack) == 0:
         return
 
-    curJ = stack.pop()    
+    curJ = stack.pop()
 
     if len(sm) == 0:
         sm['Comment'] = event['runnerId']
@@ -79,9 +85,9 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
             "Type": "Parallel",
             "InputPath": "$",
             "Branches": [
-                
+
             ],
-             "ResultPath": None,
+            "ResultPath": None,
         }
 
         index = 0
@@ -107,7 +113,7 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
             del sm['States'][prevJobName]['End']
         sm['States'][prevJobName]['Next'] = 'Parallel' + tmpParallelSteps
         prevJobName = 'Parallel' + tmpParallelSteps
-        
+
     else:
         linearJobWithHooksByJobName(curJ, event, sm, parallelSteps)
 
@@ -119,9 +125,9 @@ def stack2smdefs(stack, event, sm, prevJobName, parallelSteps=''):
         # if len(parallelSteps) == 0:
         #     prevJobName = curJ['name'] + 'EndHook'
         prevJobName = curJ['name'] + 'EndHook'
-        
+
     stack2smdefs(stack, event, sm, prevJobName, parallelSteps)
-    
+
     if len(prevJobName) > 0 and 'Next' not in sm['States'][prevJobName]:
         # if len(parallelSteps) == 0:
         #     sm['States'][prevJobName]['Next'] = 'StateMachineEndHook'

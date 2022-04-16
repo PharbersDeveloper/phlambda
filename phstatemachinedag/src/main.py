@@ -1,14 +1,26 @@
 import os
 import json
+import time
 import boto3
 from datetime import datetime
 
 
-def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,  
+def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,
     jobCat='notification', jobDesc='executionSuccess', message='', status='gendag',
     dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
+
+    message = {
+        "type": "operation",
+        "opname": owner,
+        "projectId": projectId,
+        "cnotification": {
+            "data": "{}",
+            "error": "{}",
+            "runId": runnerId
+        }
+    }
 
     table = dynamodb.Table('notification')
     response = table.put_item(
@@ -19,7 +31,7 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
             'status': status,
             'jobDesc': jobDesc,
             'comments': comments,
-            'message': message,
+            'message': json.dumps(message, ensure_ascii=False),
             'jobCat': jobCat,
             'code': code,
             'category': category,
@@ -37,7 +49,7 @@ def lambda_handler(event, context):
     stackName = event['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
     # 1. put notification
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'])
-    
+
     # 2. create state via cloudformation
     client = boto3.client('cloudformation')
     response = client.create_stack(
@@ -61,14 +73,15 @@ def lambda_handler(event, context):
 
     # 3. sync the creation status
     while True:
+        time.sleep(2)
         response = client.describe_stacks(
-            StackName=stackName # event['runnerId']
+            StackName=stackName #  event['runnerId']
         )
         print(response)
-        
+
         if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == 'CREATE_COMPLETE':
             break
 
         # TODO: Failed logic  AlreadyExistsException
-    
+
     return 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:' + stackName # event['runnerId']

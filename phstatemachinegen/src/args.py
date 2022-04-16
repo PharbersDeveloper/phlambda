@@ -33,7 +33,7 @@ def submitArgsByEngine(curJ, event):
     result['HadoopJarStep'] = {}
     result['HadoopJarStep']['Jar'] = 'command-runner.jar'
 
-    tmp = []    
+    tmp = []
     tmp.append('spark-submit')
     tmp.append('--deploy-mode')
     tmp.append('cluster')
@@ -54,6 +54,7 @@ def submitArgsByEngine(curJ, event):
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
+    ph_conf = json.dumps(event['calculate']['conf'], ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
 
     if curJ['runtime'] == 'r' or curJ['runtime'] == 'sparkr':
         tmp.append('--files')
@@ -65,7 +66,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(jobName)
         tmp.append('job_id_not_implementation')
         tmp.append(event['engine']['dss']['ip'])
-        tmp.append(event['calculate']['conf'])
+        tmp.append(ph_conf)
     else:
         tmp.append('--jars')
         tmp.append('s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar')
@@ -81,7 +82,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append('--job_full_name')
         tmp.append(jobName)
         tmp.append('--ph_conf')
-        tmp.append(event['calculate']['conf'])
-    
+        tmp.append(ph_conf)
+
     result['HadoopJarStep']['Args'] = tmp
     return result

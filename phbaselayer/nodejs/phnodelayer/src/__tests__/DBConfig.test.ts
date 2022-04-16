@@ -1,7 +1,7 @@
 import * as fs from "fs"
 import DBConfig from "../common/config/DBConfig"
 import {StoreEnum} from "../common/enum/StoreEnum"
-import PhLogger from "../common/logger/PhLogger"
+import PhLogger from "../common/logger/phLogger"
 
 const createDBConfig = jest.fn(() => {
     return new DBConfig({

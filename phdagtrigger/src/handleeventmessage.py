@@ -6,14 +6,14 @@ import traceback
 
 class HandleEventMessage:
 
-    def __init__(self, ssm_dict, msg):
+    def __init__(self, airflow_url, msg):
         self.msg = msg
         self.project_name = self.msg.get("project_name", "max")
         self.flow_version = self.msg.get("flow_version", "developer")
         self.conf = self.msg.get("conf", {})
         self.dag_id = "_".join([self.project_name, self.project_name, self.flow_version])
 
-        self.url = ssm_dict.get(self.project_name)
+        self.airflow_url = airflow_url
         print(self.url)
         self.res = {}
         self.headers = {

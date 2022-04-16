@@ -20,15 +20,6 @@ Resources:
       Environment:
         Variables:
           EDITION: "V2"
-#      FileSystemConfigs:
-#        - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
-#          LocalMountPath: /mnt/tmp
+      MemorySize: 1024
       Timeout: 600
-#      VpcConfig:
-#        SecurityGroupIds:
-#          - sg-058404c2ad02dcbb9
-#          - sg-09f5205a1194149ab
-#        SubnetIds:
-#          - subnet-0260eab5acd58bc53
-#          - subnet-0e3daa88acef9b136
 

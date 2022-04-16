@@ -1,4 +1,4 @@
-import BaseModel from "../models/BaseModel"
+import BaseModel from "./BaseModel"
 import Context from "../strategy/Context"
 
 export default class DBModel extends BaseModel {

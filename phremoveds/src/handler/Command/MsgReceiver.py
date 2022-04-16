@@ -27,7 +27,7 @@ class MsgReceiver(Receiver):
     def __send_notification(self, status, data):
         action_item = data["data"]
         message = action_item["message"][0]
-        self.logger.debug(f"Notification ====> {message}")
+        print(f"Notification ====> {message}")
 
         self.dynamodb.putData({
             "table_name": "notification",
@@ -56,6 +56,7 @@ class MsgReceiver(Receiver):
         })
 
     def succeed(self, data):
+        print("remove success ====>")
         self.__update_action("succeed", data)
         self.__send_notification("succeed", data)
 

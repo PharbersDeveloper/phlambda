@@ -14,4 +14,4 @@ class CommandDelProject(Command):
     def execute(self):
         # 192.168.16.119
 
-        self.cfn.delete_project(self.target_name)
+        self.cfn.delete_project(self.project_id)

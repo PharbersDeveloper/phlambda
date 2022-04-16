@@ -10,10 +10,12 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       FunctionName: lmd-sample-V2
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
       Description: "sample"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 600
       MemorySize: 1024
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"

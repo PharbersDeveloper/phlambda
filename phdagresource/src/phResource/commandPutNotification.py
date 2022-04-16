@@ -15,6 +15,7 @@ class CommandPutNotification(Command):
         for key, val in kwargs.items():
             setattr(self, key, val)
         self.target_name = self.name_convert_to_camel(self.project_message.get("projectName"))
+        self.project_id = self.project_message.get("projectId")
         self.dynamodb = DynamoDB()
         self.ssm = SSM()
 
@@ -23,7 +24,7 @@ class CommandPutNotification(Command):
 
     def airflow_status(self):
 
-        url = "https://"+ self.target_name +".pharbers.com/airflow/api/v1/dags/default_dag_default_dag_developer"
+        url = "https://"+ self.project_id +".pharbers.com/airflow/api/v1/dags/default_dag_default_dag_developer"
         payload={}
         headers = {
             'Cookie': 'AWSALBTG=4OrpUZOfa1M47ma2ZbTf3+hF+G9KxGadugIRMRgf0hp9lTl3XoBpx787sMy9kcswdrSRPyqVHZJSG5z7wwVbIxsWq1oMVZSLenr3lwdtAD72QjFmCipiSQCHaCT7uPWA8YD0CXkvbiigcCopsqFsGOgzxt2P+/S6Y97s89fipQ4B; AWSALBTGCORS=4OrpUZOfa1M47ma2ZbTf3+hF+G9KxGadugIRMRgf0hp9lTl3XoBpx787sMy9kcswdrSRPyqVHZJSG5z7wwVbIxsWq1oMVZSLenr3lwdtAD72QjFmCipiSQCHaCT7uPWA8YD0CXkvbiigcCopsqFsGOgzxt2P+/S6Y97s89fipQ4B; session=.eJwNjMEOAiEMRP-l5z3QDRjkZ0jBVo2VNdA9Gf_dnibzJm--UGXyekAR0sUb1A_PNw0eBsXm6aSvKdWOFw8oEK-8hyghxYy99RZiIpRLRsp9R0-Jgqll2OBG97qM7FxVnmo8XSdVX_TopOzVL39_4NUpnA.YhSU8g.tFj0xvOCbYQqgKadxDZxVHM2KO0'
@@ -68,7 +69,7 @@ class CommandPutNotification(Command):
         }
 
         item.update({"id": self.action_id})
-        item.update({"projectId": self.project_message.get("projectId")})
+        item.update({"projectId": self.project_id})
         item.update({"category": ""})
         item.update({"code": "0"})
         item.update({"comments": ""})
@@ -94,7 +95,7 @@ class CommandPutNotification(Command):
         }
         # 取出list中元素 在进行append
         for resource in res:
-            if resource.get("projectName") == self.target_name:
+            if resource.get("projectId") == self.project_id:
                 args_index = res.index(resource)
                 project_args = res[args_index]
                 res.pop(args_index)

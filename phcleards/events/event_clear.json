@@ -1,58 +1,23 @@
 {
   "Records": [
     {
-      "eventID": "8f24769b99ce83c69076964fe784839e",
-      "eventName": "INSERT",
-      "eventVersion": "1.1",
-      "eventSource": "aws:dynamodb",
-      "awsRegion": "cn-northwest-1",
-      "dynamodb": {
-        "ApproximateCreationDateTime": 1636696845,
-        "Keys": {
-          "id": {
-            "S": "test"
-          },
-          "projectId": {
-            "S": "jFlL0WS1Qwy5buKh"
-          }
-        },
-        "NewImage": {
-          "date": {
-            "N": "1636010256565"
-          },
-          "owner": {
-            "S": "000"
-          },
-          "jobCat": {
-            "S": "clear_DS_data"
-          },
-          "code": {
-            "N": "0"
-          },
-          "comments": {
-            "S": "测试"
-          },
-          "showName": {
-            "S": "Alex"
-          },
-          "id": {
-            "S": "test"
-          },
-          "message": {
-            "S": "[{\"version\":\"\",\"dsid\":\"2f6a16fb4131aead251cc2f325c40ae2.xlsx\",\"destination\":\"A\",\"opname\":\"5UBSLZvV0w9zh7-lZQap\",\"opgroup\":\"zudIcG_17yj8CEUoCTHg\"}]"
-          },
-          "jobDesc": {
-            "S": "running"
-          },
-          "projectId": {
-            "S": "jFlL0WS1Qwy5buKh"
-          }
-        },
-        "SequenceNumber": "100493600000000003337009385",
-        "SizeBytes": 253,
-        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      "messageId": "34e9ff18-7e6f-44d0-b657-d1ad58905bd9",
+      "receiptHandle": "AQEBrDe1a3Nt0QR+NEBxhMhihl52uN0CzFD5eVQN1i/ECIR3hkd/LYDhlKwiom4/5QNU1K8o/GIsdX5WBboD6mpRmtJqNMaEjiUAhdpk7mATyFkN8w9kjFQqeDPjCV4TEzfswoQXOn+onXyykR+E1efNlMcDvXqpHk6gpve0wn82KapruGQp8PAiNm3OtaTAAeyPEigzgVtRqYZhw8B/wgVaHU61eRwPUpOTGPLVPoEP8xXMsflcWIZgBhnxNG2Rw4w3QoCcj/8IgAlB5Jxmc2WoZdo9rRk+Kgj3o+DKB4VjpM6wqzyXKEsBLLkb/EiO3lDh",
+      "body": "{  \"Records\": [    {\"eventID\": \"8f24769b99ce83c69076964fe784839e\",\"eventName\": \"INSERT\",\"eventVersion\": \"1.1\",\"eventSource\": \"aws:dynamodb\",\"awsRegion\": \"cn-northwest-1\",\"dynamodb\": {  \"ApproximateCreationDateTime\": 1636696845,  \"Keys\": {    \"id\": {      \"S\": \"test\"          },    \"projectId\": {      \"S\": \"ggjpDje0HUC2JW\"          }        },  \"NewImage\": {    \"date\": {      \"N\": \"1636010256565\"          },    \"owner\": {      \"S\": \"000\"          },    \"jobCat\": {      \"S\": \"clear_DS_data\"          },    \"code\": {      \"N\": \"0\"          },    \"comments\": {      \"S\": \"测试\"          },    \"showName\": {      \"S\": \"Alex\"          },    \"id\": {      \"S\": \"test\"          },    \"message\": {      \"S\": \"[{\\\"actionName\\\":\\\"qwe\\\",\\\"dsid\\\":\\\"beb65701364b480eafd2668c97188c52.xlsx\\\",\\\"destination\\\":\\\"qwe\\\",\\\"opname\\\":\\\"16dc4eb5-5ed3-4952-aaed-17b3cc5f638b\\\",\\\"opgroup\\\":\\\"zudIcG_17yj8CEUoCTHg\\\"}]\"          },    \"jobDesc\": {      \"S\": \"running\"          },    \"projectId\": {      \"S\": \"ggjpDje0HUC2JW\"          }        },  \"SequenceNumber\": \"100493600000000003337009385\",  \"SizeBytes\": 253,  \"StreamViewType\": \"NEW_AND_OLD_IMAGES\"      },\"eventSourceARN\": \"arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729\"    }  ]}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1648176459411",
+        "SequenceNumber": "18868677247318767872",
+        "MessageGroupId": "UA8u5ExVrhLCfTR",
+        "SenderId": "AROAWPBDTVEAOT2FRNDG3:lmd-phforwarddyevent-dev",
+        "MessageDeduplicationId": "e8da86e6c6f2d3e8479ce5c413f731ae6e264ad9381a3e44d2979a849129ddc6",
+        "ApproximateFirstReceiveTimestamp": "1648176459411"
       },
-      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729"
+      "messageAttributes": {},
+      "md5OfBody": "c48b1cb56e5bb1a0d1642d1c434be096",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws-cn:sqs:cn-northwest-1:444603803904:ph-dagtrigger-pipeline.fifo",
+      "awsRegion": "cn-northwest-1"
     }
   ]
 }

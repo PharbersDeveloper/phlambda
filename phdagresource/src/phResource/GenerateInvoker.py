@@ -55,32 +55,26 @@ class GenerateInvoker(object):
         logger.debug(target_ip)
 
         try:
-            # 创建ec2实例
-            CommandCreateProject(target_name=target_name, target_ip=target_ip, project_id=project_id).execute()
-        except Exception as e:
-            status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
             # 更新ssm
             CommandPutParameter(
                 target_name=target_name,
-                target_ip=target_ip
+                target_ip=target_ip,
+                project_id=project_id
             ).execute()
         except Exception as e:
             status = "更新ssm 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
-
         try:
-            # 在dynamodb更新 resource 相关的参数
-            CommandPutResourceArgs(
+            # 创建ec2实例
+            CommandCreateProject(
                 target_name=target_name,
+                target_ip=target_ip,
                 project_id=project_id,
-                target_ip=target_ip
-            ).execute()
+                project_message=self.project_message,
+                action_id=self.action_id).execute()
         except Exception as e:
-            status = "创建ResourceArgs 时错误:" + json.dumps(str(e), ensure_ascii=False)
+            status = "创建ec2实例 时错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)
 
         try:
@@ -95,34 +89,12 @@ class GenerateInvoker(object):
 
         project_name = self.project_message.get("projectName")
         project_id = self.project_message.get("projectId")
-        content = self.project_message.get("content")
         target_name = self.name_convert_to_camel(project_name)
-        logger.debug(target_name)
-
-        try:
-            # 从dynamodb中获取 project 的相关参数
-            resource_args = CommandGetResourceArgs(target_name=target_name, project_id=project_id).execute()
-        except Exception as e:
-            status = "从dynamodb获取project参数错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
-            # 删除ssm 中当前project资源
-            CommandDelParameter(target_name=target_name).execute()
-        except Exception as e:
-            status = "删除ssm 中当前project资源 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
-
-        try:
-            # 删除resource args
-            CommandDelResourceArgs(target_name=target_name, project_id=project_id).execute()
-        except Exception as e:
-            status = "删除dynamodb args 时错误:" + json.dumps(str(e), ensure_ascii=False)
-            logger.debug(status)
+        logger.debug(project_id)
 
         try:
             # 删除ec2 实例
-            CommandDelProject(target_name=target_name).execute()
+            CommandDelProject(project_id=project_id).execute()
         except Exception as e:
             status = "删除ec2 实例错误:" + json.dumps(str(e), ensure_ascii=False)
             logger.debug(status)

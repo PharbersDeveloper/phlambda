@@ -2,6 +2,7 @@ import boto3
 import json
 from util.AWS.PhAWS import PhAWS
 
+
 class SSM(PhAWS):
 
     def __init__(self, **kwargs):
@@ -23,12 +24,17 @@ class SSM(PhAWS):
             DataType='text'
         )
 
-    def get_ssm_parameter(self, parameter_name):
+    def get_dict_ssm_parameter(self, parameter_name):
 
-        response = self.ssm_client.get_parameter(
-            Name=parameter_name,
-        )
-        value = json.loads(response["Parameter"]["Value"])
+        try:
+            response = self.ssm_client.get_parameter(
+                Name=parameter_name,
+            )
+            value = json.loads(response["Parameter"]["Value"])
+        except self.ssm_client.exceptions.ParameterNotFound as e:
+            value = "参数不存在"
+        except Exception as e:
+            raise e
 
         return value
 
@@ -40,7 +46,6 @@ class SSM(PhAWS):
         value = response["Parameter"]["Value"]
 
         return value
-
 
     def delete_parameter(self, parameter_name):
 

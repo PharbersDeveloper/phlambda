@@ -6,6 +6,7 @@ This is job template for Pharbers Max Job
 
 import boto3
 import json
+import time
 import re
 from pyspark.sql.functions import lit
 from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
@@ -14,28 +15,23 @@ from clickhouse_driver import Client
 
 def execute(**kwargs):
     logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
-
+    dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
     def deleteTableSql(table, database='default'):
         sql_content = f"DROP TABLE IF EXISTS {database}.`{table}`"
         return sql_content
 
+    def addVersion(df, version, version_colname='version'):
+        df = df.withColumn(version_colname, lit(version))
+        return df
+
     def get_project_ip(project_id, project_name):
 
-        def name_convert_to_camel(name):
-            return re.sub(r'(_[a-z])', lambda x: x.group(1)[1], name.lower())
-
-        target_name = name_convert_to_camel(project_name)
-        dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
-        table = dynamodb_resource.Table("resource")
-        key = {
-            "projectName": target_name,
-            "projectId": project_id
-        }
-        res = table.get_item(
-            Key=key,
+        ssm_client = boto3.client('ssm', region_name="cn-northwest-1")
+        response = ssm_client.get_parameter(
+            Name=project_id,
         )
-        resource_item = res.get("Item")
-        project_ip = resource_item.get("projectIp")
+        value = json.loads(response["Parameter"]["Value"])
+        project_ip = value.get("proxies")[0]
 
         return project_ip
 
@@ -62,14 +58,58 @@ def execute(**kwargs):
             return sql_scheme
         return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
 
+    def get_dynamodb_item(table_name, key):
+        table = dynamodb_resource.Table(table_name)
+        res = table.get_item(
+            Key=key,
+        )
+        return res.get("Item")
+
+    def put_dynamodb_item(table_name, item):
+        table = dynamodb_resource.Table(table_name)
+        table.put_item(
+            Item=item
+        )
+
+    def put_scheme_to_dataset(output_id, project_id, schema_list, output_version):
+
+        table_name = "dataset"
+        key = {
+            "id": output_id,
+            "projectId": project_id
+        }
+        dataset_item = get_dynamodb_item(table_name, key)
+        dataset_item.update({"schema": json.dumps(schema_list, ensure_ascii=False)})
+        dataset_item.update({"version": json.dumps(output_version, ensure_ascii=False)})
+        put_dynamodb_item(table_name, dataset_item)
+
+    def putOutputSchema(output_id, project_id, df, output_version):
+
+        def getSchemaSql(df):
+            schema_list = []
+            file_scheme = df.dtypes
+            for i in file_scheme:
+                schema_map = {}
+                schema_map["src"] = i[0]
+                schema_map["des"] = i[0]
+                schema_map["type"] = i[1].capitalize().replace('Int', 'Double')
+                schema_list.append(schema_map)
+            return schema_list
+
+        schema_list = getSchemaSql(df)
+        res = put_scheme_to_dataset(output_id, project_id, schema_list, output_version)
+
     spark = kwargs["spark"]()
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
     sourceProjectId = ph_conf.get("sourceProjectId")
     targetProjectId = ph_conf.get("targetProjectId")
     projectName = ph_conf.get("projectName")
     datasetName = ph_conf.get("datasetName")
+    datasetId = ph_conf.get("datasetId")
     sample = ph_conf.get("sample")
+    owner = ph_conf.get("showName")
     company = ph_conf.get("company")
+    version = owner + "_" + datasetName + "_" + time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime())
     # 从s3 读取数据
     path = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{datasetName}/"
     df = spark.read.parquet(path)
@@ -103,6 +143,7 @@ def execute(**kwargs):
     logger.debug(sql_create_table)
     ch_client.execute(sql_create_table)
 
+
     # 写入clickhouse
     sample_df.write.format("jdbc").mode("append") \
         .option("url", f"jdbc:clickhouse://{projectIp}:8123/default") \
@@ -113,8 +154,10 @@ def execute(**kwargs):
         .option("batchsize", 1000) \
         .option("socket_timeout", 300000) \
         .option("numPartitions", 2) \
-        .option("rewrtieBatchedStatements", True) \
+        .option("rewriteBatchedStatements", True) \
         .save()
+
+    putOutputSchema(datasetId, targetProjectId, sample_df, version)
 
     return {'out_df': {}}
 

@@ -19,8 +19,7 @@ def put_notification(jobshowName, jobName, runnerId, projectId, category, code, 
             "error": "{}",
             "jobName": jobName,
             "runId": "demo_demo_developer_2022-04-16T06:34:07+00:00",
-            "jobShowName": jobshowName,
-            "overallStatus": "failed"
+            "jobShowName": jobshowName
         }
     }
 

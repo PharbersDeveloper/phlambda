@@ -16,7 +16,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -49,7 +49,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 3. end hook
     sm['States'][curJ['name'] + "EndHook"] = {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

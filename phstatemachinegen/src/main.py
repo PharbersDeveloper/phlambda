@@ -77,6 +77,8 @@ def lambda_handler(event, context):
         stack2smargs(stackargs, event, args)
 
     sm = {}
+
+    dagName = ("_").join(event['runnerId'].split("_")[:-1])
     if (calDatasetPath(event['calculate']['name'], datasets, jobs, links, stacksm)):
         prevJobName = 'StateMachineStartHook'
         stack2smdefs(stacksm, event, sm, prevJobName)
@@ -84,13 +86,13 @@ def lambda_handler(event, context):
         s3 = boto3.client('s3')
         s3.put_object(
             Body=json.dumps(sm).encode(),
-            Bucket='ph-max-auto',
-            Key='2020-08-11/' + event['runnerId'] + '.json'
+            Bucket='ph-platform',
+            Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
         )
 
 
     return {
         'args': args,
-        'sm': 's3://ph-max-auto/2020-08-11/' + event['runnerId'] + '.json'
+        'sm': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
     }
     

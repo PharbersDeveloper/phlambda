@@ -52,9 +52,10 @@ def lambda_handler(event, context):
 
     # 2. create state via cloudformation
     client = boto3.client('cloudformation')
+    dagName = ("_").join(event['runnerId'].split("_")[:-1])
     response = client.create_stack(
         StackName=stackName, # event['runnerId'],
-        TemplateURL='https://ph-max-auto.s3.cn-northwest-1.amazonaws.com.cn/2020-08-11/steps-cfn.yaml',
+        TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/steps-cfn.yaml',
         Parameters=[
             {
                 'ParameterKey': 'StateMachineName',
@@ -62,11 +63,11 @@ def lambda_handler(event, context):
             },
             {
                 'ParameterKey': 'S3Bucket',
-                'ParameterValue': 'ph-max-auto'
+                'ParameterValue': 'ph-platform'
             },
             {
                 'ParameterKey': 'S3TemplateKey',
-                'ParameterValue': '2020-08-11/' + event['runnerId'] + ".json"
+                'ParameterValue': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" + event['runnerId'] + '.json'
              }
         ])
     print(response)

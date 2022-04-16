@@ -101,7 +101,7 @@ class CommandUploadAirflow(Command):
                             file.write("@click.option('--{}')\n".format(must.strip()))
                         file.write("""def debug_execute(**kwargs):
     try:
-        logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
         args = {"name": "$alfred_name"}
         inputs = [$alfred_inputs] 
         outputs = [$alfred_outputs_name]

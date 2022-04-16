@@ -23,7 +23,7 @@ Resources:
           REDIS_PORT: 6379
           LOCK_APP_NAME: ds2clickhouse
           CHECK_APP_NAME: rmds
-          EDITION: "V2"
+          EDITION: "DEV"
 
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phprojectargs:8
@@ -31,7 +31,7 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpandas:2
-      FunctionName: lmd-phxlsxtockhouse-V2
+      FunctionName: lmd-phxlsxtockhouse-dev
       Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024

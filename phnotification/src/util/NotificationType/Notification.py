@@ -30,7 +30,7 @@ class Notification:
             jobDesc = item["jobDesc"]
             ownerId = message["opname"]
             projectId = item["projectId"][0:item["projectId"].index("_compute_")]
-            return project == projectId and ownerId == owner and jobDesc == event
+            return project == projectId and ownerId == owner # and jobDesc == event
 
         return list(filter(expr, data))
 
@@ -40,7 +40,7 @@ class Notification:
         message = json.loads(data["message"])
         jobDesc = data["jobDesc"]
         ownerId = message["opname"]
-        if project == projectId and ownerId == owner and jobDesc == event:
+        if project == projectId and ownerId == owner: # and jobDesc == event:
             return dict(result, **data)
         return result
 

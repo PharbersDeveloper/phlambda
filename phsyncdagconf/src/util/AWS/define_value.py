@@ -51,8 +51,8 @@ TEMPLATE_JUPYTER_R_FILE = '/template/python/phcli/maxauto/phJupyterR-20210122.js
 # 废弃
 TEMPLATE_PHDAG_FILE = "/template/python/phcli/maxauto/phdag-20210104.yaml"
 
-TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phGraphTemp-20220331_dev.tmp"
-TEMPLATE_PHDAGJOB_FILE = "/template/python/phcli/maxauto/phDagJob-20220331_dev.tmp"
+TEMPLATE_PHGRAPHTEMP_FILE = "/template/python/phcli/maxauto/phGraphTemp_dev.tmp"
+TEMPLATE_PHDAGJOB_FILE = "/template/python/phcli/maxauto/phDagJob_dev.tmp"
 # TEMPLATE_PHPYTHON3DAGJOB_FILE = "/template/python/phcli/maxauto/phPython3DagJob-20220215.tmp"
 # TEMPLATE_PHPYTHON3GRAPHTEMP_FILE = "/template/python/phcli/maxauto/phpython3temp-20220215.tmp"
 

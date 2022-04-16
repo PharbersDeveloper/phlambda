@@ -10,6 +10,8 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
 
+    dagName = ("_").join(runnerId.split("_")[:-1])
+    jobShowName = projectId.strip(dagName + "_") if dagName in projectId else ""
     message = {
         "type": "operation",
         "opname": owner,
@@ -17,7 +19,8 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
         "cnotification": {
             "data": "{}",
             "error": "{}",
-            "runId": runnerId
+            "runId": runnerId,
+            "jobShowName": jobShowName
         }
     }
 

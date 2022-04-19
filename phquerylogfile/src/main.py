@@ -1,80 +1,40 @@
+
 import json
-import time
-
-import asyncio
-import boto3
-from io import BytesIO
-import gzip
-import base64
-
-s3 = boto3.client('s3')
+from Yran import Yran_Logs
+from AWS.DynamoDB import DynamoDB
+from boto3.dynamodb.conditions import Key
+from constants.Errors import DynamoDBNotItem
 
 
-def if_exit(bucket, key):
-
-    try:
-        response = s3.get_object(Bucket=bucket, Key=key)
-        return response.get('Body').read()
-    except:
-        return
-
-
-def read_file(bucket, key):
-    path = key.split('/')[-1]
-    s3.download_file(Filename=f"/tmp/{path}",
-                     Bucket=bucket, Key=key)
-    filehandler = open("/tmp/"+path, "rb")
-    filelines = filehandler.readlines()
-    data = ''
-    for i in filelines:
-        data += i.decode("utf-8", "ignore")
-    return data
+def query_data(projectId, jobIndex):
+    dynamodb = DynamoDB()
+    a = {"access_key": "AKIAWPBDTVEANKEW2XNC",
+        "secret_key": "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"}
+    dynamodb = DynamoDB(**a)
+    data = {
+        "table_name": "execution",
+        "expression": Key("projectId").eq(projectId) & Key("jobIndex").eq(jobIndex),
+        "limit": 1000,
+        "start_key": ""
+    }
+    return dynamodb.queryTable(data)["data"]
 
 
-def read_gz(gz_data):
-    gzipfile = BytesIO(gz_data)
-    return gzip.GzipFile(fileobj=gzipfile).read()
+COMMANDS = {
+    'lambda': None,
+    'emr': None,
+    'yran': Yran_Logs,
+}
 
 
-def query_logfile(bucket, file_key):
-    try:
-        response = s3.list_objects_v2(
-            Bucket=f'{bucket}',
-            Prefix=f'2020-11-11/emr/yarnLogs/hadoop/logs-tfile/{file_key}/',
-            MaxKeys=100)
-        return [i.get('Key') for i in response.get('Contents', {})]
-    except:
-        return
+def run(**kwargs):
 
+    execution_msg = query_data(**kwargs)
+    if not execution_msg:
+        raise DynamoDBNotItem("DynamoDB Not find Item")
 
-def run(bucket, key, **kwargs):
-
-    count = 0
-    result = None
-    logkey_list = None
-    data = ""
-
-    while not result:
-        time.sleep(30)
-        result = if_exit(bucket, key + "stderr.gz")
-        count += 1
-        if count == 30:
-            raise
-
-    log_file = read_gz(result).decode()
-    file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_') + 30]
-    print(file_nmae)
-
-    while not logkey_list:
-        logkey_list = query_logfile(bucket, file_nmae)
-        time.sleep(30)
-        count += 1
-        if count == 30:
-            raise
-
-    for i in logkey_list:
-        data += read_file(bucket, i)
-    return data
+    logs_msg = json.loads(execution_msg.pop().get("logs"))
+    return COMMANDS[logs_msg["type"]]().run(**logs_msg)
 
 
 def lambda_handler(event, context):
@@ -90,9 +50,9 @@ def lambda_handler(event, context):
 
     except Exception as e:
         return {
-            "statusCode": 503,
+            "statusCode": 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps({"message": str(e), "status": 0}, ensure_ascii=False)
+            "body": json.dumps({"message": e.message, "status": e.code}, ensure_ascii=False)
         }

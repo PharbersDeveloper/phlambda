@@ -54,9 +54,8 @@ def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, 
     endAt = ""
     dagName = ("_").join(runnerId.split("_")[:-1])
     id = '_'.join([jobIndex, projectId])
-    https_runnerId = runnerId.replace(":", "%3A").replace("+", "%2B")
     #TODO pharbers为租户id
-    executionTemplate = f"https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/{dagName}/{https_runnerId}.json"
+    executionTemplate = f"s3://ph-platform/2020-11-11/jobs/statemachine/pharbers/{dagName}/{runnerId}.json"
 
     execution_table = dynamodb.Table('execution')
     response = execution_table.put_item(

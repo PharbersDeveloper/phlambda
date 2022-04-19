@@ -58,12 +58,18 @@ def get_log_path(step_id, cluster_id):
         file_nmae = log_file[log_file.rfind('application_'): log_file.rfind('application_') + 30]
         print(file_nmae)
         yarn_log_path = f"s3://ph-platform/2020-11-11/emr/yarnLogs/hadoop/logs-tfile/{file_nmae}/"
+        step_log = f"s3://ph-platform/2020-11-11/emr/logs/{cluster_id}/steps/{step_id}/stderr.gz"
         logs = []
         yarnLog = {
             "type": "yarnLog",
             "uri": yarn_log_path
         }
+        stepLog = {
+            "type": "stepLog",
+            "uri": step_log
+        }
         logs.append(yarnLog)
-        return json.dumps(yarnLog, ensure_ascii=False)
+        logs.append(stepLog)
+        return json.dumps(logs, ensure_ascii=False)
     except:
         return

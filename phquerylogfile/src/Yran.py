@@ -3,7 +3,7 @@ import gzip
 import boto3
 from io import BytesIO
 from Logs import Logs
-from constants.Errors import FileNotFound
+from constants.Errors import FileNotFound, FileCodeError
 
 
 class Yran_Logs(Logs):
@@ -20,15 +20,24 @@ class Yran_Logs(Logs):
             return
 
 
+    # def read_file(self, bucket, key):
+    #     path = key.split('/')[-1]
+    #     self.s3.download_file(Filename=f"/tmp/{path}", Bucket=bucket, Key=key)
+    #     filehandler = open("/tmp/"+path, "rb")
+    #     filelines = filehandler.readlines()
+    #     data = ''
+    #     for i in filelines:
+    #         data += i.decode("utf-8", "ignore")
+    #     return data
+
+
     def read_file(self, bucket, key):
-        path = key.split('/')[-1]
-        self.s3.download_file(Filename=f"/tmp/{path}", Bucket=bucket, Key=key)
-        filehandler = open("/tmp/"+path, "rb")
-        filelines = filehandler.readlines()
-        data = ''
-        for i in filelines:
-            data += i.decode("utf-8", "ignore")
-        return data
+        data = self.if_exit(bucket, key)
+        try:
+            data = data.decode("utf-8", "ignore")
+            return data
+        except:
+            raise FileCodeError("file decode error")
 
 
     def read_gz(self, gz_data):

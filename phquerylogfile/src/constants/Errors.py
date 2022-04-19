@@ -24,3 +24,11 @@ class DynamoDBNotItem(Errors):
         "en": "DynamoDB Not Item",
         "zh": "DynamoDB 未找到数据"
     }
+
+
+class FileCodeError(Errors):
+    code = 2
+    message = {
+        "en": "File Not Found",
+        "zh": "文件未找到"
+    }

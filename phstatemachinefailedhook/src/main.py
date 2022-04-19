@@ -44,7 +44,7 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     )
     return response
 
-def put_success_execution(runnerId, jobName, date, logs, status, dynamodb=None):
+def put_failed_execution(runnerId, jobName, date, logs, status, dynamodb=None):
     # 首先从dynamodb的execution表获取item
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -86,7 +86,7 @@ def errorHandle(error, runnerId):
     
     # 2. 看看是不是dag的错误
     if 'executeError' in error:
-        stateMachineArn = ':'.join(['arn:aws-cn:states:cn-northwest-1:444603803904:execution', runnerId(":", "-").replace("+", "-")])
+        stateMachineArn = ':'.join(['arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine', runnerId.replace(":", "-").replace("+", "-").replace("_","-")])
         client = boto3.client('stepfunctions')
         statemachine_events = client.list_executions(
             stateMachineArn=stateMachineArn
@@ -97,6 +97,8 @@ def errorHandle(error, runnerId):
         errorEvent = events[eventsCount - 1]
         detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
         print(detail)
+        print("hbzhao =========>>>>>>>")
+        print(detail['Step'])
         return json.dumps(detail['Step'])
 
     raise Exception('unknown')
@@ -123,9 +125,12 @@ def lambda_handler(event, context):
     except:
         err_message = 'unknown'
 
+    print(err_message)
+    print(json.loads(err_message))
     step_id = ""
-    if json.loads(err_message.get("Id")):
-        step_id = err_message.get("Id")
+
+    if json.loads(err_message).get("Id"):
+        step_id = json.loads(err_message).get("Id")
     cluster_id = event["engine"]["id"]
     logs = get_log_path(step_id, cluster_id)
 
@@ -133,11 +138,11 @@ def lambda_handler(event, context):
         if item['projectId'] == event['projectId']:
             put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed', message=err_message)
             # 失败的情况下修改status, endAt，logs
-            put_success_execution(item['id'], item['projectId'], str(int(ts)), logs, status="failed", dynamodb=None)
         else:
+
             if item['status'] == 'running':
                 put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed')
-                put_success_execution(item['id'], item['projectId'], str(int(ts)), logs, status="failed", dynamodb=None)
+                put_failed_execution(item['id'], item['projectId'], str(int(ts)), logs, status="failed", dynamodb=None)
             elif item['status'] == 'queued':
                 put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='canceled')
     

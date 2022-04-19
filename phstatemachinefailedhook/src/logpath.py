@@ -50,7 +50,7 @@ def get_log_path(step_id, cluster_id):
     try:
         bucket = "ph-platform"
         key = f"2020-11-11/emr/logs/{cluster_id}/steps/{step_id}/stderr.gz"
-        result = if_exit(bucket, key + "stderr.gz")
+        result = if_exit(bucket, key)
         print(result)
         if not result:
             return

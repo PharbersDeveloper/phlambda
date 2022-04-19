@@ -5,7 +5,7 @@ from boto3.dynamodb.conditions import Key
 # from phmetrixlayer import aws_cloudwatch_put_metric_data
 
 
-def put_notification(jobshowName, jobName, runnerId, projectId, category, code, comments, date, owner, showName,
+def put_notification(jobShowName, jobName, runnerId, projectId, category, code, comments, date, owner, showName,
     jobCat='notification', jobDesc='executionSuccess', message='', status='success',
     dynamodb=None):
     if not dynamodb:
@@ -20,7 +20,7 @@ def put_notification(jobshowName, jobName, runnerId, projectId, category, code, 
             "error": "{}",
             "jobName": jobName,
             "runId": "demo_demo_developer_2022-04-16T06:34:07+00:00",
-            "jobShowName": jobshowName
+            "jobShowName": jobShowName
         }
     }
 
@@ -45,7 +45,7 @@ def put_notification(jobshowName, jobName, runnerId, projectId, category, code, 
     return response
 
 
-def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, jobDesc, logs, status='success', dynamodb=None):
+def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, desc, logs, status='success', dynamodb=None):
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
 
@@ -64,8 +64,9 @@ def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, 
             'jobIndex': jobIndex,
             'projectId': projectId,
             'status': status,
-            'jobDesc': jobDesc,
+            'desc': desc,
             'jobShowName': jobShowName,
+            'jobName': jobName,
             'startAt': startAt,
             'endAt': endAt,
             'logs': logs,
@@ -129,7 +130,7 @@ def lambda_handler(event, context):
     # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
     # 3. put execution
     if status == "running":
-        put_start_execution(jobshowName, tmpJobName, event['projectId'], event['runnerId'], event['owner'], str(int(ts)), "", "", status=status)
+        put_start_execution(jobShowName, tmpJobName, event['projectId'], event['runnerId'], event['owner'], str(int(ts)), "", "", status=status)
     else:
         put_success_execution(event['runnerId'], tmpJobName, str(int(ts)), status)
 

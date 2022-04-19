@@ -29,6 +29,6 @@ class DynamoDBNotItem(Errors):
 class FileCodeError(Errors):
     code = 2
     message = {
-        "en": "File Not Found",
-        "zh": "文件未找到"
+        "en": "File Code Error",
+        "zh": "文件编码异常"
     }

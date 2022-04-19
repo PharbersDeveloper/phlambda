@@ -1,8 +1,9 @@
-import os
 import json
 import boto3
 from datetime import datetime
+from boto3.dynamodb.conditions import Key
 # from phmetrixlayer import aws_cloudwatch_put_metric_data
+
 
 def put_notification(jobshowName, jobName, runnerId, projectId, category, code, comments, date, owner, showName,
     jobCat='notification', jobDesc='executionSuccess', message='', status='success',
@@ -35,10 +36,67 @@ def put_notification(jobshowName, jobName, runnerId, projectId, category, code, 
             'comments': comments,
             'message': json.dumps(message, ensure_ascii=False),
             'jobCat': jobCat,
+            'date': date,
             'code': code,
             'category': category,
             'owner': owner
         }
+    )
+    return response
+
+
+def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, jobDesc, logs, status='success', dynamodb=None):
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb')
+
+    jobIndex = '_'.join([date, jobName])
+    startAt = date
+    endAt = ""
+    dagName = ("_").join(runnerId.split("_")[:-1])
+    id = '_'.join([jobIndex, projectId])
+    https_runnerId = runnerId.replace(":", "%3A").replace("+", "%2B")
+    #TODO pharbers为租户id
+    executionTemplate = f"https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/{dagName}/{https_runnerId}.json"
+
+    execution_table = dynamodb.Table('execution')
+    response = execution_table.put_item(
+        Item={
+            'jobIndex': jobIndex,
+            'projectId': projectId,
+            'status': status,
+            'jobDesc': jobDesc,
+            'jobShowName': jobShowName,
+            'startAt': startAt,
+            'endAt': endAt,
+            'logs': logs,
+            'runnerId': runnerId,
+            'id': id,
+            'owner': owner,
+            'executionTemplate': executionTemplate
+        }
+    )
+    return response
+
+
+def put_success_execution(runnerId, jobName, date, status, dynamodb=None):
+    # 首先从dynamodb的execution表获取item
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb')
+    execution_table = dynamodb.Table('execution')
+
+    res = execution_table.query(
+        IndexName='runnerId-jobName-index',
+        KeyConditionExpression=Key("runnerId").eq(runnerId)
+                               & Key("jobName").begins_with(jobName)
+    )
+    item = res["Items"][0]
+
+    # 更改status和endAt
+    item.update({"endAt": date})
+    item.update({"status": status})
+
+    response = execution_table.put_item(
+        Item=item
     )
     return response
 
@@ -56,17 +114,25 @@ def put_notification(jobshowName, jobName, runnerId, projectId, category, code, 
 def lambda_handler(event, context):
     print(event)
     dt = datetime.now()
-    ts = datetime.timestamp(dt)
+    ts = datetime.timestamp(dt) * 1000
 
     pn = event['projectName']
-    jobshowName = event["jobName"]
-    jobName = ("_").join(event["runnerId"].split("_")[:-1]) + "_" + event["jobName"]
+    jobShowName = event["jobName"]
+
     flowVersion = 'developer'
     tmpJobName = '_'.join([pn, pn, flowVersion, event['jobName']])
     status = event['status']
 
     # 1. put notification
-    put_notification(jobshowName, jobName, event['runnerId'], tmpJobName, None, 0, "", int(ts), event['owner'], event['showName'], status = status)
+    put_notification(jobShowName, tmpJobName, event['runnerId'], tmpJobName, None, 0, "", str(int(ts)), event['owner'], event['showName'], status = status)
     # 2. put metrics
     # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
-    return { "status": "ok"  }
+    # 3. put execution
+    if status == "running":
+        put_start_execution(jobshowName, tmpJobName, event['projectId'], event['runnerId'], event['owner'], str(int(ts)), "", "", status=status)
+    else:
+        put_success_execution(event['runnerId'], tmpJobName, str(int(ts)), status)
+
+    return {
+        "status": "ok"
+    }

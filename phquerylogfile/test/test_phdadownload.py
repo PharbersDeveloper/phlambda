@@ -16,6 +16,12 @@ class TestLmd:
             report = lambda_handler(event, None)
             print(report)
 
+    def test_not_Logs(self):
+        with open('../event/event_not_logs.json', 'r', encoding='utf8') as fp:
+            event = (json.loads(fp.read()))
+            report = lambda_handler(event, None)
+            print(report)
+
 
 if __name__ == '__main__':
     TestLmd().test_lmd()

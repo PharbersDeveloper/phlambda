@@ -3,7 +3,7 @@ import json
 from Yran import Yran_Logs
 from AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
-from constants.Errors import DynamoDBNotItem
+from constants.Errors import DynamoDBNotItem, ItemLogsError
 
 
 def query_data(projectId, jobIndex):
@@ -30,7 +30,11 @@ def run(**kwargs):
     if not execution_msg:
         raise DynamoDBNotItem("DynamoDB Not find Item")
 
-    logs_msg = json.loads(execution_msg.pop().get("logs"))
+    try:
+        logs_msg = json.loads(execution_msg.pop().get("logs"))
+    except:
+        raise ItemLogsError("item logs is error")
+
     return COMMANDS[logs_msg["type"]]().run(**logs_msg)
 
 

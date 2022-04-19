@@ -32,3 +32,11 @@ class FileCodeError(Errors):
         "en": "File Code Error",
         "zh": "文件编码异常"
     }
+
+
+class ItemLogsError(Errors):
+    code = 3
+    message = {
+        "en": "dyanmoDB item logs error",
+        "zh": "item日志信息错误"
+    }

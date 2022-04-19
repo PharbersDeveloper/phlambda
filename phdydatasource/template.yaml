@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
       FunctionName: lmd-phdydatasource-V2

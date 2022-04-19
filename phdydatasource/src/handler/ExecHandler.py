@@ -24,6 +24,7 @@ from models.Slide import Slide
 #     "Ph-Back-RW"
 # )
 # dynamodb = DynamoDB(sts=sts)
+
 dynamodb = DynamoDB()
 
 __dynamodb_func = {

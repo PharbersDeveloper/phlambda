@@ -7,11 +7,13 @@ class Step(Model):
     attributes = {
         "pjName": fields.Str(required=True),
         "stepId": fields.Str(required=True),
+        "index": fields.Str(dump_default="unknown"),
         "ctype": fields.Str(dump_default="unknown"),
         "expressions": fields.Str(dump_default="unknown"),
+        "runtime": fields.Str(dump_default="unknown"),
         "groupName": fields.Str(dump_default="unknown"),
         "groupIndex": fields.Int(dump_default=-1),
-        "id": fields.Str(dump_default="unknown"),
-        "expressionsValue": fields.Str(dump_default="unknown")
+        "expressionsValue": fields.Str(dump_default="unknown"),
+        "stepName": fields.Str(dump_default="unknown")
     }
 

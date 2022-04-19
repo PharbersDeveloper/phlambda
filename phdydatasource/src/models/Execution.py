@@ -16,7 +16,6 @@ class Execution(Model):
         "endAt": fields.Str(dump_default="unknown"),
         "owner": fields.Str(dump_default="unknown"),
         "runnerId": fields.Str(dump_default="unknown"),
-        "id": fields.Str(dump_default="unknown"),
         "executionTemplate": fields.Str(dump_default="unknown")
     }
 

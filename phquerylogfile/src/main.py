@@ -59,7 +59,7 @@ def lambda_handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin": "*",
             },
-            "body": json.dumps({"message": data, "status": 1}, ensure_ascii=False)
+            "body": json.dumps({"message": data, "status": 0}, ensure_ascii=False)
         }
 
     except Exception as e:

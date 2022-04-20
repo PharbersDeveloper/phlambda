@@ -11,7 +11,7 @@ class Errors(Exception):
 
 
 class FileNotFound(Errors):
-    code = 0
+    code = 1
     message = {
         "en": "File Not Found",
         "zh": "文件未找到"
@@ -19,7 +19,7 @@ class FileNotFound(Errors):
 
 
 class DynamoDBNotItem(Errors):
-    code = 1
+    code = 2
     message = {
         "en": "DynamoDB Not Item",
         "zh": "DynamoDB 未找到数据"
@@ -27,7 +27,7 @@ class DynamoDBNotItem(Errors):
 
 
 class FileCodeError(Errors):
-    code = 2
+    code = 3
     message = {
         "en": "File Code Error",
         "zh": "文件编码异常"
@@ -35,7 +35,7 @@ class FileCodeError(Errors):
 
 
 class ItemLogsError(Errors):
-    code = 3
+    code = 4
     message = {
         "en": "dyanmoDB item logs error",
         "zh": "item日志信息错误"
@@ -43,7 +43,7 @@ class ItemLogsError(Errors):
 
 
 class ItemTypeError(Errors):
-    code = 4
+    code = 5
     message = {
         "en": "dyanmoDB item logs type error",
         "zh": "item日志type错误"

@@ -2,6 +2,7 @@ import json
 import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
+from logpath import *
 # from phmetrixlayer import aws_cloudwatch_put_metric_data
 
 
@@ -78,7 +79,7 @@ def put_start_execution(jobShowName, jobName, projectId, runnerId, owner, date, 
     return response
 
 
-def put_success_execution(runnerId, jobName, date, status, dynamodb=None):
+def put_success_execution(runnerId, jobName, date, logs, status, dynamodb=None):
     # 首先从dynamodb的execution表获取item
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -94,6 +95,7 @@ def put_success_execution(runnerId, jobName, date, status, dynamodb=None):
     # 更改status和endAt
     item.update({"endAt": date})
     item.update({"status": status})
+    item.update({"logs": logs})
 
     response = execution_table.put_item(
         Item=item
@@ -131,7 +133,10 @@ def lambda_handler(event, context):
     if status == "running":
         put_start_execution(jobShowName, tmpJobName, event['projectId'], event['runnerId'], event['owner'], str(int(ts)), "", "", status=status)
     else:
-        put_success_execution(event['runnerId'], tmpJobName, str(int(ts)), status)
+        stepId = event.get("stepId")
+        clusterId = event.get("clusterId")
+        logs = get_log_path(stepId, clusterId)
+        put_success_execution(event['runnerId'], tmpJobName, str(int(ts)), logs, status)
 
     return {
         "status": "ok"

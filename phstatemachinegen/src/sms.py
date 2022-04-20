@@ -42,7 +42,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "HadoopJarStep.$": "$." + curJ['name'] + ".HadoopJarStep"
             }
         },
-        "ResultPath": None,
+        "ResultPath": "$.emrRes",
         "Next": curJ["name"] + "EndHook"
     }
 
@@ -56,6 +56,8 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
+            "stepId.$": "$.emrRes.Step.Id",
+            "clusterId": event['engine']['id'],
             "jobName": curJ["name"],
             "status": "success"
         },

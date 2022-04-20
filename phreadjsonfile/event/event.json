@@ -1,5 +1,5 @@
 {
-    "body": "{\"projectId\":  \"ggjpDje0HUC2JW\", \"jobIndex\": \"1650424233668_demo_demo_developer_compute_CC\"}",
+    "body": "{\"path\":  \"s3://ph-max-auto/2020-08-11/demo_demo_developer_2022-04-14T10:58:53+00:00.json\"}",
     "resource": "/act/{type}",
     "path": "/act/sendCode",
     "httpMethod": "GET",

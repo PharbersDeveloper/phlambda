@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phquerylogfile-dev
+Description: cicd lambda phreadjsonfile-dev
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,13 +11,13 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phquerylogfile-dev
-      Description: "phquerylogfile-dev "
+      FunctionName: lmd-phreadjsonfile-dev
+      Description: "phreadjsonfile-dev "
       MemorySize: 512
       Environment:
         Variables:
           EDITION: "DEV"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

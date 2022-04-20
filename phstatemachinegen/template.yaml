@@ -12,6 +12,13 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
+          SPARK_DRIVER_MEMORY
+          SPARK_DRIVER_CORES
+          SPARK_DRIVER_EXTRAJAVAOPTIONS
+          SPARK_EXECUTOR_CORES
+          SPARK_EXECUTOR_MEMORY
+          SPARK_EXECUTOR_EXTRAJAVAOPTIONS
+
       FunctionName: lmd-phstatemachinegen-dev
       Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

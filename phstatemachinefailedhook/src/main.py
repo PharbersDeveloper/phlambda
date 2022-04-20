@@ -97,8 +97,6 @@ def errorHandle(error, runnerId):
         errorEvent = events[eventsCount - 1]
         detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
         print(detail)
-        print("hbzhao =========>>>>>>>")
-        print(detail['Step'])
         return json.dumps(detail['Step'])
 
     raise Exception('unknown')
@@ -126,9 +124,7 @@ def lambda_handler(event, context):
         err_message = 'unknown'
 
     print(err_message)
-    print(json.loads(err_message))
     step_id = ""
-
     if json.loads(err_message).get("Id"):
         step_id = json.loads(err_message).get("Id")
     cluster_id = event["engine"]["id"]

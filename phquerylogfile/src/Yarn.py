@@ -14,6 +14,7 @@ class Yarn_Logs(Logs):
         except:
             raise FileCodeError("file decode error")
 
+
     def read_gz(self, gz_data):
         gzipfile = BytesIO(gz_data)
         return gzip.GzipFile(fileobj=gzipfile).read()

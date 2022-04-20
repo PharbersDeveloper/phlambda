@@ -95,7 +95,10 @@ def errorHandle(error, runnerId):
         events = client.get_execution_history(executionArn=executionArn)['events']
         eventsCount = len(events)
         errorEvent = events[eventsCount - 1]
-        detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
+        if errorEvent.get("type") == "ExecutionAborted":
+            detail = {"Step": {}}
+        else:
+            detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
         print(detail)
         return json.dumps(detail['Step'])
 
@@ -123,12 +126,12 @@ def lambda_handler(event, context):
     except:
         err_message = 'unknown'
 
-    print(err_message)
     step_id = ""
+    logs = ""
     if json.loads(err_message).get("Id"):
         step_id = json.loads(err_message).get("Id")
-    cluster_id = event["engine"]["id"]
-    logs = get_log_path(step_id, cluster_id)
+        cluster_id = event["engine"]["id"]
+        logs = get_log_path(step_id, cluster_id)
 
     for item in items:
         if item['projectId'] == event['projectId']:

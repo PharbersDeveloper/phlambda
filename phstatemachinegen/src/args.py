@@ -1,3 +1,4 @@
+import os
 import json
 from collections import deque
 
@@ -38,13 +39,13 @@ def submitArgsByEngine(curJ, event):
     tmp.append('--deploy-mode')
     tmp.append('cluster')
     tmp.append('--conf')
-    tmp.append('spark.driver.cores=1') # To ENV
+    tmp.append('spark.driver.cores=1' + os.getenv("SPARK_DRIVER_CORES")) # To ENV
     tmp.append('--conf')
-    tmp.append('spark.driver.memory=1g') # To ENV
+    tmp.append('spark.driver.memory=1g' + os.getenv("SPARK_DRIVER_MEMORY")) # To ENV
     tmp.append('--conf')
-    tmp.append('spark.executor.cores=1') # To ENV
+    tmp.append('spark.executor.cores=1' + os.getenv("SPARK_EXECUTOR_CORES")) # To ENV
     tmp.append('--conf')
-    tmp.append('spark.executor.memory=1g') # To ENV
+    tmp.append('spark.executor.memory=1g' + os.getenv("SPARK_EXECUTOR_MEMORY")) # To ENV
     tmp.append('--conf')
     tmp.append('"spark.executor.extraJavaOptions=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"') # To ENV
     tmp.append('--conf')

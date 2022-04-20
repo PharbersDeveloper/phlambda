@@ -4,6 +4,7 @@ import json
 
 s3 = boto3.client('s3')
 
+
 def if_exit(bucket, key):
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
@@ -36,5 +37,5 @@ def lambda_handler(event, context):
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps({"message": e, "status": 1}, ensure_ascii=False)
+            "body": json.dumps({"message": str(e), "status": 1}, ensure_ascii=False)
         }

@@ -17,7 +17,7 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:

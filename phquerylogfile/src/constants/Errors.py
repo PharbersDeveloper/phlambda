@@ -40,3 +40,11 @@ class ItemLogsError(Errors):
         "en": "dyanmoDB item logs error",
         "zh": "item日志信息错误"
     }
+
+
+class ItemTypeError(Errors):
+    code = 4
+    message = {
+        "en": "dyanmoDB item logs type error",
+        "zh": "item日志type错误"
+    }

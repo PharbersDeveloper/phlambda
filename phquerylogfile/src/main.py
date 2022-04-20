@@ -1,9 +1,10 @@
 
 import json
-from Yran import Yran_Logs
+from Yarn import Yarn_Logs
+from Step import Step_Logs
 from AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
-from constants.Errors import DynamoDBNotItem, ItemLogsError
+from constants.Errors import DynamoDBNotItem, ItemLogsError, ItemTypeError
 
 
 def query_data(projectId, jobIndex):
@@ -18,9 +19,10 @@ def query_data(projectId, jobIndex):
 
 
 COMMANDS = {
-    'lambda': None,
-    'emr': None,
-    'yran': Yran_Logs,
+    'lambdalog': None,
+    'emrlog': None,
+    'yarnlog': Yarn_Logs,
+    'steplog': Step_Logs
 }
 
 
@@ -33,9 +35,20 @@ def run(**kwargs):
     try:
         logs_msg = json.loads(execution_msg.pop().get("logs"))
     except:
-        raise ItemLogsError("item logs is error")
+        raise ItemLogsError("item logs error")
 
-    return COMMANDS[logs_msg["type"]]().run(**logs_msg)
+    step_log = ''
+    data_list = []
+    for msg in logs_msg:
+        command = msg.get("type", '').lower()
+        if command not in COMMANDS.keys():
+            raise ItemTypeError("Item Type Error")
+        result = COMMANDS[command]().run(**msg)
+        if command == "steplog":
+            step_log = result
+        else:
+            data_list.append(result)
+    return [step_log + data for data in data_list]
 
 
 def lambda_handler(event, context):

@@ -7,7 +7,7 @@ from boto3.dynamodb.conditions import Key
 from constants.Errors import DynamoDBNotItem, ItemLogsError, ItemTypeError
 
 
-def query_data(projectId, jobIndex):
+def query_data(projectId, jobIndex, **kwargs):
     dynamodb = DynamoDB()
     data = {
         "table_name": "execution",
@@ -39,7 +39,8 @@ def run(**kwargs):
 
     out_put = kwargs.get("out_put", None)
     if out_put:
-        logs_msg = [logs for logs in logs_msg if logs in out_put]
+        out_put = [out.lower() for out in out_put]
+        logs_msg = [logs for logs in logs_msg if logs["type"].lower() in out_put]
 
     log_data = ''
     for msg in logs_msg:

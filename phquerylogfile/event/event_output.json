@@ -1,5 +1,5 @@
 {
-    "body": "{\"projectId\":  \"ggjpDje0HUC2JW\", \"jobIndex\": \"1650424233668_demo_demo_developer_compute_CC\"}",
+    "body": "{\"projectId\":  \"ggjpDje0HUC2JW\", \"jobIndex\": \"1650425194498_demo_demo_developer_compute_CC\", \"out_put\": [\"stepLog\"]}",
     "resource": "/act/{type}",
     "path": "/act/sendCode",
     "httpMethod": "GET",

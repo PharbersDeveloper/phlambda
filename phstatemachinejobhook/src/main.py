@@ -125,10 +125,6 @@ def lambda_handler(event, context):
     tmpJobName = '_'.join([pn, pn, flowVersion, event['jobName']])
     status = event['status']
 
-    # 1. put notification
-    put_notification(jobShowName, tmpJobName, event['runnerId'], tmpJobName, None, 0, "", str(int(ts)), event['owner'], event['showName'], status = status)
-    # 2. put metrics
-    # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
     # 3. put execution
     if status == "running":
         put_start_execution(jobShowName, tmpJobName, event['projectId'], event['runnerId'], event['owner'], str(int(ts)), "", "", status=status)
@@ -137,6 +133,13 @@ def lambda_handler(event, context):
         clusterId = event.get("clusterId")
         logs = get_log_path(stepId, clusterId)
         put_success_execution(event['runnerId'], tmpJobName, str(int(ts)), logs, status)
+
+    # 1. put notification
+    put_notification(jobShowName, tmpJobName, event['runnerId'], tmpJobName, None, 0, "", str(int(ts)), event['owner'], event['showName'], status = status)
+    # 2. put metrics
+    # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
+
+
 
     return {
         "status": "ok"

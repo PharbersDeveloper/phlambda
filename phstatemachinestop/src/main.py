@@ -27,6 +27,7 @@ def lambda_handler(event, context):
                 "message": "stop dag success"
             }
         }
+
     except Exception as e:
         result_message = {
             "status": "error",

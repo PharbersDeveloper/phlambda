@@ -37,6 +37,7 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
             'message': message,
             'jobCat': jobCat,
             'code': code,
+            'date': date,
             'category': category,
             'owner': owner
         }

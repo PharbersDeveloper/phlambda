@@ -139,7 +139,7 @@ def lambda_handler(event, context):
         err_message = 'unknown'
 
     step_id = ""
-    logs = ""
+    logs = "[]"
     if json.loads(err_message).get("Id"):
         step_id = json.loads(err_message).get("Id")
         cluster_id = event["engine"]["id"]

@@ -24,9 +24,8 @@ def put_notification(jobShowName, jobName, runnerId, projectId, category, code, 
             "jobShowName": jobShowName
         }
     }
-
-
     table = dynamodb.Table('notification')
+
     response = table.put_item(
        Item={
             'id': runnerId,
@@ -43,6 +42,7 @@ def put_notification(jobShowName, jobName, runnerId, projectId, category, code, 
             'owner': owner
         }
     )
+
     return response
 
 

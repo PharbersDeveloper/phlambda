@@ -27,21 +27,33 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     }
 
     table = dynamodb.Table('notification')
-    response = table.put_item(
-       Item={
-            'id': runnerId,
-            'projectId': projectId,
-            'showName': showName,
-            'status': status,
-            'jobDesc': jobDesc,
-            'comments': comments,
-            'message': json.dumps(message, ensure_ascii=False),
-            'jobCat': jobCat,
-            'code': code,
-            'category': category,
-            'owner': owner
-        }
+    # 先判断notification是否存在 存在则进行更新
+    res = table.query(
+        KeyConditionExpression=Key("id").eq(runnerId)
+                               & Key("projectId").begins_with(projectId)
     )
+    if len(res["Items"]) == 0:
+        response = table.put_item(
+           Item={
+                'id': runnerId,
+                'projectId': projectId,
+                'showName': showName,
+                'status': status,
+                'jobDesc': jobDesc,
+                'date': date,
+                'comments': comments,
+                'message': json.dumps(message, ensure_ascii=False),
+                'jobCat': jobCat,
+                'code': code,
+                'category': category,
+                'owner': owner
+            }
+        )
+    else:
+        item = res["Items"][0]
+        item.update({"status": status})
+        response = table.put_item(Item=item)
+
     return response
 
 def put_failed_execution(runnerId, jobName, date, logs, status, dynamodb=None):

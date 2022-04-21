@@ -37,8 +37,8 @@ def run(**kwargs):
     except:
         raise ItemLogsError("item logs error")
 
-    out_put = kwargs.get("out_put", None)
-    if out_put:
+    out_put = kwargs.get("out_put", [])
+    if out_put and isinstance(out_put, list):
         out_put = [out.lower() for out in out_put]
         logs_msg = [logs for logs in logs_msg if logs["type"].lower() in out_put]
 

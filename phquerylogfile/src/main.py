@@ -9,6 +9,9 @@ from constants.Errors import DynamoDBNotItem, ItemLogsError, ItemTypeError
 
 def query_data(projectId, jobIndex):
     dynamodb = DynamoDB()
+    a = {"access_key": "AKIAWPBDTVEANKEW2XNC",
+        "secret_key": "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"}
+    dynamodb = DynamoDB(**a)
     data = {
         "table_name": "execution",
         "expression": Key("projectId").eq(projectId) & Key("jobIndex").eq(jobIndex),
@@ -37,18 +40,18 @@ def run(**kwargs):
     except:
         raise ItemLogsError("item logs error")
 
-    step_log = ''
-    data_list = []
+    out_put = kwargs.get("out_put", None)
+    if out_put:
+        logs_msg = [logs for logs in logs_msg if logs in out_put]
+
+    log_data = ''
     for msg in logs_msg:
         command = msg.get("type", '').lower()
         if command not in COMMANDS.keys():
             raise ItemTypeError("Item Type Error")
-        result = COMMANDS[command]().run(**msg)
-        if command == "steplog":
-            step_log = result
-        else:
-            data_list.append(result)
-    return [step_log + data for data in data_list]
+        log_data += COMMANDS[command]().run(**msg)
+
+    return log_data
 
 
 def lambda_handler(event, context):

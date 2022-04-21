@@ -1,7 +1,7 @@
 import gzip
 from io import BytesIO
 from Logs import Logs
-from constants.Errors import FileNotFound, FileCodeError
+from constants.Errors import FileNotFound, FileCodeError, YarnFilePathError
 
 
 class Yarn_Logs(Logs):
@@ -29,13 +29,16 @@ class Yarn_Logs(Logs):
 
 
     def run(self, uri, **kwargs):
-        bucket = uri.split('/')[0]
-        uri = uri[len(bucket) + 1:]
-        logkey_list = self.query_logfile(bucket, uri)
+        try:
+            bucket = uri.split('/')[0]
+            uri = uri[len(bucket) + 1:]
+            logkey_list = self.query_logfile(bucket, uri)
 
-        data = ""
-        for i in logkey_list:
-            data += self.read_file(bucket, i)
-        if not data:
-            raise FileNotFound("logs file not exit")
-        return data
+            data = ""
+            for i in logkey_list:
+                data += self.read_file(bucket, i)
+            if not data:
+                raise FileNotFound("logs file not exit")
+            return data
+        except:
+            raise YarnFilePathError("Yarn File Path Error")

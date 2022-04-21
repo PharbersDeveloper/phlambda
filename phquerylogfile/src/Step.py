@@ -2,7 +2,7 @@
 import gzip
 from io import BytesIO
 from Logs import Logs
-from constants.Errors import FileNotFound
+from constants.Errors import FileNotFound, StepFilePathError
 
 
 class Step_Logs(Logs):
@@ -13,12 +13,15 @@ class Step_Logs(Logs):
 
 
     def run(self, uri, **kwargs):
-        bucket = uri.split('/')[0]
-        uri = uri[len(bucket)+1:]
+        try:
+            bucket = uri.split('/')[0]
+            uri = uri[len(bucket)+1:]
 
-        result = self.get_data(bucket, uri)
-        if not result:
-            raise FileNotFound("logs file not exit")
+            result = self.get_data(bucket, uri)
+            if not result:
+                raise FileNotFound("logs file not exit")
 
-        log_file = self.read_gz(result).decode()
-        return log_file
+            log_file = self.read_gz(result).decode()
+            return log_file
+        except:
+            raise StepFilePathError("Step File Path Error")

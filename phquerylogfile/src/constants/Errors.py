@@ -48,3 +48,19 @@ class ItemTypeError(Errors):
         "en": "dyanmoDB item logs type error",
         "zh": "item日志type错误"
     }
+
+
+class YarnFilePathError(Errors):
+    code = 6
+    message = {
+        "en": "Yarn FIle Path Error",
+        "zh": "yarn日志文件路径错误"
+    }
+
+
+class StepFilePathError(Errors):
+    code = 7
+    message = {
+        "en": "Step FIle Path Error",
+        "zh": "Step日志文件路径错误"
+    }

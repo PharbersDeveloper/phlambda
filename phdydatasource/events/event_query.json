@@ -1,5 +1,5 @@
 {
-  "body": "{\"table\":\"dag\",\"conditions\":{\"projectId\":[\"=\",\"zrqojSgLfK1PbsmH\"],\"sortVersion\":[\"=\",\"developer_-76mXfbxK-xua8t\"]},\"limit\":10,\"start_key\": {}}",
+  "body": "{\"table\":\"execution\",\"conditions\":{\"runnerId\":[\"=\",\"demo_demo_developer_2022-04-16T08:23:51+00:00\"],\"jobName\":[\"=\",\"demo_demo_developer_compute_q_out\"]},\"index_name\":\"runnerId-jobName-index\",\"limit\":100,\"start_key\":\"\"}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/query",
   "httpMethod": "POST",

@@ -9,9 +9,6 @@ from constants.Errors import DynamoDBNotItem, ItemLogsError, ItemTypeError
 
 def query_data(projectId, jobIndex):
     dynamodb = DynamoDB()
-    a = {"access_key": "AKIAWPBDTVEANKEW2XNC",
-        "secret_key": "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"}
-    dynamodb = DynamoDB(**a)
     data = {
         "table_name": "execution",
         "expression": Key("projectId").eq(projectId) & Key("jobIndex").eq(jobIndex),

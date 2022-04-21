@@ -57,12 +57,14 @@ def __queryData(table, body, type_name):
     dy_method = __dynamodb_func[type_name]
     limit = body.get("limit", 100)
     start_key = body.get("start_key", None)
+    index_name = body.get("index_name", None)
     if start_key is not None and len(start_key) == 0:
         start_key = None
     conditions = body["conditions"]
 
     expr = Expression().join_expr(type_name, conditions)
-    payload = dy_method({"table_name": table, "limit": limit, "expression": expr, "start_key": start_key})
+    payload = dy_method({"table_name": table, "index_name": index_name,
+                         "limit": limit, "expression": expr, "start_key": start_key})
 
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
     json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))

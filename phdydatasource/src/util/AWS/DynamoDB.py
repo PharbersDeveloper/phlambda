@@ -37,21 +37,27 @@ class DynamoDB:
         limit = data["limit"]
         expression = data["expression"]
         start_key = data["start_key"]
+        index_name = data["index_name"]
         paginator = self.dynamodb_client.get_paginator("query")
 
+        parameter = {
+            "TableName": table_name,
+            "ScanIndexForward": False,
+            "KeyConditionExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+            "PaginationConfig": {
+                "MaxItems": limit,
+                "PageSize": limit,
+                "StartingToken": start_key
+            }
+        }
+
+        if index_name is not None:
+            parameter.update({"IndexName": index_name})
+
         try:
-            response_iterator = paginator.paginate(
-                TableName=table_name,
-                ScanIndexForward=False,
-                KeyConditionExpression=expression["FilterExpression"],
-                ExpressionAttributeNames=expression["ExpressionAttributeNames"],
-                ExpressionAttributeValues=expression["ExpressionAttributeValues"],
-                PaginationConfig={
-                    "MaxItems": limit,
-                    "PageSize": limit,
-                    "StartingToken": start_key
-                }
-            )
+            response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
@@ -71,18 +77,20 @@ class DynamoDB:
         start_key = data["start_key"]
         paginator = self.dynamodb_client.get_paginator("scan")
 
+        parameter = {
+            "TableName": table_name,
+            "FilterExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+            "PaginationConfig": {
+                "MaxItems": limit,
+                "PageSize": limit,
+                "StartingToken": start_key
+            }
+        }
+
         try:
-            response_iterator = paginator.paginate(
-                TableName=table_name,
-                FilterExpression=expression["FilterExpression"],
-                ExpressionAttributeNames=expression["ExpressionAttributeNames"],
-                ExpressionAttributeValues=expression["ExpressionAttributeValues"],
-                PaginationConfig={
-                    "MaxItems": limit,
-                    "PageSize": limit,
-                    "StartingToken": start_key
-                }
-            )
+            response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),

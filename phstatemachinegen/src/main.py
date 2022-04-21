@@ -3,7 +3,7 @@ import json
 import boto3
 from datetime import datetime
 from collections import deque
-from cal import calDatasetPath
+from cal import calDatasetPath, calDatasetPathOne
 from args import *
 from sms import *
 
@@ -37,11 +37,42 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
             'message': message,
             'jobCat': jobCat,
             'code': code,
+            'date': date,
             'category': category,
             'owner': owner
         }
     )
     return response
+
+
+def creat_args(event, stackargs, stacksm, datasets, jobs, links, dagName):
+    recursive = event['calculate'].get('recursive', True)
+    print("recursive>>>>>>>")
+    print(recursive)
+    args = {}
+    sm = {}
+    if recursive:
+        if (calDatasetPath(event['calculate']['name'], datasets, jobs, links, stackargs)):
+            stack2smargs(stackargs, event, args)
+
+        if (calDatasetPath(event['calculate']['name'], datasets, jobs, links, stacksm)):
+            prevJobName = 'StateMachineStartHook'
+            stack2smdefs(stacksm, event, sm, prevJobName)
+    else:
+        if (calDatasetPathOne(event['calculate']['name'], datasets, jobs, links, stackargs)):
+            stack2smargs(stackargs, event, args)
+
+        if (calDatasetPathOne(event['calculate']['name'], datasets, jobs, links, stacksm)):
+            prevJobName = 'StateMachineStartHook'
+            stack2smdefs(stacksm, event, sm, prevJobName)
+
+    s3 = boto3.client('s3')
+    s3.put_object(
+        Body=json.dumps(sm).encode(),
+        Bucket='ph-platform',
+        Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
+    )
+    return args
 
 
 def lambda_handler(event, context):
@@ -71,28 +102,11 @@ def lambda_handler(event, context):
     links = list(map(messageAdapter, links))
     stackargs = deque()
     stacksm = deque()
-
-    args = {}
-    if (calDatasetPath(event['calculate']['name'], datasets, jobs, links, stackargs)):
-        stack2smargs(stackargs, event, args)
-
-    sm = {}
-
     dagName = ("_").join(event['runnerId'].split("_")[:-1])
-    if (calDatasetPath(event['calculate']['name'], datasets, jobs, links, stacksm)):
-        prevJobName = 'StateMachineStartHook'
-        stack2smdefs(stacksm, event, sm, prevJobName)
 
-        s3 = boto3.client('s3')
-        s3.put_object(
-            Body=json.dumps(sm).encode(),
-            Bucket='ph-platform',
-            Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
-        )
-
+    args = creat_args(event, stackargs, stacksm, datasets, jobs, links, dagName)
 
     return {
         'args': args,
         'sm': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
     }
-    

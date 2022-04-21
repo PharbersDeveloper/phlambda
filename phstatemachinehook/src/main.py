@@ -2,6 +2,7 @@ import os
 import json
 import boto3
 from datetime import datetime
+from boto3.dynamodb.conditions import Key
 # from phmetrixlayer import aws_cloudwatch_put_metric_data
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,  
@@ -22,21 +23,31 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
     }
 
     table = dynamodb.Table('notification')
-    response = table.put_item(
-       Item={
-            'id': runnerId,
-            'projectId': projectId,
-            'showName': showName,
-            'status': status,
-            'jobDesc': jobDesc,
-            'comments': comments,
-            'message': json.dumps(message, ensure_ascii=False),
-            'jobCat': jobCat,
-            'code': code,
-            'category': category,
-            'owner': owner
-        }
+    res = table.query(
+        KeyConditionExpression=Key("id").eq(runnerId)
+                               & Key("projectId").begins_with(projectId)
     )
+    if len(res["Items"]) == 0:
+        response = table.put_item(
+            Item={
+                'id': runnerId,
+                'projectId': projectId,
+                'showName': showName,
+                'status': status,
+                'jobDesc': jobDesc,
+                'comments': comments,
+                'message': json.dumps(message, ensure_ascii=False),
+                'jobCat': jobCat,
+                'date': date,
+                'code': code,
+                'category': category,
+                'owner': owner
+            }
+        )
+    else:
+        item = res["Items"][0]
+        item.update({"status": status})
+        response = table.put_item(Item=item)
     return response
 
 

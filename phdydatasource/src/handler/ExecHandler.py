@@ -1,24 +1,25 @@
 import json
+
 from util.ExpressionUtil import Expression
 from util.Convert2JsonAPI import Convert2JsonAPI
 from util.AWS.DynamoDB import DynamoDB
-from models import *
-# from models.Execution import Execution
-# from models.Step import Step
-# from models.Action import Action
-# from models.ProjectFile import ProjectFile
-# from models.Partition import Partition
-# from models.DataSet import DataSet
-# from models.Version import Version
-# from models.Notification import Notification
-# from models.Dag import Dag
-# from models.DagConf import DagConf
-# from models.Log import Log
-# from models.Dashboard import Dashboard
-# from models.Slide import Slide
-# from models.Scenario import Scenario
-# from models.ScenarioStep import ScenarioStep
-# from models.ScenarioTrigger import ScenarioTrigger
+# from models import *
+from models.Execution import Execution
+from models.Step import Step
+from models.Action import Action
+from models.ProjectFile import ProjectFile
+from models.Partition import Partition
+from models.DataSet import DataSet
+from models.Version import Version
+from models.Notification import Notification
+from models.Dag import Dag
+from models.DagConf import DagConf
+from models.Log import Log
+from models.Dashboard import Dashboard
+from models.Slide import Slide
+from models.Scenario import Scenario
+from models.ScenarioStep import ScenarioStep
+from models.ScenarioTrigger import ScenarioTrigger
 
 # import base64
 # from util.AWS.STS import STS
@@ -94,10 +95,22 @@ def __batch_get_items(table, body, type_name):
 
 
 def __putItem(table, body, type_name):
+    def ids(items):
+        payload = list(map(lambda item: dy_method({"table_name": table, "item": item}), items))
+        result = list(map(lambda item: __table_structure[table](item["data"]), payload))
+        return json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
+
+    def base(item):
+        payload = dy_method({"table_name": table, "item": item})
+        result = __table_structure[table](payload["data"])
+        return json.loads(Convert2JsonAPI(__table_structure[table], many=False).build().dumps(result))
+    is_ids = {
+        "True": ids,
+        "False": base
+    }
     dy_method = __dynamodb_func[type_name]
-    payload = dy_method({"table_name": table, "item": body["item"]})
-    result = __table_structure[table](payload["data"])
-    json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=False).build().dumps(result))
+    item = body["item"]
+    json_api_data = is_ids[str(isinstance(item, list))](item)
     return json_api_data
 
 

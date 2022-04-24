@@ -9,6 +9,7 @@ class ScenarioTrigger(Model):
         "index": fields.Int(dump_default=0),
         "active": fields.Boolean(dump_default=False),
         "detail": fields.Str(dump_default="unknown"),
+        "mode": fields.Str(dump_default="unknown"),
         "resrouceArn": fields.Str(dump_default="unknown"),
         "traceId": fields.Str(dump_default="unknown")
     }

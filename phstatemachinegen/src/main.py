@@ -4,9 +4,10 @@ import boto3
 from datetime import datetime
 from collections import deque
 from cal import calDatasetPath, calDatasetPathOne
+from sample import create_sample_args
 from args import *
 from sms import *
-
+dynamodb = boto3.resource('dynamodb')
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,
                      jobCat='notification', jobDesc='executionSuccess', message='', status='prepare',
@@ -75,12 +76,8 @@ def creat_args(event, stackargs, stacksm, datasets, jobs, links, dagName):
     return args
 
 
-def lambda_handler(event, context):
-    print(event)
-    dt = datetime.now()
-    ts = datetime.timestamp(dt)
+def create_ds_args(event, ts):
 
-    dynamodb = boto3.resource('dynamodb')
     # 1. put notification
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], dynamodb=dynamodb)
 
@@ -110,3 +107,17 @@ def lambda_handler(event, context):
         'args': args,
         'sm': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
     }
+
+
+def lambda_handler(event, context):
+    print(event)
+    dt = datetime.now()
+    ts = datetime.timestamp(dt)
+
+    if event["calculate"].get("type") == "sample":
+        msg = create_sample_args(event, ts)
+    else:
+        msg = create_ds_args(event,ts)
+
+
+    return msg

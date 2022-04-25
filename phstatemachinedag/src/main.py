@@ -46,6 +46,7 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
+    smTemplateKey = event["dag"]
     stackName = event['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
     # 1. put notification
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'])
@@ -67,7 +68,7 @@ def lambda_handler(event, context):
             },
             {
                 'ParameterKey': 'S3TemplateKey',
-                'ParameterValue': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" + event['runnerId'] + '.json'
+                'ParameterValue': smTemplateKey
              }
         ])
     print(response)

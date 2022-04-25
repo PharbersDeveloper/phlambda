@@ -1,6 +1,7 @@
 import json
 from handler.Command import Command
 from handler.Receiver import Receiver
+from handler.BaseCodeCommand import BaseCodeCommand
 from handler.SelectCommand import SelectCommand
 from handler.ScriptCommand import ScriptCommand
 from handler.FilterOnValueCommand import FilterOnValueCommand
@@ -24,12 +25,10 @@ class GenerateInvoker:
     }
 
     def __execute(self, commands: [Command], runtime):
-        if len(commands) == 0:
-            return ""
-
         def write_prepare():
-            codes = """    data_frame = kwargs.get("input_df")\n\n"""
-            codes += """    import pyspark.sql.functions as F\n\n"""
+            codes = BaseCodeCommand(Receiver()).execute()
+            codes += """\ndef execute(**kwargs):\n"""
+            codes += """    data_frame = kwargs.get("input_df")\n\n"""
             return_df = ""
             for code in list(commands):
                 content = code.execute()
@@ -70,4 +69,8 @@ class GenerateInvoker:
     def execute(self, operator_parameters, runtime):
         cmd_instance = list(map(lambda item: self.commands[item["type"].lower()](Receiver(), json.dumps(item)),
                                 operator_parameters))
+
+        if len(cmd_instance) == 0:
+            return ""
+
         return self.__execute(cmd_instance, runtime)

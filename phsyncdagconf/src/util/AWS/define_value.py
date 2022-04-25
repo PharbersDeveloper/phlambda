@@ -83,6 +83,7 @@ PRESET_MUST_ARGS = 'owner, dag_name, run_id, job_full_name, ph_conf'
 
 # 针对低代码
 LOW_CODE_TEMPLATE_OPERATOR = {
+    "base_funcs": "/template/python/phcli/maxauto/base_funcs.tmp",
     "filter_on_value_for_pyspark": "/template/python/phcli/maxauto/filter_on_value_for_pyspark_dev.tmp",
     "filter_on_numerical_range_for_pyspark": "/template/python/phcli/maxauto/filter_on_numerical_range_for_pyspark_dev.tmp",
     "select_for_pyspark": "/template/python/phcli/maxauto/select_for_pyspark_dev.tmp",

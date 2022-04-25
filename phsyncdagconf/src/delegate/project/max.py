@@ -42,7 +42,8 @@ class Max(Project):
         except Exception as e:
             status = str(e)
         finally:
-            self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=status)
-            self.logger.debug("更新notification状态成功")
-            self.logger.debug(status)
+            if dag_conf is not None:
+                self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=status)
+                self.logger.debug("更新notification状态成功")
+                self.logger.debug(status)
         # redis_cli.delete(redis_lock)

@@ -119,7 +119,7 @@ def max_refrash(dag_item):
     else:
         status = "dag insert success"
 
-    return status
+    return status, None
 
 def max_prepare_script(dag_item):
     logger = PhLogging().phLogger("max_prepare_script", LOG_DEBUG_LEVEL)
@@ -133,4 +133,4 @@ def max_prepare_script(dag_item):
     else:
         status = "dag insert success"
 
-    return status
+    return status, dag_item

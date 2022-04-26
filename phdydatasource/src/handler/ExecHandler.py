@@ -2,23 +2,22 @@ import json
 from util.ExpressionUtil import Expression
 from util.Convert2JsonAPI import Convert2JsonAPI
 from util.AWS.DynamoDB import DynamoDB
-from models import *
-# from models.Execution import Execution
-# from models.Step import Step
-# from models.Action import Action
-# from models.ProjectFile import ProjectFile
-# from models.Partition import Partition
-# from models.DataSet import DataSet
-# from models.Version import Version
-# from models.Notification import Notification
-# from models.Dag import Dag
-# from models.DagConf import DagConf
-# from models.Log import Log
-# from models.Dashboard import Dashboard
-# from models.Slide import Slide
-# from models.Scenario import Scenario
-# from models.ScenarioStep import ScenarioStep
-# from models.ScenarioTrigger import ScenarioTrigger
+from models.Execution import Execution
+from models.Step import Step
+from models.Action import Action
+from models.ProjectFile import ProjectFile
+from models.Partition import Partition
+from models.DataSet import DataSet
+from models.Version import Version
+from models.Notification import Notification
+from models.Dag import Dag
+from models.DagConf import DagConf
+from models.Log import Log
+from models.Dashboard import Dashboard
+from models.Slide import Slide
+from models.Scenario import Scenario
+from models.ScenarioStep import ScenarioStep
+from models.ScenarioTrigger import ScenarioTrigger
 
 # import base64
 # from util.AWS.STS import STS

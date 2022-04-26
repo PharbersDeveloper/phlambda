@@ -11,6 +11,7 @@ class Scenario(Model):
         "active": fields.Boolean(dump_default=False),
         "args": fields.Str(dump_default="unknown"),
         "owner": fields.Str(dump_default="unknown"),
-        "traceId": fields.Str(dump_default="unknown")
+        "traceId": fields.Str(dump_default="unknown"),
+        "label": fields.Str(dump_default="unknown")
     }
 

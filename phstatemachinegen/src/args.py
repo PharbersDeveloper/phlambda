@@ -58,6 +58,8 @@ def submitArgsByEngine(curJ, event):
     ph_conf = json.dumps(event['calculate']['conf'], ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
 
     if curJ['runtime'] == 'r' or curJ['runtime'] == 'sparkr':
+        tmp.append('--jars')
+        tmp.append('/jars/clickhouse-jdbc-0.2.4.jar,/jars/guava-30.1.1-jre.jar')
         tmp.append('--files')
         tmp.append('s3://ph-platform/2020-11-11/jobs/python/phcli/' + dagName + '/' + jobName + '/phjob.R')
         tmp.append('s3://ph-platform/2020-11-11/jobs/python/phcli/' + dagName + '/' + jobName + '/phmain.R')

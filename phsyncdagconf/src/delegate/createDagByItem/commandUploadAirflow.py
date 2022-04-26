@@ -229,7 +229,8 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         self.phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/phjob.py")
         operator_code = GenerateInvoker().execute(operatorParameters, "prepare")
         with open(job_path + "/phjob.py", "a") as file:
-            file.write("""def execute(**kwargs):\n""")
+            # file.write("""def execute(**kwargs):\n""")
+            file.write("")
             file.write(operator_code)
 
         # 创建完成后将脚本上传到s3
@@ -298,7 +299,7 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         choose_job_head = {
             "python3": """def execute(**kwargs):\n""",
             "pyspark": """def execute(**kwargs):\n""",
-            "prepare": """def execute(**kwargs):\n""",
+            "prepare": "",
             "r": "",
             "sparkr": ""
         }
@@ -309,7 +310,7 @@ create_outputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_
         print("Tobeey =======>>>>>>>>")
         print("判断s3是否存在")
         print(operator_parameters)
-        print(dag_name + "/" + job_full_name+ "/" + choose_job[runtime]())
+        print(dag_name + "/" + job_full_name + "/" + choose_job[runtime]())
         print(phjob_exist)
         print("Tobeey =======>>>>>>>>")
         if not phjob_exist:

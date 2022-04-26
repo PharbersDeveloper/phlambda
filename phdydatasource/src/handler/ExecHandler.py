@@ -1,4 +1,5 @@
 import json
+
 from util.ExpressionUtil import Expression
 from util.Convert2JsonAPI import Convert2JsonAPI
 from util.AWS.DynamoDB import DynamoDB
@@ -93,10 +94,22 @@ def __batch_get_items(table, body, type_name):
 
 
 def __putItem(table, body, type_name):
+    def ids(items):
+        payload = list(map(lambda item: dy_method({"table_name": table, "item": item}), items))
+        result = list(map(lambda item: __table_structure[table](item["data"]), payload))
+        return json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
+
+    def base(item):
+        payload = dy_method({"table_name": table, "item": item})
+        result = __table_structure[table](payload["data"])
+        return json.loads(Convert2JsonAPI(__table_structure[table], many=False).build().dumps(result))
+    is_ids = {
+        "True": ids,
+        "False": base
+    }
     dy_method = __dynamodb_func[type_name]
-    payload = dy_method({"table_name": table, "item": body["item"]})
-    result = __table_structure[table](payload["data"])
-    json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=False).build().dumps(result))
+    item = body["item"]
+    json_api_data = is_ids[str(isinstance(item, list))](item)
     return json_api_data
 
 

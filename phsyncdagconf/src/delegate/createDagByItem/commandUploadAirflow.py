@@ -137,7 +137,7 @@ class CommandUploadAirflow(Command):
 
         return result
     except Exception as e:
-        logger = phs3logger(kwargs["job_id"])
+        logger = phs3logger("emr_log")
         logger.error(traceback.format_exc())
         print(traceback.format_exc())
         raise e

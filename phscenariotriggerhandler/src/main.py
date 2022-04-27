@@ -6,10 +6,11 @@ from datetime import datetime
 from boto3.dynamodb.conditions import Key
 
 
-def triggerExecution(projectId, scenarioId, step, dynamodb):
+def triggerExecution(projectId, scenarioId, triggerId, step, dynamodb):
     
     # debug
     dryRun = True
+    run = True
 
     # 2. 读scenario中的详细信息，projectName
     scenario_table = dynamodb.Table('scenario')
@@ -33,6 +34,21 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
     dsName = stepDetial['name']
     recursive = stepDetial['recursive']
 
+    # 5. 判断
+    trigger_table = dynamodb.Table('scenario_trigger')
+    trigger = trigger_table.query(
+        KeyConditionExpression=Key("scenarioId").eq("_".join([projectId, scenarioId]))
+                               & Key("id").eq(triggerId)
+    )['Items'][0]
+
+    # 5.1 是否激活
+    run = run and scenario['active'] and trigger['active']
+    # 5.2 TODO： 是否超过启动时间 还需要
+    triggerDetial = json.loads(trigger['detail'])
+    print(triggerDetial)
+    jt = datetime.strptime(triggerDetial['start'], '%Y-%m-%d %H:%M:%S')
+    run = run and (dt > jt) # TODO: 这句需要测试
+
     # 0. create event
     event = {
         'common': {
@@ -48,7 +64,6 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
             'conf': '',
             'recursive': True
         },
-        'dryRun': dryRun,
         'recursive': recursive
     }
 
@@ -70,7 +85,7 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
     print(event)
 
     run_name = ''
-    if not dryRun:
+    if not dryRun and run:
         state_machine_arn = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger'
         run_name = event['common']['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
         client = boto3.client('stepfunctions')
@@ -92,7 +107,7 @@ def lambda_handler(event, context):
 
     scenarioId = event['ScenarioId']
     projectId = event['ProjectId']
-    TriggerId = event['TriggerId']
+    triggerId = event['TriggerId']
 
     scenarioKey = ('_').join([projectId, scenarioId])
 
@@ -122,6 +137,6 @@ def lambda_handler(event, context):
             print('only to trigger the first step')    
 
         step = items[0]
-        result = triggerExecution(projectId, scenarioId, step, dynamodb)
+        result = triggerExecution(projectId, scenarioId, triggerId, step, dynamodb)
     
     return result

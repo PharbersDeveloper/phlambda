@@ -110,6 +110,9 @@ def scenarioCUProcessor(tenantId, targetArn, projectId, scenarioId, triggerId, c
             )
             result['status'] = 'ok'
             result['message'] = 'updating resource'
+        else:
+            result['status'] = 'ok'
+            result['message'] = 'resource does not need to be updated'
 
     except ScenarioStackNotExistError:
         print('create stack trigger ==============>')

@@ -1,6 +1,7 @@
 import os
 import json
 from triggerupdate import scenarioCUProcessor
+from deletion import scenarioDLProcessor
 
 
 def lambda_handler(event, context):
@@ -13,8 +14,15 @@ def lambda_handler(event, context):
     scenarioId = event['scenario-id']
     triggerId = event['trigger-id']
     cronExpression = event.get('cron', '')
-    
-    result = scenarioCUProcessor(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression)
+    isDelete = event.get('deletion', False)
+    print('=====> deletion')
+    print(isDelete)
+
+    result = {}
+    if isDelete:
+        result = scenarioDLProcessor(tenantId, targetArn, projectId, scenarioId, triggerId)
+    else:
+        result = scenarioCUProcessor(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression)
     
     return {
         "statusCode": 200,

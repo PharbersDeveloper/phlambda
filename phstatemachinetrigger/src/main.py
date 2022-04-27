@@ -9,6 +9,7 @@ def lambda_handler(event, context):
     print(event)
     
     projectId = event['common']['projectId']
+    dryRun = event.get('dryRun', false)
     
     ssm_client = boto3.client('ssm')
     response = ssm_client.get_parameter(
@@ -26,12 +27,14 @@ def lambda_handler(event, context):
 
     print(event)
 
-    state_machine_arn = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger'
-    run_name = event['common']['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
-    client = boto3.client('stepfunctions')
-    res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
-    run_arn = res['executionArn']
-    print("Started run %s. ARN is %s.", run_name, run_arn)
+    if not dryRun:
+        state_machine_arn = 'arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger'
+        run_name = event['common']['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
+        client = boto3.client('stepfunctions')
+        res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
+        run_arn = res['executionArn']
+        print("Started run %s. ARN is %s.", run_name, run_arn)
+    
     # try:
     #     client = boto3.client('stepfunctions')
     #     res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))

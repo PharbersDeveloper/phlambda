@@ -18,12 +18,20 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
                                & Key("id").eq(scenarioId)
     )['Items'][0]
     projectName = scenario['projectName']
+    
+    # 3. runerId
     dt = datetime.now()
     d = dt.isoformat()
     i = d.index(".")
     d = d[0:i] + "+00:00"
     runnerId = "_".join([projectName, projectName, 'developer', d])
     print(runnerId)
+
+    # 4. step detail
+    stepDetial = json.loads(step['detail'])
+    print(stepDetial)
+    dsName = stepDetial['name']
+    recursive = stepDetial['recursive']
 
     # 0. create event
     event = {
@@ -36,11 +44,12 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
         },
         'calculate': {
             'type': 'dataset',
-            'name': step.name,
+            'name': dsName,
             'conf': '',
             'recursive': True
         },
-        'dryRun': dryRun
+        'dryRun': dryRun,
+        'recursive': recursive
     }
 
     # 1. ssm
@@ -75,6 +84,7 @@ def triggerExecution(projectId, scenarioId, step, dynamodb):
         "status": "ok",
         "message": "start run " + run_name
     }
+    return result
 
 
 def lambda_handler(event, context):

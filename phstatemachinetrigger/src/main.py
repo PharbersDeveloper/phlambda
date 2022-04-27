@@ -7,10 +7,10 @@ import traceback
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
-    
+
     projectId = event['common']['projectId']
-    dryRun = event.get('dryRun', false)
-    
+    dryRun = event.get('dryRun', False)
+
     ssm_client = boto3.client('ssm')
     response = ssm_client.get_parameter(
         Name=projectId,
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
         res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
         run_arn = res['executionArn']
         print("Started run %s. ARN is %s.", run_name, run_arn)
-    
+
     # try:
     #     client = boto3.client('stepfunctions')
     #     res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
@@ -56,7 +56,7 @@ def lambda_handler(event, context):
     #         },
     #         "body": json.dumps(error)
     #     }
-    
+
     result = {
         "status": "ok",
         "message": "start run " + run_name

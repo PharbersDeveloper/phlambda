@@ -1,9 +1,9 @@
 import boto3
 
 def scenarioDLProcessor(tenantId, targetArn, projectId, scenarioId, triggerId):
-	result = {}
+    result = {}
 
-    stackName = "-".join(["scenario", projectId, scenarioId, triggerId])    
+    stackName = "-".join(["scenario", projectId, scenarioId, triggerId])
     client = boto3.client('cloudformation')
     response = client.delete_stack(
         StackName=stackName # event['runnerId']

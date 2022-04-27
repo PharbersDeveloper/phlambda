@@ -7,6 +7,7 @@ class ScenarioStep(Model):
     attributes = {
         "scenarioId": fields.Str(required=True),
         "index": fields.Int(dump_default=0),
+        "confData": fields.Str(dump_default="unknown"),
         "detail": fields.Str(dump_default="unknown"),
         "mode": fields.Str(dump_default="unknown"),
         "name": fields.Str(dump_default="unknown"),

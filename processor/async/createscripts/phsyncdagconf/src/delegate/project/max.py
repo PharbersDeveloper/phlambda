@@ -41,6 +41,7 @@ class Max(Project):
             status, dag_conf = max_job_cats.get(dag_type)(dag_item)
         except Exception as e:
             status = str(e)
+            print(status)
         finally:
             if dag_conf is not None:
                 self.updateAction.updateNotification(dag_item, "notification", dag_conf=dag_conf, status=status)

@@ -28,7 +28,7 @@ import constants.Common as Common
 class Xlsx(Strategy):
     clickhouse = None
     parameters = None
-    sample = None
+    sample = True
 
     def __init__(self):
         self.dynamodb = Common.EXTERNAL_SERVICES["dynamodb"]
@@ -77,9 +77,8 @@ class Xlsx(Strategy):
         execl_data = list(map(add_col, data))
 
         # TODO： 只写 sample： 前10000条
-        if not self.sample:
+        if self.sample:
             self.clickhouse.insert_data(sql, execl_data)
-            self.sample = 1
 
         WriteS3Command(WriteReceiver()).execute({
             "writePath": self.parameters["writePath"],
@@ -122,6 +121,9 @@ class Xlsx(Strategy):
         count = self.clickhouse.get_count(count_sql)
         if count > 0:
             raise VersionAlreadyExist("version already exist")
+
+        if self.clickhouse.get_count(f"SELECT COUNT(1) FROM {os.environ.get(DV.CLICKHOUSE_DB)}.`{table_name}` ") > 0:
+            self.sample = False
 
         Excel(
             f"{os.environ[DV.FILE_PATH].replace('#projectid#', project_id)}{file_name}", sheet_name,

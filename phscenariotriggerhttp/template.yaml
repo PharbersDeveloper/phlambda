@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-V2
+Description: cicd lambda scenariotriggerhttp
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -12,7 +12,7 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phscenariotriggerhttp-dev
+      FunctionName: lmd-scenariotriggerhttp-dev
       Description: "phstatemachinetrigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 512

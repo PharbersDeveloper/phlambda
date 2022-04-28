@@ -1,1 +1,0 @@
-{"version":3,"file":"phS3Facade.js","sourceRoot":"","sources":["../../src/s3facade/phS3Facade.ts"],"names":[],"mappings":"AAAA,YAAY,CAAA;;;;;AAEZ,4DAAmC;AAInC;IAAA;QAEY,OAAE,GAAG,IAAI,YAAE,EAAE,CAAA;IAKzB,CAAC;IAHU,WAAW,CAAE,MAAc;QAC9B,OAAO,IAAI,CAAC,EAAE,CAAC,WAAW,EAAE,CAAC,OAAO,EAAE,CAAA;IAC1C,CAAC;CACJ;AAED,kBAAe,IAAI,UAAU,EAAE,CAAA"}

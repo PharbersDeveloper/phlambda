@@ -1,129 +1,152 @@
 {
-   "Comment": "Pharbers Dag Trigger Factory",
-   "StartAt": "genStartArgs",
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
    "States": {
-      "genStartArgs": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinegen-dev",
-         "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "engine.$": "$.engine",
-            "calculate.$": "$.calculate"
-         },
-         "ResultPath": "$.executeArgs",
-         "Next": "genDag"
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ArgsValidation"
       },
-      "genDag": {
+      "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinedag-dev",
-         "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "dag.$": "$.executeArgs.sm"
-         },
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "Actions",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           } ],
-         "ResultPath": "$.smarn",
-         "Next": "startExecutionHook"
       },
-      "startExecutionHook": {
+      "Actions": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "Input.$": "$.executeArgs.args",
-            "smarn.$": "$.smarn",
-            "stage": "start"
+            "traceId": "$.common.traceId",
+            "projectId": "$.common.projectId",
+            "owner": "$.common.owner",
+            "showName": "$.common.showName",
+            "jobCat": "$.action.cat",
+            "jobDesc": "$.action.desc",
+            "comments": "$.action.comments",
+            "required": "$.action.required"
          },
          "ResultPath": null,
-         "Next": "executeDag"
+         "Next": "ResourceCreation"
       },
-      "executeDag": {
-         "Type": "Task",
-         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
-         "Parameters": {
-            "Input.$": "$.executeArgs.args",
-            "StateMachineArn.$": "$.smarn"
-         },
+      "ResourceCreation": {
+         "Type": "Parallel",
+         "Next": "Success",
+         "Branches": [
+            {
+               "StartAt": "DSCreation",
+               "States": {
+                  "DSCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+                     "Parameters": {
+                        "traceId": "$.common.traceId",
+                        "projectId": "$.common.projectId",
+                        "owner": "$.common.owner",
+                        "showName": "$.common.showName",
+                        "datasets": "$.datasets"
+                     },
+                     "ResultPath": "$.result.dataset",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "ScriptsCreation",
+               "States": {
+                  "ScriptsCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+                     "Parameters": {
+                        "traceId": "$.common.traceId",
+                        "projectId": "$.common.projectId",
+                        "owner": "$.common.owner",
+                        "showName": "$.common.showName",
+                        "scripts": "$.scripts"
+                     },
+                     "ResultPath": "$.result.scripts",
+                     "End": true
+                  }
+               }
+            }
+         ],
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
           } ],
-         "ResultPath": null,
-         "Next": "endExecutionHook",
       },
-      "endExecutionHook": {
+      "Success": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "stage": "start"
+            "traceId": "$.common.traceId",
+            "projectId": "$.common.projectId",
+            "owner": "$.common.owner",
+            "showName": "$.common.showName",
+            "jobCat": "$.action.cat",
+            "jobDesc": "$.action.desc",
+            "comments": "$.action.comments",
+            "message": "$.result",
+            "status": "success"
          },
-         "ResultPath": null,
-         "Next": "clearDag"
-      },
-      "failedExecutionHook": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinefailedhook-dev",
-         "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "Input.$": "$.executeArgs.args",
-            "error.$": "$.error"
-         },
-         "ResultPath": null,
-         "Next": "clearDag"
-      },
-      "clearDag": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachineclear-dev",
-         "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-         },
-         "ResultPath": null,
          "End": true
-      }
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Parameters": {
+            "traceId": "$.common.traceId",
+            "projectId": "$.common.projectId",
+            "owner": "$.common.owner",
+            "showName": "$.common.showName",
+            "traceId": "$.common.traceId",
+            "projectId": "$.common.projectId",
+            "owner": "$.common.owner",
+            "showName": "$.common.showName",
+            "datasets": "$.datasets",
+            "scripts": "$.scripts"
+         },
+         "ResultPath": null,
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Task",
+         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Parameters": {
+            "traceId": "$.common.traceId",
+            "projectId": "$.common.projectId",
+            "owner": "$.common.owner",
+            "showName": "$.common.showName",
+            "jobCat": "$.action.cat",
+            "jobDesc": "$.action.desc",
+            "comments": "$.action.comments",
+            "message": "$.error",
+            "status": "failed"
+         },
+         "End": true
+      },
    }
+
 }

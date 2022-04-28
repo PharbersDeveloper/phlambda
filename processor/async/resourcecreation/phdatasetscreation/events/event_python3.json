@@ -1,0 +1,55 @@
+{
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "id": {
+            "S": "alex_test_actionId"
+          },
+          "projectId": {
+            "S": "alex_test_projectId"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "alex_test_projectId"
+          },
+          "message": {
+            "S": "{\"actionName\":\"compute_C\",\"dagName\":\"mqtttohttps\",\"flowVersion\":\"developer\",\"jobName\":\"compute_C\",\"jobId\":\"\",\"inputs\":[{\"name\":\"B\",\"id\":\"a641814107a441958ade7c3134801244\"}],\"outputs\":[{\"name\":\"C\",\"id\":\"f5cc647f3d1140df923d7e0ce638dce8\"}],\"jobVersion\":\"C_version1\",\"projectId\":\"alex_test_projectId\",\"timeout\":\"1000\",\"runtime\":\"python3\",\"owner\":\"5UBSLZvV0w9zh7-lZQap\",\"showName\":\"鹏钱\",\"targetJobId\":\"\",\"projectName\":\"mqtttohttps\",\"labels\":[],\"operatorParameters\":[\"script\",\"\"],\"prop\":{\"path\":\"\",\"partitions\":1}}"
+          },
+          "code": {
+            "S": "0"
+          },
+          "id": {
+            "S": "alex_test_actionId"
+          },
+          "date": {
+            "S": "1637756524405"
+          },
+          "jobDesc": {
+            "S": "succeed"
+          },
+          "comments": {
+            "S": "clear_dataset_tags"
+          },
+          "owner": {
+            "S": "c89b8123-a120-498f-963c-5be102ee9082"
+          },
+          "jobCat": {
+            "S": "dag_create"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
+}

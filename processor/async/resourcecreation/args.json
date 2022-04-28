@@ -1,21 +1,39 @@
 {
 	"common": {
-		"runnerId": "alfred-step-function-runnerId",
+		"traceId": "alfred-resource-creation-traceId",
 		"projectId": "ggjpDje0HUC2JW",
-		"projectName": "Demo",
+		"projectName": "demo",
 		"owner": "alfred",
 		"showName": "alfred"
 	},
-	"engine": {
-		"type": "awsemr",
-		"id": "j-1R1TZ5GYM039A",
-		"dss": {
-			"ip": ""
-		}
+	"action": {
+		"cat": "createDataset",
+		"desc": "create intermediate dataset",
+		"comments": "something need to say",
+		"message": "something need to say",
+		"required": true
 	},
-	"calculate": {
-		"type": "dataset",
-		"name": "testtt1",
-		"conf": "abda"
+	"datasets": [
+		{
+			"name": "test_name",
+			"cat": "intermediate",
+			"format": "parquet"
+		}
+	],
+	"scripts": [
+		{
+			"actionName": "compute_C2",
+			"flowVersion": "developer",
+			"inputs": "[]",
+			"output": "{}"
+		}
+	],
+	"notification": {
+		"required": true
+	},
+	"result": {
+		"datasets": [""],
+		"scripts": [""],
+		"links": [""]
 	}
 }

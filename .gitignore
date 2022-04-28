@@ -197,3 +197,5 @@ phremoveds/src/handler/RMJob_Online.py
 phcreateproject/lmdcode/
 
 phaccounts/lmdcode/
+
+processor/async/inputindexdatasets/phxlsxtockhouse/package.yaml

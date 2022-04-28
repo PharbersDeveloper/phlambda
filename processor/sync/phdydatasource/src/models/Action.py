@@ -7,6 +7,7 @@ class Action(Model):
     attributes = {
         "projectId": fields.Str(required=True),
         "owner": fields.Str(dump_default="unknown"),
+        "traceId": fields.Str(dump_default="unknown"),
         "showName": fields.Str(dump_default="unknown"),
         "time": fields.Int(dump_default=-1),
         "code": fields.Str(dump_default="unknown"),

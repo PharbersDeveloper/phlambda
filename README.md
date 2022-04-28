@@ -22,6 +22,7 @@
  |-- data                       # 外部需要保存的数据
  |-- deprecated                 # 不在维护的代码
   ｜-- ...                         # 其内部结构参考processor
+ |-- layer                      # lambda layer
  |-- processor                  # 所有正在使用，并持续维护的lambda
   ｜-- sync                        # 同步的lambda
     ｜-- <function-name>              # 函数名称

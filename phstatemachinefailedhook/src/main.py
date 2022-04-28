@@ -88,6 +88,15 @@ def put_failed_execution(runnerId, jobName, date, logs, status, dynamodb=None):
 #                                     1,
 #                                     'Count')
 
+def handleTaskFailed(errorEvent):
+    if 'executionFailedEventDetails' in errorEvent:
+        return json.loads(errorEvent['executionFailedEventDetails']['cause'])
+    elif 'cause' in errorEvent:
+        return event(errorEvent['cause'])
+    else:
+        return {"Step": {}}
+
+
 def errorHandle(error, runnerId):
     # 1. 看看是不是gen dag的错误，也就是说不能两个runnid 同时执行
     # error = event['error']
@@ -110,7 +119,7 @@ def errorHandle(error, runnerId):
         if errorEvent.get("type") == "ExecutionAborted":
             detail = {"Step": {}}
         else:
-            detail = json.loads(errorEvent['executionFailedEventDetails']['cause'])
+            detail = handleTaskFailed(errorEvent)
         print(detail)
         return json.dumps(detail['Step'])
 

@@ -9,7 +9,7 @@ def lambda_handler(event, context):
     print(event)
     
     projectId = event['common']['projectId']
-    dryRun = event.get('dryRun', false)
+    dryRun = event.get('dryRun', False)
     
     ssm_client = boto3.client('ssm')
     response = ssm_client.get_parameter(

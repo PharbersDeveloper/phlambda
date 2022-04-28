@@ -1,3 +1,9 @@
+'''
+通过递归的方式实现Dag的动态创建
+可以通过少量代码实现替换airflow的功能
+Author: AlfredYang
+'''
+
 import json
 from collections import deque
 
@@ -44,13 +50,35 @@ def calDatasetPathOne(datasetName, datasets, jobs, links, stack):
     return True
 
 
+'''
+递归的主体函数
+通过dataset的名字找到需要计算的job
+args：
+    datasetName： 需要计算的dataset 名字
+    datasets： 整个dag中所有的数据集
+    jobs： 整个dag中所有的脚本
+    links： 整个dag中所有的links
+    stack： 递归的结果
+    alljobs： 所有遍历到的所有jobs的名字
+
+return：
+    整个dag的临时路径中，最后一个计算的数据集的名称
+'''
 def calDatasetPath(datasetName, datasets, jobs, links, stack, alljobs=[]):
+    '''
+    退出情况：
+    1. dabasetName不是任何job的outputs时，弹栈
+    '''
     dslst = list(filter(lambda x: x['name'] == datasetName, datasets))
     if len(dslst) != 1:
         raise Exception('Wrong Arguments: datasetName')
         return datasetName
 
 
+    '''
+    退出情况：
+    2. 当出现一个脚本被多个job使用的时候，需要弹栈
+    '''
     def calNextLevelJob(joblk, nlstack, alljobs):
         nldataset = list(filter(lambda x: x['name'] == joblk['ll']['targetName'], datasets))
         curDs = nldataset[0]
@@ -59,9 +87,6 @@ def calDatasetPath(datasetName, datasets, jobs, links, stack, alljobs=[]):
         tmplk = list(filter(lambda x: x['ll']['targetName'] in alljobs, links))
         curDslk = list(filter(lambda x: x['ll']['sourceName'] == curDs['name'], tmplk))
         if len(curDslk) > 1:
-            print('alfredtest ============> 11111')
-            print(alljobs)
-            print(curDs['name'])
             return datasetName
 
         if len(nldataset) != 1:
@@ -70,8 +95,11 @@ def calDatasetPath(datasetName, datasets, jobs, links, stack, alljobs=[]):
         return calDatasetPath(nldataset[0]['name'], datasets, jobs, links, nlstack)
     
     
+    '''
+    并行后，还需要的下一次递归：
+    1. 并行后还需要从共同的dataset再次进栈
+    '''
     def calParalleCommonParent(paralleNames):
-        # curDslk = list(filter(lambda x: x['ll']['sourceName'] == curDs['name'], links))
         res = []
         for name in paralleNames:
             dslk = list(filter(lambda x: x['ll']['targetName'] == name, links))
@@ -96,7 +124,6 @@ def calDatasetPath(datasetName, datasets, jobs, links, stack, alljobs=[]):
     llst = list(filter(lambda x: x['ll']['targetName'] == datasetName, links))
     
     if len(llst) == 1:
-        # stack.append(llst[0])
         curJ = list(filter(lambda x: x['name'] == llst[0]['ll']['sourceName'], jobs))[0]
         stack.append(curJ)
         alljobs.append(curJ['name'])
@@ -115,6 +142,7 @@ def calDatasetPath(datasetName, datasets, jobs, links, stack, alljobs=[]):
                     tmpDsname.append(tmpRes)
                     cstack.append(tstack)
             stack.append(cstack)
+            # ***** 重点中的难点 ***** 
             # 并行完了还需要一层递归
             nldsname = calParalleCommonParent(tmpDsname)
             if len(nldsname) > 0:

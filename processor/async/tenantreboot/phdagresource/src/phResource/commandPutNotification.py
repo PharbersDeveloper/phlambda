@@ -104,7 +104,5 @@ class CommandPutNotification(Command):
         self.ssm.put_ssm_parameter("resource_status", json.dumps(res))
 
     def execute(self):
-        airflow_status = self.airflow_status()
-        if airflow_status == 200:
-            self.update_ssm()
-            self.put_notification()
+        self.update_ssm()
+        self.put_notification()

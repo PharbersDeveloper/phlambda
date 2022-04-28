@@ -11,12 +11,12 @@ Resources:
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phquerylogfile-dev
-      Description: "phquerylogfile-dev "
+      FunctionName: lmd-phquerylogfile-V2
+      Description: "phquerylogfile-V2 "
       MemorySize: 512
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
       VpcConfig:

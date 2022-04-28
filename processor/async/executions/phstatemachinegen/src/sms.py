@@ -1,4 +1,5 @@
 import json
+import os
 from collections import deque
 
 
@@ -13,10 +14,11 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
 
+    edition = "V2" if os.getenv("EDITION") == "V2" else "dev"
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-{edition}:Current",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -49,7 +51,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 3. end hook
     sm['States'][curJ['name'] + "EndHook"] = {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-{edition}:Current",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

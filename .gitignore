@@ -174,17 +174,11 @@ phplatform/phplatform-report-directory/
 
 
 */package.yaml
+*/*/package.yaml
+*/*/*/package.yaml
+*/*/*/*/package.yaml
 
 
-phdydatasource/package.yaml
-
-phsyncdyevent/package.yaml
-
-phschemaexplorer/package.yaml
-
-phschemaexplorer/buildspec.yaml
-
-phxlsxtockhouse/buildspec.yaml
 
 .gradle
 
@@ -193,12 +187,6 @@ phcleards/buildspec.yaml
 phremoveds/buildspec.yaml
 
 phdydatasource/buildspec.yaml
-
-phcleards/package.yaml
-
-phremoveds/package.yaml
-
-phdadatasource/package.yaml
 
 phdadatasource/buildspec.yaml
 

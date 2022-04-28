@@ -30,14 +30,14 @@
          "Type": "Task",
          "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "traceId": "$.common.traceId",
-            "projectId": "$.common.projectId",
-            "owner": "$.common.owner",
-            "showName": "$.common.showName",
-            "jobCat": "$.action.cat",
-            "jobDesc": "$.action.desc",
-            "comments": "$.action.comments",
-            "required": "$.action.required"
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "required.$": "$.action.required"
          },
          "ResultPath": null,
          "Next": "ResourceCreation"
@@ -53,11 +53,11 @@
                      "Type": "Task",
                      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
                      "Parameters": {
-                        "traceId": "$.common.traceId",
-                        "projectId": "$.common.projectId",
-                        "owner": "$.common.owner",
-                        "showName": "$.common.showName",
-                        "datasets": "$.datasets"
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets"
                      },
                      "ResultPath": "$.result.dataset",
                      "End": true
@@ -71,11 +71,11 @@
                      "Type": "Task",
                      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
                      "Parameters": {
-                        "traceId": "$.common.traceId",
-                        "projectId": "$.common.projectId",
-                        "owner": "$.common.owner",
-                        "showName": "$.common.showName",
-                        "scripts": "$.scripts"
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scripts.$": "$.scripts"
                      },
                      "ResultPath": "$.result.scripts",
                      "End": true
@@ -101,15 +101,15 @@
          "Type": "Task",
          "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "traceId": "$.common.traceId",
-            "projectId": "$.common.projectId",
-            "owner": "$.common.owner",
-            "showName": "$.common.showName",
-            "jobCat": "$.action.cat",
-            "jobDesc": "$.action.desc",
-            "comments": "$.action.comments",
-            "message": "$.result",
-            "status": "success"
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.result",
+            "status.$": "success"
          },
          "End": true
       },
@@ -117,16 +117,16 @@
          "Type": "Task",
          "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "traceId": "$.common.traceId",
-            "projectId": "$.common.projectId",
-            "owner": "$.common.owner",
-            "showName": "$.common.showName",
-            "traceId": "$.common.traceId",
-            "projectId": "$.common.projectId",
-            "owner": "$.common.owner",
-            "showName": "$.common.showName",
-            "datasets": "$.datasets",
-            "scripts": "$.scripts"
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "datasets.$": "$.datasets",
+            "scripts.$": "$.scripts"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -135,15 +135,15 @@
          "Type": "Task",
          "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
          "Parameters": {
-            "traceId": "$.common.traceId",
-            "projectId": "$.common.projectId",
-            "owner": "$.common.owner",
-            "showName": "$.common.showName",
-            "jobCat": "$.action.cat",
-            "jobDesc": "$.action.desc",
-            "comments": "$.action.comments",
-            "message": "$.error",
-            "status": "failed"
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.error",
+            "status.$": "failed"
          },
          "End": true
       },

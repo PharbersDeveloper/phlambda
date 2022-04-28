@@ -1,0 +1,46 @@
+{
+  "Records": [
+    {
+      "eventID": "15ac5a09a97d61cf74589776e001ed8a",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "cn-northwest-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1635485706,
+        "Keys": {
+          "id": {
+            "S": "hbzhaotestid"
+          },
+          "projectId": {
+            "S": "HfSZTr74gRcQOYoA"
+          }
+        },
+        "NewImage": {
+          "projectId": {
+            "S": "HfSZTr74gRcQOYoA"
+          },
+          "id": {
+            "S": "hbzhaotestid"
+          },
+          "message": {
+            "S": "{\"projectId\": \"HfSZTr74gRcQOYoA\",\"flowVersion\": \"developer\",  \"operatorParameters\": [\"filter\", [{\"province\": [\"=\", \"山西省\"]}], \"select\", [\"province\", \"doi\", \"标准规格\"], \"operation_null\", \"asfasf\"] ,\"projectName\": \"Test\",\"jobCat\": \"prepare_edit\",\"jobDisplayName\": \"Test_Test_developer_compute_out_max_result_standard_LFXOjwSH9ek9D6u\",\"jobName\": \"developer_LFXOjwSH9ek9D6u_Test_Test_compute_out_max_result_standard\"}"
+          },
+          "jobCat": {
+            "S": "intermediate"
+          },
+          "category": {
+            "S": "csv"
+          },
+          "status": {
+            "S": "creating"
+          }
+        },
+        "SequenceNumber": "4262900000000003683290840",
+        "SizeBytes": 193,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/project_files/stream/2021-10-28T14:29:22.435"
+    }
+  ]
+}

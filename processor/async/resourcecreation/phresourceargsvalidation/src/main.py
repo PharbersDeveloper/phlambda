@@ -1,6 +1,6 @@
 import json
-from AWS.DynamoDB import DynamoDB
-from boto3.dynamodb.conditions import Key, Attr
+import boto3
+from boto3.dynamodb.conditions import Attr
 
 '''
 这个函数只做一件事情，检查参数是否合法
@@ -44,17 +44,51 @@ args:
     }
 '''
 
-dynamodb = DynamoDB()
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
+                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                           aws_secret_access_key="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")
 
 
 def scan_table(project_id, ds_name, table_name, item_name):
-    ds_result = dynamodb.scanTable({
-        "table_name": table_name,
-        "limit": 10,
-        "expression": Attr(item_name).eq(ds_name) & Attr("projectId").eq(project_id),
-        "start_key": ""
-    })["data"]
-    return ds_result
+    try:
+        table = dynamodb.Table(table_name)
+        result = table.scan(
+            FilterExpression=Attr(item_name).eq(ds_name) & Attr("projectId").eq(project_id),
+            Limit=10,
+        )
+        return result.get("Items")
+    except:
+        return None
+
+
+def scanTable(self, data):
+    table_name = data["table_name"]
+    limit = data["limit"]
+    expression = data["expression"]
+    start_key = data["start_key"]
+    table = self.dynamodb_resource.Table(table_name)
+    try:
+        if len(start_key) == 0:
+            result = table.scan(
+                FilterExpression=expression,
+                Limit=limit,
+            )
+        else:
+            result = table.scan(
+                FilterExpression=expression,
+                Limit=limit,
+                ExclusiveStartKey=start_key
+            )
+        return {
+            "data": result.get("Items"),
+            "start_key": result.get("LastEvaluatedKey", "{}")
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "data": [],
+            "start_key": {}
+        }
 
 
 class Check:
@@ -84,12 +118,12 @@ class Check:
         for dataset in datasets:
             ds_name = dataset.get("name")
             if scan_table(projectId, ds_name, "dataset", "name"):
-                raise Exception('datasets name exits')
+                raise Exception('datasets name already exits')
             self.checkdata(dataset, ds_value)
         if scripts:
             script_name = scripts.get("name")
             if scan_table(projectId, script_name, "dagconf", "actionName"):
-                raise Exception('dagconf actionName exits')
+                raise Exception('dagconf actionName already exits')
             self.checkdata(scripts, script_value)
             self.checktype(scripts)
 

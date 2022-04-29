@@ -1,0 +1,22 @@
+{
+	"common": {
+		"traceId": "alfred-resource-creation-traceId",
+		"projectId": "ggjpDje0HUC2JW",
+		"projectName": "demo",
+		"owner": "alfred",
+		"showName": "alfred"
+	},
+	"action": {
+		"cat": "projectStart",
+		"desc": "reboot project",
+		"comments": "something need to say",
+		"message": "something need to say",
+		"required": true
+	},
+	"resources": [
+		"emr", "chlickhouse", "chproxy"
+	],
+	"notification": {
+		"required": true
+	}
+}

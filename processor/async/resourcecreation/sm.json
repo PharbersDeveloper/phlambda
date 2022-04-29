@@ -15,15 +15,15 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           } ],
       },
       "Actions": {

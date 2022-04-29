@@ -44,9 +44,7 @@ args:
     }
 '''
 
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                           aws_secret_access_key="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")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
 
 def scan_table(project_id, ds_name, table_name, item_name):

@@ -79,6 +79,7 @@ class Xlsx(Strategy):
         # TODO： 只写 sample： 前10000条
         if self.sample:
             self.clickhouse.insert_data(sql, execl_data)
+            self.sample = False
 
         WriteS3Command(WriteReceiver()).execute({
             "writePath": self.parameters["writePath"],

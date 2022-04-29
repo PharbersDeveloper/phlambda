@@ -27,12 +27,6 @@ action_table = "action" + dev
 def executeSql(projectId, sql):
     args = ProjectArgs(projectId)
     proxies = args.get_proxy_list()
-    # result = dynamodb.scanTable({
-    #     "table_name": "resource",
-    #     "limit": 100000,
-    #     "expression": Attr("projectId").eq(projectId),
-    #     "start_key": ""
-    # })["data"]
     ip = "192.168.16.117"
     if len(proxies) > 0:
         ip = proxies[0]
@@ -55,6 +49,17 @@ def finishingEventData(record):
 # 修改ClickHouse中的Col的类型
 def transformClickHouseSchema(projectId, data):
     schema = {}
+    count = len(list(filter(lambda schema_item: schema_item["src"] == "version", data["schema"])))
+    if count > 0:
+        error = {
+            "code":  510,
+            "message": {
+                "zh": f"列 version 不能做转换类型，原因是主键",
+                "en": f"column version cannot convert, because it's a primary key",
+                "meta": "column convert type error"
+            }
+        }
+        raise Exception(json.dumps(error))
     try:
         tableName = projectId + "_" + data["destination"]
         schemas = data["schema"]
@@ -64,8 +69,8 @@ def transformClickHouseSchema(projectId, data):
             executeSql(projectId, sql)
     except ServerException as se:
         print("ServerException  ==> \n")
-        print(se)
-        if se.code == 341 or se.code == 50 or "DB::Exception: ALTER of key column" in str(se):
+        print(se.code)
+        if se.code == 341 or se.code == 524 or se.code == 50 or "DB::Exception: ALTER of key column" in str(se):
             error = {
                 "code":  509,
                 "message": {
@@ -124,7 +129,7 @@ def rollBackType(dsId, projectId):
         schema = json.loads(result["schema"])
         destination = result["name"]
         transformClickHouseSchema(projectId, {
-            "schema": schema,
+            "schema": list(filter(lambda item: item["src"] != "version", schema)),
             "destination": destination
         })
 

@@ -43,10 +43,8 @@ args:
         }
     }
 '''
-# dynamodb = DynamoDB()
-a = {"access_key": "AKIAWPBDTVEANKEW2XNC",
-     "secret_key": "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"}
-dynamodb = DynamoDB(**a)
+
+dynamodb = DynamoDB()
 
 
 def scan_table(project_id, ds_name, table_name, item_name):

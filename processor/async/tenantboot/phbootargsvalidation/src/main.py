@@ -6,6 +6,7 @@ import json
 args = {
     "common": {
         "traceId": "alfred-resource-creation-traceId",
+        "tanentId": "pharbers",
         "projectId": "ggjpDje0HUC2JW",
         "projectName": "demo",
         "owner": "alfred",

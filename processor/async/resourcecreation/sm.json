@@ -15,20 +15,20 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
-             "Next": "CleanUp"
+             "Next": "Failed"
           } ],
       },
       "Actions": {
          "Type": "Task",
-         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-utilsaction-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -42,16 +42,43 @@
          "ResultPath": null,
          "Next": "ResourceCreation"
       },
+      "ResouceLink": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcelinkcreation-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": null,
+         "Next": "Success",
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ],
+      },
       "ResourceCreation": {
          "Type": "Parallel",
-         "Next": "Success",
+         "InputPath": "$",
+         "Next": "ResouceLink",
          "Branches": [
             {
                "StartAt": "DSCreation",
                "States": {
                   "DSCreation": {
                      "Type": "Task",
-                     "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcedatasetcreation-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -59,7 +86,7 @@
                         "showName.$": "$.common.showName",
                         "datasets.$": "$.datasets"
                      },
-                     "ResultPath": "$.result.dataset",
+                     "ResultPath": "$.datasets",
                      "End": true
                   }
                }
@@ -69,15 +96,90 @@
                "States": {
                   "ScriptsCreation": {
                      "Type": "Task",
-                     "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcescriptindexcreation-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
-                        "scripts.$": "$.scripts"
+                        "script.$": "$.script"
                      },
-                     "ResultPath": "$.result.scripts",
+                     "ResultPath": "$.script",
+                     "Next": "ScriptsFilesCreation"
+                  },
+                  "ScriptsFilesCreation": {
+                     "Type": "Choice",
+                     "InputPath": "$.script",
+                     "Choices": [
+                        {
+                           "Variable": "$.runtime",
+                           "StringEquals": "pyspark",
+                           "Next": "PysparkFiles"
+                        },
+                        {
+                           "Variable": "$.runtime",
+                           "StringEquals": "python",
+                           "Next": "PythonFiles"
+                        },
+                        {
+                           "Variable": "$.runtime",
+                           "StringEquals": "r",
+                           "Next": "RFiles"
+                        },
+                        {
+                           "Variable": "$.runtime",
+                           "StringEquals": "sparkr",
+                           "Next": "SparkrFiles"
+                        }
+                     ],
+                     "Default": "PysparkFiles"
+                  },
+                  "PysparkFiles": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcepysparkcreation-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "script.$": "$.script"
+                     },
+                     "End": true
+                  },
+                  "PythonFiles": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcepythoncreation-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "script.$": "$.script"
+                     },
+                     "End": true
+                  },
+                  "RFiles": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resoucercreation-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "script.$": "$.script"
+                     },
+                     "End": true
+                  },
+                  "SparkrFiles": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcesparkrcreation-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "script.$": "$.script"
+                     },
                      "End": true
                   }
                }
@@ -99,7 +201,7 @@
       },
       "Success": {
          "Type": "Task",
-         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-utilsnotification-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -109,13 +211,13 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.result",
-            "status.$": "success"
+            "status": "success"
          },
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcefiledcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -133,7 +235,7 @@
       },
       "Failed": {
          "Type": "Task",
-         "Resource": "arn:aws:lambda:us-east-1:123456789012:function:AddressFinder",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-utilsnotification-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -143,7 +245,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.error",
-            "status.$": "failed"
+            "status": "failed"
          },
          "End": true
       },

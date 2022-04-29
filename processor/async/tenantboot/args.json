@@ -7,29 +7,15 @@
 		"showName": "alfred"
 	},
 	"action": {
-		"cat": "createDataset",
-		"desc": "create intermediate dataset",
+		"cat": "projectStart",
+		"desc": "reboot project",
 		"comments": "something need to say",
 		"message": "something need to say",
 		"required": true
 	},
-	"datasets": [
-		{
-			"name": "test_name",
-			"cat": "intermediate",
-			"format": "parquet"
-		}
+	"resources": [
+		"emr", "chlickhouse", "chproxy"
 	],
-	"script": {
-			"actionName": "compute_C2",
-			"flowVersion": "developer",
-			"runtime": "pyspark",
-			"inputs": "[]",
-			"output": "{}"
-	},
-	"links": {
-
-	},
 	"notification": {
 		"required": true
 	}

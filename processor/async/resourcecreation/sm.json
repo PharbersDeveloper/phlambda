@@ -42,10 +42,36 @@
          "ResultPath": null,
          "Next": "ResourceCreation"
       },
+      "ResouceLink": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcelinkcreation-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": null,
+         "Next": "Success",
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ],
+      },
       "ResourceCreation": {
          "Type": "Parallel",
          "InputPath": "$",
-         "Next": "Success",
+         "Next": "ResouceLink",
          "Branches": [
             {
                "StartAt": "DSCreation",

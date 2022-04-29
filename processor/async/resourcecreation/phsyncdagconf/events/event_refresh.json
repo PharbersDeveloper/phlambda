@@ -1,0 +1,56 @@
+{
+  "Records": [{
+    "eventID": "e8830a20447b6ce45792a7229989ebc6",
+    "eventName": "INSERT",
+    "eventVersion": "1.1",
+    "eventSource": "aws:dynamodb",
+    "awsRegion": "cn-northwest-1",
+    "dynamodb": {
+      "ApproximateCreationDateTime": 1641796175.0,
+      "Keys": {
+        "date": {
+          "S": "1641796175564"
+        },
+        "projectId": {
+          "S": "JfSmQBYUpyb4jsei"
+        }
+      },
+      "NewImage": {
+        "date": {
+          "S": "1641796175564"
+        },
+        "owner": {
+          "S": "c89b8123-a120-498f-963c-5be102ee9082"
+        },
+        "jobCat": {
+          "S": "dag_create"
+        },
+        "code": {
+          "N": "0"
+        },
+        "comments": {
+          "S": ""
+        },
+        "showName": {
+          "S": "张璐"
+        },
+        "id": {
+          "S": "wqhgDCgw8rr93iN"
+        },
+        "message": {
+          "S": "{\"actionName\":\"compute_asd\",\"dagName\":\"ETL_Iterator\",\"flowVersion\":\"developer\",\"jobName\":\"compute_asd\",\"jobId\":\"\",\"inputs\":[{\"name\":\"fsd\",\"id\":\"b0f92f8dc25d4c38b4bac9311a5c1499\"}],\"outputs\":[{\"name\":\"asd\",\"id\":\"3a33a21dea87458f98ade181dc15e1ce\"}],\"jobVersion\":\"asd_version1\",\"projectId\":\"JfSmQBYUpyb4jsei\",\"timeout\":\"1000\",\"runtime\":\"pyspark\",\"owner\":\"张璐\",\"targetJobId\":\"\",\"projectName\":\"ETL_Iterator\",\"labels\":[],\"operatorParameters\":[\"script\",\"\"],\"prop\":{\"path\":\"\",\"partitions\":1}}"
+        },
+        "jobDesc": {
+          "S": "created"
+        },
+        "projectId": {
+          "S": "JfSmQBYUpyb4jsei"
+        }
+      },
+      "SequenceNumber": "19347100000000002018865006",
+      "SizeBytes": 693,
+      "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "eventSourceARN": "arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2022-01-06T02:26:42.148"
+  }]
+}

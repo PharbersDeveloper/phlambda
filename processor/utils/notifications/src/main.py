@@ -39,7 +39,8 @@ def lambda_handler(event, context):
             'code': 0,
             'owner': event['owner'],
             'showName': event['showName'],
-            'traceId': event['traceId']
+            'traceId': event['traceId'],
+            'status': event['status']
         }
     )
     print(response)

@@ -20,20 +20,17 @@
 			"format": "parquet"
 		}
 	],
-	"scripts": [
-		{
+	"script": {
 			"actionName": "compute_C2",
 			"flowVersion": "developer",
+			"runtime": "pyspark",
 			"inputs": "[]",
 			"output": "{}"
-		}
-	],
+	},
+	"links": {
+
+	},
 	"notification": {
 		"required": true
-	},
-	"result": {
-		"datasets": [""],
-		"scripts": [""],
-		"links": [""]
 	}
 }

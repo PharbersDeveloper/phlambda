@@ -20,16 +20,18 @@ args = {
             "format": "parquet"
         }
     ],
-    "scripts": [
-        {
-            "id": "String",
-            "jobName": "String",
-            "actionName": "String",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        }
-    ]
+    "scripts": {
+        "id": "String",
+        "jobName": "String",
+        "actionName": "String",
+        "flowVersion": "developer",
+        "inputs": "[]",
+        "output": "{}"
+    },
+    "errors": {
+        "Error": "Exception",
+        "Cause": ""
+    }
 }
 '''
 def lambda_handler(event, context):

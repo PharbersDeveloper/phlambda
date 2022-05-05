@@ -20,16 +20,18 @@ args = {
             "format": "parquet"
         }
     ],
-    "scripts": [
-        {
-            "id": "String",
-            "jobName": "String",
-            "actionName": "String",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        }
-    ]
+    "scripts": {
+        "id": "String",
+        "jobName": "String",
+        "actionName": "String",
+        "flowVersion": "developer",
+        "inputs": "[]",
+        "output": "{}"
+    },
+    "errors": {
+        "Error": "Exception",
+        "Cause": ""
+    }
 }
 '''
 def lambda_handler(event, context):
@@ -41,4 +43,4 @@ def lambda_handler(event, context):
     # 5. 删除s3中目标文件夹的文件
     #   5.1 每一个生成过程都给一个TraceID命名的文件，如果文件名一样，删除，如果文件不一样说明时别人创建的不能删除
 
-    return true
+    return True

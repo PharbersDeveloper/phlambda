@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: ph-utilsnotification-dev
+      FunctionName: lmd-phutilsactions-dev
       Description: "处理Action参数并写入DynamoDB，只做Action表的记录"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 600

@@ -3,7 +3,8 @@ import json
 
 '''
 这个从resource表中读取需要创建的资源的matedata的描述
-也就是所从emr中读取emr的配
+这里通过matadata的描述启动emr
+调用以前的emr启动流程
 
 args = {
     "common": {
@@ -15,10 +16,7 @@ args = {
     },
     "resources": [
         "emr", "ec2"
-    ]
-}
-
-return = {
+    ]，
     "metadata": {
         "emr": {
             "Common": {
@@ -44,6 +42,10 @@ return = {
             }
         }
     }
+}
+
+return = {
+    
 }
 '''
 def lambda_handler(event, context):

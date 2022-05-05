@@ -6,6 +6,7 @@ import json
 args = {
     "common": {
         "traceId": "alfred-resource-creation-traceId",
+        "tanentId": "pharbers",
         "projectId": "ggjpDje0HUC2JW",
         "projectName": "demo",
         "owner": "alfred",
@@ -37,5 +38,6 @@ def lambda_handler(event, context):
     #     2.4 dns (deprecated 以后会被无服务器替换)
     #     2.5 target group (deprecated 以后会被无服务器替换)
     #     2.7 load balance rule (deprecated 以后会被无服务器替换)
+    # 3. 当resource不存在的时候，启动全部记录在数据库中的参数
 
     return True

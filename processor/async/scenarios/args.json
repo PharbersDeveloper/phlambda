@@ -1,0 +1,54 @@
+{
+        "common": {
+            "traceId": "alfred-resource-creation-traceId",
+            "projectId": "ggjpDje0HUC2JW",
+            "projectName": "demo",
+            "owner": "alfred",
+            "showName": "alfred"
+        },
+        "action": {
+            "cat": "createOrUpdateScenario",
+            "desc": "create or update scenario",
+            "comments": "something need to say",
+            "message": "something need to say",
+            "required": true
+        },
+        "notification": {
+            "required": true      
+        },
+        "scenario": {
+            "id": "scenario id",
+            "active": true,
+            "scenarioName": "scenario name",
+            "deletion": false
+        },
+        "triggers": [
+            {
+                "active": true,
+                "detail": {
+                    "timezone":"中国北京",
+                    "start":"2022-04-26 16:10:14",
+                    "period":"minute",
+                    "value":1
+                },
+                "index": 0,
+                "mode": "timer",
+                "id": "trigger id"
+            }
+        ],
+        "steps": [
+            {
+                "confData": {},
+                "detail": {
+                    "type":"dataset",
+                    "recursive":false,
+                    "ignore-error":false,
+                    "name":"1235"
+                },
+                "index": 0,
+                "mode": "dataset",
+                "name": "alfred",
+                "id": "step id",
+            }
+        ]
+    }

@@ -9,9 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-      FunctionName: lmd-resoucercreation-dev
+      FunctionName: lmd-phresoucercreation-dev
       MemorySize: 1024
       Description: "创建RFile文件,后续供Spark Submit提交"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

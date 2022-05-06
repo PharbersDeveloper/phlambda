@@ -4,7 +4,7 @@ def create_ph_main_file(conf):
 
     runtime = "r"
 
-    file_lines = conf.get("s3").open_object_by_lines(conf.get("bucket"), \
+    file_lines = conf.get("s3").open_object_by_lines(conf.get("bucket"),
                                                      conf.get("cliVersion") + conf.get("templatePhmainFile"))
 
     with open(f"{conf.get('jobPath')}/phmain.R", "a") as file:

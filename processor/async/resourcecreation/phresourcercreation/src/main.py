@@ -65,6 +65,6 @@ def lambda_handler(event, context):
     # 3 生成ph_job.R文件
     create_ph_job_file(conf)
     # 4 上传到S3对应的位置
-    # upload_files(conf)
+    upload_files(conf)
 
     return {}

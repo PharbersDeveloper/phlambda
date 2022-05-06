@@ -3,20 +3,43 @@
 		"traceId": "alfred-resource-creation-traceId",
 		"projectId": "ggjpDje0HUC2JW",
 		"projectName": "demo",
-		"owner": "alfred",
-		"showName": "alfred"
+		"flowVersion": "developer",
+		"dagName": "demo",
+		"owner": "hbzhao",
+		"showName": "赵浩博"
 	},
 	"action": {
-		"cat": "projectStart",
-		"desc": "reboot project",
+		"cat": "createDataset",
+		"desc": "create intermediate dataset",
 		"comments": "something need to say",
 		"message": "something need to say",
 		"required": true
 	},
-	"resources": [
-		"emr", "chlickhouse", "chproxy"
+	"datasets": [
+		{
+			"name": "BB",
+			"cat": "intermediate",
+			"format": "parquet"
+		},
+		{
+			"name": "AA",
+			"cat": "uploaded",
+			"format": "parquet"
+		}
 	],
+	"script": {
+		"name": "compute_BB",
+		"flowVersion": "developer",
+		"runtime": "pyspark",
+		"inputs": "[\"AA\"]",
+		"output": "{\"name\": \"BB\"}"
+	},
 	"notification": {
 		"required": true
+	},
+	"result": {
+		"datasets": [""],
+		"scripts": [""],
+		"links": [""]
 	}
 }

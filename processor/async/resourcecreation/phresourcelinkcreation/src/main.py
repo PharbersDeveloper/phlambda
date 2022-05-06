@@ -11,9 +11,6 @@ args = {
     "projectName": "String",
     "owner": "String",
     "showName": "String",
-    "traceId": "String",
-    "projectId": "String",
-    "owner": "String",
     "flowVersion": "developer",
     "datasets": [
         {
@@ -27,7 +24,7 @@ args = {
         "id": "String",
         "jobName": "String",
         "runtime": "String",
-        "actionName": "String",
+        "name": "String",
         "flowVersion": "developer",
         "inputs": "[{"name": "dsName"}, {"name": "dsName"}]",
         "output": "{"name": "dsName"}"
@@ -53,7 +50,7 @@ def put_dag_item(projectId, sortVersion, cat, cmessage, ctype, flowVersion, leve
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('notification')
+    table = dynamodb.Table('dag')
 
     response = table.put_item(
         Item={
@@ -95,7 +92,7 @@ def lambda_handler(event, context):
 
     # 2 创建 job item
     jobSortVersion = event["flowVersion"] + "_" + event["script"]["id"]
-    put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["actionName"], "node", event["flowVersion"],
+    put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["name"], "node", event["flowVersion"],
                  "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"])
 
     # 3 创建 link item
@@ -107,9 +104,16 @@ def lambda_handler(event, context):
             # job -> output dataset
             cmessage = {
                 "sourceId": event["script"]["id"],
-                "sourceName": event["script"]["actionName"],
-                "targetId": event["dataset"]["id"],
-                "targetName": event["dataset"]["name"],
+                "sourceName": event["script"]["name"],
+                "targetId": dataset["id"],
+                "targetName": dataset["name"],
+            }
+        else:
+            cmessage = {
+                "sourceId": dataset["id"],
+                "sourceName": dataset["name"],
+                "targetId": event["script"]["id"],
+                "targetName": event["script"]["name"],
             }
         put_dag_item(event["projectId"], linkSortVersion, "", json.dumps(cmessage), "link", event["flowVersion"],
                      "", "", "", "", linkId, "")

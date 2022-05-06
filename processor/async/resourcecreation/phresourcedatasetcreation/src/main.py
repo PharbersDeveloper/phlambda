@@ -51,16 +51,20 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('notification')
+    ds_table = dynamodb.Table('dataset')
 
-    res = table.query(
-        KeyConditionExpression=Key("id").eq(projectId)
-                               & Key("projectId").begins_with(name)
+    res = ds_table.query(
+        IndexName='dataset-projectId-name-index',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("name").begins_with(name)
     )
 
     response = {}
+    print("dsName")
+    print(name)
     if len(res["Items"]) == 0:
-        response = table.put_item(
+        print("putItem")
+        response = ds_table.put_item(
             Item={
                 "id": id,
                 "projectId": projectId,
@@ -90,9 +94,8 @@ def lambda_handler(event, context):
         id = generate()
         dataset.update({"id": id})
         result.append(dataset)
-        put_dataset_item(id, event["projectId"], event["datasets"]["name"], label="[]", schema="[]", path="",
-                         format=event["datasets"]["format"], cat=event["datasets"]["cat"], prop="")
+        put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
+                         format=dataset["format"], cat=dataset["cat"], prop="")
+    print(result)
+    return result
 
-    return {
-        result
-    }

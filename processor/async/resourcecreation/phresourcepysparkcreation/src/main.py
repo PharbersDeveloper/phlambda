@@ -1,7 +1,10 @@
 import json
+import os
+import subprocess
 from util.AWS import define_value as dv
 from util.AWS.ph_s3 import PhS3
 from handler.GenerateInvoker import GenerateInvoker
+
 
 '''
 创建pyspark
@@ -16,9 +19,8 @@ args = {
     "projectName": "String",
     "scripts": {
         "id": "String",
-        "jobName": "String",
         "runtime": "String",
-        "actionName": "String",
+        "name": "String",
         "flowVersion": "developer",
         "inputs": "[]",
         "output": "{}"
@@ -29,61 +31,35 @@ phs3 = PhS3()
 job_path_prefix = "/tmp/phjobs/"
 
 def create_phjobs(args):
-    runtime = args["scripts"].get("runtime")
+    runtime = args["script"].get("runtime")
 
     # 通过 phcli 创建 phjobs 相关文件
     dag_name = args.get("projectName") + \
                "_" + args.get("dagName") + \
                "_" + args["script"].get("flowVersion")
 
-    job_full_name = dag_name + "_" + args["script"].get("actionName")
+    job_full_name = dag_name + "_" + args["script"].get("name")
     job_path = job_path_prefix + dag_name + "/" + job_full_name
     phjob_exist = False
     job_name = "phjob"
-    def write_r():
-        return job_name + ".R"
-
-    def write_python():
-        return job_name + ".py"
-
-    job_head_temps = {
-        "python3": dv.TEMPLATE_PHJOB_FILE_PY,
-        "pyspark": dv.TEMPLATE_PHJOB_FILE_PY,
-        "r": dv.TEMPLATE_PHJOB_FILE_R,
-        "sparkr": dv.TEMPLATE_PHJOB_FILE_R,
-        "prepare": dv.TEMPLATE_PHJOB_FILE_PY
-    }
-
-    choose_job = {
-        "python3": write_python,
-        "pyspark": write_python,
-        "r": write_r,
-        "sparkr": write_r,
-        "prepare": write_python
-    }
-
-    choose_job_head = {
-        "python3": """def execute(**kwargs):\n""",
-        "pyspark": """def execute(**kwargs):\n""",
-        "prepare": "",
-        "r": "",
-        "sparkr": ""
-    }
 
     # 如果是script脚本先判断文件是否在s3存在 如果存在不生成phjob文件
     phjob_exist = phs3.file_exist(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name + "/" + "phjob.py")
     print("Tobeey =======>>>>>>>>")
     print("判断s3是否存在")
+    print(phjob_exist)
     print("Tobeey =======>>>>>>>>")
     operator_parameters = [{"type": "Script"}]
     if not phjob_exist:
         # 2. /phjob.py file
         phs3.download(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHJOB_FILE_PY, job_path + "/" + "phjob.py")
-        operator_code = GenerateInvoker().execute(json.dumps(operator_parameters, ensure_ascii=False), runtime)
+        operator_code = GenerateInvoker().execute(operator_parameters, runtime)
         with open(job_path + "/" + "phjob.py", "a") as file:
             file.write("""def execute(**kwargs):\n""")
             file.write(operator_code)
 
+    for key in os.listdir(job_path):
+        print(key)
 
 def create_phmain(args, path=None):
     if not path:
@@ -91,9 +67,14 @@ def create_phmain(args, path=None):
                    "_" + args.get("dagName") + \
                    "_" + args["script"].get("flowVersion")
 
-    job_full_name = dag_name + "_" + args["script"].get("actionName")
+    job_full_name = dag_name + "_" + args["script"].get("name")
 
     job_path = job_path_prefix + dag_name + "/" + job_full_name
+    if os.path.exists(job_path + "/phmain.py"):
+        os.system("rm " + job_path + "/phmain.py")
+
+    subprocess.call(["mkdir", "-p", job_path])
+
     f_lines = phs3.open_object_by_lines(dv.TEMPLATE_BUCKET, dv.CLI_VERSION + dv.TEMPLATE_PHMAIN_FILE_PY)
 
     def write_python():
@@ -157,7 +138,10 @@ def create_phmain(args, path=None):
                 else:
                     file.write(line)
 
+    for key in os.listdir(job_path):
+        print(key)
     write_python()
+
 
 
 def upload_phjob_files(args):
@@ -166,10 +150,10 @@ def upload_phjob_files(args):
                "_" + args.get("dagName") + \
                "_" + args["script"].get("flowVersion")
 
-    job_full_name = dag_name + "_" + args["script"].get("actionName")
+    job_full_name = dag_name + "_" + args["script"].get("name")
 
     def upload_job(operator_dir_path, dag_name):
-        self.phs3.upload_dir(
+        phs3.upload_dir(
             dir=operator_dir_path,
             bucket_name=dv.TEMPLATE_BUCKET,
             s3_dir=dv.CLI_VERSION + dv.DAGS_S3_PHJOBS_PATH + dag_name + "/" + job_full_name
@@ -184,7 +168,12 @@ def lambda_handler(event, context):
     
     # 创建pyspark的流程
     create_phmain(event)
+    print("创建phmain成功")
     create_phjobs(event)
+    print("创建phjob成功")
     upload_phjob_files(event)
+    print("上传phjob文件成功")
+
+    result = event["script"]
     
-    return True
+    return result

@@ -50,7 +50,7 @@ class PutItemToStep:
     def get_index(self):
         return self.steps['index']
     def get_mode(self):
-        return self.steps['dataset']
+        return self.steps['mode']
     def get_name(self):
         return self.steps['name']
     def get_traceId(self):
@@ -65,7 +65,7 @@ class PutItemToStep:
                 'confData': self.get_confData(),
                 'detail': self.get_detail(),
                 'index': self.get_index(),
-                'mode': self.get_index(),
+                'mode': self.get_mode(),
                 'name': self.get_name(),
                 'traceId': self.get_traceId()
             }

@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -36,6 +36,76 @@
             }
          ]
       },
+      "SSMRead": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "read",
+            "key.$": "$.common.projectId",
+            "value": {
+               "projectName.$": "$.common.projectName",
+               "currentContext": "V2"
+            }
+         },
+         "ResultPath": "$.resources",
+         "Next": "ResourceDeletion"
+      },
+      "ResourceDeletion": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "Next": "Success",
+         "Branches": [
+            {
+               "StartAt": "EMRCreation",
+               "States": {
+                  "EMRCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationemr-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources"
+                     },
+                     "ResultPath": "$.EMRResult",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "EC2Creation",
+               "States": {
+                  "EC2Creation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationec2-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources"
+                     },
+                     "ResultPath": "$.EC2Result",
+                     "End": true
+                  }
+               }
+            }
+         ],
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ] 
+      },
       "Actions": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
@@ -51,7 +121,7 @@
             "required.$": "$.action.required"
          },
          "ResultPath": null,
-         "Next": "ResourceCreation"
+         "Next": "SSMRead"
       },
       "ResouceLink": {
          "Type": "Task",

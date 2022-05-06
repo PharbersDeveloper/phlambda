@@ -21,7 +21,6 @@
 	"script": {
 		"actionName": "compute_C2",
 	},
-	"dryRun": true,
 	"notification": {
 		"required": true
 	}

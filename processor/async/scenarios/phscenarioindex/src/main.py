@@ -15,10 +15,31 @@ args:
             "id": "scenario id",
             "active": true,
             "scenarioName": "scenario name",
-            "deletion": false
+            "deletion": false,
+            "index": "index"
         }
     }
 '''
 
 def lambda_handler(event, context):
-    return true
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('scenario')
+
+    response = table.put_item(
+        Item={
+            'projectId': event['projectId'],
+            'id': event['scenario']['id'],
+            'active': event['scenario']['active'],
+            'args': '',
+            'index': event['scenario']['index'],
+            'owner': event['owner'],
+            'projectName': event['projectName'],
+            'scenario': event['scenario'],
+            'traceId': event['traceId']
+        }
+    )
+    print(response)
+
+    return True
+

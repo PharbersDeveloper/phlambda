@@ -98,14 +98,17 @@ class Check:
         event_data = CheckParameters(event)
         input_keys = event_data.get_prefix_key()
         #---------------------------------检查字段缺失---------------------------------------------------------#
-        _keys = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
-        if len(input_keys) < 5 and [x for x in _keys if x not in input_keys] == ['triggers', 'steps']:
-            raise Exception(f"{input_keys} is error")
-        else:
+        _key_triggers = ['common', 'action', 'notification', 'scenario', 'triggers']
+        _key_steps = ['common', 'action', 'notification', 'scenario',  'steps']
+        _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
+        if any((set(input_keys) >= set(_key_triggers), set(input_keys)>=set(_key_steps), set(input_keys)>=set(_key_all))):
             for key in input_keys:
-                if key in _keys:
+                if key in _key_all:
                     #----检查内层每个字段------#
                     event_data.check_key(key)
+        else:
+            missing_field = " or ".join([x for x in _key_all if x not in input_keys])
+            raise Exception(f"Field missing: {input_keys} possible missing fields {missing_field}")
         return True
 
 def lambda_handler(event, context):

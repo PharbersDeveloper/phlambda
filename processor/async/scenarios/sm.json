@@ -85,7 +85,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.": "$.triggers"
+                        "triggers.$": "$.triggers"
                      },
                      "ResultPath": "$.triggers",
                      "Next": "TriggersResources"
@@ -99,7 +99,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.": "$.triggers"
+                        "triggers.$": "$.triggers"
                      },
                      "ResultPath": null,
                      "End": true

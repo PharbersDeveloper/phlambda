@@ -35,5 +35,43 @@ args:
     }
 '''
 
+class PutItemToStep:
+    def __init__(self, event):
+        self.event = event
+        self.steps = self.event['steps'][0]
+    def get_scenarioId(self):
+        return self.event['scenario']['id']
+    def get_id(self):
+        return self.steps['id']
+    def get_confData(self):
+        return self.steps['confData']
+    def get_detail(self):
+        return self.steps['detail']
+    def get_index(self):
+        return self.steps['index']
+    def get_mode(self):
+        return self.steps['dataset']
+    def get_name(self):
+        return self.steps['name']
+    def get_traceId(self):
+        return self.event['traceId']
+    def put_item(self):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('scenario_step')
+        response = table.put_item(
+            Item={
+                'scenarioId': self.get_scenarioId(),
+                'id': self.get_id(),
+                'confData': self.get_confData(),
+                'detail': self.get_detail(),
+                'index': self.get_index(),
+                'mode': self.get_index(),
+                'name': self.get_name(),
+                'traceId': self.get_traceId()
+            }
+        )
+        return response
+
 def lambda_handler(event, context):
-    return true
+    response = PutItemToStep(event).put_item()
+    return response

@@ -3,7 +3,7 @@ import json
 import math
 import boto3
 import traceback
-import datetime
+import time
 
 '''
 通用
@@ -31,7 +31,7 @@ def lambda_handler(event, context):
     response = table.put_item(
        Item={
             'projectId': event['projectId'],
-            'date': math.floor(datetime.now().timestamp() * 1000),
+            'date': str(int(round(time.time() * 1000))),
             'jobCat': event['jobCat'],
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],

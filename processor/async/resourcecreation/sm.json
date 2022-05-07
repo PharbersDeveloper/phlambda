@@ -88,7 +88,7 @@
                         "showName.$": "$.common.showName",
                         "datasets.$": "$.datasets"
                      },
-                     "ResultPath": "$.datasets",
+                     "ResultPath": "$.result.datasets",
                      "End": true
                   }
                }

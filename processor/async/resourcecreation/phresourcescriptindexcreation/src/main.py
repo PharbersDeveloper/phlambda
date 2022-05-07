@@ -67,7 +67,7 @@ def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs
             "inputs": inputs,
             "jobDisplayName": jobDisplayName,
             "jobId": id,
-            "jobPath": id,
+            "jobPath": jobPath,
             "jobShowName": actionName,
             "jobVersion": flowVersion,
             "labels": labels,

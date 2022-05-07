@@ -1,167 +1,256 @@
 {
-   "Comment": "Pharbers Resource Creation",
-   "StartAt": "StartState",
-   "States": {
-      "StartState": {
-         "Type": "Pass",
-         "ResultPath": null,
-         "Next": "ArgsValidation"
+   "Comment" : "Pharbers Resource Creation",
+   "StartAt" : "StartState",
+   "States" : {
+      "StartState" : {
+         "Type" : "Pass",
+         "ResultPath" : null,
+         "Next" : "ArgsValidation"
       },
-      "ArgsValidation": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-dev",
-         "ResultPath": null,
-         "Next": "Actions",
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
+      "ArgsValidation" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceargsvalidation-dev",
+         "ResultPath" : null,
+         "Next" : "Actions",
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "Failed"
          }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "Failed"
          }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         } ],
-      },
-      "SSMRead": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
-         "Parameters": {
-            "action": "read",
-            "key.$": "$.common.projectId",
-            "value": {
-               "projectName.$": "$.common.projectName",
-               "currentContext": "V2"
-            }
-         },
-         "ResultPath": "$.resources",
-         "Next": "ResourceDeletion"
-      },
-      "ResourceDeletion": {
-         "Type": "Parallel",
-         "InputPath": "$",
-         "Next": "Success",
-         "Branches": [
-            {
-               "StartAt": "EMRCreation",
-               "States": {
-                  "EMRCreation": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationemr-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "resources.$": "$.resources"
-                     },
-                     "ResultPath": "$.EMRResult",
-                     "End": true
-                  }
-               }
-            },
-            {
-               "StartAt": "EC2Creation",
-               "States": {
-                  "EC2Creation": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationec2-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "resources.$": "$.resources"
-                     },
-                     "ResultPath": "$.EC2Result",
-                     "End": true
-                  }
-               }
-            }
-         ],
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "Failed"
          } ]
       },
-      "Actions": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "required.$": "$.action.required"
+      "Actions" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "message.$": "$.action.message",
+            "comments.$" : "$.action.comments",
+            "required.$" : "$.action.required"
          },
-         "ResultPath": null,
-         "Next": "SSMRead"
+         "ResultPath" : null,
+         "Next" : "ResourceCreation"
       },
-      "Success": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.result",
-            "status": "success"
+      "ResouceLink" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcelinkcreation-dev",
+         "Parameters" : {
+            "traceId.$": "$.[1].common.traceId",
+            "projectId.$": "$.[1].common.projectId",
+            "projectName.$": "$.[1].common.projectName",
+            "owner.$": "$.[1].common.owner",
+            "flowVersion.$": "$.[1].common.flowVersion",
+            "showName.$": "$.[1].common.showName",
+            "datasets.$": "$.[0].datasets",
+            "script.$": "$.[1].script"
          },
-         "End": true
+         "ResultPath" : null,
+         "Next" : "Success",
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
       },
-      "CleanUp": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcefiledcleanup-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "datasets.$": "$.datasets",
-            "scripts.$": "$.scripts"
+      "ResourceCreation" : {
+         "Type" : "Parallel",
+         "InputPath" : "$",
+         "Next" : "ResouceLink",
+         "Branches" : [ {
+            "StartAt" : "DSCreation",
+            "States" : {
+               "DSCreation" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcedatasetcreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "datasets.$" : "$.datasets"
+                  },
+                  "ResultPath" : "$.datasets",
+                  "End" : true
+               }
+            }
+         }, {
+            "StartAt" : "ScriptsCreation",
+            "States" : {
+               "ScriptsCreation" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcescriptindexcreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "script.$" : "$.script"
+                  },
+                  "ResultPath" : "$.script",
+                  "Next" : "ScriptsFilesCreation"
+               },
+               "ScriptsFilesCreation" : {
+                  "Type" : "Choice",
+                  "InputPath" : "$",
+                  "Choices" : [ {
+                     "Variable" : "$.script.runtime",
+                     "StringEquals" : "pyspark",
+                     "Next" : "PysparkFiles"
+                  }, {
+                     "Variable" : "$.script.runtime",
+                     "StringEquals" : "python",
+                     "Next" : "PythonFiles"
+                  }, {
+                     "Variable" : "$.script.runtime",
+                     "StringEquals" : "r",
+                     "Next" : "RFiles"
+                  }, {
+                     "Variable" : "$.script.runtime",
+                     "StringEquals" : "sparkr",
+                     "Next" : "SparkrFiles"
+                  } ],
+                  "Default" : "PysparkFiles"
+               },
+               "PysparkFiles" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepysparkcreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "dagName.$": "$.common.dagName",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "script.$" : "$.script"
+                  },
+                  "ResultPath": "$.script",
+                  "End" : true
+               },
+               "PythonFiles" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "script.$" : "$.script"
+                  },
+                  "End" : true
+               },
+               "RFiles" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "script.$" : "$.script"
+                  },
+                  "End" : true
+               },
+               "SparkrFiles" : {
+                  "Type" : "Task",
+                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesparkrcreation-dev",
+                  "Parameters" : {
+                     "traceId.$" : "$.common.traceId",
+                     "projectId.$" : "$.common.projectId",
+                     "owner.$" : "$.common.owner",
+                     "showName.$" : "$.common.showName",
+                     "script.$" : "$.script"
+                  },
+                  "End" : true
+               }
+            }
+         } ],
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
+      },
+      "Success" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters" : {
+            "traceId.$" : "$.[1].common.traceId",
+            "projectId.$" : "$.[1].common.projectId",
+            "owner.$" : "$.[1].common.owner",
+            "showName.$" : "$.[1].common.showName",
+            "flowVersion.$" : "$.[1].common.flowVersion",
+            "dagName.$" : "$.[1].common.dagName",
+            "projectName.$" : "$.[1].common.projectName",
+            "jobId.$":  "$.[1].script.id",
+            "jobShowName.$":  "$.[1].script.name",
+            "jobCat.$" : "$.[1].action.cat",
+            "jobDesc.$" : "$.[1].action.desc",
+            "comments.$" : "$.[1].action.comments",
+            "message.$" : "$.[1].result",
+            "status" : "success"
          },
-         "ResultPath": null,
-         "Next": "Failed"
+         "End" : true
       },
-      "Failed": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.error",
-            "status": "failed"
+      "CleanUp" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcefiledcleanup-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "projectName.$" : "$.common.projectName",
+            "datasets.$" : "$.datasets",
+            "script.$" : "$.script"
          },
-         "End": true
+         "ResultPath" : null,
+         "Next" : "Failed"
       },
+      "Failed" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "comments.$" : "$.action.comments",
+            "message.$" : "$.error",
+            "status" : "failed"
+         },
+         "End" : true
+      }
    }
-
 }

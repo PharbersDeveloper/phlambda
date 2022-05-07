@@ -14,7 +14,6 @@ args = {
     "owner": "String",
     "showName": "String",
     "dagName": "String",
-    "traceId": "String",
     "owner": "String",
     "projectName": "String",
     "scripts": {
@@ -90,7 +89,7 @@ def create_phmain(args, path=None):
         logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
         args = {"name": "$alfred_name"}
         inputs = $alfred_inputs
-        outputs = $alfred_outputs_name
+        output = "$alfred_output_name"
         project_id = "$alfred_project_id"
         project_name = "$alfred_project_name"
         runtime = "$alfred_runtime"
@@ -118,7 +117,7 @@ def create_phmain(args, path=None):
         logger.debug("job脚本返回输出df")
         logger.debug(args)
         
-        createOutputs(runtime, args, ph_conf, outputs, outputs_id, project_id, project_name, output_version, logger)
+        createOutputs(runtime, args, ph_conf, output, project_id, project_name, output_version, logger)
 
         return result
     except Exception as e:
@@ -128,7 +127,7 @@ def create_phmain(args, path=None):
         raise e
 
 """
-                               .replace('$alfred_outputs_name', args["script"].get("output"))
+                               .replace('$alfred_output_name', args["script"].get("output"))
                                .replace('$alfred_inputs', args["script"].get("inputs"))
                                .replace('$alfred_name', job_full_name)
                                .replace('$alfred_project_id', args["projectId"])

@@ -30,9 +30,10 @@
 	"script": {
 		"name": "compute_BB",
 		"flowVersion": "developer",
+		"jobName": "demo_demo_developer_compute_BB",
 		"runtime": "pyspark",
 		"inputs": "[\"AA\"]",
-		"output": "{\"name\": \"BB\"}"
+		"output": "BB"
 	},
 	"notification": {
 		"required": true

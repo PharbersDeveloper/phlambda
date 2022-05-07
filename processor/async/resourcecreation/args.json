@@ -3,8 +3,10 @@
 		"traceId": "alfred-resource-creation-traceId",
 		"projectId": "ggjpDje0HUC2JW",
 		"projectName": "demo",
-		"owner": "alfred",
-		"showName": "alfred"
+		"flowVersion": "developer",
+		"dagName": "demo",
+		"owner": "hbzhao",
+		"showName": "赵浩博"
 	},
 	"action": {
 		"cat": "createDataset",
@@ -15,22 +17,30 @@
 	},
 	"datasets": [
 		{
-			"name": "test_name",
+			"name": "BB",
 			"cat": "intermediate",
+			"format": "parquet"
+		},
+		{
+			"name": "AA",
+			"cat": "uploaded",
 			"format": "parquet"
 		}
 	],
 	"script": {
-			"actionName": "compute_C2",
-			"flowVersion": "developer",
-			"runtime": "pyspark",
-			"inputs": "[]",
-			"output": "{}"
-	},
-	"links": {
-
+		"name": "compute_BB",
+		"flowVersion": "developer",
+		"jobName": "demo_demo_developer_compute_BB",
+		"runtime": "pyspark",
+		"inputs": "[\"AA\"]",
+		"output": "BB"
 	},
 	"notification": {
 		"required": true
+	},
+	"result": {
+		"datasets": [""],
+		"scripts": [""],
+		"links": [""]
 	}
 }

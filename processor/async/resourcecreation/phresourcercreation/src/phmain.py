@@ -1,7 +1,5 @@
 
 def create_ph_main_file(conf):
-    # template_phmain_file = os.environ["TM_PHMAIN_FILE"] # 环境变量 "/template/python/phcli/maxauto/phmain-r_dev.tmp"
-
     runtime = "r"
 
     file_lines = conf.get("s3").open_object_by_lines(conf.get("bucket"),
@@ -12,9 +10,9 @@ def create_ph_main_file(conf):
             line = line + "\n"
             if line == "$alfred_debug_execute\n":
                 file.write(f"""
-args <- list(name="{conf.get("jobDisplayName")}")
+args <- list(name="{conf.get("jobFullName")}")
 
-inputs <- list({', '.join(['"' + input_item.get("name") + '"' for input_item in conf.get("inputs")])})
+inputs <- list({', '.join(['"' + input_item + '"' for input_item in conf.get("inputs")])})
 output <- "{conf.get("output")}"
 
 project_id <- "{conf.get("projectId")}"

@@ -25,16 +25,33 @@ args = {
         "output": "{"name": ""}"
     }
 }
+args = {
+    "traceId": "alfred-resource-creation-traceId",
+    "dagName": "demo",
+    "owner": "alex_qian_00001",
+    "showName": "钱鹏",
+    "projectName": "demo",
+    "projectId": "ggjpDje0HUC2JW",
+    "script": {
+        "name": "compute_BB",
+        "flowVersion": "developer",
+        "runtime": "r",
+        "inputs": "[\"AA\"]",
+        "output": "BB",
+        "id": "001"
+    }
+}
 '''
 
 
 def lambda_handler(event, context):
+    print(event)
 
     # 创建R代码的流程
-
     try:
         phs3 = PhS3()
-        name = f"{event['projectName']}_{event['dagName']}_{event['scripts']['flowVersion']}"
+        name = f"{event['projectName']}_{event['dagName']}_{event['script']['flowVersion']}"
+        job_full_name = f"""{name}_{event["script"]["name"]}"""
 
         # 1 收集参数，转成想要的结构
         conf = {
@@ -51,12 +68,12 @@ def lambda_handler(event, context):
             "projectId": event["projectId"],
             "projectName": event["projectName"],
             "dagName": event["dagName"],
-            "flowVersion": event["scripts"]["flowVersion"],
-            "jobDisplayName": event["jobDisplayName"],
-            "inputs": json.loads(event["scripts"]["inputs"]),
-            "output": json.loads(event["scripts"]["output"])["name"],
+            "flowVersion": event["script"]["flowVersion"],
+            "jobFullName": job_full_name,
+            "inputs": json.loads(event["script"]["inputs"]),
+            "output": event["script"]["output"],
             "name": name,
-            "jobPath": os.environ["JOB_PATH_PREFIX"] + name + "/" + event["jobDisplayName"]
+            "jobPath": f"""{os.environ["JOB_PATH_PREFIX"]}{name}/{job_full_name}"""
         }
 
         os.system("rm -rf " + conf.get("jobPath") + "/*")
@@ -69,6 +86,7 @@ def lambda_handler(event, context):
         # 4 上传到S3对应的位置
         upload_files(conf)
 
-        return True
+        return event["script"]
     except Exception as e:
-        raise Exception(f"creation sparkr file error, detail: {str(e)}")
+        raise Exception(f"creation spark r file error, detail: {str(e)}")
+

@@ -179,6 +179,8 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"
@@ -191,6 +193,8 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"
@@ -203,6 +207,8 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
+                     "projectName.$" : "$.common.projectName",
+                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"

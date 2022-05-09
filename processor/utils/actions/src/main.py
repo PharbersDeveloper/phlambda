@@ -1,4 +1,5 @@
 import boto3
+import traceback
 import time
 
 '''
@@ -29,7 +30,7 @@ def lambda_handler(event, context):
     response = table.put_item(
        Item={
             'projectId': event['projectId'],
-            'date': int(round(time.time() * 1000)),
+            'date': str(int(round(time.time() * 1000))),
             'jobCat': event['jobCat'],
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],

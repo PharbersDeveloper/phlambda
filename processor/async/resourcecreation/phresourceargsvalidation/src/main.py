@@ -148,6 +148,7 @@ class Check:
 
 
 def lambda_handler(event, context):
+    print(event)
     return Check().check_parameter(event)
 
     # 1. common 必须存在

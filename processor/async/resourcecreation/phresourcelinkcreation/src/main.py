@@ -2,6 +2,7 @@ import json
 import boto3
 import math
 import random
+from boto3.dynamodb.conditions import Key
 
 '''
 创建link
@@ -11,9 +12,6 @@ args = {
     "projectName": "String",
     "owner": "String",
     "showName": "String",
-    "traceId": "String",
-    "projectId": "String",
-    "owner": "String",
     "flowVersion": "developer",
     "datasets": [
         {
@@ -27,10 +25,10 @@ args = {
         "id": "String",
         "jobName": "String",
         "runtime": "String",
-        "actionName": "String",
+        "name": "String",
         "flowVersion": "developer",
-        "inputs": "[{"name": "dsName"}, {"name": "dsName"}]",
-        "output": "{"name": "dsName"}"
+        "inputs": "["dsName"]",
+        "output": "dsName"
     }
 }
 '''
@@ -49,11 +47,29 @@ def generate():
     return "".join(array)
 
 
+def get_ds_id(dsName, projectId):
+
+    dynamodb = boto3.resource('dynamodb')
+    ds_table = dynamodb.Table('dataset')
+    res = ds_table.query(
+        IndexName='dataset-projectId-name-index',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("name").begins_with(dsName)
+    )
+    dsId = ""
+    if len(res["Items"]):
+        dsId = res["Items"][0].get("id")
+    else:
+        raise Exception("dataset not found error")
+
+    return dsId
+
+
 def put_dag_item(projectId, sortVersion, cat, cmessage, ctype, flowVersion, level, name, position, prop, representId, runtime, dynamodb=None):
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('notification')
+    table = dynamodb.Table('dag')
 
     response = table.put_item(
         Item={
@@ -83,7 +99,8 @@ def lambda_handler(event, context):
     # 创建dag 表的流程
     # 1 创建 dataset item
     for dataset in event["datasets"]:
-        sortVersion = event["flowVersion"] + "_" + dataset["id"]
+        dsId = get_ds_id(dataset["name"], event["projectId"])
+        sortVersion = event["flowVersion"] + "_" + dsId
         if dataset["cat"] == "catalog":
             prop = {"path": "", "partitions": 1, "format": "", "tableName": dataset["name"], "databaseName": "zudIcG_17yj8CEUoCTHg"}
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
@@ -95,24 +112,32 @@ def lambda_handler(event, context):
 
     # 2 创建 job item
     jobSortVersion = event["flowVersion"] + "_" + event["script"]["id"]
-    put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["actionName"], "node", event["flowVersion"],
+    put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["name"], "node", event["flowVersion"],
                  "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"])
 
     # 3 创建 link item
     # 创建ds node 到 job node的 link
     for dataset in event["datasets"]:
+
         linkId = generate()
         linkSortVersion = event["flowVersion"] + "_" + linkId
-        if dataset["name"] == json.loads(event["script"]["output"])["name"]:
+        if dataset["name"] == event["script"]["output"]:
             # job -> output dataset
             cmessage = {
                 "sourceId": event["script"]["id"],
-                "sourceName": event["script"]["actionName"],
-                "targetId": event["dataset"]["id"],
-                "targetName": event["dataset"]["name"],
+                "sourceName": event["script"]["name"],
+                "targetId": dataset["id"],
+                "targetName": dataset["name"],
+            }
+        else:
+            cmessage = {
+                "sourceId": dataset["id"],
+                "sourceName": dataset["name"],
+                "targetId": event["script"]["id"],
+                "targetName": event["script"]["name"],
             }
         put_dag_item(event["projectId"], linkSortVersion, "", json.dumps(cmessage), "link", event["flowVersion"],
-                     "", "", "", "", linkId, "")
+                     "", "empty", "", "", linkId, "")
 
 
     return True

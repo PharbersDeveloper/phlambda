@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr
+from datetime import datetime
 
 '''
 这个函数只做两件事情，
@@ -67,6 +68,49 @@ args:
         }
     }
 '''
+def ExtractToNotification(id, projectId,category, code, comments, date, jobCat, jobDesc, message, owner, showName, status,traceId):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('notification')
+        response = table.put_item(
+            Item={
+                'id': id,
+                'projectId': projectId,
+                'category': category,
+                'code': code,
+                'comments': comments,
+                'date': date,
+                'jobCat': jobCat,
+                'jobDesc': jobDesc,
+                'message': message,
+                'owner': owner,
+                'showName': showName,
+                'status': status,
+                'traceId':traceId
+            }
+        )
+        return response
 
 def lambda_handler(event, context):
-    return true
+
+    #-------------写入notification字段-----------------#
+    id = '',     #---目前在表中查到的字段有下列字段，具体对应规则待确认
+    projectId =event['common']['projectId'] ,
+    category = '',
+    code = '',
+    comments = event['action']['comments'],
+    date = datetime.now().timestamp(),
+    jobCat = event['action']['cat'],
+    jobDesc = event['action']['desc'],
+    message = event['action']['message'],
+    owner = event['common']['owner'],
+    showName = event['common']['showName'],
+    status = '',
+    traceId = event['common']['traceId']
+
+    error = event['error']
+    #--------------------写入notification表-----------------------#
+    ExtractToNotification(id, projectId,category, code, comments, date, jobCat, jobDesc, message, owner, showName, status,traceId)
+
+    #-------------------回滚操作-----------------------------------#
+
+    return True

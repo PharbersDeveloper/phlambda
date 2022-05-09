@@ -5,6 +5,7 @@ import json
 
 args:
     event = {
+        "runtime"
         "owner"
         "flowVersion"
         "jobId"
@@ -22,6 +23,7 @@ def lambda_handler(event, context):
             "data": {
                 "jobName": f"""{event["flowVersion"]}_{event["jobId"]}_{event["projectName"]}_{event["dagName"]}_{event["jobShowName"]}""",
                 "jobShowName": event["jobShowName"],
+                "runtime": event["runtime"]
             },
             "error": {}
         }

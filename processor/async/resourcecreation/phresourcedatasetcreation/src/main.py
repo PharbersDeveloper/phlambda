@@ -1,6 +1,7 @@
 import json
 import random
 import math
+import time
 import boto3
 from boto3.dynamodb.conditions import Key
 
@@ -51,18 +52,23 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('notification')
+    ds_table = dynamodb.Table('dataset')
 
-    res = table.query(
-        KeyConditionExpression=Key("id").eq(projectId)
-                               & Key("projectId").begins_with(name)
+    res = ds_table.query(
+        IndexName='dataset-projectId-name-index',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("name").begins_with(name)
     )
 
     response = {}
+    print("dsName")
+    print(name)
     if len(res["Items"]) == 0:
-        response = table.put_item(
+        print("putItem")
+        response = ds_table.put_item(
             Item={
                 "id": id,
+                "date": str(int(round(time.time() * 1000))),
                 "projectId": projectId,
                 "name": name,
                 "label": label,
@@ -78,6 +84,22 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
     return response
 
 
+def get_ds_representId(dsName, projectId):
+
+    dynamodb = boto3.resource('dynamodb')
+    ds_table = dynamodb.Table('dag')
+    res = ds_table.query(
+        IndexName='dag-projectId-name-index',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("name").begins_with(dsName)
+    )
+    representId = ""
+    if len(res["Items"]):
+        representId = res["Items"][0].get("representId")
+
+    return representId
+
+
 def lambda_handler(event, context):
     print("输入event")
     print(event)
@@ -87,12 +109,14 @@ def lambda_handler(event, context):
 
     result = []
     for dataset in event["datasets"]:
-        id = generate()
+        # representId 需要从dag表先进行查询 如果有的则使用
+        id = get_ds_representId(dataset["name"], event["projectId"])
+        if not id:
+            id = generate()
         dataset.update({"id": id})
         result.append(dataset)
-        put_dataset_item(id, event["projectId"], event["datasets"]["name"], label="[]", schema="[]", path="",
-                         format=event["datasets"]["format"], cat=event["datasets"]["cat"], prop="")
+        put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
+                         format=dataset["format"], cat=dataset["cat"], prop="")
+    print(result)
+    return result
 
-    return {
-        result
-    }

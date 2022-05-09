@@ -13,18 +13,18 @@
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ],
       },
       "SSMRead": {
          "Type": "Task",
@@ -83,18 +83,18 @@
             }
          ],
          "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ] 
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ]
       },
       "Actions": {
          "Type": "Task",

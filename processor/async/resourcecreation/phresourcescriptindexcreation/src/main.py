@@ -46,14 +46,15 @@ def generate():
 
 
 def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs, outputs, labels, owner,
-                     operatorParameters, runtime, prop, showName, timeout, dynamodb=None):
+                     operatorParameters, runtime, prop, showName, timeout, traceId, dynamodb=None):
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('dagconf')
     dagName = "_".join([projectName, projectName, flowVersion])
     jobDisplayName = "_".join([projectName, projectName, flowVersion, actionName])
-    jobName = "_".join([flowVersion, id, jobDisplayName])
+    jobName_suffix = "_".join([projectName, projectName, actionName])
+    jobName = "_".join([flowVersion, id, jobName_suffix])
     job_suffix = "phjob.R" if runtime == "r" or runtime == "sparkr" else "phjob.py"
     jobPath = f"2020-11-11/jobs/python/phcli/{dagName}/{jobDisplayName}/{job_suffix}"
     response = table.put_item(
@@ -79,6 +80,7 @@ def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs
             "prop": prop,
             "showName": showName,
             "timeout": timeout,
+            "traceId": traceId
         }
     )
 
@@ -93,7 +95,7 @@ def lambda_handler(event, context):
     id = generate()
     put_dagconf_item(id, event["projectId"], event["script"]["name"], event["projectName"], event["script"]["flowVersion"],
                      event["script"]["inputs"], event["script"]["output"], "", event["owner"],
-                     "", event["script"]["runtime"], "", event["showName"], 1000)
+                     "", event["script"]["runtime"], "", event["showName"], 1000, event["traceId"])
 
     event["script"].update({"id": id})
     result = event["script"]

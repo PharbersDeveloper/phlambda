@@ -31,6 +31,8 @@ job_path_prefix = "/tmp/phjobs/"
 
 def create_phjobs(args):
     runtime = args["script"].get("runtime")
+    if runtime == "prepare":
+        runtime = "pyspark"
 
     # 通过 phcli 创建 phjobs 相关文件
     dag_name = args.get("projectName") + \

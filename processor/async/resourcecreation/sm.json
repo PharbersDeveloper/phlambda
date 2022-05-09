@@ -75,6 +75,11 @@
       "ResourceCreation": {
          "Type": "Parallel",
          "InputPath": "$",
+         "ResultSelector": {
+            "datasets.$": "$.[0].result.datasets",
+            "script.$": "$.[1].result.script"
+         },
+         "ResultPath": "$.result",
          "Next": "ResouceLink",
          "Branches": [
             {

@@ -57,7 +57,7 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
     res = ds_table.query(
         IndexName='dataset-projectId-name-index',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("name").begins_with(name)
+                               & Key("name").eq(name)
     )
 
     response = {}

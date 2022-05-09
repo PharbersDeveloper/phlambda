@@ -43,21 +43,41 @@
          "ResultPath" : null,
          "Next" : "ResourceCreation"
       },
+      "SuccessMessage" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertmessagesuccess-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "flowVersion.$" : "$.common.flowVersion",
+            "dagName.$" : "$.common.dagName",
+            "projectName.$" : "$.common.projectName",
+            "jobId.$":  "$.script.id",
+            "jobShowName.$":  "$.script.name",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "comments.$" : "$.action.comments"
+         },
+         "ResultPath" : "$.message",
+         "Next" : "Success"
+      },
       "ResouceLink" : {
          "Type" : "Task",
          "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcelinkcreation-dev",
          "Parameters" : {
-            "traceId.$": "$.[1].common.traceId",
-            "projectId.$": "$.[1].common.projectId",
-            "projectName.$": "$.[1].common.projectName",
-            "owner.$": "$.[1].common.owner",
-            "flowVersion.$": "$.[1].common.flowVersion",
-            "showName.$": "$.[1].common.showName",
-            "datasets.$": "$.[0].datasets",
-            "script.$": "$.[1].script"
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "flowVersion.$": "$.common.flowVersion",
+            "showName.$": "$.common.showName",
+            "datasets.$": "$.result.datasets",
+            "script.$": "$.result.script"
          },
          "ResultPath" : null,
-         "Next" : "Success",
+         "Next" : "SuccessMessage",
          "Catch" : [ {
             "ErrorEquals" : [ "States.Runtime" ],
             "ResultPath" : "$.error",
@@ -75,6 +95,11 @@
       "ResourceCreation" : {
          "Type" : "Parallel",
          "InputPath" : "$",
+         "ResultSelector": {
+            "datasets.$": "$.[0].datasets",
+            "script.$": "$.[1].script"
+         },
+         "ResultPath": "$.result",
          "Next" : "ResouceLink",
          "Branches" : [ {
             "StartAt" : "DSCreation",
@@ -204,20 +229,20 @@
          "Type" : "Task",
          "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters" : {
-            "traceId.$" : "$.[1].common.traceId",
-            "projectId.$" : "$.[1].common.projectId",
-            "owner.$" : "$.[1].common.owner",
-            "showName.$" : "$.[1].common.showName",
-            "flowVersion.$" : "$.[1].common.flowVersion",
-            "dagName.$" : "$.[1].common.dagName",
-            "projectName.$" : "$.[1].common.projectName",
-            "jobId.$":  "$.[1].script.id",
-            "jobShowName.$":  "$.[1].script.name",
-            "jobCat.$" : "$.[1].action.cat",
-            "jobDesc.$" : "$.[1].action.desc",
-            "comments.$" : "$.[1].action.comments",
-            "message.$" : "$.[1].result",
-            "status" : "success"
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "flowVersion.$" : "$.common.flowVersion",
+            "dagName.$" : "$.common.dagName",
+            "projectName.$" : "$.common.projectName",
+            "jobId.$":  "$.script.id",
+            "jobShowName.$":  "$.script.name",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "comments.$" : "$.action.comments",
+            "message.$" : "$.message",
+            "status" : "succeed"
          },
          "End" : true
       },

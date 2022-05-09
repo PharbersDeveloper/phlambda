@@ -41,7 +41,7 @@ args = {
 class CleanUp:
     name_list = []
     del_list = []
-    s3 = boto3.client("S3")
+    s3 = boto3.client('s3')
     dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
                                aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
                                aws_secret_access_key="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")
@@ -92,14 +92,13 @@ class CleanUp:
             sortVersion = dag.get("sortVersion")
             if ctype == "node" and representId in self.del_list:
                 self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
-            try:
+
+            if ctype == "link":
                 cmessage = json.loads(dag.get("cmessage"))
                 sourceId = cmessage.get("sourceId")
                 targetId = cmessage.get("targetId")
-                if ctype == "link" and sourceId in self.del_list or ctype == "node" and targetId in self.del_list:
+                if sourceId in self.del_list or targetId in self.del_list:
                     self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
-            except:
-                pass
 
     def run(self, projectId, datasets, scripts, traceId, **kwargs):
 
@@ -134,5 +133,4 @@ def lambda_handler(event, context):
     # 4. 如果dag表中，ctype = node && cmessage 中 sourceId 或者 targetId 为上述中的删除节点的删除
     # 5. 删除s3中目标文件夹的文件
     #   5.1 每一个生成过程都给一个TraceID命名的文件，如果文件名一样，删除，如果文件不一样说明时别人创建的不能删除
-
     return True

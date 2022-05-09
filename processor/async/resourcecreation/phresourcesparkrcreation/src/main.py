@@ -88,7 +88,6 @@ def lambda_handler(event, context):
         create_ph_job_file(conf)
         # 4 上传到S3对应的位置
         upload_files(conf)
-
         return event["script"]
     except Exception as e:
         raise Exception(f"creation spark r file error, detail: {str(e)}")

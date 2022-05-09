@@ -118,57 +118,45 @@
                   "ResultPath" : "$.datasets",
                   "End" : true
                }
-            }
-         }, {
-            "StartAt" : "ScriptsCreation",
-            "States" : {
-               "ScriptsCreation" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcescriptindexcreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "projectName.$" : "$.common.projectName",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+            },
+            {
+               "StartAt" : "ScriptsCreation",
+               "States" : {
+                  "ScriptsCreation" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcescriptindexcreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath" : "$.script",
+                     "Next" : "ScriptsFilesCreation"
                   },
-                  "ResultPath" : "$.script",
-                  "Next" : "ScriptsFilesCreation"
-               },
-               "ScriptsFilesCreation" : {
-                  "Type" : "Choice",
-                  "InputPath" : "$",
-                  "Choices" : [ {
-                     "Variable" : "$.script.runtime",
-                     "StringEquals" : "pyspark",
-                     "Next" : "PysparkFiles"
-                  }, {
-                     "Variable" : "$.script.runtime",
-                     "StringEquals" : "python",
-                     "Next" : "PythonFiles"
-                  }, {
-                     "Variable" : "$.script.runtime",
-                     "StringEquals" : "r",
-                     "Next" : "RFiles"
-                  }, {
-                     "Variable" : "$.script.runtime",
-                     "StringEquals" : "sparkr",
-                     "Next" : "SparkrFiles"
-                  } ],
-                  "Default" : "PysparkFiles"
-               },
-               "PysparkFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepysparkcreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "projectName.$" : "$.common.projectName",
-                     "dagName.$": "$.common.dagName",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+                  "ScriptsFilesCreation" : {
+                     "Type" : "Choice",
+                     "InputPath" : "$",
+                     "Choices" : [ {
+                        "Variable" : "$.script.runtime",
+                        "StringEquals" : "pyspark",
+                        "Next" : "PysparkFiles"
+                     }, {
+                        "Variable" : "$.script.runtime",
+                        "StringEquals" : "python",
+                        "Next" : "PythonFiles"
+                     }, {
+                        "Variable" : "$.script.runtime",
+                        "StringEquals" : "r",
+                        "Next" : "RFiles"
+                     }, {
+                        "Variable" : "$.script.runtime",
+                        "StringEquals" : "sparkr",
+                        "Next" : "SparkrFiles"
+                     } ],
+                     "Default" : "PysparkFiles"
                   },
                   "ResultPath": "$.script",
                   "End" : true
@@ -179,8 +167,6 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
-                     "projectName.$" : "$.common.projectName",
-                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"
@@ -193,8 +179,6 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
-                     "projectName.$" : "$.common.projectName",
-                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"
@@ -207,15 +191,23 @@
                   "Parameters" : {
                      "traceId.$" : "$.common.traceId",
                      "projectId.$" : "$.common.projectId",
-                     "projectName.$" : "$.common.projectName",
-                     "dagName.$": "$.common.dagName",
                      "owner.$" : "$.common.owner",
                      "showName.$" : "$.common.showName",
                      "script.$" : "$.script"
                   },
-                  "End" : true
+                  "SparkrFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesparkrcreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "End" : true
+                  }
                }
-            }
          } ],
          "Catch" : [ {
             "ErrorEquals" : [ "States.Runtime" ],

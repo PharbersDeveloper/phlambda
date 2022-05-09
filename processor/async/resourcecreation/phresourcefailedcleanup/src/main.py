@@ -2,7 +2,6 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Key
 
-
 '''
 这个函数清理已经操作的东西，保证操作的原子性
 args = {

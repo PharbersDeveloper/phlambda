@@ -86,7 +86,6 @@ class CleanUp:
         self.name_list.append(scripts.get("actionName"))
 
 
-
 def lambda_handler(event, context):
     CleanUp().run(**event)
     return True

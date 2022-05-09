@@ -39,9 +39,7 @@ args = {
 
 class CleanUp:
     s3 = boto3.client('s3')
-    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                               aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                               aws_secret_access_key="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")
+    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
     # def query_dag(self):
     #     table = self.dynamodb.Table("dag")

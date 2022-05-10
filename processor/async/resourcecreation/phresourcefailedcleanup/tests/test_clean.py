@@ -4,8 +4,8 @@ from src.main import lambda_handler
 
 
 event = {
-    "traceId": "cleanuptesttraceid123abc",
-    "projectId": "cleanuptestprojectid",
+    "traceId": "17f18b6b6d2e4b0fbec17f0a3a07e669",
+    "projectId": "ggjpDje0HUC2JW",
     "owner": "cleanuptesttraceidowner",
     "showName": "cleanuptestshownamec",
     "datasets": [

@@ -24,7 +24,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "Failed"
-          } ],
+          } ]
       },
       "Actions": {
          "Type": "Task",
@@ -65,7 +65,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "datasets.$": "$.datasets",
-            "script.$": "$.script"
+            "scripts.$": "$.scripts"
          },
          "ResultPath": "$.result",
          "Next": "ConcreteDeletion"
@@ -123,7 +123,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "resources": "$.resources",
-                        "script.$": "$.result.script"
+                        "scripts.$": "$.result.scripts"
                      },
                      "ResultPath": null,
                      "Next": "ScriptResourceDeletion"
@@ -138,7 +138,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "resources": "$.resources",
-                        "script.$": "$.result.script"
+                        "scripts.$": "$.result.scripts"
                      },
                      "ResultPath": null,
                      "End": true
@@ -177,7 +177,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
+          } ]
       },
       "Success": {
          "Type": "Task",
@@ -225,7 +225,7 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
 
 }

@@ -106,8 +106,8 @@ def lambda_handler(event, context):
         if dataset["cat"] == "catalog":
             prop = {"path": "", "partitions": 1, "format": "", "tableName": dataset["name"], "databaseName": "zudIcG_17yj8CEUoCTHg"}
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
-                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], event["traceId"])
-        elif dataset["cat"] == "uploaded":
+                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], "default_traceId")
+        elif dataset["cat"] == "uploaded" or dataset["cat"] == "input_index" :
             prop = {"path": "", "partitions": 1}
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
                          "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], "default_traceId")

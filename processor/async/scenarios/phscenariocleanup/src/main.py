@@ -90,6 +90,28 @@ def ExtractToNotification(id, projectId,category, code, comments, date, jobCat, 
         )
         return response
 
+class TriggerRollBack:
+    def del_trigger_resource(self,stackName):
+        result = {}
+        client = boto3.client('cloudformation')
+        response = client.delete_stack(
+            StackName=stackName    # event['runnerId']
+        )
+        print(response)
+        result['status'] = 'ok'
+        result['message'] = 'delete resource success'
+        return result
+
+    def del_trigger_item(self, table_name, scenarioId, col_name, col_value):
+        dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        table = dynamodb.Table(table_name)
+        table.delete_item(
+            Key={
+                col_name: col_value,
+                "scenarioId": scenarioId
+            }
+        )
+
 def lambda_handler(event, context):
 
     #-------------写入notification字段-----------------#
@@ -112,5 +134,11 @@ def lambda_handler(event, context):
     ExtractToNotification(id, projectId,category, code, comments, date, jobCat, jobDesc, message, owner, showName, status,traceId)
 
     #-------------------回滚操作-----------------------------------#
+    scenarioId = event['scenario']['id']
+    triggers_id = event['triggers']['id']
+    stackName = "-".join(["scenario", projectId, scenarioId, triggerId])   #---stackName 存在问题，当操作为update时，stackName不满足此拼接规则，则无法进行资源删除
 
-    return True
+    TriggerRollBack().del_trigger_item("scenario_trigger", scenarioId, "id", triggers_id)
+    result = TriggerRollBack().del_trigger_resource(stackName)
+
+    return result

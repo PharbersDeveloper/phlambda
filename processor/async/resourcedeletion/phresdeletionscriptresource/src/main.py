@@ -24,5 +24,18 @@ args:
     }
 '''
 
+
+def del_s3_job_dir(bucket_name, s3_dir):
+
+    s3_resource = boto3.resource('s3')
+    bucket = s3_resource.Bucket(bucket_name)
+    bucket.objects.filter(Prefix=s3_dir).delete()
+
+
 def lambda_handler(event, context):
-    return true
+
+    for script in event["scripts"]:
+        s3_dir = "/".join(script["jobPath"].split("/")[:-1])
+        del_s3_job_dir("ph-platform", s3_dir)
+    return True
+

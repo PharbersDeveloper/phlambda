@@ -51,9 +51,7 @@ args:
 class CleanUp:
     name_list = []
     del_list = []
-    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                              aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                              aws_secret_access_key="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")
+    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
     def __init__(self, traceId, projectId, owner, showName, projectName, result, dagmsg, **kwargs):
         self.dagmsg = dagmsg

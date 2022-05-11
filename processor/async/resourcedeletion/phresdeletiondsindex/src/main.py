@@ -36,8 +36,8 @@ def del_dataset_item(dsId, projectId):
 
 
 def lambda_handler(event, context):
-
-    for dataset in event["dataset"]:
+    print(event)
+    for dataset in event["datasets"]:
         del_dataset_item(dataset["id"], dataset["projectId"])
 
     return True

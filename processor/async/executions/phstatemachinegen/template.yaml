@@ -11,14 +11,14 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
           SPARK_DRIVER_MEMORY: "1g"
           SPARK_DRIVER_CORES: "1"
           SPARK_DRIVER_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
           SPARK_EXECUTOR_CORES: "1"
           SPARK_EXECUTOR_MEMORY: "1g"
           SPARK_EXECUTOR_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
-      FunctionName: lmd-phstatemachinegen-dev
+      FunctionName: lmd-phstatemachinegen-V2
       Description: "batch 读取Excel数据，通过Http接口批量写入ClickHouse"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

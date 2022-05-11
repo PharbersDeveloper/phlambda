@@ -92,7 +92,7 @@ def handleTaskFailed(errorEvent):
     if 'executionFailedEventDetails' in errorEvent:
         return json.loads(errorEvent['executionFailedEventDetails']['cause'])
     elif 'cause' in errorEvent:
-        return event(errorEvent['cause'])
+        return errorEvent['cause']
     else:
         return {"Step": {}}
 

@@ -9,31 +9,24 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-      FunctionName: lmd-phsyncdagconf-dev
+      FunctionName: lmd-phresoucercreation-dev
       MemorySize: 1024
-      Description: "创建dagconf 同时创建dag, airflow运行文件"
+      Description: "创建RFile文件,后续供Spark Submit提交"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
-          REDIS_HOST: "pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn"
-          REDIS_PORT: "6379"
+          BUCKET: ph-platform
+          CLI_VERSION: 2020-11-11
+          JOB_PATH_PREFIX: /tmp/phjobs/
+          TM_PHMAIN_FILE: /template/python/phcli/maxauto/phmain-r_dev.tmp
+          TM_PHJOB_FILE: /template/python/phcli/maxauto/phjob-r_dev.tmp
+          DAG_S3_JOBS_PATH: /jobs/python/phcli/
+          EDITION: DEV
       Tags:
         edition: dev
-        owner: hbzhao
-        version: Alpha
-        api: v1
-#      Events:
-#        DBactionEvent:
-#          Type: DynamoDB
-#          Properties:
-#            Stream: arn:aws-cn:dynamodb:cn-northwest-1:444603803904:table/action/stream/2021-10-28T14:27:14.729
-#            StartingPosition: TRIM_HORIZON
-#            BatchSize: 1
-#            Enabled: No
+        owner: pqian
+        version: Beta
+        api: v2
       FileSystemConfigs:
         - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
           LocalMountPath: /mnt/tmp

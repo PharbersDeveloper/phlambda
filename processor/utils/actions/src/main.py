@@ -1,8 +1,4 @@
-import os
-import json
-import math
 import boto3
-import traceback
 import time
 
 '''
@@ -19,7 +15,9 @@ args:
         "comments": "$.action.comments",
         "required": "$.action.required"
     }
+    
 '''
+
 
 def lambda_handler(event, context):
     print(event)
@@ -27,11 +25,11 @@ def lambda_handler(event, context):
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('action')
-    
+
     response = table.put_item(
        Item={
             'projectId': event['projectId'],
-            'date': str(int(round(time.time() * 1000))),
+            'date': math.floor(datetime.now().timestamp() * 1000),
             'jobCat': event['jobCat'],
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],

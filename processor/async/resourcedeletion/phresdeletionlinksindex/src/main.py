@@ -25,20 +25,20 @@ args:
 '''
 
 
-def del_dag_item(sorVersion, projectId):
+def del_dag_item(sortVersion, projectId):
 
-    table = dynamodb.Table("dataset")
+    table = dynamodb.Table("dag")
     table.delete_item(
         Key={
-            "sorVersion": sorVersion,
-            "projectId": projectId
+            "projectId": projectId,
+            "sortVersion": sortVersion
         },
     )
 
 
 def lambda_handler(event, context):
-
+    print(event)
     for link in event["links"]:
-        del_dag_item(link["sorVersion"], link["projectId"])
+        del_dag_item(link["sortVersion"], link["projectId"])
 
     return True

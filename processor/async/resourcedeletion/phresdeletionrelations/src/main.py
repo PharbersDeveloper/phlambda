@@ -13,6 +13,7 @@ args:
         "traceId.$": "$.common.traceId",
         "projectId.$": "$.common.projectId",
         "owner.$": "$.common.owner",
+        "flowVersion.$": "$.common.flowVersion",
         "showName.$": "$.common.showName",
         "datasets.$": [
             {
@@ -21,6 +22,7 @@ args:
         ],,
         "scripts.$": {
             "jobName": "developer_js1jPtkSmpVCGpw_demo_demo_compute_555a",
+            "actionName": "compute_555a"
         }
     }
 
@@ -76,6 +78,17 @@ def get_dag_item_by_name(projectId, name):
     return res["Items"][0]
 
 
+def get_dag_item_by_sortVersion(projectId, sortVersion):
+    ds_table = dynamodb.Table('dag')
+    res = ds_table.query(
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("sortVersion").eq(sortVersion)
+    )
+
+    return res["Items"][0]
+
+
+
 def get_dataset_item_by_name(projectId, name):
     ds_table = dynamodb.Table('dataset')
     res = ds_table.query(
@@ -118,7 +131,7 @@ def get_node_link(all_links, id):
 
 
 def lambda_handler(event, context):
-
+    print(event)
     projectId = event["projectId"]
     # 1 根据dataset script 查找 dag表判断关联关系 返回link表和需要关联删除的job
     # 首先拿出当前projectId下所有的link
@@ -129,6 +142,8 @@ def lambda_handler(event, context):
 
     # 再判断job的link
     for script in event["scripts"]:
+        script_dag_item = get_dag_item_by_name(projectId, script["actionName"])
+        all_del_links.append(script_dag_item)
         script_item = get_dagcof_item_by_sortVersion(projectId, script["jobName"])
         del_script_links, related_node_ids = get_node_link(all_links, script_item["id"])
         all_del_links.extend(del_script_links)
@@ -136,6 +151,7 @@ def lambda_handler(event, context):
     # 再次判断dataset的link
     for dataset in event["datasets"]:
         dag = get_dag_item_by_name(projectId, dataset["name"])
+        all_del_links.append(dag)
         del_ds_links, related_job_node_ids = get_node_link(all_links, dag["representId"])
         all_del_links.extend(del_ds_links)
 
@@ -143,6 +159,10 @@ def lambda_handler(event, context):
     for jobId in related_job_node_ids:
         del_related_script_links, related_related_script_ids = get_node_link(all_links, jobId)
         all_del_links.extend(del_related_script_links)
+
+    # 根据关联的jobId 查询dag表中job node
+    related_dag_script_items = [get_dag_item_by_sortVersion(projectId, event["flowVersion"] + "_" + jobId) for jobId in related_job_node_ids]
+    all_del_links.extend(related_dag_script_items)
 
     # 对link进行去重
     deal_all_del_links = []
@@ -162,6 +182,7 @@ def lambda_handler(event, context):
     related_script_items = [get_dagcof_item_by_jobId(projectId, jobId) for jobId in related_job_node_ids]
     all_del_scripts.extend(related_script_items)
 
+
     print(all_del_datasets)
     print(len(all_del_datasets))
     print(all_del_scripts)
@@ -174,20 +195,3 @@ def lambda_handler(event, context):
         "links": deal_all_del_links
     }
     return result
-
-if __name__ == '__main__':
-    event = {
-        "traceId": "hbzhao_traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "owner": "hbzhao_ownerId",
-        "showName": "赵浩博",
-        "datasets": [
-            {
-                "name": "111a"
-            }
-        ],
-        "scripts": {
-
-        }
-    }
-    lambda_handler(event, context=None)

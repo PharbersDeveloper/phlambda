@@ -33,6 +33,7 @@ def del_s3_job_dir(bucket_name, s3_dir):
 
 
 def lambda_handler(event, context):
+    print(event)
 
     for script in event["scripts"]:
         s3_dir = "/".join(script["jobPath"].split("/")[:-1])

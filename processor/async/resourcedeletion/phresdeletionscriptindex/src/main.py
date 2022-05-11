@@ -27,7 +27,7 @@ args:
 
 def del_dagconf_item(jobName, projectId):
 
-    table = dynamodb.Table("dataset")
+    table = dynamodb.Table("dagconf")
     table.delete_item(
         Key={
             "jobName": jobName,
@@ -37,7 +37,7 @@ def del_dagconf_item(jobName, projectId):
 
 
 def lambda_handler(event, context):
-
+    print(event)
     for script in event["scripts"]:
         del_dagconf_item(script["jobName"], script["projectId"])
 

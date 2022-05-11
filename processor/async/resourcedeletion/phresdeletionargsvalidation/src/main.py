@@ -35,6 +35,7 @@ args:
 '''
 
 def lambda_handler(event, context):
+    print(event)
     # return Check().check_parameter(event)
 
     # 1. common 必须存在
@@ -45,4 +46,4 @@ def lambda_handler(event, context):
     #   4.2 如果scripts存在，actionName 都必须存在，并判断类型
     # 5. 输入的datasets name 必须存在
     # 6. 输入的script 的 actionName 必须存在
-    return true
+    return True

@@ -36,23 +36,23 @@ def del_s3_job_dir(bucket_name, s3_dir):
 
 def __create_clickhouse(resource):
     proxies = resource.get("proxies")
-    ip = os.environ["CLICKHOUSE_IP"]
+    ip = os.environ["CLICKHOUSE_HOST"]
     if len(proxies) > 0:
         ip = proxies[0]
     return ClickHouse(host=ip, port=os.environ["CLICKHOUSE_PORT"])
 
 
 def lambda_handler(event, context):
-
-    clickhouse = __create_clickhouse(event["resource"])
-
+    print(event)
+    clickhouse = __create_clickhouse(event["resources"])
     # 从script 中获取 jobPath 进行删除
     for dataset in event["datasets"]:
         tableName = event["projectId"] + "_" + dataset["name"]
-        clickhouse.exec_ddl_sql(f"""DROP TABLE {os.environ["CLICKHOUSE_DB"]}.`{tableName}`""")
+        clickhouse.exec_ddl_sql(f"""DROP TABLE IF EXISTS {os.environ["CLICKHOUSE_DB"]}.`{tableName}`""")
 
     for dataset in event["datasets"]:
         path = "2020-11-11/lake/pharbers/ggjpDje0HUC2JW/" + dataset["name"] + "/"
+        print(path)
         del_s3_job_dir("ph-platform", path)
 
     return True

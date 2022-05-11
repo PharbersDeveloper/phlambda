@@ -67,10 +67,17 @@ class CleanUp:
 
 
 def lambda_handler(event, context):
+    result = event.get("result")
+    errors = event.get("errors")
+    CleanUp().run(**result)
     # 1. 将错误的信息写入 notification 中
     # 2. 将错误的被删除的 index 重新写回 dynamodb 中
     #     所有的信息都在 result 中存放
-    result = event.get("result")
-    CleanUp().run(**result)
-    return True
-
+    return {
+        "type": "notification",
+        "opname": event["owner"],
+        "cnotification": {
+            "data": {},
+            "error": errors
+        }
+    }

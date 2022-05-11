@@ -139,6 +139,7 @@ def lambda_handler(event, context):
     all_del_datasets = []
     all_del_scripts = []
     all_links = get_all_link(projectId)
+    related_job_node_ids = []
 
     # 再判断job的link
     for script in event["scripts"]:

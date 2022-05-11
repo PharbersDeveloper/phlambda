@@ -43,6 +43,21 @@
          "ResultPath": null,
          "Next": "SSMRead"
       },
+      "SuccessMessage" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertmessagesuccess-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "comments.$" : "$.action.comments"
+         },
+         "ResultPath" : "$.message",
+         "Next" : "Success"
+      },
       "SSMRead": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
@@ -75,7 +90,8 @@
       "ConcreteDeletion": {
          "Type": "Parallel",
          "InputPath": "$",
-         "Next": "Success",
+         "ResultPath": "$.delete",
+         "Next": "SuccessMessage",
          "Branches": [
             {
                "StartAt": "DSDeletion",
@@ -192,8 +208,8 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
-            "status": "success"
+            "message.$": "$.message",
+            "status": "succeed"
          },
          "End": true
       },
@@ -229,5 +245,4 @@
          "End": true
       }
    }
-
 }

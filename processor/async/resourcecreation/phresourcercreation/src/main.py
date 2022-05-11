@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+from phtraceid import *
 from phmain import *
 from phjob import *
 from upload2s3 import *
@@ -76,8 +77,10 @@ def lambda_handler(event, context):
             "jobPath": f"""{os.environ["JOB_PATH_PREFIX"]}{name}/{job_full_name}"""
         }
 
-        os.system("rm -rf " + conf.get("jobPath") + "/*")
+        # os.system("rm -rf " + conf.get("jobPath") + "/*")
         subprocess.call(["mkdir", "-p", conf.get("jobPath")])
+
+        create_ph_trace_id_file(conf)
 
         # 2 生成ph_main.R文件
         create_ph_main_file(conf)

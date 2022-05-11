@@ -28,15 +28,16 @@ def lambda_handler(event, context):
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('notification')
-    
+
     response = table.put_item(
        Item={
+            'id': event['traceId'],
             'projectId': event['projectId'],
-            'date': math.floor(datetime.now().timestamp() * 1000),
-            'jobCat': event['jobCat'],
+            'date': math.floor(datetime.datetime.now().timestamp() * 1000),
+            'jobCat': "notification",
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],
-            'message': json.dumps(event['message']),
+            'message': json.dumps(event['message'], ensure_ascii=False),
             'code': 0,
             'owner': event['owner'],
             'showName': event['showName'],

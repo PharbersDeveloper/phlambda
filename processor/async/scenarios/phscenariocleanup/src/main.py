@@ -96,14 +96,14 @@ class RollBack:
     def get_projectName(self):
         return self.event['common']['projectName']
 
-    def check_OldImage(self, type):
-        if len(type['OldImage']) == 0:
+    def check_OldImage(self, mode_type):
+        if len(mode_type['OldImage']) == 0:
             return False
         else:
             return True
 
-    def get_OldImage(self, type):
-        return type['OldImage']
+    def get_OldImage(self, mode_type):
+        return mode_type['OldImage']
 
     def get_stackName(self):
         return "-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])

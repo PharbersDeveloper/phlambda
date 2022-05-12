@@ -53,8 +53,8 @@ def lambda_handler(event, context):
         }
     else:
         result["cnotification"]["data"] = {
-            "jobName": f"""{script["flowVersion"]}_{script["jobId"]}_{script["projectName"]}_{script["dagName"]}_{script["jobShowName"]}""",
-            "jobShowName": script["jobShowName"],
+            "jobName": f"""{script["flowVersion"]}_{script["id"]}_{event["projectName"]}_{event["dagName"]}_{script["name"]}""",
+            "jobShowName": script["name"],
             "runtime": script["runtime"]
         }
 

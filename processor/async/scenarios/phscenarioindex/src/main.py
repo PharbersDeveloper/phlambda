@@ -27,20 +27,28 @@ class ScenarioIndex:
 
     def get_projectId(self):
         return self.event['projectId']
+
     def get_id(self):
         return self.scenario['id']
+
     def get_active(self):
         return self.scenario['active']
+
     def get_args(self):
         return ''
+
     def get_index(self):
         return self.scenario['index']
+
     def get_owner(self):
         return self.event['owner']
+
     def get_projectName(self):
         return self.event['projectName']
+
     def get_scenarioName(self):
         return self.scenario['scenarioName']
+
     def get_traceId(self):
         return self.event['traceId']
 
@@ -77,7 +85,7 @@ class ScenarioIndex:
             OldImage = {
                 "id": Items['id'],
                 "active": Items['active'],
-                "scenarioName": Items['scenarioname'],
+                "scenarioName": Items['scenarioName'],
                 "deletion": Items['deletion'],
                 "index": Items['index']
             }

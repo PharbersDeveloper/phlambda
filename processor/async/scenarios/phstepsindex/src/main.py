@@ -72,20 +72,33 @@ class StepsIndex:
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
+
     def get_id(self):
         return self.steps['id']
+
     def get_confData(self):
         return self.steps['confData']
+
     def get_detail(self):
         return self.steps['detail']
+
     def get_index(self):
         return self.steps['index']
+
     def get_mode(self):
         return self.steps['mode']
+
     def get_name(self):
         return self.steps['name']
+
     def get_traceId(self):
         return self.event['traceId']
+
+    def dumps_data_by_json(self, data):
+        if isinstance(data, str):
+            return data
+        else:
+            return json.dumps(data)
 
     def put_item(self):
         dynamodb = boto3.resource('dynamodb')
@@ -95,7 +108,7 @@ class StepsIndex:
                 'scenarioId': self.get_scenarioId(),
                 'id': self.get_id(),
                 'confData': self.get_confData(),
-                'detail': self.get_detail(),
+                'detail': self.dumps_data_by_json(self.get_detail()),
                 'index': self.get_index(),
                 'mode': self.get_mode(),
                 'name': self.get_name(),

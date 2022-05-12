@@ -77,18 +77,25 @@ class RollBack:
 
     def get_projectId(self):
         return self.event['common']['projectId']
+
     def get_scenarioId(self):
         return self.scenario['id']
+
     def get_stepId(self):
         return self.step['id']
+
     def get_triggerId(self):
         return self.trigger['id']
+
     def get_traceId(self):
         return self.event['common']['traceId']
+
     def get_owner(self):
         return self.event['common']['owner']
+
     def get_projectName(self):
         return self.event['common']['projectName']
+
     def check_OldImage(self, type):
         if len(type['OldImage']) == 0:
             return False
@@ -118,12 +125,12 @@ class RollBack:
     def get_triggerItem(self, OldImage):
         trigger_Item = {
             'scenarioId': self.get_scenarioId(),
-            'id': "",
-            'active': "",
-            'detail': "",
-            'index': "",
-            'mode': "",
-            'traceId': ""
+            'id': OldImage['id'],
+            'active': OldImage['active'],
+            'detail': OldImage['detail'],
+            'index': OldImage['index'],
+            'mode': OldImage['mode'],
+            'traceId': self.get_traceId()
         }
         return trigger_Item
 
@@ -157,7 +164,14 @@ class RollBack:
             self.del_table_item('scenario', 'projectId', 'id', self.get_projectId(), self.get_scenarioId())
 
     def triggerRollBack(self):
-        pass
+        if self.check_OldImage(self.trigger):
+            oldImage = self.get_OldImage(self.trigger)
+            Item = self.get_scenarioItem(oldImage)
+            self.put_item('scenario_trigger', Item)
+        else:
+            self.del_table_item('scenario_trigger', 'scenarioId', 'id', self.get_scenarioId(), self.get_triggerId())
+
+
     def stepsRollBack(self):
         if self.check_OldImage(self.step):
             oldImage = self.get_OldImage(self.step)
@@ -187,24 +201,14 @@ class RollBack:
         result['message'] = 'delete resource success'
         return result
 
-    def del_trigger_item(self, table_name, scenarioId, col_name, col_value):
-        dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
-        table = dynamodb.Table(table_name)
-        table.delete_item(
-            Key={
-                col_name: col_value,
-                "scenarioId": scenarioId
-            }
-        )
-
 def lambda_handler(event, context):
 
     #-------------------回滚操作-----------------------------------#
     rollBackClient = RollBack(event)
     rollBackClient.scenarioRollBack()
-    #TODO triggerRollBack 逻辑后面再做
-    #rollBackClient.triggerRollBack()
+    rollBackClient.triggerRollBack()
     rollBackClient.stepsRollBack()
-    result = rollBackClient.del_trigger_resource(rollBackClient.get_stackName())
+    #TODO deleteResource 逻辑后面再做
+    #result = rollBackClient.del_trigger_resource(rollBackClient.get_stackName())
 
-    return result
+    return ""

@@ -61,7 +61,7 @@ class TriggersIndex:
                 'scenarioId': self.get_scenarioId(),
                 'id': self.get_id(),
                 'active': self.get_active(),
-                'detail': self.get_detail(),
+                'detail': self.dumps_data_by_json(self.get_detail()),
                 'index': self.get_index(),
                 'mode': self.get_mode(),
                 'traceId': self.get_traceId()
@@ -77,6 +77,13 @@ class TriggersIndex:
                                    & Key(sortKey).eq(self.get_id())
         )
         return res["Items"]
+
+    def dumps_data_by_json(self, data):
+        if isinstance(data, str):
+            return data
+        else:
+            return json.dumps(data)
+
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')

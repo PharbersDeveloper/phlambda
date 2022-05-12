@@ -54,7 +54,7 @@ def get_ds_id(dsName, projectId):
     res = ds_table.query(
         IndexName='dataset-projectId-name-index',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("name").begins_with(dsName)
+                               & Key("name").eq(dsName)
     )
     dsId = ""
     if len(res["Items"]):
@@ -65,7 +65,8 @@ def get_ds_id(dsName, projectId):
     return dsId
 
 
-def put_dag_item(projectId, sortVersion, cat, cmessage, ctype, flowVersion, level, name, position, prop, representId, runtime, dynamodb=None):
+def put_dag_item(projectId, sortVersion, cat, cmessage, ctype, flowVersion, level, name, position, prop, representId,
+                 runtime, traceId, dynamodb=None):
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -84,7 +85,8 @@ def put_dag_item(projectId, sortVersion, cat, cmessage, ctype, flowVersion, leve
             "position": position,
             "prop": prop,
             "representId": representId,
-            "runtime": runtime
+            "runtime": runtime,
+            "traceId": traceId
         }
     )
 
@@ -104,16 +106,20 @@ def lambda_handler(event, context):
         if dataset["cat"] == "catalog":
             prop = {"path": "", "partitions": 1, "format": "", "tableName": dataset["name"], "databaseName": "zudIcG_17yj8CEUoCTHg"}
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
-                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"])
+                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], "default_traceId")
+        elif dataset["cat"] == "uploaded" or dataset["cat"] == "input_index" :
+            prop = {"path": "", "partitions": 1}
+            put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
+                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], "default_traceId")
         else:
             prop = {"path": "", "partitions": 1}
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
-                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"])
+                         "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], event["traceId"])
 
     # 2 创建 job item
     jobSortVersion = event["flowVersion"] + "_" + event["script"]["id"]
     put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["name"], "node", event["flowVersion"],
-                 "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"])
+                 "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"], event["traceId"])
 
     # 3 创建 link item
     # 创建ds node 到 job node的 link
@@ -137,7 +143,7 @@ def lambda_handler(event, context):
                 "targetName": event["script"]["name"],
             }
         put_dag_item(event["projectId"], linkSortVersion, "", json.dumps(cmessage), "link", event["flowVersion"],
-                     "", "empty", "", "", linkId, "")
+                     "", "empty", "", "", linkId, "", event["traceId"])
 
 
     return True

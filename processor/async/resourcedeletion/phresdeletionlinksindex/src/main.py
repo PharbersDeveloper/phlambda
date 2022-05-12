@@ -1,6 +1,6 @@
-import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+
+dynamodb = boto3.resource('dynamodb')
 
 '''
 删除所有的dynamodb中的dataset表的索引记录
@@ -24,5 +24,21 @@ args:
     }
 '''
 
+
+def del_dag_item(sortVersion, projectId):
+
+    table = dynamodb.Table("dag")
+    table.delete_item(
+        Key={
+            "projectId": projectId,
+            "sortVersion": sortVersion
+        },
+    )
+
+
 def lambda_handler(event, context):
-    return true
+    print(event)
+    for link in event["links"]:
+        del_dag_item(link["sortVersion"], link["projectId"])
+
+    return True

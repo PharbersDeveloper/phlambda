@@ -48,7 +48,7 @@ def generate():
     return "".join(array)
 
 
-def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop, sample="F_1", dynamodb=None):
+def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop, traceId, sample="F_1",  dynamodb=None):
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
@@ -57,7 +57,7 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
     res = ds_table.query(
         IndexName='dataset-projectId-name-index',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("name").begins_with(name)
+                               & Key("name").eq(name)
     )
 
     response = {}
@@ -78,6 +78,7 @@ def put_dataset_item(id, projectId, name, label, schema, path, format, cat, prop
                 "cat": cat,
                 "prop": prop,
                 "sample": sample,
+                "traceId": traceId
             }
         )
 
@@ -91,7 +92,7 @@ def get_ds_representId(dsName, projectId):
     res = ds_table.query(
         IndexName='dag-projectId-name-index',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("name").begins_with(dsName)
+                               & Key("name").eq(dsName)
     )
     representId = ""
     if len(res["Items"]):
@@ -116,7 +117,7 @@ def lambda_handler(event, context):
         dataset.update({"id": id})
         result.append(dataset)
         put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
-                         format=dataset["format"], cat=dataset["cat"], prop="")
+                         format=dataset["format"], cat=dataset["cat"], prop="", traceId=event["traceId"])
     print(result)
     return result
 

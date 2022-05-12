@@ -1,5 +1,4 @@
 import boto3
-import traceback
 import time
 
 '''
@@ -30,7 +29,11 @@ def lambda_handler(event, context):
     response = table.put_item(
        Item={
             'projectId': event['projectId'],
+<<<<<<<<< Temporary merge branch 1
+            'date': int(round(time.time() * 1000)),
+=========
             'date': str(int(round(time.time() * 1000))),
+>>>>>>>>> Temporary merge branch 2
             'jobCat': event['jobCat'],
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],

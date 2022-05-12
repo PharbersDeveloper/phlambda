@@ -31,6 +31,8 @@ job_path_prefix = "/tmp/phjobs/"
 
 def create_phjobs(args):
     runtime = args["script"].get("runtime")
+    if runtime == "prepare":
+        runtime = "pyspark"
 
     # 通过 phcli 创建 phjobs 相关文件
     dag_name = args.get("projectName") + \
@@ -142,6 +144,17 @@ def create_phmain(args, path=None):
     write_python()
 
 
+def create_traceId(args):
+
+    traceId = args.get("traceId")
+    dag_name = args.get("projectName") + \
+               "_" + args.get("dagName") + \
+               "_" + args["script"].get("flowVersion")
+
+    job_full_name = dag_name + "_" + args["script"].get("name")
+    job_path = job_path_prefix + dag_name + "/" + job_full_name + "/"
+    subprocess.call(["touch", job_path + traceId])
+
 
 def upload_phjob_files(args):
 
@@ -170,6 +183,8 @@ def lambda_handler(event, context):
     print("创建phmain成功")
     create_phjobs(event)
     print("创建phjob成功")
+    create_traceId(event)
+    print("traceId文件创建成功")
     upload_phjob_files(event)
     print("上传phjob文件成功")
 

@@ -7,6 +7,7 @@ class Notification(Model):
     attributes = {
         "projectId": fields.Str(required=True),
         "owner": fields.Str(dump_default="unknown"),
+        "traceId": fields.Str(dump_default="unknown"),
         "showName": fields.Str(dump_default="unknown"),
         "code": fields.Str(dump_default="unknown"),
         "jobDesc": fields.Str(dump_default="unknown"),

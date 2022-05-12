@@ -38,25 +38,37 @@ args = {
 
 
 class CleanUp:
-    name_list = []
-    del_list = []
     s3 = boto3.client('s3')
-    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                               aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                               aws_secret_access_key="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")
+    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
-    def query_dataset(self, name):
-        table = self.dynamodb.Table("dataset")
-        response = table.query(
-            IndexName='dataset-projectId-name-index',
-            KeyConditionExpression=Key('projectId').eq(self.projectId) & Key("name").eq(name),
-        )
-        return response.get("Items")
+    # def query_dag(self):
+    #     table = self.dynamodb.Table("dag")
+    #     response = table.query(
+    #         KeyConditionExpression=Key('projectId').eq(self.projectId),
+    #     )
+    #     return response.get("Items")
 
-    def query_dag(self):
-        table = self.dynamodb.Table("dag")
+    # def check_dag_item(self):
+    #     dag_item = self.query_dag()
+    #     for dag in dag_item:
+    #         ctype = dag.get("ctype")
+    #         representId = dag.get("representId")
+    #         sortVersion = dag.get("sortVersion")
+    #         if ctype == "node" and representId in self.del_list:
+    #             self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
+    #
+    #         if ctype == "link":
+    #             cmessage = json.loads(dag.get("cmessage"))
+    #             sourceId = cmessage.get("sourceId")
+    #             targetId = cmessage.get("targetId")
+    #             if sourceId in self.del_list or targetId in self.del_list:
+    #                 self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
+
+    def query_item(self, table, index, traceId):
+        table = self.dynamodb.Table(table)
         response = table.query(
-            KeyConditionExpression=Key('projectId').eq(self.projectId),
+            IndexName=index,
+            KeyConditionExpression=Key('projectId').eq(self.projectId) & Key("traceId").eq(traceId),
         )
         return response.get("Items")
 
@@ -68,7 +80,6 @@ class CleanUp:
                 "projectId": self.projectId
             }
         )
-    # print(del_item('fe1e73a8b0fd44ba93aa0cf6b5ee2f2112345', "fe1e73a8bTEstdel"))
 
     def del_s3_obj(self, key):
         response = self.s3.delete_object(
@@ -83,45 +94,34 @@ class CleanUp:
             MaxKeys=100)
         return [i.get('Key') for i in response.get('Contents', {})]
 
-    def check_dag_item(self):
-        dag_item = self.query_dag()
-        for dag in dag_item:
-            ctype = dag.get("ctype")
-            representId = dag.get("representId")
-            sortVersion = dag.get("sortVersion")
-            if ctype == "node" and representId in self.del_list:
-                self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
-
-            if ctype == "link":
-                cmessage = json.loads(dag.get("cmessage"))
-                sourceId = cmessage.get("sourceId")
-                targetId = cmessage.get("targetId")
-                if sourceId in self.del_list or targetId in self.del_list:
-                    self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
-
-    def run(self, projectId, datasets, scripts, traceId, **kwargs):
+    def run(self, projectId, traceId, **kwargs):
 
         self.projectId = projectId
-        self.name_list.append(scripts.get("actionName"))
-        for dataset in datasets:
-            self.name_list.append(dataset.get("name"))
+        dy_dataset = self.query_item("dataset", "dataset-projectId-traceId-index", traceId)
+        dy_dag = self.query_item("dag", "dag-projectId-traceId-index", traceId)
+        dy_dagconf = self.query_item("dagconf", "dagconf-projectId-traceId-index", traceId)
 
-        for name in self.name_list:
-            dy_dataset = self.query_dataset(name)
-            if dy_dataset:
-                self.del_list.append(dy_dataset[0].get("id"))
-
-        for id in self.del_list:
+        if dy_dataset:
+            id = dy_dataset[0].get("id")
             self.del_item(table_name="dataset", col_name="id", col_value=id)
 
-        self.check_dag_item()
-        jobName = scripts.get("jobName")
-        actionName = scripts.get("actionName")
-        key = "2020-11-11/jobs/python/phcli/" + jobName + actionName
-        file_name_list = self.ls_s3_key(key)
-        for file_name in file_name_list:
-            if file_name == traceId:
-                self.del_s3_obj(key)
+        if dy_dag:
+            sortVersion = dy_dag[0].get("sortVersion")
+            self.del_item(table_name="dag", col_name="sortVersion", col_value=sortVersion)
+
+        if dy_dagconf:
+            jobName = dy_dagconf[0].get("jobName")
+            dagconf_jobPath = dy_dagconf[0].get("jobPath")
+            jobtype = dagconf_jobPath.split('/')[-1]
+            jobPath = dagconf_jobPath.replace(jobtype, "")
+            print(jobPath)
+            self.del_item(table_name="dagconf", col_name="jobName", col_value=jobName)
+
+            file_name_list = self.ls_s3_key(jobPath)
+            name_list = [file_name.split('/')[-1] for file_name in file_name_list]
+            if traceId in name_list:
+                for key in file_name_list:
+                    self.del_s3_obj(key)
 
 
 def lambda_handler(event, context):

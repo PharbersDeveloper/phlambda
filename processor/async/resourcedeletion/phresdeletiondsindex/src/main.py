@@ -1,7 +1,6 @@
-import json
 import boto3
-from boto3.dynamodb.conditions import Attr
 
+dynamodb = boto3.resource('dynamodb')
 '''
 删除所有的dynamodb中的dataset表的索引记录
 其中datasets是上一个lmabda便利出来的详细的需要删除的datasets记录
@@ -24,5 +23,21 @@ args:
     }
 '''
 
+
+def del_dataset_item(dsId, projectId):
+
+    table = dynamodb.Table("dataset")
+    table.delete_item(
+        Key={
+            "id": dsId,
+            "projectId": projectId
+        },
+    )
+
+
 def lambda_handler(event, context):
-    return true
+    print(event)
+    for dataset in event["datasets"]:
+        del_dataset_item(dataset["id"], dataset["projectId"])
+
+    return True

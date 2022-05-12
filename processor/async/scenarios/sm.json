@@ -168,8 +168,7 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.datasets",
-            "scripts.$": "$.scripts"
+            "scenario.$": "$.datasets"
          },
          "ResultPath": null,
          "Next": "Failed"

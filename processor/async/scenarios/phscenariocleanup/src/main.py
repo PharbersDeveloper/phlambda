@@ -1,11 +1,11 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr,Key
 from datetime import datetime
 
 '''
 这个函数只做两件事情，
-1. 将所有的错误都提取出来写入到notification中
+# 1. 将所有的错误都提取出来写入到notification中
 2. 将创建成功但整体失败的东西会滚
 
 args:
@@ -186,6 +186,16 @@ class RollBack:
         result['status'] = 'ok'
         result['message'] = 'delete resource success'
         return result
+
+    def del_trigger_item(self, table_name, scenarioId, col_name, col_value):
+        dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        table = dynamodb.Table(table_name)
+        table.delete_item(
+            Key={
+                col_name: col_value,
+                "scenarioId": scenarioId
+            }
+        )
 
 def lambda_handler(event, context):
 

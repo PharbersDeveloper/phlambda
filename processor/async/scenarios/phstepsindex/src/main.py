@@ -33,6 +33,37 @@ args:
             }
         ]
     }
+
+return = {
+    "steps": [
+        {
+            "confData": {},
+            "detail": {
+                "type":"dataset",
+                "recursive":false,
+                "ignore-error":false,
+                "name":"1235"
+            },
+            "index": 0,
+            "mode": "dataset",
+            "name": "alfred",
+            "id": "step id",
+            "oldImage": {
+                "confData": {},
+                "detail": {
+                    "type":"dataset",
+                    "recursive":false,
+                    "ignore-error":false,
+                    "name":"1235"
+                },
+                "index": 0,
+                "mode": "dataset",
+                "name": "alfred",
+                "id": "step id",
+            }
+        }
+    ]
+}
 '''
 class StepsIndex:
     def __init__(self, event):

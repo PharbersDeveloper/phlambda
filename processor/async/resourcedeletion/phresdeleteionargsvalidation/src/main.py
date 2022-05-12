@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr, Key
 
 '''
 这个函数只做一件事情，检查参数是否合法
@@ -68,37 +68,26 @@ class Check:
 
     ds_sc = False
 
-    def checkdata(self, data, value):
-        if not set(value) <= set(list(data.keys())):
-            raise Exception('datasets or scripts Missing field')
-        self.ds_sc = True
-
-    def checktype(self, data):
-        if data:
-            inputs = json.loads(data.get('inputs'))
-            output = json.loads(data.get('output'))
-            if not isinstance(inputs, list) or not isinstance(output, dict):
-                raise Exception('scripts type error')
-
     def check_datasets_scripts(self, data):
-        ds_value = ['cat', 'format', 'name']
-        script_value = ["name", "flowVersion", "inputs", "output"]
         projectId = data.get("common").get("projectId")
         datasets = data.get("datasets", [])
         scripts = data.get("scripts", {})
         if not isinstance(datasets, list):
             raise Exception('datasets type error')
         for dataset in datasets:
-            ds_name = dataset.get("name")
+            ds_name = dataset.get("name", '')
+            if not ds_name:
+                raise Exception('datasets missing name field')
             if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
                 raise Exception('datasets name already exits')
-            self.checkdata(dataset, ds_value)
+            self.ds_sc = True
         if scripts:
-            script_name = scripts.get("name")
+            script_name = scripts.get("actionName")
+            if not script_name:
+                raise Exception('scripts missing name field')
             if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:
                 raise Exception('dagconf actionName already exits')
-            self.checkdata(scripts, script_value)
-            self.checktype(scripts)
+            self.ds_sc = True
 
     def check_parameter(self, data):
 
@@ -121,8 +110,9 @@ class Check:
             raise Exception('datasets scripts not exits')
         return True
 
+
 def lambda_handler(event, context):
-    # return Check().check_parameter(event)
+    return Check().check_parameter(event)
 
     # 1. common 必须存在
     # 2. action 必须存在
@@ -132,4 +122,4 @@ def lambda_handler(event, context):
     #   4.2 如果scripts存在，actionName 都必须存在，并判断类型
     # 5. 输入的datasets name 必须存在
     # 6. 输入的script 的 actionName 必须存在
-    return true
+    # return true

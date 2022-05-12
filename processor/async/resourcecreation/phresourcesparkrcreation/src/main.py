@@ -48,6 +48,8 @@ args = {
 def lambda_handler(event, context):
     print(event)
 
+    if event["script"]["runtime"] == "dataset" and "name" not in event["script"]:
+        return event["script"]
     # 创建R代码的流程
     try:
         phs3 = PhS3()

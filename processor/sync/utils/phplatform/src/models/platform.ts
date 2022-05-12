@@ -81,6 +81,11 @@ export default class Platform {
             agendas: { link: "event", isArray: true, inverse: "hold" },
             actAgendas: { link: "activity", inverse: "agendas" }
         },
+        article: {
+            title: String,
+            data: Number,
+            uri: String
+        }
         // 官网 结束
 
         // 账户 开始
@@ -172,31 +177,6 @@ export default class Platform {
             modified: Date,
             description: String,
         },
-        diagram: {
-            partner: String,
-            name: String,
-            source: String,
-            rid: String,
-            gid: String,
-            tag: String,
-            version: String,
-            description: String,
-            created: Date,
-            modified: Date
-        },
-        db: { // 缺少Hook未写
-            name: String,
-            provider: String,
-            tables: { link: "table", isArray: true, inverse: "db" },
-            owner: Array(String), // Link To tenant Table ID（Logic）
-        },
-        table: {
-            name: String,
-            database: String,
-            provider: String,
-            version: String,
-            db: { link: "db", inverse: "tables" },
-        },
         resource: {
             name: String,
             resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter
@@ -225,81 +205,6 @@ export default class Platform {
             tasks: Array(String), // 暂时不做
             actions: Array(String) // 原样不动，详细的actions根据project id带入到DynamoDB中去查找
         },
-        model: {
-            project: { link: "project", isArray: false, inverse: "models" },
-            name: String,
-            type: String,
-            location: String,
-            definition: String, // JSON String
-        },
-        script: {
-            project: { link: "project", isArray: false, inverse: "scripts" },
-            type: String,
-            name: String,
-            inputDfs: { link: "dataset", isArray: true, inverse: "scriptInput" },
-            outputDfs: { link: "dataset", isArray: true, inverse: "scriptOutput" },
-            args: String,
-            reverse: String,
-            stateDisplay: { link: "stateDisplay", isArray: false, inverse: "startScripts" },
-        },
-        dataset: {
-            project: { link: "project", isArray: false, inverse: "datasets" },
-            scriptInput: { link: "script", isArray: false, inverse: "inputDfs" },
-            scriptOutput: { link: "script", isArray: false, inverse: "outputDfs" },
-            type: String,
-            name: String,
-            displayName: String,
-            connectConfig: String, // JSON String
-            secretConfig: String, // JSON String
-            schema: String, // JSON String
-        },
-        flow: {
-            project: { link: "project", isArray: false, inverse: "flow" },
-            stateMachines: { link: "stateMachine", isArray: true, inverse: "flow" }
-        },
-        stateMachine: {
-            flow: { link: "flow", isArray: false, inverse: "stateMachines" },
-            type: String, // 分为AirFlow或Step Function
-            // arn: String,
-            name: String, // 如果是AirFLow name = DAGName|StepFunction name = arn
-            project: String, // 外链project id
-            displayName: String,
-            display: { link: "stateDisplay", isArray: false, inverse: "stateMachine" },
-            // version: String,
-        },
-        stateDisplay: {
-            stateMachine: { link: "stateMachine", isArray: false, inverse: "display" },
-            name: String,
-            definition: String, // JSON String
-            startScripts: { link: "script", isArray: true, inverse: "stateDisplay" },
-        },
-        analysis: { // 原计划绑定resource（租户共享资源），现阶段硬件资源全部绑定到project中，这里先空着
-            project: { link: "project", isArray: false, inverse: "analysis"},
-            name: String
-        },
-        notebook: {
-            project: { link: "project", isArray: false, inverse: "notebooks"},
-            name: String,
-            url: String,
-            type: String,
-            resource: String // 原计划绑定resource（租户共享资源），现阶段硬件资源全部绑定到project中，这里先空着
-        },
-        dashBoard: {
-            project: { link: "project", isArray: false, inverse: "dashBoards" },
-            slides: { link: "slide", isArray: true, inverse: "dashBoard" },
-        },
-        slide: {
-            dashBoard: { link: "dashBoard", isArray: false, inverse: "slides" },
-            chats: { link: "chat", isArray: true, inverse: "slide" }
-        },
-        chat: {
-            slide: { link: "slide", isArray: false, inverse: "chats" },
-        },
-        wiki: {
-            project: { link: "project", isArray: false, inverse: "wikis" },
-            type: String, // MD or HTML
-            location: String
-        },
 
         // configuration web pages
         page: {
@@ -321,21 +226,6 @@ export default class Platform {
             name: String,
             css: String,
             script: String
-        },
-        // offweb article
-        article: {
-            title: String,
-            data: Number,
-            uri: String
-        },
-        asset: {
-            name: String,
-            resourceType: String,
-            created: Date,
-            tenant: String,
-            accounts: Array(String),
-            projectId: String,
-            concrets: String,
         }
     }
 

@@ -26,7 +26,7 @@ args:
             "id": "scenario id",       # 如果有就是update，如果没有就是新建
             "active": true,
             "scenarioName": "scenario name",
-            "deletion": true | false      # 如果是true，则所有和scenario相关的全部删除
+            # "deletion": true | false      # 如果是true，则所有和scenario相关的全部删除
         },
         "triggers": [
             {

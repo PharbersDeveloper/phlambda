@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr,Key
 
 '''
 这个函数只做一件事情，将 trigger 的所有东西写到 scenario_trigger dynamodb中
@@ -33,10 +33,11 @@ args:
         ]
     }
 '''
-class PutItemToTrigger:
+class TriggersIndex:
     def __init__(self, event):
         self.event = event
         self.triggers = self.event['triggers'][0]
+
     def get_scenarioId(self):
         return self.event['scenario']['id']
     def get_id(self):
@@ -51,6 +52,7 @@ class PutItemToTrigger:
         return self.triggers['mode']
     def get_traceId(self):
         return self.event['traceId']
+
     def put_item(self):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_trigger')
@@ -67,6 +69,38 @@ class PutItemToTrigger:
         )
         return response
 
+    def query_table_item(self, tableName, partitionKey, sortKey):
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
+                                   & Key(sortKey).eq(self.get_id())
+        )
+        return res["Items"]
+
+    def get_OldImage(self):
+        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
+        if Items[0]:
+            OldImage = {
+                "active": Items['active'],
+                "detail": Items['detail'],
+                "index": Items['index'],
+                "mode": Items['mode'],
+                "id": Items['id']
+            }
+        else:
+            OldImage = {}
+        self.OldImage = OldImage
+        return OldImage
+
+    def fetch_result(self):
+        self.triggers['OldImage'] = self.OldImage
+        return [self.triggers]
+
 def lambda_handler(event, context):
-    response = PutItemToTrigger(event).put_item()
-    return response
+
+    triggersClient = TriggersIndex(event)
+    triggersClient.get_OldImage()
+    triggersClient.put_item()
+
+    return triggersClient.fetch_result()

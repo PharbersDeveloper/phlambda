@@ -68,30 +68,115 @@ args:
         }
     }
 '''
-def ExtractToNotification(id, projectId,category, code, comments, date, jobCat, jobDesc, message, owner, showName, status,traceId):
+class RollBack:
+    def __init__(self, event):
+        self.event = event
+        self.scenario = event['scenario']
+        self.trigger = event['triggers'][0]
+        self.step = event['steps'][0]
+
+    def get_projectId(self):
+        return self.event['common']['projectId']
+    def get_scenarioId(self):
+        return self.scenario['id']
+    def get_stepId(self):
+        return self.step['id']
+    def get_triggerId(self):
+        return self.trigger['id']
+    def get_traceId(self):
+        return self.event['common']['traceId']
+    def get_owner(self):
+        return self.event['common']['owner']
+    def get_projectName(self):
+        return self.event['common']['projectName']
+    def check_OldImage(self, type):
+        if len(type['OldImage']) == 0:
+            return False
+        else:
+            return True
+
+    def get_OldImage(self, type):
+        return type['OldImage']
+
+    def get_stackName(self):
+        return "-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])
+
+    def get_scenarioItem(self, OldImage):
+        scenarioItem = {
+            'projectId': self.get_projectId(),
+            'id': OldImage['id'],
+            'active': OldImage['active'],
+            'args': '',
+            'index': OldImage['index'],
+            'owner': self.get_owner(),
+            'projectName': self.get_projectName(),
+            'scenarioName': OldImage['scenarioName'],
+            'traceId': self.get_traceId()
+        }
+        return scenarioItem
+
+    def get_triggerItem(self, OldImage):
+        trigger_Item = {
+            'scenarioId': self.get_scenarioId(),
+            'id': "",
+            'active': "",
+            'detail': "",
+            'index': "",
+            'mode': "",
+            'traceId': ""
+        }
+        return trigger_Item
+
+    def get_stepItem(self, OldImage):
+        step_Item = {
+            'scenarioId': self.get_scenarioId(),
+            'id': OldImage['id'],
+            'confData': OldImage['confData'],
+            'detail': OldImage['detail'],
+            'index': OldImage['index'],
+            'mode': OldImage['mode'],
+            'name': OldImage['name'],
+            'traceId': self.get_traceId()
+        }
+        return step_Item
+
+    def put_item(self, tableName, Item):
         dynamodb = boto3.resource('dynamodb')
-        table = dynamodb.Table('notification')
+        table = dynamodb.Table(tableName)
         response = table.put_item(
-            Item={
-                'id': id,
-                'projectId': projectId,
-                'category': category,
-                'code': code,
-                'comments': comments,
-                'date': date,
-                'jobCat': jobCat,
-                'jobDesc': jobDesc,
-                'message': message,
-                'owner': owner,
-                'showName': showName,
-                'status': status,
-                'traceId':traceId
-            }
+                Item=Item
         )
         return response
 
-class TriggerRollBack:
-    def del_trigger_resource(self,stackName):
+    def scenarioRollBack(self):
+        if self.check_OldImage(self.scenario):
+            oldImage = self.get_OldImage(self.scenario)
+            Item = self.get_scenarioItem(oldImage)
+            self.put_item('scenario', Item)
+        else:
+            self.del_table_item('scenario', 'projectId', 'id', self.get_projectId(), self.get_scenarioId())
+
+    def triggerRollBack(self):
+        pass
+    def stepsRollBack(self):
+        if self.check_OldImage(self.step):
+            oldImage = self.get_OldImage(self.step)
+            Item = self.get_stepItem(oldImage)
+            self.put_item('scenario_step', Item)
+        else:
+            self.del_table_item('scenario_step', 'scenarioId', 'id', self.get_scenarioId(), self.get_stepId)
+
+    def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        table.delete_item(
+            Key={
+                partitionKey: partitionValue,
+                sortKey: sortValue
+            },
+        )
+
+    def del_trigger_resource(self, stackName):
         result = {}
         client = boto3.client('cloudformation')
         response = client.delete_stack(
@@ -102,43 +187,14 @@ class TriggerRollBack:
         result['message'] = 'delete resource success'
         return result
 
-    def del_trigger_item(self, table_name, scenarioId, col_name, col_value):
-        dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
-        table = dynamodb.Table(table_name)
-        table.delete_item(
-            Key={
-                col_name: col_value,
-                "scenarioId": scenarioId
-            }
-        )
-
 def lambda_handler(event, context):
 
-    #-------------写入notification字段-----------------#
-    id = '',     #---目前在表中查到的字段有下列字段，具体对应规则待确认
-    projectId =event['common']['projectId'] ,
-    category = '',
-    code = '',
-    comments = event['action']['comments'],
-    date = datetime.now().timestamp(),
-    jobCat = event['action']['cat'],
-    jobDesc = event['action']['desc'],
-    message = event['action']['message'],
-    owner = event['common']['owner'],
-    showName = event['common']['showName'],
-    status = '',
-    traceId = event['common']['traceId']
-
-    error = event['error']
-    #--------------------写入notification表-----------------------#
-    ExtractToNotification(id, projectId,category, code, comments, date, jobCat, jobDesc, message, owner, showName, status,traceId)
-
     #-------------------回滚操作-----------------------------------#
-    scenarioId = event['scenario']['id']
-    triggers_id = event['triggers']['id']
-    stackName = "-".join(["scenario", projectId, scenarioId, triggerId])   #---stackName 存在问题，当操作为update时，stackName不满足此拼接规则，则无法进行资源删除
-
-    TriggerRollBack().del_trigger_item("scenario_trigger", scenarioId, "id", triggers_id)
-    result = TriggerRollBack().del_trigger_resource(stackName)
+    rollBackClient = RollBack(event)
+    rollBackClient.scenarioRollBack()
+    #TODO triggerRollBack 逻辑后面再做
+    #rollBackClient.triggerRollBack()
+    rollBackClient.stepsRollBack()
+    result = rollBackClient.del_trigger_resource(rollBackClient.get_stackName())
 
     return result

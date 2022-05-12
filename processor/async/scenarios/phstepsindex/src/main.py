@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr,Key
 
 '''
 这个函数只做一件事情，将 scenario steps 的所有东西写到 scenario_step dynamodb中
@@ -34,11 +34,11 @@ args:
         ]
     }
 '''
-
-class PutItemToStep:
+class StepsIndex:
     def __init__(self, event):
         self.event = event
         self.steps = self.event['steps'][0]
+
     def get_scenarioId(self):
         return self.event['scenario']['id']
     def get_id(self):
@@ -55,6 +55,7 @@ class PutItemToStep:
         return self.steps['name']
     def get_traceId(self):
         return self.event['traceId']
+
     def put_item(self):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_step')
@@ -72,6 +73,39 @@ class PutItemToStep:
         )
         return response
 
+    def query_table_item(self, tableName, partitionKey, sortKey):
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
+                                   & Key(sortKey).eq(self.get_id())
+        )
+        return res["Items"]
+
+    def get_OldImage(self):
+        Items= self.query_table_item('scenario_step', 'scenarioId', 'id')
+        if Items[0]:
+            OldImage = {
+                "confData": Items['confData'],
+                "detail": Items['detail'],
+                "index": Items['index'],
+                "mode": Items['mode'],
+                "name": Items['name'],
+                "id": Items['id']
+            }
+        else:
+            OldImage = {}
+        self.OldImage = OldImage
+        return OldImage
+
+    def fetch_result(self):
+        self.steps['OldImage'] = self.OldImage
+        return [self.steps]
+
 def lambda_handler(event, context):
-    response = PutItemToStep(event).put_item()
-    return response
+
+    StepsClient = StepsIndex(event)
+    StepsClient.get_OldImage()
+    StepsClient.put_item()
+
+    return StepsClient.fetch_result()

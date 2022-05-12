@@ -257,6 +257,7 @@
             "showName.$" : "$.common.showName",
             "projectName.$" : "$.common.projectName",
             "datasets.$" : "$.datasets",
+            "errors.$" : "$.error",
             "script.$" : "$.script"
          },
          "ResultPath" : null,

@@ -97,10 +97,11 @@ class RollBack:
         return self.event['common']['projectName']
 
     def check_OldImage(self, mode_type):
-        if len(mode_type['OldImage']) == 0:
-            return False
-        else:
-            return True
+        try:
+            return "Create" if len(mode_type['OldImage']) == 0 else "RollBack"
+        except Exception as e:
+            print("*"*50+"OldImage ERROR"+"*"*50 + "\n", str(e))
+            return "NotNeedRollBack"
 
     def get_OldImage(self, mode_type):
         return mode_type['OldImage']
@@ -155,30 +156,45 @@ class RollBack:
         )
         return response
 
+    def map_Item(self, tableName, OldImage):
+        tableMap = {
+            "scenario": self.get_scenarioItem,
+            "scenario_trigger": self.get_triggerItem,
+            "scenario_step": self.get_stepItem
+        }
+        return tableMap[tableName](OldImage)
+    def NotNeedRollBack(self):
+        print("not need RollBack...")
+        pass
+
+    def map_handle_mode(self, handle_mode, mode_type, tableName\
+                        ,partitionKey, sortKey, partitionValue, sortValue):
+        RollBackMode = {
+            "Create": self.del_table_item(tableName, partitionKey, sortKey, partitionValue, sortValue),
+            "RollBack": self.RollBackProcess(mode_type, tableName),
+            "NotNeedRollBack": self.NotNeedRollBack()
+        }
+        return RollBackMode[handle_mode]
+
+    def RollBackProcess(self, mode_type, tableName):
+        oldImage = self.get_OldImage(mode_type)
+        Item = self.map_Item(tableName, oldImage)
+        self.put_item(tableName, Item)
+
     def scenarioRollBack(self):
-        if self.check_OldImage(self.scenario):
-            oldImage = self.get_OldImage(self.scenario)
-            Item = self.get_scenarioItem(oldImage)
-            self.put_item('scenario', Item)
-        else:
-            self.del_table_item('scenario', 'projectId', 'id', self.get_projectId(), self.get_scenarioId())
+        RollBackMode = self.check_OldImage(self.scenario)
+        print(f"Mode: {RollBackMode}")
+        self.map_handle_mode(RollBackMode, self.scenario, "scenario", "projectId", "id", self.get_scenarioId(), self.get_scenarioId())
 
     def triggerRollBack(self):
-        if self.check_OldImage(self.trigger):
-            oldImage = self.get_OldImage(self.trigger)
-            Item = self.get_scenarioItem(oldImage)
-            self.put_item('scenario_trigger', Item)
-        else:
-            self.del_table_item('scenario_trigger', 'scenarioId', 'id', self.get_scenarioId(), self.get_triggerId())
-
+        RollBackMode = self.check_OldImage(self.trigger)
+        print(f"Mode: {RollBackMode}")
+        self.map_handle_mode(RollBackMode, self.trigger, "scenario_trigger", "scenarioId", "id", self.get_scenarioId(), self.get_triggerId())
 
     def stepsRollBack(self):
-        if self.check_OldImage(self.step):
-            oldImage = self.get_OldImage(self.step)
-            Item = self.get_stepItem(oldImage)
-            self.put_item('scenario_step', Item)
-        else:
-            self.del_table_item('scenario_step', 'scenarioId', 'id', self.get_scenarioId(), self.get_stepId())
+        RollBackMode = self.check_OldImage(self.step)
+        print(f"Mode: {RollBackMode}")
+        self.map_handle_mode(RollBackMode, self.trigger, "scenario_step", "scenarioId", "id", self.get_scenarioId(), self.get_stepId())
 
     def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
         dynamodb = boto3.resource('dynamodb')

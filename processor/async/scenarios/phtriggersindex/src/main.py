@@ -90,6 +90,8 @@ class TriggersIndex:
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
+        print("*"*50+"trigger content " + "*"*50)
+        print(Items)
         if len(Items):
             ItemDict = Items[0]
             OldImage = {

@@ -81,6 +81,8 @@ class ScenarioIndex:
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario', 'projectId', 'id')
+        print("*"*50+"OldImage contents"+"*"*50)
+        print(Items)
         if Items[0]:
             OldImage = {
                 "id": Items['id'],

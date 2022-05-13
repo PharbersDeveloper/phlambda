@@ -62,7 +62,7 @@
          "ResultPath" : "$.message",
          "Next" : "Success"
       },
-      "ResouceLink" : {
+      "ResourceLink" : {
          "Type" : "Task",
          "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcelinkcreation-dev",
          "Parameters" : {
@@ -99,7 +99,7 @@
             "script.$": "$.[1].script"
          },
          "ResultPath": "$.result",
-         "Next" : "ResouceLink",
+         "Next" : "ResourceLink",
          "Branches" : [
             {
                "StartAt": "DSCreation",
@@ -166,6 +166,7 @@
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
                         "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -180,6 +181,7 @@
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
                         "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -194,6 +196,7 @@
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
                         "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -208,6 +211,7 @@
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
                         "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"

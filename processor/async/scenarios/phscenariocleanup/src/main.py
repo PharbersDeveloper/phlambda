@@ -178,7 +178,7 @@ class RollBack:
             Item = self.get_stepItem(oldImage)
             self.put_item('scenario_step', Item)
         else:
-            self.del_table_item('scenario_step', 'scenarioId', 'id', self.get_scenarioId(), self.get_stepId)
+            self.del_table_item('scenario_step', 'scenarioId', 'id', self.get_scenarioId(), self.get_stepId())
 
     def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
         dynamodb = boto3.resource('dynamodb')

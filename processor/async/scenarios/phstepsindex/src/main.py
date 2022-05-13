@@ -132,7 +132,8 @@ class StepsIndex:
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario_step', 'scenarioId', 'id')
-        print("*"*50+"stepO"+"*"*50)
+        print("*"*50+"step content"+"*"*50)
+        print(Items)
         if len(Items) != 0:
             ItemDict = Items[0]
             OldImage = {

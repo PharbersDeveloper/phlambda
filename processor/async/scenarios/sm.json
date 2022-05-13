@@ -73,6 +73,11 @@
       "ScenarioDetailCreationOrUpdation": {
          "Type": "Parallel",
          "InputPath": "$",
+         "ResultSelector": {
+            "triggers.$": "$.[0].triggers",
+            "steps.$": "$.[1].steps"
+         },
+         "ResultPath": "$.result",
          "Next": "Success",
          "Branches": [
             {
@@ -173,8 +178,8 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.scenario",
-            "triggers.$": "$.triggers",
+            "scenario.$": "$.result.scenario",
+            "triggers.$": "$.result.triggers",
             "steps.$": "$.steps",
          },
          "ResultPath": null,

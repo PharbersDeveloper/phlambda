@@ -238,8 +238,6 @@
             "flowVersion.$" : "$.common.flowVersion",
             "dagName.$" : "$.common.dagName",
             "projectName.$" : "$.common.projectName",
-            "jobId.$":  "$.script.id",
-            "jobShowName.$":  "$.script.name",
             "jobCat.$" : "$.action.cat",
             "jobDesc.$" : "$.action.desc",
             "comments.$" : "$.action.comments",

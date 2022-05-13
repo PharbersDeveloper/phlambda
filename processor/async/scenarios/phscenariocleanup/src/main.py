@@ -74,6 +74,7 @@ class RollBack:
         self.scenario = event['scenario']
         self.trigger = event['triggers'][0]
         self.step = event['steps'][0]
+        self.errorMessage = {}
 
     def get_projectId(self):
         return self.event['common']['projectId']
@@ -98,7 +99,7 @@ class RollBack:
 
     def check_OldImage(self, mode_type):
         try:
-            return "Create" if len(mode_type['OldImage']) == 0 else "RollBack"
+            return "Delete" if len(mode_type['OldImage']) == 0 else "RollBack"
         except Exception as e:
             print("*"*50+"OldImage ERROR"+"*"*50 + "\n", str(e))
             return "NotNeedRollBack"
@@ -169,7 +170,7 @@ class RollBack:
 
     def map_handle_mode(self, handle_mode):
         RollBackMode = {
-            "Create": self.del_table_item,
+            "Delete": self.del_table_item,
             "RollBack": self.RollBackProcess,
             "NotNeedRollBack": self.NotNeedRollBack,
         }
@@ -183,7 +184,8 @@ class RollBack:
     def scenarioRollBack(self):
         RollBackMode = self.check_OldImage(self.scenario)
         print(f"Mode: {RollBackMode}")
-        if RollBackMode == "Create":
+        self.errorMessage['scenario'] = f"error handle mode: {RollBackMode}"
+        if RollBackMode == "Delete":
             return self.map_handle_mode(RollBackMode)("scenario", "projectId", "id", self.get_scenarioId(), self.get_scenarioId())
         elif RollBackMode == "RollBack":
             return self.map_handle_mode(RollBackMode)(self.scenario, "scenario")
@@ -194,18 +196,19 @@ class RollBack:
     def triggerRollBack(self):
         RollBackMode = self.check_OldImage(self.trigger)
         print(f"Mode: {RollBackMode}")
-        if RollBackMode == "Create":
+        self.errorMessage['scenario_trigger'] = f"error handle mode: {RollBackMode}"
+        if RollBackMode == "Delete":
             return self.map_handle_mode(RollBackMode)("scenario_trigger", "scenarioId", "id", self.get_scenarioId(), self.get_triggerId())
         elif RollBackMode == "RollBack":
             return self.map_handle_mode(RollBackMode)(self.trigger, "scenario_trigger")
         else:
             return self.map_handle_mode(RollBackMode)()
 
-
     def stepsRollBack(self):
         RollBackMode = self.check_OldImage(self.step)
         print(f"Mode: {RollBackMode}")
-        if RollBackMode == "Create":
+        self.errorMessage['scenario_step'] = f"error handle mode: {RollBackMode}"
+        if RollBackMode == "Delete":
             return self.map_handle_mode(RollBackMode)("scenario_step", "scenarioId", "id", self.get_scenarioId(), self.get_stepId())
         elif RollBackMode == "RollBack":
             return self.map_handle_mode(RollBackMode)(self.trigger, "scenario_step")
@@ -234,6 +237,10 @@ class RollBack:
         result['message'] = 'delete resource success'
         return result
 
+    def fetch_result(self):
+        return {"type": "notification", "opname": self.get_projectId(),
+                "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
+
 def lambda_handler(event, context):
 
     #-------------------回滚操作-----------------------------------#
@@ -244,4 +251,4 @@ def lambda_handler(event, context):
     #TODO deleteResource 逻辑后面再做
     #result = rollBackClient.del_trigger_resource(rollBackClient.get_stackName())
 
-    return ""
+    return rollBackClient.fetch_result()

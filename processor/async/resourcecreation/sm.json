@@ -15,15 +15,15 @@
          "Catch" : [ {
             "ErrorEquals" : [ "States.Runtime" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          }, {
             "ErrorEquals" : [ "States.TaskFailed" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          }, {
             "ErrorEquals" : [ "States.ALL" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          } ]
       },
       "Actions" : {
@@ -256,9 +256,10 @@
             "projectName.$" : "$.common.projectName",
             "datasets.$" : "$.datasets",
             "errors.$" : "$.error",
+            "result.$": "$.result",
             "script.$" : "$.script"
          },
-         "ResultPath" : null,
+         "ResultPath" : "$.message",
          "Next" : "Failed"
       },
       "Failed" : {

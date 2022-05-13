@@ -33,10 +33,42 @@ args:
     }
 '''
 
+def delete_resource(event):
+    return {
+        "desc": event["jobDesc"] 
+    }
+
+
+def create_ds(event):
+    datasets = event["result"]["datasets"]
+    names = list(map(lambda item: item["name"], datasets))
+    return { "datasets": names }
+
+
+def create_script(event):
+    script = event["result"]["script"]
+    job_name = "_".join([script["flowVersion"], script["id"], 
+    event["projectName"], event["dagName"], script["name"]])
+
+    return {
+        "jobName": job_name,
+        "jobShowName": script["name"],
+        "runtime": script["runtime"]
+    }
+
+def return_cat(event):
+    if "jobCat" in event and event["jobCat"] == "deleteResource":
+        return "delete_resource"
+    
+    script = event["result"]["script"]
+    if script["runtime"] == "dataset" and "name" not in script:
+        return "create_ds"
+    
+    return "create_script"
+
 def lambda_handler(event, context):
     print(event)
-    datasets = event["result"]["datasets"]
-    script = event["result"]["script"]
+
     result = {
         "type": "notification",
         "opname": event["owner"],
@@ -46,16 +78,13 @@ def lambda_handler(event, context):
         }
     }
 
-    if script["runtime"] == "dataset" and "name" not in script:
-        names = list(map(lambda item: item["name"], datasets))
-        result["cnotification"]["data"] = {
-            "datasets": names
-        }
-    else:
-        result["cnotification"]["data"] = {
-            "jobName": f"""{script["flowVersion"]}_{script["id"]}_{event["projectName"]}_{event["dagName"]}_{script["name"]}""",
-            "jobShowName": script["name"],
-            "runtime": script["runtime"]
-        }
+    cat_funcs = {
+        "delete_resource": delete_resource,
+        "create_ds": create_ds,
+        "create_script": create_script
+    }
+    cat = return_cat(event)
+    content = cat_funcs[cat](event)
+    result["cnotification"]["data"] = content
 
     return result

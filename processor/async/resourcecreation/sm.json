@@ -159,42 +159,31 @@
                      } ],
                      "Default" : "PysparkFiles"
                   },
-                  "ResultPath": "$.script",
-                  "End" : true
-               },
-               "PythonFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+                  "PythonFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
+                     "End" : true
                   },
-                  "End" : true
-               },
-               "RFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
-                  },
-                  "End" : true
-               },
-               "SparkrFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesparkrcreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+                  "RFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
+                     "End" : true
                   },
                   "SparkrFiles" : {
                      "Type" : "Task",
@@ -206,6 +195,20 @@
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
                      },
+                     "ResultPath": "$.script",
+                     "End" : true
+                  },
+                  "PysparkFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepysparkcreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
                      "End" : true
                   }
                }

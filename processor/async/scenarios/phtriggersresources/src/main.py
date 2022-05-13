@@ -169,6 +169,8 @@ class TriggersResources:
         self.result['message'] = 'create resource'
 
 def lambda_handler(event, context):
+    print("*"*50 + " event " + "*"*50)
+    print(event)
 
     tenantId = event['tenantId']
     targetArn = os.getenv("TARGETARN")

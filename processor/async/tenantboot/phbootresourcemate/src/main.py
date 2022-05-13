@@ -80,7 +80,10 @@ def lambda_handler(event, context):
     for item in tenant_items:
         if item["role"] == "engine":
             create_engine_args()
-        if item["role"] == 
+        elif item["role"] == "olap":
+            create_olap_args()
+        elif item["role"] == "codeeditor":
+            create_codeeditor_args()
 
     # 从dynamodb 根据tenantId获取有关olap的信息
     # 从dynamodb 根据tenantId获取有关codeeditor的信息

@@ -177,7 +177,7 @@ def lambda_handler(event, context):
     projectId = event['projectId']
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']
-    cronExpression = event['triggers'][0]['cron']
+    cronExpression = event['triggers'][0]['detail']['cron']
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)

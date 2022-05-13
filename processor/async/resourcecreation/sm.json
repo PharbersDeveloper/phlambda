@@ -54,9 +54,7 @@
             "flowVersion.$" : "$.common.flowVersion",
             "dagName.$" : "$.common.dagName",
             "projectName.$" : "$.common.projectName",
-            "jobId.$":  "$.script.id",
-            "runtime.$": "$.script.runtime",
-            "jobShowName.$":  "$.script.name",
+            "result.$":  "$.result",
             "jobCat.$" : "$.action.cat",
             "jobDesc.$" : "$.action.desc",
             "comments.$" : "$.action.comments"
@@ -257,6 +255,7 @@
             "showName.$" : "$.common.showName",
             "projectName.$" : "$.common.projectName",
             "datasets.$" : "$.datasets",
+            "errors.$" : "$.error",
             "script.$" : "$.script"
          },
          "ResultPath" : null,
@@ -273,8 +272,6 @@
             "flowVersion.$" : "$.common.flowVersion",
             "dagName.$" : "$.common.dagName",
             "projectName.$" : "$.common.projectName",
-            "jobId.$":  "$.script.id",
-            "jobShowName.$":  "$.script.name",
             "jobCat.$" : "$.action.cat",
             "jobDesc.$" : "$.action.desc",
             "comments.$" : "$.action.comments",

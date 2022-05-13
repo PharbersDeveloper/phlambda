@@ -109,15 +109,16 @@ def lambda_handler(event, context):
     # 1. 只做一件事情，写dataset dynamodb，id在这里创建
 
     result = []
-    for dataset in event["datasets"]:
-        # representId 需要从dag表先进行查询 如果有的则使用
-        id = get_ds_representId(dataset["name"], event["projectId"])
-        if not id:
-            id = generate()
-        dataset.update({"id": id})
-        result.append(dataset)
-        put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
-                         format=dataset["format"], cat=dataset["cat"], prop="", traceId=event["traceId"])
+    if event["datasets"]:
+        for dataset in event["datasets"]:
+            # representId 需要从dag表先进行查询 如果有的则使用
+            id = get_ds_representId(dataset["name"], event["projectId"])
+            if not id:
+                id = generate()
+            dataset.update({"id": id})
+            result.append(dataset)
+            put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
+                             format=dataset["format"], cat=dataset["cat"], prop="", traceId=event["traceId"])
     print(result)
     return result
 

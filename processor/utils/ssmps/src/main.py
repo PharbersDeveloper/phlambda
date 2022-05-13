@@ -37,6 +37,10 @@ def get_dict_ssm_parameter(parameter_name):
 def lambda_handler(event, context):
     print(event)
     # 通过key 从ssm获取resource
-    resources = get_dict_ssm_parameter(event["key"])
+    if event["action"] == "read":
+        resources = get_dict_ssm_parameter(event["key"])
+    elif event["action"] == "write":
+        pass
+
 
     return resources

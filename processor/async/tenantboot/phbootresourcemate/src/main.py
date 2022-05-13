@@ -17,38 +17,52 @@ args = {
         "showName": "alfred"
     },
     "resources": [
-        "emr", "ec2"
+        "engine", "olap"
     ]
 }
 
 return = {
     "metadata": {
-        "emr": {
-            "Common": {
-                "RootVolumeSize": 10,
-                "ReleaseLabel": "emr-6.2.0"
-            },
-            "Master": {
-                "MasterInstanceType": "m5.2xlarge",
-                "MasterStorage": 64
-            },
-            "Core": {
-                "CoreInstanceType": "m5.2xlarge"
-                "CoreStorage": 32,
-                "InitialCoreSize": 1,
-                "MaxCoreSize": 2
-            },
-            "Task": {
-                "TaskInstanceType": "m5.2xlarge",
-                "TaskStroage": 32,
-                "TaskNodeOutThreshold": 10,
-                "InitialTaskSize": 2,
-                "MaxTaskSize": 10
+        "engines": [
+            {   
+                "type": "ec2",
+                "cfn": "",
+                "parameters": {
+                    "RootVolumeSize": 10,
+                    "ReleaseLabel": "emr-6.2.0",
+                    "MasterInstanceType": "m5.2xlarge",
+                    "MasterStorage": 64,
+                    "CoreInstanceType": "m5.2xlarge"
+                    "CoreStorage": 32,
+                    "InitialCoreSize": 1,
+                    "MaxCoreSize": 2，
+                    "TaskInstanceType": "m5.2xlarge",
+                    "TaskStorage": 32,
+                    "TaskNodeOutThreshold": 10,
+                    "InitialTaskSize": 2,
+                    "MaxTaskSize": 10
+                }
             }
-        }
+        ],
+        "olaps": [
+            {
+                "type": "ec2",
+                "cfn": "",
+                "parameters": {
+                    "RootVolumeSize": 10,
+                    "ReleaseLabel": "emr-6.2.0"
+                }
+            }
+        ]
+            
     }
 }
 '''
+
+cfn_path = {
+    "clickhouse": "",
+    "emr": ""
+}
 
 
 def get_resource_items_by_tenantId(tenantId):
@@ -60,32 +74,40 @@ def get_resource_items_by_tenantId(tenantId):
     return res["Items"]
 
 
-def create_engine_args():
-    pass
+def create_engine_args(tenant_item):
+
+    args = tenant_item["properties"]
+    args["cfn"] = cfn_path[tenant_item["ctype"]]
+
+    return args
 
 
-def create_olap_args():
-    pass
+def create_olap_args(tenant_item):
 
+    args = tenant_item["properties"]
+    args["cfn"] = cfn_path[tenant_item["ctype"]]
 
-def create_codeeditor_args():
-    pass
+    return args
 
 
 def lambda_handler(event, context):
 
     # 获取有关tenantId的所有信息
-    tenant_items = get_resource_items_by_tenantId(event["tenantId"])
-    # 从dynamodb 根据tenantId获取有关engine的信息
-    for item in tenant_items:
-        if item["role"] == "engine":
-            create_engine_args()
-        elif item["role"] == "olap":
-            create_olap_args()
-        elif item["role"] == "codeeditor":
-            create_codeeditor_args()
+    tenant_all_items = get_resource_items_by_tenantId(event["tenantId"])
+    # 进行filter 查找
+    metadata = {}
+    engine_metadata_list = []
+    olap_metadata_list = []
 
-    # 从dynamodb 根据tenantId获取有关olap的信息
-    # 从dynamodb 根据tenantId获取有关codeeditor的信息
+    tenant_items = [item["ownership"] == "shared" for item in tenant_all_items]
+    for tenant_item in tenant_items:
+        # 从dynamodb 根据tenantId获取有关engine的信息
+        if tenant_item["role"] == "engine":
+            engine_metadata = create_engine_args(tenant_item)
+            engine_metadata_list.append(engine_metadata)
+        # 从dynamodb 根据tenantId获取有关olap的信息
+        if tenant_item["role"] == "olap":
+            olap_metadata = create_olap_args(tenant_item)
+            olap_metadata_list.append(olap_metadata)
 
-    return True
+    return metadata

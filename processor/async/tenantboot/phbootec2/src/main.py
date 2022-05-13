@@ -1,5 +1,5 @@
 import json
-
+import boto3
 
 '''
 这个从resource表中读取需要创建的资源的matedata的描述
@@ -30,6 +30,20 @@ return = {
     }
 }
 '''
+
+
+def create_cloudformation(stackName, cfn_path, parameters):
+    cfn_client = boto3.client("cloudformation")
+    cfn_client.create_stack(
+        StackName=stackName,
+        TemplateURL=cfn_path,
+        Parameters=parameters
+    )
+
+
 def lambda_handler(event, context):
+
+    # 获取参数 创建cloudformation
+
 
     return True

@@ -97,6 +97,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersresource-dev",
                      "Parameters": {
+                        "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "projectName.$": "$.common.projectName",

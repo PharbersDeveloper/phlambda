@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr,Key
+from decimal import Decimal
 
 '''
 这个函数只做一件事情，将 trigger 的所有东西写到 scenario_trigger dynamodb中
@@ -83,17 +84,20 @@ class TriggersIndex:
             return data
         else:
             return json.dumps(data)
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
 
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
-        if Items[0]:
+        if len(Items):
+            ItemDict = Items[0]
             OldImage = {
-                "active": Items['active'],
-                "detail": Items['detail'],
-                "index": Items['index'],
-                "mode": Items['mode'],
-                "id": Items['id']
+                "active": ItemDict['active'],
+                "detail": ItemDict['detail'],
+                "index": self.turn_decimal_into_int(ItemDict['index']),
+                "mode": ItemDict['mode'],
+                "id": ItemDict['id']
             }
         else:
             OldImage = {}

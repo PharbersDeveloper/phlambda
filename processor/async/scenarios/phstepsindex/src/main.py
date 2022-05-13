@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr,Key
+from decimal import Decimal
 
 '''
 这个函数只做一件事情，将 scenario steps 的所有东西写到 scenario_step dynamodb中
@@ -126,17 +127,21 @@ class StepsIndex:
         )
         return res["Items"]
 
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
     def get_OldImage(self):
         Items= self.query_table_item('scenario_step', 'scenarioId', 'id')
         print("*"*50+"stepO"+"*"*50)
-        if Items[0]:
+        if len(Items) != 0:
+            ItemDict = Items[0]
             OldImage = {
-                "confData": Items['confData'],
-                "detail": Items['detail'],
-                "index": Items['index'],
-                "mode": Items['mode'],
-                "name": Items['name'],
-                "id": Items['id']
+                "confData": ItemDict['confData'],
+                "detail": ItemDict['detail'],
+                "index": self.turn_decimal_into_int(ItemDict['index']),
+                "mode": ItemDict['mode'],
+                "name": ItemDict['name'],
+                "id": ItemDict['id']
             }
         else:
             OldImage = {}

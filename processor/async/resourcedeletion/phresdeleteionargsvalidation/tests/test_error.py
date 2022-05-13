@@ -191,13 +191,13 @@ event5 = {
             "format": "parquet"
         }
     ],
-    "scripts":
+    "scripts":[
         {
             "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "{}",
             "output": "{}"
-        },
+        }],
     "notification": {
         "required": True
     },

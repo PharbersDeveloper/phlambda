@@ -78,15 +78,15 @@ class Check:
             ds_name = dataset.get("name", '')
             if not ds_name:
                 raise Exception('datasets missing name field')
-            if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
-                raise Exception('datasets name already exits')
+            if not query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
+                raise Exception('datasets name not exits')
             self.ds_sc = True
         for script in scripts:
             script_name = script.get("actionName")
             if not script_name:
                 raise Exception('scripts missing name field')
-            if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:
-                raise Exception('dagconf actionName already exits')
+            if not [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:
+                raise Exception('dagconf actionName not exits')
             self.ds_sc = True
 
     def check_parameter(self, data):

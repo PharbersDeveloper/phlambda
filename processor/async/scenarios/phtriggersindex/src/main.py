@@ -110,4 +110,5 @@ def lambda_handler(event, context):
     triggersClient.get_OldImage()
     triggersClient.put_item()
 
+
     return triggersClient.fetch_result()

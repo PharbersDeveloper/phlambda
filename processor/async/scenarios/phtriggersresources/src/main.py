@@ -4,11 +4,13 @@ import traceback
 import time
 from datetime import datetime
 from exceptions import ScenarioResourceError, ScenarioStackNotExistError
+import os
 
 '''
 这个函数只做一件事情，通过比较更新的内容，查看是否需要创建cf 来更新 timer资源
 args:
     event = {
+        "tenantId.$":"$.common.tenantId",
         "traceId.$": "$.common.traceId",
         "projectId.$": "$.common.projectId",
         "projectName.$": "$.common.projectName",
@@ -28,6 +30,7 @@ args:
                     "start":"2022-04-26 16:10:14",
                     "period":"minute",
                     "value":1
+                    "cron":""
                 },
                 "index": 0,
                 "mode": "timer",
@@ -49,14 +52,14 @@ args:
     }
 '''
 class TriggersResources:
-    def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression):
+    def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
         self.stackName = "-".join(["scenario", projectId, scenarioId, triggerId])
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
         self.result = {}
-        self.template_url = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml"
+        self.template_url = templateUrl
 
     def get_checkDict(self):
         checkDict = {
@@ -166,15 +169,19 @@ class TriggersResources:
         self.result['message'] = 'create resource'
 
 def lambda_handler(event, context):
+    print("*"*50 + " event " + "*"*50)
+    print(event)
 
-    tenantId = event.get('tenantId', 'pharbers')   #---该字段未在输入参数中找到
-    targetArn = event.get('targetArn', 'arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerhandler-dev') #--- 提成环境变量
+    tenantId = event['tenantId']
+    targetArn = os.getenv("TARGETARN")
     projectId = event['projectId']
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']
-    cronExpression = event.get('cron', '')        #---该字段未在输入参数中找到
+    cronExpression = event['triggers'][0]['cron']
+    templateUrl = os.getenv("TEMPLATEURL")
 
-    triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression)
+    triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
+
     try:
         stack = triggers.checkStackStatus()
         #--------------更新逻辑------------------------------#

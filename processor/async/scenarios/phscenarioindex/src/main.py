@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr,Key
+from decimal import Decimal
 
 '''
 这个函数只做一件事情，将scenario的所有东西写到Scenario dynamodb中
@@ -15,7 +16,7 @@ args:
             "id": "scenario id",
             "active": true,
             "scenarioName": "scenario name",
-            "deletion": false,
+            "deletion": false, --舍弃
             "index": "index"
         }
     }
@@ -79,15 +80,21 @@ class ScenarioIndex:
         )
         return res["Items"]
 
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
     def get_OldImage(self):
         Items= self.query_table_item('scenario', 'projectId', 'id')
-        if Items[0]:
+        print("*"*50+"OldImage contents"+"*"*50)
+        print(Items)
+        if len(Items) != 0:
+            ItemDict = Items[0]
             OldImage = {
-                "id": Items['id'],
-                "active": Items['active'],
-                "scenarioName": Items['scenarioName'],
-                "deletion": Items['deletion'],
-                "index": Items['index']
+                "id": ItemDict['id'],
+                "active": ItemDict['active'],
+                "scenarioName": ItemDict['scenarioName'],
+                #"deletion": Items['deletion'],
+                "index": self.turn_decimal_into_int(ItemDict['index'])
             }
         else:
             OldImage = {}

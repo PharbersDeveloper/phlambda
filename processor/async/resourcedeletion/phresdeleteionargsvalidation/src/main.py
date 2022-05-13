@@ -71,7 +71,7 @@ class Check:
     def check_datasets_scripts(self, data):
         projectId = data.get("common").get("projectId")
         datasets = data.get("datasets", [])
-        scripts = data.get("scripts", {})
+        scripts = data.get("scripts", [])
         if not isinstance(datasets, list):
             raise Exception('datasets type error')
         for dataset in datasets:
@@ -81,8 +81,8 @@ class Check:
             if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
                 raise Exception('datasets name already exits')
             self.ds_sc = True
-        if scripts:
-            script_name = scripts.get("actionName")
+        for script in scripts:
+            script_name = script.get("actionName")
             if not script_name:
                 raise Exception('scripts missing name field')
             if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:

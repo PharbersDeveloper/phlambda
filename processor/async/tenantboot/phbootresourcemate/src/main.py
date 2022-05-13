@@ -48,4 +48,9 @@ return = {
 '''
 def lambda_handler(event, context):
 
+    # 从dynamodb 根据tenantId获取有关engine的信息
+
+    # 从dynamodb 根据tenantId获取有关olap的信息
+    # 从dynamodb 根据tenantId获取有关codeeditor的信息
+
     return True

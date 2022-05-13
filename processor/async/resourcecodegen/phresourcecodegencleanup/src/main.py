@@ -48,5 +48,43 @@ args:
     }
 '''
 
+
+class CleanUp:
+    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+
+    def put_item(self, table_name, item):
+        table = self.dynamodb.Table(table_name)
+        response = table.put_item(
+            Item=item
+        )
+
+    def update_item(self, projectId, table_name, col_name, col_value, value):
+        table = self.dynamodb.Table(table_name)
+        table.update_item(
+            Key={
+                col_name: col_value,
+                "projectId": projectId
+            },
+            UpdateExpression="SET cat = :str",
+            ExpressionAttributeValues={
+                ":str": value
+            }
+        )
+
+    def run(self, projectId, steps, **kwargs):
+        self.projectId = projectId
+        for step in steps:
+            self.put_item("step", step)
+
+
 def lambda_handler(event, context):
-    return true
+    errors = event.get("errors")
+    CleanUp().run(**event)
+    return {
+        "type": "notification",
+        "opname": event["owner"],
+        "cnotification": {
+            "data": {},
+            "error": errors
+        }
+    }

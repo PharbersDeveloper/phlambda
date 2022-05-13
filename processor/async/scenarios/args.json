@@ -51,5 +51,6 @@
             "name": "alfred",
             "id": "step id"
         }
-    ]
+    ],
+    "result": {}
 }

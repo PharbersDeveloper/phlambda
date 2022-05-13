@@ -27,7 +27,7 @@ event = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"
@@ -60,7 +60,7 @@ event1 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"
@@ -93,7 +93,7 @@ event2 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"
@@ -131,7 +131,7 @@ event3 = {
     ],
     "scripts": [
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"
@@ -193,7 +193,7 @@ event5 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "{}",
             "output": "{}"
@@ -232,7 +232,7 @@ event6 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "[]"
@@ -271,7 +271,7 @@ event7 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"
@@ -310,7 +310,7 @@ event8 = {
     ],
     "scripts":
         {
-            "name": "compute_C2",
+            "actionName": "compute_C2",
             "flowVersion": "developer",
             "inputs": "[]",
             "output": "{}"

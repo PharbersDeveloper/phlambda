@@ -168,7 +168,7 @@ class TriggersResources:
 def lambda_handler(event, context):
 
     tenantId = event.get('tenantId', 'pharbers')   #---该字段未在输入参数中找到
-    targetArn = event.get('targetArn', 'arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerhandler-dev') #---该字段未在输入参数中找到
+    targetArn = event.get('targetArn', 'arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerhandler-dev') #--- 提成环境变量
     projectId = event['projectId']
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']

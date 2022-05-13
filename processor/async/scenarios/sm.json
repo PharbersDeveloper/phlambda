@@ -37,7 +37,8 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required"
+            "required.$": "$.action.required",
+            "message.$": "$.action.message"
          },
          "ResultPath": null,
          "Next": "ScenarioCreationOrUpdation"

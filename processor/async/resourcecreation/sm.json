@@ -165,6 +165,7 @@
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -178,6 +179,7 @@
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -191,6 +193,7 @@
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
@@ -204,6 +207,7 @@
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"

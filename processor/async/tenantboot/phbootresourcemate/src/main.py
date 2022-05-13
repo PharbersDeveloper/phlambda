@@ -51,20 +51,36 @@ return = {
 '''
 
 
-def get_resource_items_by_tenantId(tenantId, role):
+def get_resource_items_by_tenantId(tenantId):
     ds_table = dynamodb.Table('resource')
     res = ds_table.query(
-        IndexName='resource-tenantId-role-index',
         KeyConditionExpression=Key("tenantId").eq(tenantId)
-                               & Key("role").eq(role)
     )
 
     return res["Items"]
 
 
+def create_engine_args():
+    pass
+
+
+def create_olap_args():
+    pass
+
+
+def create_codeeditor_args():
+    pass
+
+
 def lambda_handler(event, context):
 
+    # 获取有关tenantId的所有信息
+    tenant_items = get_resource_items_by_tenantId(event["tenantId"])
     # 从dynamodb 根据tenantId获取有关engine的信息
+    for item in tenant_items:
+        if item["role"] == "engine":
+            create_engine_args()
+        if item["role"] == 
 
     # 从dynamodb 根据tenantId获取有关olap的信息
     # 从dynamodb 根据tenantId获取有关codeeditor的信息

@@ -51,7 +51,7 @@ def lambda_handler(event, context):
         clickhouse.exec_ddl_sql(f"""DROP TABLE IF EXISTS {os.environ["CLICKHOUSE_DB"]}.`{tableName}`""")
 
     for dataset in event["datasets"]:
-        path = "2020-11-11/lake/pharbers/ggjpDje0HUC2JW/" + dataset["name"] + "/"
+        path = "2020-11-11/lake/pharbers/" + event["projectId"] + "/" + dataset["name"] + "/"
         print(path)
         del_s3_job_dir("ph-platform", path)
 

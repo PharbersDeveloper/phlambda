@@ -92,12 +92,13 @@ def lambda_handler(event, context):
     print(event)
     print("================>>>>>>>>>>>>>")
     # 1. 只做一件事情，写dagconf dynamodb，id在这里创建
-    id = generate()
-    put_dagconf_item(id, event["projectId"], event["script"]["name"], event["projectName"], event["script"]["flowVersion"],
-                     event["script"]["inputs"], event["script"]["output"], "", event["owner"],
-                     "", event["script"]["runtime"], "", event["showName"], 1000, event["traceId"])
+    if event["script"].get("name"):
+        id = generate()
+        put_dagconf_item(id, event["projectId"], event["script"]["name"], event["projectName"], event["script"]["flowVersion"],
+                         event["script"]["inputs"], event["script"]["output"], "", event["owner"],
+                         "", event["script"]["runtime"], "", event["showName"], 1000, event["traceId"])
 
-    event["script"].update({"id": id})
+        event["script"].update({"id": id})
     result = event["script"]
 
     return result

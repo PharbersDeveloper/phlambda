@@ -177,16 +177,17 @@ def upload_phjob_files(args):
 
 def lambda_handler(event, context):
     print(event)
-    
-    # 创建pyspark的流程
-    create_phmain(event)
-    print("创建phmain成功")
-    create_phjobs(event)
-    print("创建phjob成功")
-    create_traceId(event)
-    print("traceId文件创建成功")
-    upload_phjob_files(event)
-    print("上传phjob文件成功")
+
+    if event["script"].get("name"):
+        # 创建pyspark的流程
+        create_phmain(event)
+        print("创建phmain成功")
+        create_phjobs(event)
+        print("创建phjob成功")
+        create_traceId(event)
+        print("traceId文件创建成功")
+        upload_phjob_files(event)
+        print("上传phjob文件成功")
 
     result = event["script"]
     

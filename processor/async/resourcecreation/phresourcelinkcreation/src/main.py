@@ -116,34 +116,34 @@ def lambda_handler(event, context):
             put_dag_item(event["projectId"], sortVersion, "dataset", "", "node", event["flowVersion"], "", dataset["name"],
                          "", json.dumps(prop, ensure_ascii=False), dataset["id"], dataset["cat"], event["traceId"])
 
-    # 2 创建 job item
-    jobSortVersion = event["flowVersion"] + "_" + event["script"]["id"]
-    put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["name"], "node", event["flowVersion"],
-                 "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"], event["traceId"])
+    if event["script"].get("name"):
+        # 2 创建 job item
+        jobSortVersion = event["flowVersion"] + "_" + event["script"]["id"]
+        put_dag_item(event["projectId"], jobSortVersion, "job", event["script"]["name"], "node", event["flowVersion"],
+                     "", event["script"]["name"], "", "", event["script"]["id"], event["script"]["runtime"], event["traceId"])
 
-    # 3 创建 link item
-    # 创建ds node 到 job node的 link
-    for dataset in event["datasets"]:
-
-        linkId = generate()
-        linkSortVersion = event["flowVersion"] + "_" + linkId
-        if dataset["name"] == event["script"]["output"]:
-            # job -> output dataset
-            cmessage = {
-                "sourceId": event["script"]["id"],
-                "sourceName": event["script"]["name"],
-                "targetId": dataset["id"],
-                "targetName": dataset["name"],
-            }
-        else:
-            cmessage = {
-                "sourceId": dataset["id"],
-                "sourceName": dataset["name"],
-                "targetId": event["script"]["id"],
-                "targetName": event["script"]["name"],
-            }
-        put_dag_item(event["projectId"], linkSortVersion, "", json.dumps(cmessage), "link", event["flowVersion"],
-                     "", "empty", "", "", linkId, "", event["traceId"])
+        # 3 创建 link item
+        # 创建ds node 到 job node的 link
+        for dataset in event["datasets"]:
+            linkId = generate()
+            linkSortVersion = event["flowVersion"] + "_" + linkId
+            if dataset["name"] == event["script"].get("output"):
+                # job -> output dataset
+                cmessage = {
+                    "sourceId": event["script"]["id"],
+                    "sourceName": event["script"]["name"],
+                    "targetId": dataset["id"],
+                    "targetName": dataset["name"],
+                }
+            else:
+                cmessage = {
+                    "sourceId": dataset["id"],
+                    "sourceName": dataset["name"],
+                    "targetId": event["script"]["id"],
+                    "targetName": event["script"]["name"],
+                }
+            put_dag_item(event["projectId"], linkSortVersion, "", json.dumps(cmessage), "link", event["flowVersion"],
+                         "", "empty", "", "", linkId, "", event["traceId"])
 
 
     return True

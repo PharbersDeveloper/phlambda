@@ -201,4 +201,5 @@ def lambda_handler(event, context):
         traceback_output = traceback.format_exc()
         print(traceback_output)
     finally:
+        print(triggers.result)
         return triggers.result

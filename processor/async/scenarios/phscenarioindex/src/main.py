@@ -15,7 +15,7 @@ args:
             "id": "scenario id",
             "active": true,
             "scenarioName": "scenario name",
-            "deletion": false,
+            "deletion": false, --舍弃
             "index": "index"
         }
     }
@@ -86,7 +86,7 @@ class ScenarioIndex:
                 "id": Items['id'],
                 "active": Items['active'],
                 "scenarioName": Items['scenarioName'],
-                "deletion": Items['deletion'],
+                #"deletion": Items['deletion'],
                 "index": Items['index']
             }
         else:

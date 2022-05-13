@@ -128,6 +128,7 @@ class StepsIndex:
 
     def get_OldImage(self):
         Items= self.query_table_item('scenario_step', 'scenarioId', 'id')
+        print("*"*50+"stepO"+"*"*50)
         if Items[0]:
             OldImage = {
                 "confData": Items['confData'],

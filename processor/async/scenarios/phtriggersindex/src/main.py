@@ -92,7 +92,7 @@ class TriggersIndex:
         Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
         print("*"*50+"trigger content " + "*"*50)
         print(Items)
-        if len(Items):
+        if len(Items) != 0:
             ItemDict = Items[0]
             OldImage = {
                 "active": ItemDict['active'],

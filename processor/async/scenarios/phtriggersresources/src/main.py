@@ -179,6 +179,7 @@ def lambda_handler(event, context):
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
+
     try:
         stack = triggers.checkStackStatus()
         #--------------更新逻辑------------------------------#

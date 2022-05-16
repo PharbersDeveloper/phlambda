@@ -19,7 +19,7 @@ args = {
         "emr", "ec2"
     ]，
     "metadata": {
-        "engines": [
+        "engine": 
             {   
                 "type": "ec2",
                 "cfn": "",
@@ -39,7 +39,7 @@ args = {
                     "MaxTaskSize": 10
                 }
             }
-        ],
+        ,
     }
 }
 
@@ -77,6 +77,7 @@ def lambda_handler(event, context):
     # 获取参数 创建cloudformation
     if event["engine"]["type"] == "ec2":
         # 处理创建cloudformation参数
-        cfn_res = create_cloudformation("emr-" + event["tenantId"], event["engine"]["cfn"], event["engine"]["parameters"])
+        cfn_parameters = create_cloudformation_parameters(event["engine"]["parameters"])
+        cfn_res = create_cloudformation("emr-" + event["tenantId"], event["engine"]["cfn"], cfn_parameters)
 
     return True

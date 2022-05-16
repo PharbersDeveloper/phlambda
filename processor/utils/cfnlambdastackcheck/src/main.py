@@ -34,7 +34,10 @@ def lambda_handler(event, context):
     )
     print(response)
 
-    if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == event['CREATE_COMPLETE']:
+    # TODO: 当有失败的情况
+    if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == event['expect']:
         return event["current"] + 1
+    elif if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == "ROLLBACK_COMPLETE":
+        raise Exception('create ' + name + ' failed')
     else:
         return event["current"]

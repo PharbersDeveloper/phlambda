@@ -15,15 +15,15 @@
          "Catch" : [ {
             "ErrorEquals" : [ "States.Runtime" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          }, {
             "ErrorEquals" : [ "States.TaskFailed" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          }, {
             "ErrorEquals" : [ "States.ALL" ],
             "ResultPath" : "$.error",
-            "Next" : "Failed"
+            "Next" : "CleanUp"
          } ]
       },
       "Actions" : {
@@ -62,7 +62,7 @@
          "ResultPath" : "$.message",
          "Next" : "Success"
       },
-      "ResouceLink" : {
+      "ResourceLink" : {
          "Type" : "Task",
          "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcelinkcreation-dev",
          "Parameters" : {
@@ -99,7 +99,7 @@
             "script.$": "$.[1].script"
          },
          "ResultPath": "$.result",
-         "Next" : "ResouceLink",
+         "Next" : "ResourceLink",
          "Branches" : [
             {
                "StartAt": "DSCreation",
@@ -159,42 +159,35 @@
                      } ],
                      "Default" : "PysparkFiles"
                   },
-                  "ResultPath": "$.script",
-                  "End" : true
-               },
-               "PythonFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+                  "PythonFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
+                     "End" : true
                   },
-                  "End" : true
-               },
-               "RFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
-                  },
-                  "End" : true
-               },
-               "SparkrFiles" : {
-                  "Type" : "Task",
-                  "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesparkrcreation-dev",
-                  "Parameters" : {
-                     "traceId.$" : "$.common.traceId",
-                     "projectId.$" : "$.common.projectId",
-                     "owner.$" : "$.common.owner",
-                     "showName.$" : "$.common.showName",
-                     "script.$" : "$.script"
+                  "RFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
+                     "End" : true
                   },
                   "SparkrFiles" : {
                      "Type" : "Task",
@@ -202,10 +195,28 @@
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
                         "owner.$" : "$.common.owner",
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
                      },
+                     "ResultPath": "$.script",
+                     "End" : true
+                  },
+                  "PysparkFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepysparkcreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
                      "End" : true
                   }
                }
@@ -235,8 +246,6 @@
             "flowVersion.$" : "$.common.flowVersion",
             "dagName.$" : "$.common.dagName",
             "projectName.$" : "$.common.projectName",
-            "jobId.$":  "$.script.id",
-            "jobShowName.$":  "$.script.name",
             "jobCat.$" : "$.action.cat",
             "jobDesc.$" : "$.action.desc",
             "comments.$" : "$.action.comments",
@@ -256,9 +265,10 @@
             "projectName.$" : "$.common.projectName",
             "datasets.$" : "$.datasets",
             "errors.$" : "$.error",
+            "result.$": "$.result",
             "script.$" : "$.script"
          },
-         "ResultPath" : null,
+         "ResultPath" : "$.message",
          "Next" : "Failed"
       },
       "Failed" : {

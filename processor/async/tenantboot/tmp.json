@@ -30,7 +30,6 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresoucemate-dev",
          "Parameters": {
-            "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -56,78 +55,24 @@
       "ResourceCreation": {
          "Type": "Parallel",
          "InputPath": "$",
-         "ResultSelector": {
-            "engine": "$.[0].engine",
-            "olap": "$.[1].olap"
-         },
-         "ResultPath": "$.result",
          "Next": "SSMCreation",
          "Branches": [
             {
-               "StartAt": "EngineStepsBegin",
+               "StartAt": "EMRCreation",
                "States": {
-                  "EngineStepsBegin": {
-                     "Type": "Pass",
-                     "Result": 0,
-                     "ResultPath": "$.iterator",
-                     "Next": "EngineStepsArg"
-                  },
-                  "EngineStepsArg": {
+                  "EMRCreation": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootemr-dev",
                      "Parameters": {
-                        "iterator.$": "$.iterator",
-                        "steps.$": "$.metadata.engine.steps"
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "matedata.$": "$.matedata"
                      },
-                     "ResultPath": "$.currentStep",
-                     "Next": "EngineCreation"
-                  },
-                  "EngineCreation": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
-                     "Parameters": {
-                        "action": "creation",
-                        "name.$": "$.currentStep.stackName",
-                        "cfn.$": "$.currentStep.cfn",
-                        "parameters.$": "$.currentStep.parameters"
-                     },
-                     "ResultPath": "$.engine",
-                     "Next": "EngineWait"
-                  },
-                  "EngineWait": {
-                     "Type": "Wait",
-                     "Seconds": 30,
-                     "Next": "EngineCheck"
-                  },
-                  "EngineCheck": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
-                     "Parameters": {
-                        "current": "$.iterator",
-                        "name.$": "$.currentStep.stackName",
-                        "expect": "CREATE_COMPLETE"
-                     },
-                     "ResultPath": "$.iterator",
-                     "Next": "EngineStepsCountReached"
-                  },
-                  "EngineStepsCountReached": {
-                     "Type": "Choice",
-                     "Choices": [
-                         {
-                             "Variable": "$.iterator",
-                             "NumericEqualsPath": "$.metadata.engine.counts",
-                             "Next": "EngineEnd"
-                         },
-                         {
-                             "Variable": "$.iterator",
-                             "NumericLessThanPath": "$.metadata.engine.counts",
-                             "Next": "EngineStepsArg"
-                         }
-                     ],
-                     "Default": "EngineWait"
-                  },
-                  "EngineEnd": {
-                     "Type": "Succeed"  
+                     "ResultPath": "$.EMRResult",
+                     "End": true
                   }
                }
             },
@@ -135,13 +80,17 @@
                "StartAt": "EC2Creation",
                "States": {
                   "EC2Creation": {
-                     "Type": "Pass",
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootec2-dev",
                      "Parameters": {
-                        "olap": {
-                           "ip": "alfredtest"
-                        }
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "matedata.$": "$.matedata"
                      },
-                     "ResultPath": "$.olap",
+                     "ResultPath": "$.EC2Result",
                      "End": true
                   }
                }
@@ -166,8 +115,11 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "write",
-            "key.$": "$.common.tenantId",
-            "value.$": "$.metadata" 
+            "key.$": "$.common.projectId",
+            "value": {
+               "projectName.$": "$.common.projectName",
+               "currentContext": "V2"
+            }
          },
          "ResultPath": null,
          "Next": "Success"
@@ -182,10 +134,8 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
-            "message.$": "$.action.message",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            
+            "required.$": "$.action.required"
          },
          "ResultPath": null,
          "Next": "ResouceMetadata"
@@ -201,7 +151,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message.$": "$.result",
             "status": "success"
          },
          "End": true
@@ -217,7 +167,9 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName"
+            "showName.$": "$.common.showName",
+            "datasets.$": "$.datasets",
+            "scripts.$": "$.scripts"
          },
          "ResultPath": null,
          "Next": "Failed"

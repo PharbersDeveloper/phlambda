@@ -15,15 +15,15 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           } ],
       },
       "Actions": {
@@ -73,6 +73,11 @@
       "ScenarioDetailCreationOrUpdation": {
          "Type": "Parallel",
          "InputPath": "$",
+         "ResultSelector": {
+            "triggers.$": "$.[0].triggers",
+            "steps.$": "$.[1].steps"
+         },
+         "ResultPath": "$.result",
          "Next": "Success",
          "Branches": [
             {
@@ -97,6 +102,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersresource-dev",
                      "Parameters": {
+                        "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "projectName.$": "$.common.projectName",
@@ -168,12 +174,13 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.datasets"
+            "scenario.$": "$.result.scenario",
+            "triggers.$": "$.result.triggers",
+            "steps.$": "$.steps",
          },
          "ResultPath": null,
          "Next": "Failed"

@@ -34,13 +34,27 @@ def get_dict_ssm_parameter(parameter_name):
     return value
 
 
+def put_dict_ssm_parameter(parameter_name, parameter_value):
+
+    response = ssm_client.put_parameter(
+        Name=parameter_name,
+        Value=parameter_value,
+        Type="String",
+        Overwrite=True
+    )
+
+    print(response)
+    return parameter_value
+
+
 def lambda_handler(event, context):
     print(event)
     # 通过key 从ssm获取resource
+    resources = True
     if event["action"] == "read":
         resources = get_dict_ssm_parameter(event["key"])
     elif event["action"] == "write":
-        pass
-
+        put_dict_ssm_parameter(event["key"], json.dumps(event["value"]))
+        resources = event["value"]
 
     return resources

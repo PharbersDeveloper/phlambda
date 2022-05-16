@@ -9,9 +9,9 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourceargsvalidation-dev
+      FunctionName: lmd-phresourcecodegenargsvalidation-dev
       MemorySize: 1024
-      Description: "创建dagconf 同时创建dag, airflow运行文件"
+      Description: "prepare生成 验证参数"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:

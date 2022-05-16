@@ -30,7 +30,6 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresoucemate-dev",
          "Parameters": {
-            "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -51,15 +50,76 @@
              "Next": "CleanUp"
           } ],
          "ResultPath": "$.metadata",
-         "Next": "SSMCreation"
+         "Next": "ResourceCreation"
+      },
+      "ResourceCreation": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "Next": "SSMCreation",
+         "Branches": [
+            {
+               "StartAt": "EMRCreation",
+               "States": {
+                  "EMRCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootemr-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "matedata.$": "$.matedata"
+                     },
+                     "ResultPath": "$.EMRResult",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "EC2Creation",
+               "States": {
+                  "EC2Creation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootec2-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "matedata.$": "$.matedata"
+                     },
+                     "ResultPath": "$.EC2Result",
+                     "End": true
+                  }
+               }
+            }
+         ],
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ] 
       },
       "SSMCreation": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "write",
-            "key.$": "$.common.tenantId",
-            "value.$": "$.metadata" 
+            "key.$": "$.common.projectId",
+            "value": {
+               "projectName.$": "$.common.projectName",
+               "currentContext": "V2"
+            }
          },
          "ResultPath": null,
          "Next": "Success"
@@ -74,10 +134,8 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
-            "message.$": "$.action.message",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            
+            "required.$": "$.action.required"
          },
          "ResultPath": null,
          "Next": "ResouceMetadata"
@@ -93,7 +151,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message.$": "$.result",
             "status": "success"
          },
          "End": true
@@ -109,7 +167,9 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName"
+            "showName.$": "$.common.showName",
+            "datasets.$": "$.datasets",
+            "scripts.$": "$.scripts"
          },
          "ResultPath": null,
          "Next": "Failed"

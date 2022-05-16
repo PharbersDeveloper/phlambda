@@ -117,7 +117,7 @@ def lambda_handler(event, context):
                 id = generate()
             dataset.update({"id": id})
             result.append(dataset)
-            put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema="[]", path="",
+            put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema=json.dumps(dataset["schema"], ensure_ascii=False), path="",
                              format=dataset["format"], cat=dataset["cat"], prop="", traceId=event["traceId"])
     print(result)
     return result

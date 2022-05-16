@@ -18,6 +18,7 @@ from boto3.dynamodb.conditions import Key
 
 
 def execute(**kwargs):
+    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
     dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
     # 对多TraceId取Schema的col的并集（暂时先不管类型）
@@ -49,23 +50,19 @@ def execute(**kwargs):
             schema_type = schema_type.add(item["src"], StringType())
 
         reader = spark.read.schema(schema_type)
+
         df = reader.csv(f"{lake_prefix}{project_id}/{name}")
-        if len(version) != 0:
-            df = df.where(df["version"].isin(version))
+        logger.debug("从s3读取df")
+        logger.debug(df.count())
+        logger.debug("从s3读取df")
+        # if len(version) != 0:
+        #     df = df.where(df["version"].isin(version))
+        # logger.debug(df.count())
         return df
-
-    # 中间型数据  convert_normal_df(df, convert_union_schema(df)) 这样读就会转成普通以前的df
-
-
-    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
 
     def deleteTableSql(table, database='default'):
         sql_content = f"DROP TABLE IF EXISTS {database}.`{table}`"
         return sql_content
-
-    def addVersion(df, version, version_colname='version'):
-        df = df.withColumn(version_colname, lit(version))
-        return df
 
     def get_project_ip(project_id, project_name):
 
@@ -101,12 +98,6 @@ def execute(**kwargs):
             return sql_scheme
         return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
 
-    def get_dynamodb_item(table_name, key):
-        table = dynamodb_resource.Table(table_name)
-        res = table.get_item(
-            Key=key,
-        )
-        return res.get("Item")
 
     def put_dynamodb_item(table_name, item):
         table = dynamodb_resource.Table(table_name)
@@ -114,19 +105,15 @@ def execute(**kwargs):
             Item=item
         )
 
-    def put_scheme_to_dataset(output_id, project_id, schema_list, output_version):
+    def put_scheme_to_dataset(output_name, project_id, schema_list, output_version):
 
         table_name = "dataset"
-        key = {
-            "id": output_id,
-            "projectId": project_id
-        }
-        dataset_item = get_dynamodb_item(table_name, key)
+        dataset_item = get_ds_with_index(output_name, project_id)
         dataset_item.update({"schema": json.dumps(schema_list, ensure_ascii=False)})
         dataset_item.update({"version": json.dumps(output_version, ensure_ascii=False)})
         put_dynamodb_item(table_name, dataset_item)
 
-    def putOutputSchema(output_id, project_id, df, output_version):
+    def putOutputSchema(output_name, project_id, df, output_version):
 
         def getSchemaSql(df):
             schema_list = []
@@ -140,7 +127,8 @@ def execute(**kwargs):
             return schema_list
 
         schema_list = getSchemaSql(df)
-        res = put_scheme_to_dataset(output_id, project_id, schema_list, output_version)
+        res = put_scheme_to_dataset(output_name, project_id, schema_list, output_version)
+
 
     spark = kwargs["spark"]()
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
@@ -157,15 +145,21 @@ def execute(**kwargs):
 
     path = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{datasetName}/"
 
+    logger.debug("datasetType")
     # 从s3 读取数据
     # 1 uploaded
     if datasetType == "uploaded":
+        logger.debug("uploaded sample")
         lake_prefix = f"s3://ph-platform/2020-11-11/lake/{company}/"
+        logger.debug(lake_prefix)
         df = uploaded_s3_df(lake_prefix, datasetName, sourceProjectId)
+        logger.debug(df.count())
     # 2 intermediate
     if datasetType == "intermediate":
+        logger.debug("intermediate sample")
         df = spark.read.parquet(path)
         df = convert_normal_df(df, convert_union_schema(df))
+        logger.debug(df.count())
     # 3 catalog
     if datasetType == "catalog":
         df = spark.read.parquet(path)
@@ -183,6 +177,7 @@ def execute(**kwargs):
         sample_df = sample_df.limit(int(df_count) * 10000)
 
     logger.debug("sample_df 创建完成")
+    logger.debug(sample_df.count())
     # 获取projectip
     projectIp = get_project_ip(targetProjectId, projectName)
     logger.debug("ip 获取完成")
@@ -199,7 +194,7 @@ def execute(**kwargs):
     logger.debug(sql_create_table)
     ch_client.execute(sql_create_table)
 
-
+    logger.debug(sample_df.count())
     # 写入clickhouse
     sample_df.write.format("jdbc").mode("append") \
         .option("url", f"jdbc:clickhouse://{projectIp}:8123/default") \
@@ -213,7 +208,7 @@ def execute(**kwargs):
         .option("rewriteBatchedStatements", True) \
         .save()
 
-    putOutputSchema(datasetId, targetProjectId, sample_df, version)
+    putOutputSchema(datasetName, targetProjectId, sample_df, version)
 
     return {'out_df': {}}
 

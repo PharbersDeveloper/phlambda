@@ -57,8 +57,8 @@
          "Type": "Parallel",
          "InputPath": "$",
          "ResultSelector": {
-            "engine": "$.[0].engine",
-            "olap": "$.[1].olap"
+            "engine.$": "$.[0].engine",
+            "olap.$": "$.[1].olap"
          },
          "ResultPath": "$.result",
          "Next": "SSMCreation",

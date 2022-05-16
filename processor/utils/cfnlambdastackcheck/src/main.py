@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     )
     print(response)
 
-    if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == 'CREATE_COMPLETE':
+    if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == event['CREATE_COMPLETE']:
         return event["current"] + 1
     else:
         return event["current"]

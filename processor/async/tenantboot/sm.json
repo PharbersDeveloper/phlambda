@@ -51,7 +51,115 @@
              "Next": "CleanUp"
           } ],
          "ResultPath": "$.metadata",
-         "Next": "SSMCreation"
+         "Next": "ResourceCreation"
+      },
+      "ResourceCreation": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "ResultSelector": {
+            "engine": "$.[0].engine",
+            "olap": "$.[1].olap"
+         },
+         "ResultPath": "$.result",
+         "Next": "SSMCreation",
+         "Branches": [
+            {
+               "StartAt": "EngineStepsBegin",
+               "States": {
+                  "EngineStepsBegin": {
+                     "Type": "Pass",
+                     "Result": 0,
+                     "ResultPath": "$.iterator",
+                     "Next": "EngineStepsArg"
+                  },
+                  "EngineStepsArg": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
+                     "Parameters": {
+                        "iterator.$": "$.iterator",
+                        "steps.$": "$.metadata.engine.steps"
+                     },
+                     "ResultPath": "$.currentStep",
+                     "Next": "EngineCreation"
+                  },
+                  "EngineCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.currentStep.stackName",
+                        "cfn.$": "$.currentStep.cfn",
+                        "parameters.$": "$.currentStep.parameters"
+                     },
+                     "ResultPath": "$.engine",
+                     "Next": "EngineWait"
+                  },
+                  "EngineWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "EngineCheck"
+                  },
+                  "EngineCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current": "$.iterator",
+                        "name.$": "$.currentStep.stackName",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.iterator",
+                     "Next": "EngineStepsCountReached"
+                  },
+                  "EngineStepsCountReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                         {
+                             "Variable": "$.iterator",
+                             "NumericEqualsPath": "$.metadata.engine.counts",
+                             "Next": "EngineEnd"
+                         },
+                         {
+                             "Variable": "$.iterator",
+                             "NumericLessThanPath": "$.metadata.engine.counts",
+                             "Next": "EngineStepsArg"
+                         }
+                     ],
+                     "Default": "EngineWait"
+                  },
+                  "EngineEnd": {
+                     "Type": "Succeed"  
+                  }
+               }
+            },
+            {
+               "StartAt": "EC2Creation",
+               "States": {
+                  "EC2Creation": {
+                     "Type": "Pass",
+                     "Parameters": {
+                        "olap": {
+                           "ip": "alfredtest"
+                        }
+                     },
+                     "ResultPath": "$.olap",
+                     "End": true
+                  }
+               }
+            }
+         ],
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ] 
       },
       "SSMCreation": {
          "Type": "Task",

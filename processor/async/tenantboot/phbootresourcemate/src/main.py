@@ -19,7 +19,7 @@ args = {
 
 return = {
     "metadata": {
-        "engines": [
+        "engine": [
             {   
                 "type": "emr",
                 "version": "emr-6.2.0",
@@ -30,9 +30,9 @@ return = {
                     }
                 ]
                 "cfn": "",
+                "stackName": "",
                 "parameters": {
                     "RootVolumeSize": 10,
-                    "ReleaseLabel": "emr-6.2.0",
                     "MasterInstanceType": "m5.2xlarge",
                     "MasterStorage": 64,
                     "CoreInstanceType": "m5.2xlarge",
@@ -47,7 +47,7 @@ return = {
                 }
             }
         ],
-        "olaps": [
+        "olap": [
             {
                 "type": "ec2",
                 "cfn": "",
@@ -86,7 +86,15 @@ def lambda_handler(event, context):
     # TODO: resources 里面的值与tenantItems 里面role值求交集，只有交集才能创建 @hbzhao
 
     for tenant_item in tenant_items:
-        metadata[tenant_item["role"]] = json.loads(tenant_item["properties"])
+        tmp = {}
+        tmp = json.loads(tenant_item["properties"])
+        for item in tmp:
+            item["stackName"] = "-".join([tenant_item["role"], item["type"], event["tenantId"]])
+        
+        metadata[tenant_item["role"]] = {
+            "counts": len(tmp),
+            "steps": tmp
+        }
 
     print(metadata)
     return metadata

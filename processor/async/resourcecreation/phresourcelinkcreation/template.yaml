@@ -9,11 +9,11 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcelinkcreation-dev
+      FunctionName: lmd-phresourcelinkcreation-V2
       MemorySize: 1024
       Description: "phresourcelinkcreation"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
 

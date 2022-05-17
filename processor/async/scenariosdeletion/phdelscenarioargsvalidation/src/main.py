@@ -64,5 +64,5 @@ def lambda_handler(event, context):
     # 1. common 必须存在
     # 2. action 必须存在
     # 3. notification 必须存在
-    # 4. scenario triggers 和 steps 必须存在一个, 存在哪个就删除哪个
+    # 4. scenario, triggers 和 steps 必须存在一个
     return True

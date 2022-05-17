@@ -185,17 +185,123 @@
                }
             },
             {
-               "StartAt": "EC2Creation",
+               "StartAt": "OlapResultPass",
                "States": {
-                  "EC2Creation": {
+                  "OlapResultPass": {
                      "Type": "Pass",
+                     "Result": {},
+                     "ResultPath": "$.olap",
+                     "Next": "OlapStepsIterator"
+                  },
+                  "OlapStepsIterator": {
+                     "Type": "Pass",
+                     "Result": {
+                        "index": 0,
+                        "currentStatus": "running"
+                     },
+                     "ResultPath": "$.iterator",
+                     "Next": "OlapStepsArg"
+                  },
+                  "OlapStepsArg": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
                      "Parameters": {
-                        "olap": {
-                           "ip": "alfredtest"
+                        "iterator.$": "$.iterator.index",
+                        "steps.$": "$.metadata.olap.steps"
+                     },
+                     "ResultPath": "$.currentStep",
+                     "Next": "OlapCreation"
+                  },
+                  "OlapCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.currentStep.stackName",
+                        "cfn.$": "$.currentStep.cfn",
+                        "parameters.$": "$.currentStep.parameters",
+                        "dependencies.$": "$.currentStep.dependencies",
+                        "result.$": "$.olap"
+                     },
+                     "ResultPath": null,
+                     "Next": "OlapWait"
+                  },
+                  "OlapWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "OlapCheck"
+                  },
+                  "OlapCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.iterator",
+                        "name.$": "$.currentStep.stackName",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.iterator",
+                     "Next": "OlapStepsCountReached"
+                  },
+                  "OlapStepsCountReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "success",
+                              }
+
+                           ],
+                           "Next": "OlapResultCollection"
+                        },
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "success",
+                              }
+
+                           ],
+                           "Next": "OlapResultStepsCollection"
                         }
+                     ],
+                     "Default": "OlapWait"
+                  },
+                  "OlapResultStepsCollection": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
+                     "Parameters": {
+                        "result.$": "$.olap",
+                        "resultPath": "olap",
+                        "resultType.$": "$.currentStep.type",
+                        "name.$": "$.currentStep.stackName"
                      },
                      "ResultPath": "$.olap",
-                     "End": true
+                     "Next": "OlapStepsArg"
+                  },
+                  "OlapResultCollection": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
+                     "Parameters": {
+                        "result.$": "$.olap",
+                        "resultPath": "olap",
+                        "resultType.$": "$.currentStep.type",
+                        "name.$": "$.currentStep.stackName"
+                     },
+                     "ResultPath": "$.olap",
+                     "Next": "OlapEnd"
+                  },
+                  "OlapEnd": {
+                     "Type": "Succeed"
                   }
                }
             }

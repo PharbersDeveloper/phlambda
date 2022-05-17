@@ -80,4 +80,13 @@ def lambda_handler(event, context):
     # 将脚本上传到对应位置
     upload_file(conf)
 
-    return True
+    return {
+        "type": "notification",
+        "opname": event["owner"],
+        "cnotification": {
+            "data": {
+                "script": event["script"]["jobName"]
+            },
+            "error": {}
+        }
+    }

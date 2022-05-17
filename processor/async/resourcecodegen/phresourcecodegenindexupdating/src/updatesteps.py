@@ -1,5 +1,13 @@
+import decimal
 import json
 from util.AWS.DynamoDB import DynamoDB
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return int(o)
+        super(DecimalEncoder, self).default(o)
 
 
 def update_steps(conf):
@@ -43,4 +51,4 @@ def update_steps(conf):
     db.batch_write("step", steps)
 
     # 将老数据返回给Old Image，没有就是空数组
-    return result
+    return json.loads(json.dumps(result, cls=DecimalEncoder, ensure_ascii=False))

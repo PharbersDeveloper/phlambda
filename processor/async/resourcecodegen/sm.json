@@ -163,7 +163,7 @@
                    "Next": "CleanUp"
                }
            ],
-           "ResultPath": null,
+           "ResultPath": "$.message",
            "Next": "Success"
        },
        "Success": {
@@ -178,7 +178,7 @@
                "dagName.$": "$.common.dagName",
                "projectName.$": "$.common.projectName",
                "jobId.$": "$.script.id",
-               "jobShowName.$": "$.script.name",
+               "jobShowName.$": "$.script.jobName",
                "jobCat.$": "$.action.cat",
                "jobDesc.$": "$.action.desc",
                "comments.$": "$.action.comments",
@@ -191,7 +191,7 @@
            "Type": "Task",
            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegencleanup-dev",
            "InputPath": "$",
-           "ResultPath": null,
+           "ResultPath": "$.message",
            "Next": "Failed"
        },
        "Failed": {
@@ -206,7 +206,7 @@
                "dagName.$": "$.common.dagName",
                "projectName.$": "$.common.projectName",
                "jobId.$": "$.script.id",
-               "jobShowName.$": "$.script.name",
+               "jobShowName.$": "$.script.jobName",
                "jobCat.$": "$.action.cat",
                "jobDesc.$": "$.action.desc",
                "comments.$": "$.action.comments",

@@ -81,4 +81,4 @@ def lambda_handler(event, context):
     old_steps = update_steps(conf)
     event["oldImage"] = old_steps
 
-    return event["steps"]
+    return event["oldImage"]

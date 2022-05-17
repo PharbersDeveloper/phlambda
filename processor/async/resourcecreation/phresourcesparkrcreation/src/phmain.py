@@ -5,7 +5,7 @@ def create_ph_main_file(conf):
     file_lines = conf.get("s3").open_object_by_lines(conf.get("bucket"),
                                                      conf.get("cliVersion") + conf.get("templatePhmainFile"))
 
-    with open(f"{conf.get('jobPath')}/phmain.R", "a") as file:
+    with open(f"{conf.get('jobPath')}/phmain.R", "w") as file:
         for line in file_lines:
             line = line + "\n"
             if line == "$alfred_debug_execute\n":

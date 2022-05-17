@@ -5,11 +5,11 @@ Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: app.lambda_handler
+      Handler: main.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcesparkrcreation-dev
+      FunctionName: lmd-phresourcesparkrcreation-V2
       MemorySize: 1024
       Description: "创建Spark R File文件,后续供Spark Submit提交"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
@@ -21,7 +21,7 @@ Resources:
           TM_PHMAIN_FILE: /template/python/phcli/maxauto/phmain-r_dev.tmp
           TM_PHJOB_FILE: /template/python/phcli/maxauto/phjob-r_dev.tmp
           DAG_S3_JOBS_PATH: /jobs/python/phcli/
-          EDITION: DEV
+          EDITION: V2
       Tags:
         edition: dev
         owner: pqian

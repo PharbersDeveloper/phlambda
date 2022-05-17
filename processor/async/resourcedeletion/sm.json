@@ -9,22 +9,22 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
-          } ],
+             "Next": "CleanUp"
+          } ]
       },
       "Actions": {
          "Type": "Task",
@@ -36,22 +36,53 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
+            "message.$": "$.action.message",
             "comments.$": "$.action.comments",
             "required.$": "$.action.required"
          },
          "ResultPath": null,
+         "Next": "SSMRead"
+      },
+      "SuccessMessage" : {
+         "Type" : "Task",
+         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertmessagesuccess-dev",
+         "Parameters" : {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "jobCat.$" : "$.action.cat",
+            "jobDesc.$" : "$.action.desc",
+            "comments.$" : "$.action.comments"
+         },
+         "ResultPath" : "$.message",
+         "Next" : "Success"
+      },
+      "SSMRead": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "read",
+            "key.$": "$.common.projectId",
+            "value": {
+               "projectName.$": "$.common.projectName",
+               "currentContext": "V2"
+            }
+         },
+         "ResultPath": "$.resources",
          "Next": "DeletionRelations"
       },
       "DeletionRelations": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionrelations-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
+            "flowVersion.$": "$.common.flowVersion",
             "datasets.$": "$.datasets",
-            "script.$": "$.script"
+            "scripts.$": "$.scripts"
          },
          "ResultPath": "$.result",
          "Next": "ConcreteDeletion"
@@ -59,23 +90,40 @@
       "ConcreteDeletion": {
          "Type": "Parallel",
          "InputPath": "$",
-         "Next": "Success",
+         "ResultPath": "$.delete",
+         "Next": "SuccessMessage",
          "Branches": [
             {
                "StartAt": "DSDeletion",
                "States": {
-                  "DSCreation": {
+                  "DSDeletion": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcedatasetcreation-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletiondsindex-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
                         "datasets.$": "$.result.datasets"
                      },
-                     "ResultPath": "$.result.datasets",
+                     "ResultPath": null,
+                     "Next": "DSResourceDeletion"
+                  },
+                  "DSResourceDeletion": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletiondsresource-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "datasets.$": "$.result.datasets"
+                     },
+                     "ResultPath": null,
                      "End": true
                   }
                }
@@ -85,16 +133,32 @@
                "States": {
                   "ScriptDeletion": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcedatasetcreation-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionscriptindex-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
-                        "script.$": "$.result.script"
+                        "resources.$": "$.resources",
+                        "scripts.$": "$.result.scripts"
                      },
-                     "ResultPath": "$.result.script",
+                     "ResultPath": null,
+                     "Next": "ScriptResourceDeletion"
+                  },
+                  "ScriptResourceDeletion": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionscriptresource-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "resources.$": "$.resources",
+                        "scripts.$": "$.result.scripts"
+                     },
+                     "ResultPath": null,
                      "End": true
                   }
                }
@@ -104,7 +168,7 @@
                "States": {
                   "LinksDeletion": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcedatasetcreation-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionlinksindex-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -131,7 +195,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
+          } ]
       },
       "Success": {
          "Type": "Task",
@@ -144,24 +208,25 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
-            "status": "success"
+            "message.$": "$.message",
+            "status": "succeed"
          },
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcefiledcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeleteionfailedcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "projectName.$": "$.common.projectName",
-            "datasets.$": "$.datasets",
-            "scripts.$": "$.scripts"
+            "errors.$" : "$.error",
+            "result.$": "$.result",
+            "resources.$": "$.resources"
          },
-         "ResultPath": null,
+         "ResultPath": "$.error",
          "Next": "Failed"
       },
       "Failed": {
@@ -179,7 +244,6 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
-
 }

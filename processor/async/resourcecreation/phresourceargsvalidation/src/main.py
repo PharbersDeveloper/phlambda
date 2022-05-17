@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr, Key
 
 '''
 这个函数只做一件事情，检查参数是否合法
@@ -47,46 +47,30 @@ args:
 dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
 
-def scan_table(project_id, ds_name, table_name, item_name):
-    try:
-        table = dynamodb.Table(table_name)
-        result = table.scan(
-            FilterExpression=Attr(item_name).eq(ds_name) & Attr("projectId").eq(project_id),
-            Limit=10,
+# def scan_table(project_id, ds_name, table_name, item_name):
+#     try:
+#         table = dynamodb.Table(table_name)
+#         result = table.scan(
+#             FilterExpression=Attr(item_name).eq(ds_name) & Attr("projectId").eq(project_id),
+#             Limit=10,
+#         )
+#         return result.get("Items")
+#     except:
+#         return None
+
+
+def query_item(table, projectId, index=None, col_name=None, col_value=None):
+    table = dynamodb.Table(table)
+    if index:
+        response = table.query(
+            IndexName=index,
+            KeyConditionExpression=Key('projectId').eq(projectId) & Key(col_name).eq(col_value),
         )
-        return result.get("Items")
-    except:
-        return None
-
-
-def scanTable(self, data):
-    table_name = data["table_name"]
-    limit = data["limit"]
-    expression = data["expression"]
-    start_key = data["start_key"]
-    table = self.dynamodb_resource.Table(table_name)
-    try:
-        if len(start_key) == 0:
-            result = table.scan(
-                FilterExpression=expression,
-                Limit=limit,
-            )
-        else:
-            result = table.scan(
-                FilterExpression=expression,
-                Limit=limit,
-                ExclusiveStartKey=start_key
-            )
-        return {
-            "data": result.get("Items"),
-            "start_key": result.get("LastEvaluatedKey", "{}")
-        }
-    except Exception as e:
-        print(e)
-        return {
-            "data": [],
-            "start_key": {}
-        }
+    else:
+        response = table.query(
+            KeyConditionExpression=Key('projectId').eq(projectId)
+        )
+    return response.get("Items")
 
 
 class Check:
@@ -115,12 +99,12 @@ class Check:
             raise Exception('datasets type error')
         for dataset in datasets:
             ds_name = dataset.get("name")
-            if scan_table(projectId, ds_name, "dataset", "name"):
+            if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
                 raise Exception('datasets name already exits')
             self.checkdata(dataset, ds_value)
         if scripts:
             script_name = scripts.get("name")
-            if scan_table(projectId, script_name, "dagconf", "actionName"):
+            if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:
                 raise Exception('dagconf actionName already exits')
             self.checkdata(scripts, script_value)
             self.checktype(scripts)
@@ -148,6 +132,7 @@ class Check:
 
 
 def lambda_handler(event, context):
+    print(event)
     return Check().check_parameter(event)
 
     # 1. common 必须存在

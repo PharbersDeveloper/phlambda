@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phresdeletiondsresource-V2
+      MemorySize: 1024
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+      Description: "phresdeletiondsresource"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Environment:
+        Variables:
+          CLICKHOUSE_HOST: 192.168.16.117
+          CLICKHOUSE_PORT: 9000
+          CLICKHOUSE_DB: default
+          EDITION: "V2"
+      Timeout: 600
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-058404c2ad02dcbb9
+          - sg-09f5205a1194149ab
+        SubnetIds:
+          - subnet-0260eab5acd58bc53
+          - subnet-0e3daa88acef9b136
+
+

@@ -1,6 +1,7 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Attr,Key
+from decimal import Decimal
 
 '''
 这个函数只做一件事情，将 trigger 的所有东西写到 scenario_trigger dynamodb中
@@ -33,10 +34,11 @@ args:
         ]
     }
 '''
-class PutItemToTrigger:
+class TriggersIndex:
     def __init__(self, event):
         self.event = event
         self.triggers = self.event['triggers'][0]
+
     def get_scenarioId(self):
         return self.event['scenario']['id']
     def get_id(self):
@@ -51,6 +53,7 @@ class PutItemToTrigger:
         return self.triggers['mode']
     def get_traceId(self):
         return self.event['traceId']
+
     def put_item(self):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_trigger')
@@ -59,7 +62,7 @@ class PutItemToTrigger:
                 'scenarioId': self.get_scenarioId(),
                 'id': self.get_id(),
                 'active': self.get_active(),
-                'detail': self.get_detail(),
+                'detail': self.dumps_data_by_json(self.get_detail()),
                 'index': self.get_index(),
                 'mode': self.get_mode(),
                 'traceId': self.get_traceId()
@@ -67,6 +70,51 @@ class PutItemToTrigger:
         )
         return response
 
+    def query_table_item(self, tableName, partitionKey, sortKey):
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
+                                   & Key(sortKey).eq(self.get_id())
+        )
+        return res["Items"]
+
+    def dumps_data_by_json(self, data):
+        if isinstance(data, str):
+            return data
+        else:
+            return json.dumps(data)
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
+
+    def get_OldImage(self):
+        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
+        print("*"*50+"trigger content " + "*"*50)
+        print(Items)
+        if len(Items) != 0:
+            ItemDict = Items[0]
+            OldImage = {
+                "active": ItemDict['active'],
+                "detail": ItemDict['detail'],
+                "index": self.turn_decimal_into_int(ItemDict['index']),
+                "mode": ItemDict['mode'],
+                "id": ItemDict['id']
+            }
+        else:
+            OldImage = {}
+        self.OldImage = OldImage
+        return OldImage
+
+    def fetch_result(self):
+        self.triggers['OldImage'] = self.OldImage
+        return [self.triggers]
+
 def lambda_handler(event, context):
-    response = PutItemToTrigger(event).put_item()
-    return response
+
+    triggersClient = TriggersIndex(event)
+    triggersClient.get_OldImage()
+    triggersClient.put_item()
+
+
+    return triggersClient.fetch_result()

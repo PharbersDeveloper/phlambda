@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phresdeletionlinksindex-V2
+      MemorySize: 1024
+      Description: "phresdeletionlinksindex"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Environment:
+        Variables:
+          EDITION: "V2"
+      Timeout: 600
+
+

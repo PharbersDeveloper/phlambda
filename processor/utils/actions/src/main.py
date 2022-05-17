@@ -24,12 +24,13 @@ def lambda_handler(event, context):
     result = {}
 
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('action')
+    edition = "" if os.getenv("EDITION") == "V2" else "_dev"
+    table = dynamodb.Table('action' + edition)
 
     response = table.put_item(
        Item={
             'projectId': event['projectId'],
-            'date': int(round(time.time() * 1000)),
+            'date': str(int(round(time.time() * 1000))),
             'jobCat': event['jobCat'],
             'jobDesc': event['jobDesc'],
             'comments': event['comments'],

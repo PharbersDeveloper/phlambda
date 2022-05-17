@@ -15,15 +15,15 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
-             "Next": "Failed"
+             "Next": "CleanUp"
           } ],
       },
       "Actions": {
@@ -37,7 +37,8 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required"
+            "required.$": "$.action.required",
+            "message.$": "$.action.message"
          },
          "ResultPath": null,
          "Next": "ScenarioCreationOrUpdation"
@@ -48,6 +49,7 @@
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "scenario.$": "$.scenario"
@@ -71,6 +73,11 @@
       "ScenarioDetailCreationOrUpdation": {
          "Type": "Parallel",
          "InputPath": "$",
+         "ResultSelector": {
+            "triggers.$": "$.[0].triggers",
+            "steps.$": "$.[1].steps"
+         },
+         "ResultPath": "$.result",
          "Next": "Success",
          "Branches": [
             {
@@ -82,6 +89,7 @@
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
@@ -94,8 +102,10 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersresource-dev",
                      "Parameters": {
+                        "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
@@ -115,6 +125,7 @@
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
@@ -163,13 +174,13 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.datasets",
-            "scripts.$": "$.scripts"
+            "scenario.$": "$.result.scenario",
+            "triggers.$": "$.result.triggers",
+            "steps.$": "$.steps",
          },
          "ResultPath": null,
          "Next": "Failed"

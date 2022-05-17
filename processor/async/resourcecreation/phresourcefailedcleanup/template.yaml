@@ -5,17 +5,17 @@ Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: app.lambda_handler
+      Handler: main.lambda_handler
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcefiledcleanup-dev
+      FunctionName: lmd-phresourcefiledcleanup-V2
       MemorySize: 1024
-      Description: "phresourcefiledcleanup"
+      Description: 处理出错时的清理回滚操作
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
 
 
 

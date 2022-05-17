@@ -13,7 +13,7 @@ args = {
     "showName": "String",
     "script": {
         "runtime": "pyspark"
-        "actionName": "compute_C2",
+        "name": "compute_C2",
         "flowVersion": "developer",
         "inputs": "[]",
         "output": "{}"
@@ -24,7 +24,7 @@ return =
     {
         "id": "String",                 # 生成的ID
         "jobName": "String",
-        "actionName": "String",
+        "name": "String",
         "flowVersion": "developer",
         "inputs": "[]",
         "output": "{}"
@@ -46,14 +46,17 @@ def generate():
 
 
 def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs, outputs, labels, owner,
-                     operatorParameters, runtime, prop, showName, timeout, dynamodb=None):
+                     operatorParameters, runtime, prop, showName, timeout, traceId, dynamodb=None):
 
     if not dynamodb:
         dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('dagconf')
-
-    jobDisplayName = "_".join(projectName, projectName, flowVersion, actionName)
-    jobName = "_".join(flowVersion, id, jobDisplayName)
+    dagName = "_".join([projectName, projectName, flowVersion])
+    jobDisplayName = "_".join([projectName, projectName, flowVersion, actionName])
+    jobName_suffix = "_".join([projectName, projectName, actionName])
+    jobName = "_".join([flowVersion, id, jobName_suffix])
+    job_suffix = "phjob.R" if runtime == "r" or runtime == "sparkr" else "phjob.py"
+    jobPath = f"2020-11-11/jobs/python/phcli/{dagName}/{jobDisplayName}/{job_suffix}"
     response = table.put_item(
         Item={
             "id": id,
@@ -65,6 +68,7 @@ def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs
             "inputs": inputs,
             "jobDisplayName": jobDisplayName,
             "jobId": id,
+            "jobPath": jobPath,
             "jobShowName": actionName,
             "jobVersion": flowVersion,
             "labels": labels,
@@ -76,6 +80,7 @@ def put_dagconf_item(id, projectId, actionName, projectName, flowVersion, inputs
             "prop": prop,
             "showName": showName,
             "timeout": timeout,
+            "traceId": traceId
         }
     )
 
@@ -87,10 +92,13 @@ def lambda_handler(event, context):
     print(event)
     print("================>>>>>>>>>>>>>")
     # 1. 只做一件事情，写dagconf dynamodb，id在这里创建
-    id = generate()
-    put_dagconf_item(id, event["projectId"], event["script"]["actionName"], event["projectName"], event["script"]["flowVersion"], event["inputs"], event["outputs"], "", event["owner"],
-                     "", event["script"]["runtime"], "", event["showName"], 1000)
+    if event["script"].get("name"):
+        id = generate()
+        put_dagconf_item(id, event["projectId"], event["script"]["name"], event["projectName"], event["script"]["flowVersion"],
+                         event["script"]["inputs"], event["script"]["output"], "", event["owner"],
+                         "", event["script"]["runtime"], "", event["showName"], 1000, event["traceId"])
 
-    result = event["script"].update({"id": id})
+        event["script"].update({"id": id})
+    result = event["script"]
 
     return result

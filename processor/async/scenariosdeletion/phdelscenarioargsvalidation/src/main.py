@@ -103,7 +103,7 @@ class CheckParameters:
     def check_steps(self, key):
         self.check_type(key, list)
 
-    def RaiseErrorMessage(self, IntersectionElement, InputKeys):
+    def RaiseErrorMessage(self, IntersectionElement):
         common = ['common', 'action', 'notification']
         try:
             if IntersectionElement >= set(common):
@@ -135,7 +135,7 @@ class Check:
                     #----检查内层每个字段------#
                     event_data.check_key(key)
         else:
-            event_data.RaiseErrorMessage(IntersectionElement, input_keys)
+            event_data.RaiseErrorMessage(IntersectionElement)
         return True
 
 

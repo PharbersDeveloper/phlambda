@@ -52,6 +52,7 @@ def create_sample_args(event, ts):
     ph_conf.update({"sourceProjectId": conf.get("sourceProjectId")})
     ph_conf.update({"targetProjectId": conf.get("targetProjectId")})
     ph_conf.update({"datasetId": conf.get("datasetId")})
+    ph_conf.update({"datasetType": conf.get("datasetType")})
     ph_conf.update({"datasetName": conf.get("datasetName")})
     ph_conf.update({"sample": conf.get("sample")})
     ph_conf.update({"company": "pharbers"})

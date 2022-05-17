@@ -11,8 +11,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phresdeletionsuccessmessage-dev
+          EDITION: "V2"
+      FunctionName: lmd-phresdeletionsuccessmessage-V2
       Description: 转换success所需要的参数返回给Notification使用
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024

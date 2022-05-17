@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-creation
-          EDITION: "DEV"
-      FunctionName: lmd-phresourcecreationtrigger-dev
+          EDITION: "V2"
+      FunctionName: lmd-phresourcecreationtrigger-V2
       Description: Http Post接口触发StepFunctions创建资源（ResuourceCreation）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

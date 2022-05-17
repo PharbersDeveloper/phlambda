@@ -9,13 +9,13 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresdeletionscriptresource-dev
+      FunctionName: lmd-phresdeletionscriptresource-V2
       MemorySize: 1024
       Description: "phresdeletionscriptresource"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
       Timeout: 600
 
 

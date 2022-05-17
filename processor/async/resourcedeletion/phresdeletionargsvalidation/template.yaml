@@ -9,12 +9,12 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresdeletionargsvalidation-dev
+      FunctionName: lmd-phresdeletionargsvalidation-V2
       MemorySize: 1024
       Description: "phresdeletionargsvalidation"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
       Timeout: 600
 

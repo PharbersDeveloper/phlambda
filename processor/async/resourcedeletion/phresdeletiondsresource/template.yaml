@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresdeletiondsresource-dev
+      FunctionName: lmd-phresdeletiondsresource-V2
       MemorySize: 1024
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
@@ -20,7 +20,7 @@ Resources:
           CLICKHOUSE_HOST: 192.168.16.117
           CLICKHOUSE_PORT: 9000
           CLICKHOUSE_DB: default
-          EDITION: "DEV"
+          EDITION: "V2"
       Timeout: 600
       VpcConfig:
         SecurityGroupIds:

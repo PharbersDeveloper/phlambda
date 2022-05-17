@@ -11,7 +11,10 @@ client = boto3.client('cloudformation')
 
 args:
     event = {
-        "current": 0
+        "current": {
+            "index": 0,
+            "currentStatus": ""
+        }
         "name": "",
         "expect": "CREATE_COMPLETE"
 
@@ -36,8 +39,14 @@ def lambda_handler(event, context):
 
     # TODO: 当有失败的情况
     if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == event['expect']:
-        return event["current"] + 1
-    elif if len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == "ROLLBACK_COMPLETE":
+        return {
+            "index": event["current"] + 1,
+            "currentStatus": "success"
+        }
+    elif len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == "ROLLBACK_COMPLETE":
         raise Exception('create ' + name + ' failed')
     else:
-        return event["current"]
+        return {
+            "index": event["current"],
+            "currentStatus": "running"
+        }

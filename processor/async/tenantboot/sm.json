@@ -57,18 +57,27 @@
          "Type": "Parallel",
          "InputPath": "$",
          "ResultSelector": {
-            "engine": "$.[0].engine",
-            "olap": "$.[1].olap"
+            "engine.$": "$.[0].engine",
+            "olap.$": "$.[1].olap"
          },
          "ResultPath": "$.result",
          "Next": "SSMCreation",
          "Branches": [
             {
-               "StartAt": "EngineStepsBegin",
+               "StartAt": "EngineResultPass",
                "States": {
-                  "EngineStepsBegin": {
+                  "EngineResultPass": {
                      "Type": "Pass",
-                     "Result": 0,
+                     "Result": {},
+                     "ResultPath": "$.engine",
+                     "Next": "EngineStepsIterator"
+                  },
+                  "EngineStepsIterator": {
+                     "Type": "Pass",
+                     "Result": {
+                        "index": 0,
+                        "currentStatus": "running"
+                     },
                      "ResultPath": "$.iterator",
                      "Next": "EngineStepsArg"
                   },
@@ -76,7 +85,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
                      "Parameters": {
-                        "iterator.$": "$.iterator",
+                        "iterator.$": "$.iterator.index",
                         "steps.$": "$.metadata.engine.steps"
                      },
                      "ResultPath": "$.currentStep",
@@ -89,9 +98,11 @@
                         "action": "creation",
                         "name.$": "$.currentStep.stackName",
                         "cfn.$": "$.currentStep.cfn",
-                        "parameters.$": "$.currentStep.parameters"
+                        "parameters.$": "$.currentStep.parameters",
+                        "dependencies.$": "$.currentStep.dependencies",
+                        "result.$": "$.engine"
                      },
-                     "ResultPath": "$.engine",
+                     "ResultPath": null,
                      "Next": "EngineWait"
                   },
                   "EngineWait": {
@@ -103,7 +114,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current": "$.iterator",
+                        "current.$": "$.iterator",
                         "name.$": "$.currentStep.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
@@ -113,21 +124,63 @@
                   "EngineStepsCountReached": {
                      "Type": "Choice",
                      "Choices": [
-                         {
-                             "Variable": "$.iterator",
-                             "NumericEqualsPath": "$.metadata.engine.counts",
-                             "Next": "EngineEnd"
-                         },
-                         {
-                             "Variable": "$.iterator",
-                             "NumericLessThanPath": "$.metadata.engine.counts",
-                             "Next": "EngineStepsArg"
-                         }
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "success",
+                              }
+
+                           ],
+                           "Next": "EngineResultCollection"
+                        },
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "success",
+                              }
+
+                           ],
+                           "Next": "EngineResultStepsCollection"
+                        }
                      ],
                      "Default": "EngineWait"
                   },
+                  "EngineResultStepsCollection": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
+                     "Parameters": {
+                        "result.$": "$.engine",
+                        "resultPath": "engine",
+                        "resultType.$": "$.currentStep.type",
+                        "name.$": "$.currentStep.stackName"
+                     },
+                     "ResultPath": "$.engine",
+                     "Next": "EngineStepsArg"
+                  },
+                  "EngineResultCollection": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
+                     "Parameters": {
+                        "result.$": "$.engine",
+                        "resultPath": "engine",
+                        "resultType.$": "$.currentStep.type",
+                        "name.$": "$.currentStep.stackName"
+                     },
+                     "ResultPath": "$.engine",
+                     "Next": "EngineEnd"
+                  },
                   "EngineEnd": {
-                     "Type": "Succeed"  
+                     "Type": "Succeed"
                   }
                }
             },
@@ -167,7 +220,7 @@
          "Parameters": {
             "action": "write",
             "key.$": "$.common.tenantId",
-            "value.$": "$.metadata" 
+            "value.$": "$.result" 
          },
          "ResultPath": null,
          "Next": "Success"

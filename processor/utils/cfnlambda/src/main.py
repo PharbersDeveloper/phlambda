@@ -16,7 +16,9 @@ args:
         "cfn": "",
         "parameters" [
             
-        ]
+        ],
+        "dependencies.$": "$.currentStep.dependencies",
+        "result.$": "$.engine"
     }
 
 return:
@@ -28,6 +30,7 @@ return:
 
 def lambda_handler(event, context):
     print(event)
+    # TODO: dependencies
 
     stackName = event["name"].replace("_", "-").replace(":", "-").replace("+", "-")
 

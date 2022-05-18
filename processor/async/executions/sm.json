@@ -107,6 +107,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "Input.$": "$.executeArgs.args",
+            "engine.$": "$.engine",
             "error.$": "$.error"
          },
          "ResultPath": null,

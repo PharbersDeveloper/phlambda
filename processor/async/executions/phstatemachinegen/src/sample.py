@@ -44,7 +44,7 @@ def create_sample_args(event, ts):
 
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], dynamodb=dynamodb)
     conf = event["calculate"]
-    projectIp = event['engine']['olap']['PrivateIp']
+    projectIp = event['engine']['dss']['ip']
     ph_conf = {}
 
     ph_conf.update({"projectName": event.get("projectName")})
@@ -85,9 +85,9 @@ def create_sample_args(event, ts):
                     "--conf",
                     "spark.executor.memory=1g",
                     "--conf",
-                    "\"spark.executor.extraJavaOptions=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8\"",
+                    "spark.executor.extraJavaOptions=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8",
                     "--conf",
-                    "\"spark.driver.extraJavaOptions=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8\"",
+                    "spark.driver.extraJavaOptions=-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8",
                     "--jars",
                     "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
                     "--py-files",

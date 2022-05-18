@@ -25,8 +25,9 @@ def lambda_handler(event, context):
     result = {}
 
     dynamodb = boto3.resource('dynamodb')
-    edition = "" if os.getenv("EDITION") == "V2" else "_dev"
-    table = dynamodb.Table('action' + edition)
+    # edition = "" if os.getenv("EDITION") == "V2" else "_dev"
+    # table = dynamodb.Table('action' + edition)
+    table = dynamodb.Table('action')
 
     response = table.put_item(
        Item={

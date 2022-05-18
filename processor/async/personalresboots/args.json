@@ -1,0 +1,23 @@
+{
+	"common": {
+		"traceId": "Pharbers-Schedule-Stop-TraceId",
+		"tenantId": "zudIcG_17yj8CEUoCTHg",
+		"projectId": "",
+		"projectName": "",
+		"owner": "alfred",
+		"showName": "alfred"
+	},
+	"action": {
+		"cat": "terminate project",
+		"desc": "terminate project",
+		"comments": "something need to say",
+		"message": "something need to say",
+		"required": true
+	},
+	"resources": [
+		"emr", "chlickhouse", "chproxy"
+	],
+	"notification": {
+		"required": true
+	}
+}

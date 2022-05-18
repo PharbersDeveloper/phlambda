@@ -52,6 +52,7 @@ def submitArgsByEngine(curJ, event):
     tmp.append('spark.driver.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
 
     projectName = event['projectName']
+    projectIp = event['engine']['olap']['PrivateIp']
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
@@ -84,6 +85,8 @@ def submitArgsByEngine(curJ, event):
         tmp.append(event['runnerId'])
         tmp.append('--job_full_name')
         tmp.append(jobName)
+        tmp.append('--project_ip')
+        tmp.append(projectIp)
         tmp.append('--ph_conf')
         tmp.append(ph_conf)
 

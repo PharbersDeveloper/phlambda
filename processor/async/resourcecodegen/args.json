@@ -52,7 +52,7 @@
 	"notification": {
 		"required": true
 	},
-	"OldImage": [
+	"oldImage": [
 		// 这个地方特别需要注意，保存steps修改前数据库的样子
 	]
 }

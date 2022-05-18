@@ -1,6 +1,7 @@
 {
 	"common": {
 		"traceId": "alfred-resource-creation-traceId",
+		"tenantId": "zudIcG_17yj8CEUoCTHg",
 		"projectId": "ggjpDje0HUC2JW",
 		"projectName": "demo",
 		"owner": "alfred",

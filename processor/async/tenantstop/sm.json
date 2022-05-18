@@ -31,57 +31,24 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "read",
-            "key.$": "$.common.projectId",
-            "value": {
-               "projectName.$": "$.common.projectName",
-               "currentContext": "V2"
-            }
+            "key.$": "$.common.tenantId",
+            "value": {}
          },
          "ResultPath": "$.resources",
          "Next": "ResourceDeletion"
       },
       "ResourceDeletion": {
-         "Type": "Parallel",
-         "InputPath": "$",
-         "Next": "Success",
-         "Branches": [
-            {
-               "StartAt": "EMRCreation",
-               "States": {
-                  "EMRCreation": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationemr-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "resources.$": "$.resources"
-                     },
-                     "ResultPath": "$.EMRResult",
-                     "End": true
-                  }
-               }
-            },
-            {
-               "StartAt": "EC2Creation",
-               "States": {
-                  "EC2Creation": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationec2-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "resources.$": "$.resources"
-                     },
-                     "ResultPath": "$.EC2Result",
-                     "End": true
-                  }
-               }
-            }
-         ],
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationsteps-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "resources.$": "$.resources"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "WaitResourceDeletion",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
             "ResultPath": "$.error",
@@ -95,6 +62,31 @@
             "ResultPath": "$.error",
             "Next": "CleanUp"
          } ]
+      },
+      "WaitResourceDeletion": {
+         "Type": "Wait",
+         "Seconds": 30,
+         "Next": "ResourceDeletionCheck"
+      },
+      "ResourceDeletionCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcheck-dev",
+         "Parameters": {
+            "stackNames.$": "$.iterator.stackNames"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "ResouceDeletionReached"
+      },
+      "ResouceDeletionReached": {
+         "Type": "Choice",
+         "Choices": [
+            {
+               "Variable": "$.iterator.wait",
+               "BooleanEquals": true,
+               "Next": "WaitResourceDeletion"
+            }
+         ],
+         "Default": "Success"
       },
       "Actions": {
          "Type": "Task",
@@ -130,7 +122,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:ph-resourcefiledcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

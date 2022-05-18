@@ -10,7 +10,7 @@ ssm_client = boto3.client('ssm')
 
 args:
     event = {
-        "action": "read | write", 
+        "action": "read | write | delete", 
         "key": "String",
         "value": {
             ...
@@ -47,6 +47,14 @@ def put_dict_ssm_parameter(parameter_name, parameter_value):
     return parameter_value
 
 
+def delete_dict_ssm_parameter(parameter_name):
+
+    response = ssm_client.delete_parameter(
+        Name=parameter_name,
+    )
+    print(response)
+
+
 def lambda_handler(event, context):
     print(event)
     # 通过key 从ssm获取resource
@@ -56,5 +64,7 @@ def lambda_handler(event, context):
     elif event["action"] == "write":
         put_dict_ssm_parameter(event["key"], json.dumps(event["value"]))
         resources = event["value"]
+    elif event["action"] == "delete":
+        delete_dict_ssm_parameter(event["key"])
 
     return resources

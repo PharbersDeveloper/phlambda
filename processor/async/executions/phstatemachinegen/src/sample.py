@@ -44,7 +44,7 @@ def create_sample_args(event, ts):
 
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], dynamodb=dynamodb)
     conf = event["calculate"]
-    projectIp = event['engine']['olap']['PrivateIp']
+    projectIp = event['engine']['dss']['ip']
     ph_conf = {}
 
     ph_conf.update({"projectName": event.get("projectName")})

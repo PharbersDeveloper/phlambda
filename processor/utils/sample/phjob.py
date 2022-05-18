@@ -64,21 +64,10 @@ def execute(**kwargs):
         sql_content = f"DROP TABLE IF EXISTS {database}.`{table}`"
         return sql_content
 
-    def get_project_ip(project_id, project_name):
+    def clickhouse_client(projectIp):
 
-        ssm_client = boto3.client('ssm', region_name="cn-northwest-1")
-        response = ssm_client.get_parameter(
-            Name=project_id,
-        )
-        value = json.loads(response["Parameter"]["Value"])
-        project_ip = value.get("olap")["PrivateIp"]
-
-        return project_ip
-
-    def clickhouse_client(project_id, project_name):
-        project_ip = get_project_ip(project_id, project_name)
         ch_client = Client(
-            host=project_ip
+            host=projectIp
         )
 
         return ch_client
@@ -131,9 +120,11 @@ def execute(**kwargs):
 
 
     spark = kwargs["spark"]()
+    projectIp = kwargs.get("projectIp")
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
     sourceProjectId = ph_conf.get("sourceProjectId")
     targetProjectId = ph_conf.get("targetProjectId")
+
     projectName = ph_conf.get("projectName")
     datasetName = ph_conf.get("datasetName")
     datasetId = ph_conf.get("datasetId")
@@ -179,11 +170,10 @@ def execute(**kwargs):
     logger.debug("sample_df 创建完成")
     logger.debug(sample_df.count())
     # 获取projectip
-    projectIp = get_project_ip(targetProjectId, projectName)
     logger.debug("ip 获取完成")
     logger.debug(projectIp)
     # 创建clickhouse client
-    ch_client = clickhouse_client(targetProjectId, projectName)
+    ch_client = clickhouse_client(projectIp)
     # 如果表已经存在 删除已有的表
     table_name = targetProjectId + "_" + datasetName
     delete_sql = deleteTableSql(table_name)

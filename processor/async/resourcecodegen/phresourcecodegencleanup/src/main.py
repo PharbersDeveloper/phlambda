@@ -71,9 +71,9 @@ class CleanUp:
             }
         )
 
-    def run(self, projectId, steps, **kwargs):
+    def run(self, projectId, OldImage, **kwargs):
         self.projectId = projectId
-        for step in steps:
+        for step in OldImage:
             self.put_item("step", step)
 
 

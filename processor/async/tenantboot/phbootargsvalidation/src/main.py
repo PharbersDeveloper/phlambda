@@ -71,7 +71,23 @@ def lambda_handler(event, context):
     # 3. 当resource不存在的时候，启动全部记录在数据库中的参数
 
 
-ssm = boto3.client('ssm', region_name="cn-northwest-1")
+ssm = boto3.client('ssm', region_name="cn-northwest-1",
+                          aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                          aws_secret_access_key="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")
 response = ssm.list_commands(
 )
 print(response)
+
+ssm_client = boto3.client('ssm')
+response = ssm_client.get_parameter(
+    Name=projectId,
+)
+value = json.loads(response["Parameter"]["Value"])
+
+event['engine'] = {
+    'type': 'awsemr',
+    'id': value['engine']["clusterId"],
+    'dss': {
+        "ip": value["olap"]["PrivateIp"]
+    }
+}

@@ -39,6 +39,11 @@ event = {
 '''
 
 
+def get_ssm():
+    ssm = boto3.client('ssm', region_name="cn-northwest-1")
+    responses = ssm.describe_parameters().get("Parameters")
+    return [response.get("name") for response in responses]
+
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
@@ -47,10 +52,10 @@ def lambda_handler(event, context):
         "message": "",
         "trace_id": ""
     }
-    trace_id = ""
-    edition = "" if os.getenv("EDITION") == "V2" else "-dev"
+    tenantId = event.get("common").get("tenantId")
 
     # TODO: 缺判断当前这个是否已经启动 @ylzhang
+    if tenantId in get_ssm():
 
 
     # 1. event to args

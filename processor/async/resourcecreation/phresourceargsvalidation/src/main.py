@@ -97,11 +97,11 @@ class Check:
         scripts = data.get("scripts", {})
         if not isinstance(datasets, list):
             raise Exception('datasets type error')
-        for dataset in datasets:
-            ds_name = dataset.get("name")
-            if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
-                raise Exception('datasets name already exits')
-            self.checkdata(dataset, ds_value)
+        dataset = datasets[-1]
+        ds_name = dataset.get("name")
+        if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
+            raise Exception('datasets name already exits')
+        self.checkdata(dataset, ds_value)
         if scripts:
             script_name = scripts.get("name")
             if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:

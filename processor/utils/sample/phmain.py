@@ -396,6 +396,7 @@ def createOutputs(args, ph_conf, outputs, outputs_id, project_id, project_name, 
 @click.option('--job_full_name')
 @click.option('--job_id')
 @click.option('--ph_conf')
+@click.option('--tenant_ip')
 def debug_execute(**kwargs):
     try:
         logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)

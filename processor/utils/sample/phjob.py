@@ -71,7 +71,7 @@ def execute(**kwargs):
             Name=project_id,
         )
         value = json.loads(response["Parameter"]["Value"])
-        project_ip = value.get("proxies")[0]
+        project_ip = value.get("olap")["PrivateIp"]
 
         return project_ip
 

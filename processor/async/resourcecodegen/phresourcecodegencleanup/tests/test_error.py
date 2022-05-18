@@ -2,327 +2,121 @@
 import pytest
 from src.main import lambda_handler
 
-
 event = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
+  "common": {
+    "traceId": "6e38938e0dbd4dc2bf1c50d6fc275bf1",
+    "projectId": "ggjpDje0HUC2JW",
+    "projectName": "demo",
+    "flowVersion": "developer",
+    "dagName": "demo",
+    "owner": "c89b8123-a120-498f-963c-5be102ee9082",
+    "showName": "张璐"
+  },
+  "action": {
+    "cat": "createSteps",
+    "desc": "create prepare steps",
+    "comments": "something need to say",
+    "message": "something need to say",
+    "required": True
+  },
+  "script": {
+    "id": "",
+    "jobName": "compute_out2",
+    "jobPath": "",
+    "inputs": [],
+    "outputs": [],
+    "runtime": "prepare"
+  },
+  "steps": [
+    {
+      "pjName": "ggjpDje0HUC2JW_demo_demo_developer_compute_out2",
+      "stepId": "1",
+      "index": "1",
+      "ctype": "FilterOnValue",
+      "expressions": {
+        "type": "FilterOnValue",
+        "code": "pyspark",
+        "params": {
+          "values": [
+            "阿乐"
+          ],
+          "matchingMode": "FULL_STRING",
+          "normalizationMode": "EXACT",
+          "action": "KEEP_ROW",
+          "booleanMode": "AND",
+          "appliesTo": "COLUMNS",
+          "columns": [
+            "商品名称"
+          ]
         }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
+      },
+      "runtime": "prepare",
+      "groupName": "",
+      "groupIndex": 0,
+      "expressionsValue": "JSON",
+      "stepName": "Initial Filter On Value",
+      "id": "ggjpDje0HUC2JW_demo_demo_developer_compute_out21"
     },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-
-event1 = {
-
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
+    {
+      "pjName": "ggjpDje0HUC2JW_demo_demo_developer_compute_out2",
+      "stepId": "2",
+      "index": "2",
+      "ctype": "ReplaceValue",
+      "expressions": {
+        "type": "ValueReplace",
+        "code": "pyspark",
+        "params": {
+          "mapping": [
+            {
+              "from": "TAB",
+              "to": "TBA"
+            }
+          ],
+          "columns": [
+            "剂型"
+          ],
+          "matchingMode": "FULL_STRING"
         }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
+      },
+      "runtime": "prepare",
+      "groupName": "",
+      "groupIndex": 0,
+      "expressionsValue": "JSON",
+      "stepName": "Initial Replace Value",
+      "id": "ggjpDje0HUC2JW_demo_demo_developer_compute_out22"
     }
-}
-
-event2 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
+  ],
+  "notification": {
+    "required": True
+  },
+  "oldImage": [
+    {
+      "index": 1,
+      "ctype": "FilterOnValue",
+      "expressions": "{\"type\": \"FilterOnValue\", \"code\": \"pyspark\", \"params\": {\"values\": [\" 阿乐\"], \"matchingMode\": \"FULL_STRING\", \"normalizationMode\": \"EXACT\", \"action\": \"KEEP_ROW\", \"booleanMode\": \"AND\", \"appliesTo\": \"COLUMNS\", \"columns\": [\"商品名称\"]}}",
+      "runtime": "prepare",
+      "groupName": "",
+      "groupIndex": 0,
+      "pjName": "ggjpDje0HUC2JW_demo_demo_developer_compute_out2",
+      "id": "ggjpDje0HUC2JW_demo_demo_developer_compute_out21",
+      "expressionsValue": "JSON",
+      "stepId": "1",
+      "stepName": "Initial Filter On Value"
     },
-
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
+    {
+      "index": 2,
+      "ctype": "ReplaceValue",
+      "expressions": "{\"type\": \"ValueReplace\", \"code\": \"pyspark\", \"params\": {\"mapping\": [{\"from\": \"TAB\", \"to\": \"TBA\"}], \"columns\": [\"剂型\"], \"matchingMode\": \"FULL_STRING\"}}",
+      "runtime": "prepare",
+      "groupName": "",
+      "groupIndex": 0,
+      "pjName": "ggjpDje0HUC2JW_demo_demo_developer_compute_out2",
+      "id": "ggjpDje0HUC2JW_demo_demo_developer_compute_out22",
+      "expressionsValue": "JSON",
+      "stepId": "2",
+      "stepName": "Initial Replace Value"
     }
-}
-event3 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts": [
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        }
-    ],
-
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-event4 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-event5 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "{}",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-
-event6 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "[]"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-
-event7 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "YZYijD17N9L6LXx",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "cn_corp_ref",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
-}
-
-event8 = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "zoY7FehqWl7NeEI",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "createDataset",
-        "desc": "create intermediate dataset",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": True
-    },
-    "datasets": [
-        {
-            "name": "test_name",
-            "cat": "intermediate",
-            "format": "parquet"
-        }
-    ],
-    "scripts":
-        {
-            "name": "compute_C2",
-            "flowVersion": "developer",
-            "inputs": "[]",
-            "output": "{}"
-        },
-    "notification": {
-        "required": True
-    },
-    "result": {
-        "datasets": [""],
-        "scripts": [""],
-        "links": [""]
-    }
+  ]
 }
 
 
@@ -337,38 +131,6 @@ event8 = {
 class TestLmd:
     def test_lmd(self):
         report = lambda_handler(event, None)
-        print(report)
-
-    def test_common(self):
-        report = lambda_handler(event1, None)
-        print(report)
-
-    def test_action(self):
-        report = lambda_handler(event2, None)
-        print(report)
-
-    def test_notification(self):
-        report = lambda_handler(event3, None)
-        print(report)
-
-    def test_datset_scripts(self):
-        report = lambda_handler(event4, None)
-        print(report)
-
-    def test_lmd_scripts_type_allldict(self):
-        report = lambda_handler(event5, None)
-        print(report)
-
-    def test_lmd_scripts_type_alllist(self):
-        report = lambda_handler(event6, None)
-        print(report)
-
-    def test_lmd_datasets_name(self):
-        report = lambda_handler(event7, None)
-        print(report)
-
-    def test_lmd_scripts_name(self):
-        report = lambda_handler(event8, None)
         print(report)
 
 

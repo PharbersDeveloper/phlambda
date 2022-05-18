@@ -116,6 +116,20 @@
                         "datasets.$": "$.datasets"
                      },
                      "ResultPath": "$.datasets",
+                     "Next" : "VersionCreation"
+                  },
+                  "VersionCreation": {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceversioncreation-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets"
+                     },
+                     "ResultPath": null,
                      "End": true
                   }
                }

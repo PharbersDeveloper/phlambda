@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda create-dag-runid
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-dagresource-V2
+      Description: "创建dag的resource"
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phairflow:2
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Auto-Resource
+      Environment:
+        Variables:
+          EDITION: "V2"
+      MemorySize: 1024
+      Timeout: 600
+

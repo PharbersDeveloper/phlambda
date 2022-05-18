@@ -132,7 +132,7 @@ def create_phmain(args, path=None):
                                .replace('$alfred_inputs', args["script"].get("inputs"))
                                .replace('$alfred_name', job_full_name)
                                .replace('$alfred_project_id', args["projectId"])
-                               .replace('$alfred_project_name', args["projectId"])
+                               .replace('$alfred_project_name', args["projectName"])
                                .replace('$alfred_runtime', args["script"].get("runtime"))
                                )
                 else:

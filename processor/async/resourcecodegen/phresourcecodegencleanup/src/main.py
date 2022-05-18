@@ -51,30 +51,29 @@ args:
 
 class CleanUp:
     dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+    table = dynamodb.Table("step")
 
-    def put_item(self, table_name, item):
-        table = self.dynamodb.Table(table_name)
-        response = table.put_item(
+    def put_item(self, item):
+        response = self.table.put_item(
             Item=item
         )
 
-    def update_item(self, projectId, table_name, col_name, col_value, value):
-        table = self.dynamodb.Table(table_name)
-        table.update_item(
+    def del_item(self, pjName, stepId):
+        self.table.delete_item(
             Key={
-                col_name: col_value,
-                "projectId": projectId
-            },
-            UpdateExpression="SET cat = :str",
-            ExpressionAttributeValues={
-                ":str": value
+                "pjName": pjName,
+                "stepId": stepId
             }
         )
 
-    def run(self, projectId, OldImage, **kwargs):
-        self.projectId = projectId
+    def run(self, steps, OldImage, **kwargs):
+        for step in steps:
+            pjName = step.get("pjName")
+            stepId = step.get("stepId")
+            self.del_item(pjName, stepId)
+
         for step in OldImage:
-            self.put_item("step", step)
+            self.put_item(step)
 
 
 def lambda_handler(event, context):

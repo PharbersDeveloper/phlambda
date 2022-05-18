@@ -37,6 +37,15 @@ class Check:
         responses = cloudformation.list_stacks().get("StackSummaries", [])
         return [response.get("StackName") for response in responses]
 
+
+    def get_ssm(self):
+        ssm = boto3.client('ssm', region_name="cn-northwest-1",
+                          aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                          aws_secret_access_key="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")
+        responses = ssm.describe_parameters().get("Parameters")
+        return [response.get("name") for response in responses]
+
+
     def check_parameter(self, data):
 
         # 1. action.cat 只能是 tenantStart
@@ -71,13 +80,6 @@ def lambda_handler(event, context):
     # 3. 当resource不存在的时候，启动全部记录在数据库中的参数
 
 
-ssm = boto3.client('ssm', region_name="cn-northwest-1",
-                          aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                          aws_secret_access_key="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")
-response = ssm.list_commands(
-)
-print(response)
-
 ssm_client = boto3.client('ssm')
 response = ssm_client.get_parameter(
     Name=projectId,
@@ -91,3 +93,5 @@ event['engine'] = {
         "ip": value["olap"]["PrivateIp"]
     }
 }
+
+response = client.describe_parameters()

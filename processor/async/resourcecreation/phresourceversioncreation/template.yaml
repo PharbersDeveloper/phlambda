@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourceversioncreation-V2
+      FunctionName: lmd-phresourceversioncreation-dev
       MemorySize: 1024
       Description: "创建完DS索引后，添加Version索引"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

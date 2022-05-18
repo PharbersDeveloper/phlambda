@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
 
-    projectId = event['common']['projectId']
+    projectId = event['common']['tenantId']
     dryRun = event.get('dryRun', False)
 
     ssm_client = boto3.client('ssm')
@@ -19,7 +19,7 @@ def lambda_handler(event, context):
 
     event['engine'] = {
         'type': 'awsemr',
-        'id': value['engine']["clusterId"],
+        'id': value['engine']["ClusterID"],
         'dss': {
             "ip": value["olap"]["PrivateIp"]
         }

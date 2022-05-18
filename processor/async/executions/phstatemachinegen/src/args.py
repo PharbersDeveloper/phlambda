@@ -69,7 +69,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(event['runnerId'])
         tmp.append(jobName)
         tmp.append('job_id_not_implementation')
-        tmp.append(event['engine']['dss']['ip'])
+        tmp.append(projectIp)
         tmp.append(ph_conf)
     else:
         tmp.append('--jars')

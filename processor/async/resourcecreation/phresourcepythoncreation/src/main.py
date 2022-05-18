@@ -94,6 +94,7 @@ def create_phmain(args, path=None):
         project_name = "$alfred_project_name"
         runtime = "$alfred_runtime"
         
+        project_ip = kwargs.get("project_ip")
         ph_conf = json.loads(kwargs.get("ph_conf", {}))
         user_conf = ph_conf.get("userConf", {})
         ds_conf = ph_conf.get("datasets", {})
@@ -117,7 +118,7 @@ def create_phmain(args, path=None):
         logger.debug("job脚本返回输出df")
         logger.debug(args)
         
-        createOutputs(runtime, args, ph_conf, output, project_id, project_name, output_version, logger)
+        createOutputs(runtime, args, ph_conf, output, project_ip, project_id, project_name, output_version, logger)
 
         return result
     except Exception as e:

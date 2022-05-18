@@ -127,7 +127,8 @@
                         "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets"
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
                      },
                      "ResultPath": null,
                      "End": true

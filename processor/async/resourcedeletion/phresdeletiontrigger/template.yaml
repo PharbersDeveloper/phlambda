@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-deletion
-          EDITION: "V2"
-      FunctionName: lmd-phresdeletiontrigger-V2
+          EDITION: "DEV"
+      FunctionName: lmd-phresdeletiontrigger-dev
       Description: Http Post接口触发StepFunctions删除资源（ResuourceDeletetion）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

@@ -1,15 +1,15 @@
 {
 	"common": {
-		"traceId": "alfred-resource-creation-traceId",
+		"traceId": "Pharbers-Schedule-Stop-TraceId",
 		"tenantId": "zudIcG_17yj8CEUoCTHg",
-		"projectId": "ggjpDje0HUC2JW",
-		"projectName": "demo",
+		"projectId": "",
+		"projectName": "",
 		"owner": "alfred",
 		"showName": "alfred"
 	},
 	"action": {
-		"cat": "projectStart",
-		"desc": "reboot project",
+		"cat": "terminate project",
+		"desc": "terminate project",
 		"comments": "something need to say",
 		"message": "something need to say",
 		"required": true

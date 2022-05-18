@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda
+Description: cicd lambda phphxlsxtockhouse-V2
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,11 +9,12 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phterminationcleanup-dev
-      MemorySize: 1024
-      Description: "phterminationcleanup"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
           EDITION: "DEV"
+      FunctionName: lmd-phstatemachineclear-dev
+      Description: "phstatemachineclear"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      MemorySize: 1024
+      Timeout: 600
 

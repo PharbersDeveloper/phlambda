@@ -19,9 +19,9 @@ def lambda_handler(event, context):
 
     event['engine'] = {
         'type': 'awsemr',
-        'id': value['clusters'][0]['id'],
+        'id': value['engine']["clusterId"],
         'dss': {
-            "ip": value.get("proxies")[0]
+            "ip": value["olap"]["PrivateIp"]
         }
     }
 

@@ -1,0 +1,159 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-V2:Current",
+         "ResultPath": null,
+         "Next": "Actions",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ],
+      },
+      "SSMRead": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-V2:Current",
+         "Parameters": {
+            "action": "read",
+            "key.$": "$.common.tenantId",
+            "value": {}
+         },
+         "ResultPath": "$.resources",
+         "Next": "ResourceDeletion"
+      },
+      "ResourceDeletion": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationsteps-V2:Current",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "resources.$": "$.resources"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "WaitResourceDeletion",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ]
+      },
+      "WaitResourceDeletion": {
+         "Type": "Wait",
+         "Seconds": 30,
+         "Next": "ResourceDeletionCheck"
+      },
+      "ResourceDeletionCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcheck-V2:Current",
+         "Parameters": {
+            "stackNames.$": "$.iterator.stackNames"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "ResouceDeletionReached"
+      },
+      "ResouceDeletionReached": {
+         "Type": "Choice",
+         "Choices": [
+            {
+               "Variable": "$.iterator.wait",
+               "BooleanEquals": true,
+               "Next": "WaitResourceDeletion"
+            }
+         ],
+         "Default": "Success"
+      },
+      "Actions": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-V2:Current",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "required.$": "$.action.required"
+         },
+         "ResultPath": null,
+         "Next": "SSMRead"
+      },
+      "Success": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-V2:Current",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.result",
+            "status": "success"
+         },
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcleanup-V2:Current",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "datasets.$": "$.datasets",
+            "scripts.$": "$.scripts"
+         },
+         "ResultPath": null,
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-V2:Current",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.error",
+            "status": "failed"
+         },
+         "End": true
+      },
+   }
+
+}

@@ -30,17 +30,22 @@ args = {
 
 
 class CleanUp:
-    cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1",
-                                  aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                                  aws_secret_access_key="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")
+    cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
+    ssm = boto3.client('ssm', region_name="cn-northwest-1")
 
     def del_stack(self, stackname):
         response = self.cloudformation.delete_stack(
             StackName=stackname,
         )
 
+    def del_ssm(self, ssm_name):
+        response = self.ssm.delete_parameter(
+            Name=ssm_name
+        )
+
     def run(self, traceId, **kwargs):
         self.del_stack(traceId)
+        self.del_ssm(traceId)
 
 
 

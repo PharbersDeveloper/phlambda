@@ -78,6 +78,7 @@ class CleanUp:
 
 def lambda_handler(event, context):
     errors = event.get("errors")
+    print(event)
     CleanUp().run(**event)
     return {
         "type": "notification",

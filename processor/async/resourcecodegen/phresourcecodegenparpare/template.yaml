@@ -9,13 +9,13 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcecodegenparpare-dev
+      FunctionName: lmd-phresourcecodegenparpare-V2
       MemorySize: 1024
       Description: "prepare 覆盖更新step 脚本"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
           BUCKET: ph-platform
           CLI_VERSION: 2020-11-11
           JOB_PATH_PREFIX: /tmp/phjobs/

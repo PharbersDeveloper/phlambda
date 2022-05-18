@@ -35,10 +35,8 @@ def del_s3_job_dir(bucket_name, s3_dir):
 
 
 def __create_clickhouse(resource):
-    proxies = resource.get("proxies")
-    ip = os.environ["CLICKHOUSE_HOST"]
-    if len(proxies) > 0:
-        ip = proxies[0]
+    olap = resource.get("olap")
+    ip = olap.get("PrivateIp")
     return ClickHouse(host=ip, port=os.environ["CLICKHOUSE_PORT"])
 
 

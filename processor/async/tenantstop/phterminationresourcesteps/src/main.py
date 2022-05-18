@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     # 1. 从dynamodb中拿出所有的 tenantId 下的所有角色
     table = dynamodb.Table("resource")
     resources = table.query(
-        KeyConditionExpression=Key("tenantId").eq(event["tenantId"])，
+        KeyConditionExpression=Key("tenantId").eq(event["tenantId"]),
         FilterExpression=Attr("ownership").ne("static")
     )["Items"]
     
@@ -38,7 +38,10 @@ def lambda_handler(event, context):
             stackNames.append("-".join([tenant_item["role"], item["type"], event["tenantId"]]))
 
 
+    stackNames = list(map(lambda x: x.replace("_", "-").replace(":", "-").replace("+", "-"), stackNames))
+
     # 3. 对每一个存在的 stack name 做删除 stack 的操作
+    print(stackNames)
     for sn in stackNames:
         try:
             client.delete_stack(
@@ -49,5 +52,5 @@ def lambda_handler(event, context):
 
     return {
         "stackNames": stackNames,
-        "wait": true
+        "wait": True
     }

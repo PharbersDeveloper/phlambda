@@ -15,6 +15,7 @@ client = boto3.client('cloudformation')
 
 
 def lambda_handler(event, context):
+    print(event)
     stackNames = event["stackNames"]
 
     while len(stackNames) == 0:
@@ -23,7 +24,7 @@ def lambda_handler(event, context):
         
         try:
             response = client.describe_stacks(
-                StackName=sn
+                StackName=curSn
             )
             print(response)
             return {

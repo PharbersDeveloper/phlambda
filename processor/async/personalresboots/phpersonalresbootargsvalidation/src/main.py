@@ -18,9 +18,7 @@ args = {
         "message": "something need to say",
         "required": true
     },
-    "resources": [
-        "emr", "chlickhouse", "chproxy"
-    ],
+    "resourcesId": "String",
     "notification": {
         "required": true
     }
@@ -28,14 +26,8 @@ args = {
 '''
 def lambda_handler(event, context):
     
-    # 1. action.cat 只能是 tenantStop
-    # 2. resources 当前只能是以下值的一种
-    #     2.1 emr: 暂时不支持，只是为以后project reboot => tenant reboot 做准备
-    #     2.2 ec2 (deprecated 以后会被无服务器替换)
-    #     2.3 clickhouse: 暂时不支持，以后用ecs 构建解决
-    #     2.3 chproxy: 暂时不支持，以后用ecs 构建解决
-    #     2.4 dns (deprecated 以后会被无服务器替换)
-    #     2.5 target group (deprecated 以后会被无服务器替换)
-    #     2.7 load balance rule (deprecated 以后会被无服务器替换)
+    # 1. action.cat 只能是 personalResBoots
+    # 2. resourcesId 必须存在
+    # 3. ssm 中必须存在 key 为 tenantId的项
 
     return True

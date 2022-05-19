@@ -30,10 +30,10 @@ args = {
 
 class Check:
 
-    def get_cloudformation_stack(self):
-        cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
-        responses = cloudformation.list_stacks().get("StackSummaries", [])
-        return [response.get("StackName") for response in responses]
+    # def get_cloudformation_stack(self):
+    #     cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
+    #     responses = cloudformation.list_stacks().get("StackSummaries", [])
+    #     return [response.get("StackName") for response in responses]
 
 
     def get_ssm(self):
@@ -56,10 +56,10 @@ class Check:
             if resource not in resources_args:
                 raise Exception('resouces error')
 
-        if stack_name in self.get_cloudformation_stack:
-            raise Exception('cloudformation already exist')
-        if stack_name in self.get_ssm():
-            raise Exception('ssm already exist')
+        # if stack_name in self.get_cloudformation_stack:
+        #     raise Exception('cloudformation already exist')
+        # if stack_name in self.get_ssm():
+        #     raise Exception('ssm already exist')
         return True
 
 

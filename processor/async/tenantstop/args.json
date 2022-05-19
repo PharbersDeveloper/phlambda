@@ -8,14 +8,14 @@
 		"showName": "alfred"
 	},
 	"action": {
-		"cat": "terminate project",
+		"cat": "tenantStop",
 		"desc": "terminate project",
 		"comments": "something need to say",
 		"message": "something need to say",
 		"required": true
 	},
 	"resources": [
-		"emr", "chlickhouse", "chproxy"
+		"emr", "clickhouse", "chproxy"
 	],
 	"notification": {
 		"required": true

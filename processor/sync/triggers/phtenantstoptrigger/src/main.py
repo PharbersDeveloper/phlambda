@@ -47,7 +47,7 @@ def lambda_handler(event, context):
         "trace_id": ""
     }
     trace_id = ""
-    edition = "" if os.getenv("EDITION") == "V2" else "-dev"
+    edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
 
     # TODO: 缺判断当前这个是否已经启动 @ylzhang
 

@@ -12,8 +12,8 @@ args = {
         "showName": "alfred"
     },
     "action": {
-        "cat": "tenantStop",
-        "desc": "reboot project",
+        "cat": "personalResBoots",
+        "desc": "reboot jupyter",
         "comments": "something need to say",
         "message": "something need to say",
         "required": true

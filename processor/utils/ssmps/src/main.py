@@ -59,12 +59,13 @@ def lambda_handler(event, context):
     print(event)
     # 通过key 从ssm获取resource
     resources = True
+    parameter_name = event["key"].replace("=", "-")
     if event["action"] == "read":
-        resources = get_dict_ssm_parameter(event["key"])
+        resources = get_dict_ssm_parameter(parameter_name)
     elif event["action"] == "write":
-        put_dict_ssm_parameter(event["key"], json.dumps(event["value"]))
+        put_dict_ssm_parameter(parameter_name, json.dumps(event["value"]))
         resources = event["value"]
     elif event["action"] == "delete":
-        delete_dict_ssm_parameter(event["key"])
+        delete_dict_ssm_parameter(parameter_name)
 
     return resources

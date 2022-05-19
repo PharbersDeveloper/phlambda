@@ -21,6 +21,7 @@ client = boto3.client('cloudformation')
 
 def lambda_handler(event, context):
 
+
     # 1. 从dynamodb中拿出所有的 tenantId 下的所有角色
     table = dynamodb.Table("resource")
     resources = table.query(

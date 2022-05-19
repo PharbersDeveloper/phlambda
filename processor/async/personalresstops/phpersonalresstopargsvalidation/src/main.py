@@ -5,6 +5,7 @@ import json
 这个函数是对所有的reboot的数据参数的validate
 args = {
     "common": {
+        "tenantId": "",
         "traceId": "alfred-resource-creation-traceId",
         "projectId": "ggjpDje0HUC2JW",
         "projectName": "demo",

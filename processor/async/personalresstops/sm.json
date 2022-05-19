@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-personalresstopargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
@@ -35,20 +35,21 @@
             "value": {}
          },
          "ResultPath": "$.resources",
-         "Next": "ResourceDeletion"
+         "Next": "CodeeditorDeletion"
       },
-      "ResourceDeletion": {
+      "CodeeditorDeletion": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationsteps-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresstopsteps-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
+            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "resources.$": "$.resources"
+            "resourceId.$": "$.resourceId"
          },
          "ResultPath": "$.iterator",
-         "Next": "WaitResourceDeletion",
+         "Next": "WaitCodeeditorDeletion",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
             "ResultPath": "$.error",
@@ -63,30 +64,30 @@
             "Next": "CleanUp"
          } ]
       },
-      "WaitResourceDeletion": {
+      "WaitCodeeditorDeletion": {
          "Type": "Wait",
          "Seconds": 30,
-         "Next": "ResourceDeletionCheck"
+         "Next": "CodeeditorDeletionCheck"
       },
-      "ResourceDeletionCheck": {
+      "CodeeditorDeletionCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcheck-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationresourcecheck-dev",
          "Parameters": {
             "stackNames.$": "$.iterator.stackNames"
          },
          "ResultPath": "$.iterator",
-         "Next": "ResouceDeletionReached"
+         "Next": "CodeeditorDeletionReached"
       },
-      "ResouceDeletionReached": {
+      "CodeeditorDeletionReached": {
          "Type": "Choice",
          "Choices": [
             {
                "Variable": "$.iterator.wait",
                "BooleanEquals": true,
-               "Next": "WaitResourceDeletion"
+               "Next": "WaitCodeeditorDeletion"
             }
          ],
-         "Default": "Success"
+         "Default": "SSMDeletion"
       },
       "Actions": {
          "Type": "Task",
@@ -98,11 +99,23 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
+            "message.$": "$.action.message",
             "comments.$": "$.action.comments",
             "required.$": "$.action.required"
          },
          "ResultPath": null,
          "Next": "SSMRead"
+      },
+      "SSMDeletion": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "deletion",
+            "key.$": "States.Format('{}-{}-{}', $.currentStep.type, $.common.owner, $.resourceId)",
+            "value": {}
+         },
+         "ResultPath": null,
+         "Next": "Success"
       },
       "Success": {
          "Type": "Task",
@@ -115,14 +128,14 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
+            "message.$": "$.action.message",
             "status": "success"
          },
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresstopcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -132,8 +145,7 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "datasets.$": "$.datasets",
-            "scripts.$": "$.scripts"
+            "error.$": "$.error"
          },
          "ResultPath": null,
          "Next": "Failed"

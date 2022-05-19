@@ -65,7 +65,7 @@ def lambda_handler(event, context):
     elif event["action"] == "write":
         put_dict_ssm_parameter(parameter_name, json.dumps(event["value"]))
         resources = event["value"]
-    elif event["action"] == "delete":
+    elif event["action"] == "delete" or event["action"] == "deletion":
         delete_dict_ssm_parameter(parameter_name)
 
     return resources

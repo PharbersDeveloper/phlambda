@@ -28,4 +28,6 @@ args = {
 }
 '''
 def lambda_handler(event, context):
+    # 理论上 stack的回滚会在 cf 里面执行
+    # 所以 clean up 不需要做啥事情
     return True

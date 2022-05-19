@@ -7,10 +7,11 @@ from boto3.dynamodb.conditions import Attr, Key
 通过参数，删除所有的steps
 args = {
     "traceId.$": "$.common.traceId",
+    "tenantId.$": "$.common.tenantId",
     "projectId.$": "$.common.projectId",
     "owner.$": "$.common.owner",
     "showName.$": "$.common.showName",
-    "resources.$": "$.resources"
+    "resourceId.$": "$.resources"
 }
 '''
 
@@ -21,12 +22,10 @@ client = boto3.client('cloudformation')
 
 def lambda_handler(event, context):
 
-
     # 1. 从dynamodb中拿出所有的 tenantId 下的所有角色
     table = dynamodb.Table("resource")
     resources = table.query(
-        KeyConditionExpression=Key("tenantId").eq(event["tenantId"]),
-        FilterExpression=Attr("ownership").ne("static")
+        KeyConditionExpression=Key("tenantId").eq(event["tenantId"]) & Key("id").eq(event["resourceId"])
     )["Items"]
     
     print(resources)
@@ -36,7 +35,7 @@ def lambda_handler(event, context):
     for tenant_item in resources:
         tmp = json.loads(tenant_item["properties"])
         for item in tmp:
-            stackNames.append("-".join([tenant_item["role"], item["type"], event["tenantId"]]))
+            stackNames.append("-".join([tenant_item["role"], item["type"], event["tenantId"], tenant_item["ownership"], tenant_item["owner"]]))
 
 
     stackNames = list(map(lambda x: x.replace("_", "-").replace(":", "-").replace("+", "-"), stackNames))

@@ -28,7 +28,7 @@
       },
       "ResouceMetadata": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresoucemate-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresourcemate-dev",
          "Parameters": {
             "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
@@ -114,7 +114,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current.$": "$.iterator",
+                        "current.$": "$.iterator.index",
                         "name.$": "$.currentStep.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
@@ -235,7 +235,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current.$": "$.iterator",
+                        "current.$": "$.iterator.index",
                         "name.$": "$.currentStep.stackName",
                         "expect": "CREATE_COMPLETE"
                      },

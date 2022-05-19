@@ -2,21 +2,19 @@
 	"common": {
 		"traceId": "Pharbers-Schedule-Stop-TraceId",
 		"tenantId": "zudIcG_17yj8CEUoCTHg",
-		"projectId": "",
-		"projectName": "",
+		"projectId": "ggjpDje0HUC2JW",
+		"projectName": "demo",
 		"owner": "alfred",
 		"showName": "alfred"
 	},
 	"action": {
-		"cat": "terminate project",
+		"cat": "personalResStops",
 		"desc": "terminate project",
 		"comments": "something need to say",
 		"message": "something need to say",
 		"required": true
 	},
-	"resources": [
-		"emr", "chlickhouse", "chproxy"
-	],
+	"resourceId": "mIMzFAKEyU6JBc7nl1NmBA==",
 	"notification": {
 		"required": true
 	}

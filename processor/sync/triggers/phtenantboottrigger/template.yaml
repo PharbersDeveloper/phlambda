@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-V2
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,9 +11,9 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
-      FunctionName: lmd-phstatemachinetrigger-V2
-      Description: "phstatemachinetrigger"
+          EDITION: "DEV"
+      FunctionName: lmd-phtenantboottrigger-dev
+      Description: "启动集群"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

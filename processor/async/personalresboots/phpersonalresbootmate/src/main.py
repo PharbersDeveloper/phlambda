@@ -14,7 +14,7 @@ args = {
     "projectId.$": "$.common.projectId",
     "owner.$": "$.common.owner",
     "showName.$": "$.common.showName",
-    "resources.$": "$.resources"
+    "resourceId.$": "$.resourceId"
 }
 
 return = {
@@ -63,11 +63,10 @@ return = {
 '''
 
 
-def get_resource_items_by_tenantId(tenantId):
+def get_resource_items_by_tenantId(tenantId, id):
     ds_table = dynamodb.Table('resource')
     res = ds_table.query(
-        KeyConditionExpression=Key("tenantId").eq(tenantId),
-        FilterExpression=Attr("ownership") == "shared"
+        KeyConditionExpression=Key("tenantId").eq(tenantId) & Key("id").eq(id)
     )
 
     return res["Items"]
@@ -76,20 +75,15 @@ def get_resource_items_by_tenantId(tenantId):
 def lambda_handler(event, context):
     print(event)
     # 获取有关tenantId的所有信息
-    tenant_all_items = get_resource_items_by_tenantId(event["tenantId"])
+    tenant_all_items = get_resource_items_by_tenantId(event["tenantId"], event["resourceId"])
 
-    # 进行filter 查找
     metadata = {}
-
-    # tenant_items = [item["ownership"] == "shared" for item in tenant_all_items]
-    # tenant_items = list(filter(lambda x: x["ownership"] == "shared", tenant_all_items))
-    # TODO: resources 里面的值与tenantItems 里面role值求交集，只有交集才能创建 @hbzhao
 
     for tenant_item in tenant_all_items:
         tmp = {}
         tmp = json.loads(tenant_item["properties"])
         for item in tmp:
-            item["stackName"] = "-".join([tenant_item["role"], item["type"], event["tenantId"]])
+            item["stackName"] = "-".join([tenant_item["role"], item["type"], event["tenantId"], tenant_item["ownership"], tenant_item["owner"]])
         
         metadata[tenant_item["role"]] = {
             "counts": len(tmp),

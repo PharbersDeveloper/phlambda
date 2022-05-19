@@ -87,7 +87,18 @@
                "Next": "WaitResourceDeletion"
             }
          ],
-         "Default": "Success"
+         "Default": "SSMDeletion"
+      },
+      "SSMDeletion": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "deletion",
+            "key.$": "$.common.tenantId",
+            "value": {}
+         },
+         "ResultPath": null,
+         "Next": "Success"
       },
       "Actions": {
          "Type": "Task",

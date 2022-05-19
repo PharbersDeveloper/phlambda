@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
@@ -34,21 +34,61 @@
             "key.$": "$.common.tenantId",
             "value": {}
          },
-         "ResultPath": "$.resources",
-         "Next": "ResourceDeletion"
+         "ResultPath": "$.tenantInfo",
+         "Next": "CodeeditorStart"
       },
-      "ResourceDeletion": {
+      "CodeeditorStart": {
+         "Type": "Pass",
+         "Result": {},
+         "ResultPath": "$.codeeditor",
+         "Next": "CodeeditorStepsIterator"
+      },
+      "CodeeditorStepsIterator": {
+         "Type": "Pass",
+         "Result": {
+            "index": 0,
+            "currentStatus": "running"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "CodeeditorMate"
+      },
+      "CodeeditorMate": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationsteps-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootmate-dev",
          "Parameters": {
+            "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "resources.$": "$.resources"
+            "resourceId.$": "$.resourceId"
          },
-         "ResultPath": "$.iterator",
-         "Next": "WaitResourceDeletion",
+         "ResultPath": "$.metadata",
+         "Next": "CodeeditorStepsArg"
+      },
+      "CodeeditorStepsArg": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
+         "Parameters": {
+            "iterator.$": "$.iterator.index",
+            "steps.$": "$.metadata.codeeditor.steps"
+         },
+         "ResultPath": "$.currentStep",
+         "Next": "CodeeditorCreation"
+      },
+      "CodeeditorCreation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+         "Parameters": {
+            "action": "creation",
+            "name.$": "$.currentStep.stackName",
+            "cfn.$": "$.currentStep.cfn",
+            "parameters.$": "$.currentStep.parameters",
+            "dependencies.$": "$.currentStep.dependencies",
+            "result.$": "$.codeeditor"
+         },
+         "ResultPath": null,
+         "Next": "WaitCodeeditorCreation",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
             "ResultPath": "$.error",
@@ -63,30 +103,78 @@
             "Next": "CleanUp"
          } ]
       },
-      "WaitResourceDeletion": {
+      "WaitCodeeditorCreation": {
          "Type": "Wait",
          "Seconds": 30,
-         "Next": "ResourceDeletionCheck"
+         "Next": "CodeeditorCreationCheck"
       },
-      "ResourceDeletionCheck": {
+      "CodeeditorCreationCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcheck-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
          "Parameters": {
-            "stackNames.$": "$.iterator.stackNames"
+            "current.$": "$.iterator.index",
+            "name.$": "$.currentStep.stackName",
+            "expect": "CREATE_COMPLETE"
          },
          "ResultPath": "$.iterator",
-         "Next": "ResouceDeletionReached"
+         "Next": "CodeeditorStepsCountReached"
       },
-      "ResouceDeletionReached": {
+      "CodeeditorStepsCountReached": {
          "Type": "Choice",
          "Choices": [
             {
-               "Variable": "$.iterator.wait",
-               "BooleanEquals": true,
-               "Next": "WaitResourceDeletion"
+               "And": [
+                  {
+                     "Variable": "$.iterator.index",
+                     "NumericEqualsPath": "$.metadata.codeeditor.counts",
+                  },
+                  {
+                     "Variable": "$.iterator.currentStatus",
+                     "StringEquals": "success",
+                  }
+
+               ],
+               "Next": "CodeeditorCollection"
+            },
+            {
+               "And": [
+                  {
+                     "Variable": "$.iterator.index",
+                     "NumericLessThanPath": "$.metadata.codeeditor.counts",
+                  },
+                  {
+                     "Variable": "$.iterator.currentStatus",
+                     "StringEquals": "success",
+                  }
+
+               ],
+               "Next": "CodeeditorCollection"
             }
          ],
-         "Default": "Success"
+         "Default": "WaitCodeeditorCreation"
+      },
+      "CodeeditorCollection": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
+         "Parameters": {
+            "result": {},
+            "resultPath": "codeeditor[]",
+            "resultType.$": "$.currentStep.type",
+            "name.$": "$.currentStep.stackName"
+         },
+         "ResultPath": "$.result",
+         "Next": "SSMCreation"
+      },
+      "SSMCreation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "write",
+            "key.$": "States.Format('{}-{}-{}', $.currentStep.type, $.common.owner, $.resourceId)",
+            "value.$": "$.result" 
+         },
+         "ResultPath": null,
+         "Next": "Success"
       },
       "Actions": {
          "Type": "Task",
@@ -99,6 +187,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
             "required.$": "$.action.required"
          },
          "ResultPath": null,
@@ -122,7 +211,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -132,8 +221,7 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "datasets.$": "$.datasets",
-            "scripts.$": "$.scripts"
+            "error.$": "$.error"
          },
          "ResultPath": null,
          "Next": "Failed"

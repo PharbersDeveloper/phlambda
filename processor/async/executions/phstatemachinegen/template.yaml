@@ -11,7 +11,7 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
+          EDITION: "DEV"
           SPARK_DRIVER_MEMORY: "1g"
           SPARK_DRIVER_CORES: "1"
           SPARK_DRIVER_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"

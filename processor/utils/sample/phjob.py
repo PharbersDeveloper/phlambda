@@ -120,7 +120,7 @@ def execute(**kwargs):
 
 
     spark = kwargs["spark"]()
-    projectIp = kwargs.get("projectIp")
+    tenantIp = kwargs.get("tenant_ip")
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
     sourceProjectId = ph_conf.get("sourceProjectId")
     targetProjectId = ph_conf.get("targetProjectId")
@@ -171,9 +171,9 @@ def execute(**kwargs):
     logger.debug(sample_df.count())
     # 获取projectip
     logger.debug("ip 获取完成")
-    logger.debug(projectIp)
+    logger.debug(tenantIp)
     # 创建clickhouse client
-    ch_client = clickhouse_client(projectIp)
+    ch_client = clickhouse_client(tenantIp)
     # 如果表已经存在 删除已有的表
     table_name = targetProjectId + "_" + datasetName
     delete_sql = deleteTableSql(table_name)
@@ -187,7 +187,7 @@ def execute(**kwargs):
     logger.debug(sample_df.count())
     # 写入clickhouse
     sample_df.write.format("jdbc").mode("append") \
-        .option("url", f"jdbc:clickhouse://{projectIp}:8123/default") \
+        .option("url", f"jdbc:clickhouse://{tenantIp}:8123/default") \
         .option("dbtable", f"`{table_name}`") \
         .option("driver", "ru.yandex.clickhouse.ClickHouseDriver") \
         .option("user", "default") \

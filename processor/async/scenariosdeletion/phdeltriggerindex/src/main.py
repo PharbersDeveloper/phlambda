@@ -80,7 +80,7 @@ def lambda_handler(event, context):
     DelClient.get_OldImage(OldImageItem)
 
     #-------------------------delete trigger----------------------------------------------------------#
-    DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
+    DelClient.del_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
 
     #TODO 返回结果后面对接时再调整
     return DelClient.fetch_result()

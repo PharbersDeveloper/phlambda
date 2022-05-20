@@ -167,6 +167,8 @@ def execute(**kwargs):
         sample_df = df.sample(withReplacement=False, fraction=fraction)
         sample_df = sample_df.limit(int(df_count) * 10000)
 
+    sample_df = sample_df.na.fill("None")
+
     logger.debug("sample_df 创建完成")
     logger.debug(sample_df.count())
     # 获取projectip

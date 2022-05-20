@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     version_table = db.Table("version")
 
     if event["script"]["runtime"] == "dataset" and "name" not in event["script"]:
-        for item in event["datasets"]:
+        for item in list(filter(lambda ds: ds["cat"] != "catalog", event["datasets"])):
             ds_result = ds_table.query(
                 IndexName="dataset-projectId-name-index",
                 KeyConditionExpression=Key("projectId").eq(event["projectId"]) & Key("name").eq(item["name"])

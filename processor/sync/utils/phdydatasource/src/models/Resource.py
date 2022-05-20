@@ -12,5 +12,6 @@ class Resource(Model):
         "platform": fields.Str(required=False),
         "properties": fields.Str(required=False),
         "resultPath": fields.Str(required=False),
-        "role": fields.Str(required=False)
+        "role": fields.Str(required=False),
+        "ctype": fields.Str(required=False)
     }

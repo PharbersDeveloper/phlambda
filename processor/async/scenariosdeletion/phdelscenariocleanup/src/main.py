@@ -67,6 +67,8 @@ args:
         }
     }
 '''
+
+
 class DelRollBack:
     def __init__(self, event):
         self.event = event
@@ -96,7 +98,12 @@ class DelRollBack:
     def get_projectName(self):
         return self.event['common']['projectName']
 
-
+    def check_OldImage(self, mode_type):
+        try:
+            return "NotNeedRollBack" if len(mode_type['OldImage']) == 0 else "RollBack"
+        except Exception as e:
+            print("*"*50+"OldImage ERROR"+"*"*50 + "\n", str(e))
+            return "NotNeedRollBack"
 
     def get_scenarioItem(self, OldImage):
         scenarioItem = {
@@ -137,20 +144,91 @@ class DelRollBack:
         }
         return step_Item
 
-    def get_OldImage(self):
-        pass
+    def query_table_item(self, tableName, **kwargs):
+        QueryItem = dict(kwargs.items())
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            Key=QueryItem,
+        )
+        return res["Items"]
 
-    def IsTheSameItem(self):
-        pass
+
+    def map_Item(self, tableName, OldImage):
+        tableMap = {
+            "scenario": self.get_scenarioItem,
+            "scenario_trigger": self.get_triggerItem,
+            "scenario_step": self.get_stepItem
+        }
+        return tableMap[tableName](OldImage)
+
+    def put_item(self, tableName, Item):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        response = table.put_item(
+            Item=Item
+        )
+        return response
+
+    def map_query_table_condition(self):
+
+        queryConditionDict = {
+            "scenario": {"projectId": self.get_projectId(), "id": self.get_scenarioId()},
+            "scenario_trigger": {"scenarioId": self.get_scenarioId(), "id": self.get_triggerId()},
+            "scenario_step": {"scenarioId": self.get_scenarioId(), "id": self.get_stepId()}
+        }
+        return queryConditionDict
+
+    #TODO item是否一致的标准对接的时候确定
+    #-------------------检查Item是否一致----------------------------#
+    def IsTheSameItem(self, OldItem, CurrentItem):
+
+        return True if OldItem == CurrentItem else False
+
+
+    def RollBackProcess(self, modeType, tableName):
+        oldImage = self.get_OldImage(modeType)
+        Item = self.map_Item(tableName, oldImage)
+        #--------------检查item是否一致-------------------------------#
+        queryTableItem = self.query_table_item(tableName, self.map_query_table_condition()[tableName])
+        if len(queryTableItem) == 0:
+            self.put_item(tableName, Item)
+        else:
+            if self.IsTheSameItem(Item, queryTableItem):
+                pass
+            else: #----TODO oldItem 和当前item不一致时的处理方式  覆盖or保留？
+                pass
+
+
+    def NotNeedRollBack(self):
+        print("not neet RollBack...")
+
+    def get_OldImage(self, modeType):
+        return modeType['OldImage']
 
     def scenarioRollBack(self):
         pass
 
     def triggerRollBack(self):
-        pass
+        RollBackMode = self.check_OldImage(self.trigger)
+        self.errorMessage['scenario_trigger'] = f" error handle mode: {RollBackMode}"
+        if RollBackMode == "RollBack":
+            self.RollBackProcess(self.trigger, "scenario_trigger")
+        else:
+            self.NotNeedRollBack()
 
     def stepRollBack(self):
-        pass
+        RollBackMode = self.check_OldImage(self.step)
+        self.errorMessage['scenario_step'] = f" error handle mode: {RollBackMode}"
+        if RollBackMode == "RollBack":
+            self.RollBackProcess(self.trigger, "scenario_step")
+        else:
+            self.NotNeedRollBack()
+
+    def fetch_result(self):
+        return {"type": "notification", "opname": self.get_projectId(),
+                "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
+
 
 def lambda_handler(event, context):
 
@@ -162,4 +240,4 @@ def lambda_handler(event, context):
     delClient.triggerRollBack()
     delClient.stepRollBack()
 
-    return True
+    return delClient.fetch_result()

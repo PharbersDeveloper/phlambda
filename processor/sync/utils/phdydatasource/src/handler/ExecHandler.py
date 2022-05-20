@@ -19,6 +19,7 @@ from models.Slide import Slide
 from models.Scenario import Scenario
 from models.ScenarioStep import ScenarioStep
 from models.ScenarioTrigger import ScenarioTrigger
+from models.Resource import Resource
 
 # import base64
 # from util.AWS.STS import STS
@@ -57,6 +58,7 @@ __table_structure = {
     "scenario": Scenario,
     "scenario_step": ScenarioStep,
     "scenario_trigger": ScenarioTrigger
+    "resource": Resource
 }
 
 

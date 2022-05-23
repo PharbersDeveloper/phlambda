@@ -66,7 +66,6 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     }
 
     # 4. logs collections
-    # TODO: ... @alfred
     sm['States'][curJ['name'] + "LogsCollection"] = {
         "Type": "Task",
         "Resource": "arn:aws-cn:states:::states:startExecution",

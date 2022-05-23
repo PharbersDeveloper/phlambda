@@ -2,20 +2,20 @@
 	"common": {
 		"runnerId": "alfred-step-function-runnerId",
 		"projectId": "ggjpDje0HUC2JW",
-		"projectName": "Demo",
+		"projectName": "demo",
 		"owner": "alfred",
 		"showName": "alfred"
 	},
 	"engine": {
 		"type": "awsemr",
-		"id": "j-1R1TZ5GYM039A",
+		"id": "j-294Q24LIRJWSA",
 		"dss": {
 			"ip": ""
 		}
 	},
 	"calculate": {
 		"type": "dataset",
-		"name": "testtt1",
-		"conf": "abda"
+		"name": "AlexOut",
+		"conf": ""
 	}
 }

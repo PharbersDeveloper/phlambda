@@ -35,7 +35,6 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectioncheck-dev",
          "Parameters": {
-            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "jobName.$": "$.jobName",
@@ -74,7 +73,6 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollection2db-dev",
          "Parameters": {
-            "tenantId.$": "$.common.tenantId",
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",

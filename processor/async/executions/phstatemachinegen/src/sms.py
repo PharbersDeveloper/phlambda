@@ -47,6 +47,8 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
         "ResultPath": "$.emrRes",
         "Next": curJ["name"] + "EndHook"
     }
+    # 4. logs collections
+    # TODO: ... @alfred
 
     # 3. end hook
     sm['States'][curJ['name'] + "EndHook"] = {

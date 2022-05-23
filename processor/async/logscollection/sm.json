@@ -1,0 +1,110 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectionargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "waitLogsPath",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ],
+      },
+      "waitLogsPath": {
+         "Type": "Wait",
+         "Seconds": 30,
+         "Next": "ResourceDeletionCheck"
+      },
+      "logsPathCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectioncheck-dev",
+         "Parameters": {
+            "tenantId.$": "$.common.tenantId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "clusterId.$": "$.clusterId",
+            "stepId.$": "$.stepId"
+         },
+         "ResultPath": "$.result",
+         "Next": "isLogsReady",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ],
+      },
+      "isLogsReady": {
+         "Type": "Choice",
+         "Choices": [
+            {
+               "Variable": "$.result.logIsReady",
+               "BooleanEquals": false,
+               "Next": "waitLogsPath"
+            }
+         ],
+         "Default": "writeLogsPath"
+      },
+      "writeLogsPath": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollection2db-dev",
+         "Parameters": {
+            "tenantId.$": "$.common.tenantId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "clusterId.$": "$.clusterId",
+            "stepId.$": "$.stepId",
+            "result.$": "$.result"
+         },
+         "ResultPath": null,
+         "Next": "Success",
+      },
+      "Success": {
+         "Type": "Success"
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectioncleanup-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "error.$": "$.error"
+         },
+         "ResultPath": null,
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Failed"
+      },
+   }
+
+}

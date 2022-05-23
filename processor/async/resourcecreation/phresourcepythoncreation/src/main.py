@@ -106,6 +106,7 @@ def create_phmain(args, path=None):
         logger.debug(type(ds_conf))
         args.update(user_conf)
         args.update({"ds_conf": ds_conf})
+        args.update({"spark": spark})
     
         args.update(kwargs)
         output_version =  args.get("run_id") + "_" + ph_conf.get("showName")

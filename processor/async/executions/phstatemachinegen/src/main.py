@@ -105,7 +105,7 @@ def create_ds_args(event, ts):
 
     return {
         'args': args,
-        'sm': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" +event['runnerId'] + '.json'
+        'sm': '2020-11-11/jobs/statemachine/pharbers/' + dagName + "/" + event['runnerId'] + '.json'
     }
 
 

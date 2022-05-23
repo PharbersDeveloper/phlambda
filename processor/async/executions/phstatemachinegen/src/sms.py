@@ -1,6 +1,7 @@
 import json
 import os
 from collections import deque
+from datetime import datetime
 
 
 def messageAdapter(x):
@@ -15,6 +16,9 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
 
     edition = "V2" if os.getenv("EDITION") == "V2" else "dev"
+    dt = datetime.now()
+    ts = datetime.timestamp(dt)
+
     # 2. start hook
     sm['States'][curJ['name'] + "StartHook"] = {
         "Type": "Task",
@@ -45,8 +49,86 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             }
         },
         "ResultPath": "$.emrRes",
+        "Next": curJ["name"] + "LogsCollection",
+        "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": curJ["name"] + "FailedLogsParse"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": curJ["name"] + "FailedLogsParse"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": curJ["name"] + "FailedLogsParse"
+          } ]
+    }
+
+    # 4. logs collections
+    # TODO: ... @alfred
+    sm['States'][curJ['name'] + "LogsCollection"] = {
+        "Type": "Task",
+        "Resource": "arn:aws-cn:states:::states:startExecution",
+        "Parameters": {
+            "Input":{
+                "common": {
+                    "traceId": event["runnerId"],
+                    "runnerId": event["runnerId"],
+                    "projectId": event["projectId"],
+                    "projectName": event["projectName"],
+                    "owner": event["owner"],
+                    "showName": event["showName"]
+                },
+                "clusterId": event['engine']['id'],
+                "stepId.$": "$.emrRes.Step.Id",
+                "jobName": curJ["name"],
+                "date": ts
+            },
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logs-collection"
+        },
+        "ResultPath": None,
         "Next": curJ["name"] + "EndHook"
     }
+
+    sm['States'][curJ['name'] + "FailedLogsParse"] = {
+        "Type": "Task",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinefailedjobparse-dev",
+        "Parameters": {
+            "error.$": "$.error"
+        },
+        "ResultPath": "$.StepId",
+        "Next": curJ["name"] + "FailedLogsCollection"
+    }
+
+    sm['States'][curJ['name'] + "FailedLogsCollection"] = {
+        "Type": "Task",
+        "Resource": "arn:aws-cn:states:::states:startExecution",
+        "Parameters": {
+            "Input":{
+                "common": {
+                    "traceId": event["runnerId"],
+                    "runnerId": event["runnerId"],
+                    "projectId": event["projectId"],
+                    "projectName": event["projectName"],
+                    "owner": event["owner"],
+                    "showName": event["showName"]
+                },
+                "clusterId": event['engine']['id'],
+                "stepId.$": "$.StepId",
+                "jobName": curJ["name"],
+                "date": ts
+            },
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logs-collection"
+        },
+        "ResultPath": None,
+        "Next": curJ["name"] + "Failed"
+    }
+
+    sm['States'][curJ['name'] + "Failed"] = {
+        "Type": "Fail"
+    }
+
 
     # 3. end hook
     sm['States'][curJ['name'] + "EndHook"] = {

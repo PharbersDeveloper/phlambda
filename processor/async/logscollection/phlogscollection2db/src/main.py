@@ -1,6 +1,7 @@
 import json
 import boto3
 from datetime import datetime
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -43,8 +44,8 @@ def lambda_handler(event, context):
 
     res = execution_table.query(
         IndexName='runnerId-jobName-index',
-        KeyConditionExpression=Key("runnerId").eq(runnerId)
-                               & Key("jobName").begins_with(jobName)
+        KeyConditionExpression=Key("runnerId").eq(event["runnerId"])
+                               & Key("jobName").begins_with(tmpJobName)
     )
     item = res["Items"][0]
 
@@ -55,13 +56,13 @@ def lambda_handler(event, context):
 
         logs.append({
             "type": iter,
-            "uri": event["result"]["iter"]
+            "uri": event["result"][iter]
         })
 
     # 更改status和endAt
     item.update({"endAt": str(int(ts))})
     item.update({"status": "success"})
-    item.update({"logs": logs})
+    item.update({"logs": json.dumps(logs)})
 
     response = execution_table.put_item(
         Item=item

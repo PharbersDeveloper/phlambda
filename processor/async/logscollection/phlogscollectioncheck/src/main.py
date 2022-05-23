@@ -34,7 +34,7 @@ return:
 
 def if_exit(bucket, key):    
     try:
-        response = _s3.get_object(Bucket=bucket, Key=key, Range='bytes=0-9')
+        response = _s3.get_object(Bucket=bucket, Key=key)
         return response.get('Body').read()
     except:
         return
@@ -48,10 +48,13 @@ def read_gz(gz_data):
 # 1. stackName 存在就删除
 def lambda_handler(event, context):
     cluster_id = event["clusterId"]
-    step_id = event["step_id"]
+    step_id = event["stepId"]
 
-    waitUntil = event["date"] + waitTotal
-    if datetime.now() > waitUntil:
+    # dt = datetime.now()
+    # ts = datetime.timestamp(dt)
+
+    diff = datetime.now() - datetime.fromtimestamp(event["date"])
+    if diff > waitTotal:
         raise Exception("logs collections timeout")
 
     result = {
@@ -64,11 +67,13 @@ def lambda_handler(event, context):
     bucket = "ph-platform"
     key = f"2020-11-11/emr/logs/{cluster_id}/steps/{step_id}/stderr.gz"
     
-    result["logIsReady"] = if_exit(bucket, key)
+    # result["logIsReady"]
+    tmp = if_exit(bucket, key)
     
-    print(result)
-    if result["logIsReady"]:
-        log_file = read_gz(result).decode()
+    print(tmp)
+    if tmp: #result["logIsReady"]:
+        result["logIsReady"] = True
+        log_file = read_gz(tmp).decode()
         file_name = log_file[log_file.rfind('application_'): log_file.rfind('application_') + 30]
         print(file_name)
         if file_name:

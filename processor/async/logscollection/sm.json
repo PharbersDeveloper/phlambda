@@ -29,7 +29,7 @@
       "waitLogsPath": {
          "Type": "Wait",
          "Seconds": 30,
-         "Next": "ResourceDeletionCheck"
+         "Next": "logsPathCheck"
       },
       "logsPathCheck": {
          "Type": "Task",
@@ -38,6 +38,8 @@
             "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
+            "jobName.$": "$.jobName",
+            "date.$": "$.date",
             "clusterId.$": "$.clusterId",
             "stepId.$": "$.stepId"
          },
@@ -73,8 +75,11 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollection2db-dev",
          "Parameters": {
             "tenantId.$": "$.common.tenantId",
+            "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
+            "jobName.$": "$.jobName",
+            "date.$": "$.date",
             "clusterId.$": "$.clusterId",
             "stepId.$": "$.stepId",
             "result.$": "$.result"
@@ -83,7 +88,7 @@
          "Next": "Success",
       },
       "Success": {
-         "Type": "Success"
+         "Type": "Succeed"
       },
       "CleanUp": {
          "Type": "Task",
@@ -103,7 +108,7 @@
          "Next": "Failed"
       },
       "Failed": {
-         "Type": "Failed"
+         "Type": "Fail"
       },
    }
 

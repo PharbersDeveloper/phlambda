@@ -19,3 +19,45 @@
 		"conf": ""
 	}
 }
+
+{
+  "common": {
+    "runnerId": "demo_demo_developer_2022-05-23T08:47:20+00:00",
+    "projectId": "ggjpDje0HUC2JW",
+    "projectName": "demo",
+    "owner": "5UBSLZvV0w9zh7-lZQap",
+    "showName": "鹏钱",
+    "tenantId": "zudIcG_17yj8CEUoCTHg"
+  },
+  "calculate": {
+    "type": "dataset",
+    "name": "AlexOut",
+    "conf": {
+      "datasets": [
+        {
+          "name": "Alex",
+          "representId": "5lxuLPVc2yin6oU",
+          "version": [],
+          "cat": "uploaded",
+          "prop": {
+            "path": "",
+            "partitions": 1
+          }
+        }
+      ],
+      "scripts": [],
+      "userConf": {},
+      "ownerId": "5UBSLZvV0w9zh7-lZQap",
+      "showName": "鹏钱",
+      "jobDesc": "runDag1653295599184"
+    },
+    "recursive": false
+  },
+  "engine": {
+    "type": "awsemr",
+    "id": "j-294Q24LIRJWSA",
+    "dss": {
+      "ip": "192.168.32.58"
+    }
+  }
+}

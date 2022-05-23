@@ -87,12 +87,12 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
          "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "stage": "start"
+            "runnerId.$" : "$.common.runnerId",
+           "projectId.$" : "$.common.projectId",
+           "projectName.$" : "$.common.projectName",
+           "owner.$" : "$.common.owner",
+           "showName.$" : "$.common.showName",
+           "stage" : "end"
          },
          "ResultPath": null,
          "Next": "clearDag"

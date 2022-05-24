@@ -159,37 +159,36 @@ class TriggersResources:
     def create_trigger(self):
         print("--Create--"*50)
         response = self.cf.create_stack(
-            StackName=self.stackName,
+            StackName="test_mzhang",#self.stackName,
             TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
             Parameters=[
                 {
                     "ParameterKey": "TimerName",
-                    "ParameterValue": self.stackName
+                    "ParameterValue": "test"#self.stackName
                 },
                 {
                     "ParameterKey": "ScheduleExpression",
-                    "ParameterValue": self.cronExpression
+                    "ParameterValue": "cron(* * * * ? *)"#self.cronExpression
                 },
                 {
                     "ParameterKey": "TenantId",
-                    "ParameterValue": self.tenantId
+                    "ParameterValue": "test"#self.tenantId
                 },
                 {
                     "ParameterKey": "ScenarioId",
-                    "ParameterValue": self.scenarioId
+                    "ParameterValue": "test"#self.scenarioId
                 },
                 {
                     "ParameterKey": "TriggerId",
-                    "ParameterValue": self.triggerId
+                    "ParameterValue": "test"#self.triggerId
                 },
                 {
                     "ParameterKey": "ProjectId",
-                    "ParameterValue": self.projectId
+                    "ParameterValue": "test"#self.projectId
                 },
             ]
         )
-
-        print(" create trigger Reponse "*50 + "\n", response)
+        print(" 创建完毕, create trigger Reponse "*50 + "\n", response)
 
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'

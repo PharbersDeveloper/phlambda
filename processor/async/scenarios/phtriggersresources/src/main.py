@@ -136,6 +136,7 @@ class TriggersResources:
         self.result['message'] = str(error_message)
 
     def update_trigger(self):
+        print("--Update--"*50)
         changeSetName = "-".join([self.stackName, self.current_time])
         response = self.cf.create_change_set(
             StackName=self.stackName,
@@ -160,6 +161,7 @@ class TriggersResources:
         self.result['message'] = 'updating resource'
 
     def create_trigger(self):
+        print("--Create--"*50)
         reponse = self.cf.create_stack(
             StackName=self.stackName,
             TemplateURL=self.template_url,
@@ -211,6 +213,7 @@ def lambda_handler(event, context):
 
     try:
         stack = triggers.checkStackStatus()
+        print("*" *50 + "STack" + "*"*50 + "\n", stack)
         #--------------更新逻辑------------------------------#
         if triggers.checkNeedUpdateResouce(stack):
             triggers.update_trigger()
@@ -228,5 +231,6 @@ def lambda_handler(event, context):
         traceback_output = traceback.format_exc()
         print(traceback_output)
     finally:
+        print("--"*50 + "RESULT" + "--"*50)
         print(triggers.result)
         return triggers.result

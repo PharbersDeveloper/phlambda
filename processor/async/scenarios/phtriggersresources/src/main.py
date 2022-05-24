@@ -98,35 +98,6 @@ class TriggersResources:
             result |= item['ParameterValue'] != checkDict[item['ParameterKey']]
         return result
 
-    def get_parameters(self):
-        parameters = [
-            {
-                "ParameterKey": "TimerName",
-                "ParameterValue": self.stackName
-            },
-            {
-                "ParameterKey": "ScheduleExpression",
-                "ParameterValue": self.cronExpression
-            },
-            {
-                "ParameterKey": "TenantId",
-                "ParameterValue": self.tenantId
-            },
-            {
-                "ParameterKey": "ScenarioId",
-                "ParameterValue": self.scenarioId
-            },
-            {
-                "ParameterKey": "TriggerId",
-                "ParameterValue": self.triggerId
-            },
-            {
-                "ParameterKey": "ProjectId",
-                "ParameterValue": self.projectId
-            },
-        ]
-        return parameters
-
     def not_need_update(self):
         self.result['status'] = 'ok'
         self.result['message'] = 'resource does not need to be updated'
@@ -136,12 +107,38 @@ class TriggersResources:
         self.result['message'] = str(error_message)
 
     def update_trigger(self):
+        print("--Update--"*50)
         changeSetName = "-".join([self.stackName, self.current_time])
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,
-            TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
+            Parameters=[
+                {
+                    "ParameterKey": "TimerName",
+                    "ParameterValue": self.stackName
+                },
+                {
+                    "ParameterKey": "ScheduleExpression",
+                    "ParameterValue": self.cronExpression
+                },
+                {
+                    "ParameterKey": "TenantId",
+                    "ParameterValue": self.tenantId
+                },
+                {
+                    "ParameterKey": "ScenarioId",
+                    "ParameterValue": self.scenarioId
+                },
+                {
+                    "ParameterKey": "TriggerId",
+                    "ParameterValue": self.triggerId
+                },
+                {
+                    "ParameterKey": "ProjectId",
+                    "ParameterValue": self.projectId
+                },
+            ]
         )
 
         while True:
@@ -160,13 +157,64 @@ class TriggersResources:
         self.result['message'] = 'updating resource'
 
     def create_trigger(self):
-        reponse = self.cf.create_stack(
-            StackName=self.stackName,
-            TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+        print("--Create--"*50)
+        response = self.cf.create_stack(
+            StackName="test_mzhang",#self.stackName,
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
+            Parameters=[
+                {
+                    "ParameterKey": "TimerName",
+                    "ParameterValue": "test"#self.stackName
+                },
+                {
+                    "ParameterKey": "ScheduleExpression",
+                    "ParameterValue": "cron(* * * * ? *)"#self.cronExpression
+                },
+                {
+                    "ParameterKey": "TenantId",
+                    "ParameterValue": "test"#self.tenantId
+                },
+                {
+                    "ParameterKey": "ScenarioId",
+                    "ParameterValue": "test"#self.scenarioId
+                },
+                {
+                    "ParameterKey": "TriggerId",
+                    "ParameterValue": "test"#self.triggerId
+                },
+                {
+                    "ParameterKey": "ProjectId",
+                    "ParameterValue": "test"#self.projectId
+                },
+            ]
         )
+        print(" 创建完毕, create trigger Reponse "*50 + "\n", response)
+
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
+
+class GenCronExpression:
+    def __init__(self, start_time, period, value):
+        self.start_time = start_time
+        self.period = period
+        self.period_value = value
+
+    def get_base(self):
+        import re
+        base_match_patter = r"(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})"
+        time_value = re.findall(pattern=base_match_patter, string=str(self.start_time))[0]
+        time_attribute = ["year", "month", "day", "hour", "minute", "second"]
+        timeDict = dict(zip(time_attribute, time_value))
+        return timeDict
+
+    def get_cron_expression(self):
+        timeDict = self.get_base()
+        timeDict[self.period] = timeDict[self.period] + "/" + str(self.period_value)
+        #-------asw event rule cron 精度为分，没有秒-------------#
+        cron_data = list(reversed(timeDict.values()))
+        cron_expression = "cron(" + " ".join(cron_data[1:4]) + " ? " + cron_data[-1] + ")"
+        return cron_expression
+
 
 def lambda_handler(event, context):
     print("*"*50 + " event " + "*"*50)
@@ -177,13 +225,20 @@ def lambda_handler(event, context):
     projectId = event['projectId']
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']
-    cronExpression = event['triggers'][0]['detail']['cron']
+    #------- 拼cron表达式------------------------------------#
+    start_time = event['triggers'][0]['detail']['start']
+    period = event['triggers'][0]['detail']['period']
+    value = event['triggers'][0]['detail']['value']
+    cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
+    print("Cron Expression --" * 50 + "\n", cronExpression)
+    cronExpression = "cron(* * * * ? *)"
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
 
     try:
         stack = triggers.checkStackStatus()
+        print("*"* 50 + "STack" + "*"*50 + "\n", stack)
         #--------------更新逻辑------------------------------#
         if triggers.checkNeedUpdateResouce(stack):
             triggers.update_trigger()
@@ -201,5 +256,6 @@ def lambda_handler(event, context):
         traceback_output = traceback.format_exc()
         print(traceback_output)
     finally:
+        print("--"*50 + "RESULT" + "--"*50)
         print(triggers.result)
         return triggers.result

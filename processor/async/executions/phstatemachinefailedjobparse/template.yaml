@@ -11,9 +11,9 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
-      FunctionName: lmd-phstatemachinefailedhook-V2
-      Description: "phstatemachinefailedhook"
+          EDITION: "DEV"
+      FunctionName: lmd-phstatemachinefailedjobparse-dev
+      Description: "phstatemachinefailedjobparse"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

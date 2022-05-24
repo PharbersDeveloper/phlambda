@@ -60,8 +60,8 @@ def lambda_handler(event, context):
         })
 
     # 更改status和endAt
-    item.update({"endAt": str(int(ts))})
-    item.update({"status": "success"})
+    # item.update({"endAt": str(int(ts))})
+    # item.update({"status": "success"})
     item.update({"logs": json.dumps(logs)})
 
     response = execution_table.put_item(

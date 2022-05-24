@@ -112,7 +112,7 @@ class TriggersResources:
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,
-            TemplateURL=self.template_url,
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
             Parameters=[
                 {
                     "ParameterKey": "TimerName",
@@ -160,7 +160,7 @@ class TriggersResources:
         print("--Create--"*50)
         response = self.cf.create_stack(
             StackName=self.stackName,
-            TemplateURL=self.template_url,
+            TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
             Parameters=[
                 {
                     "ParameterKey": "TimerName",
@@ -188,6 +188,7 @@ class TriggersResources:
                 },
             ]
         )
+
         print(" create trigger Reponse "*50 + "\n", response)
 
         self.result['status'] = 'ok'

@@ -98,35 +98,6 @@ class TriggersResources:
             result |= item['ParameterValue'] != checkDict[item['ParameterKey']]
         return result
 
-    def get_parameters(self):
-        parameters = [
-            {
-                "ParameterKey": "TimerName",
-                "ParameterValue": self.stackName
-            },
-            {
-                "ParameterKey": "ScheduleExpression",
-                "ParameterValue": self.cronExpression
-            },
-            {
-                "ParameterKey": "TenantId",
-                "ParameterValue": self.tenantId
-            },
-            {
-                "ParameterKey": "ScenarioId",
-                "ParameterValue": self.scenarioId
-            },
-            {
-                "ParameterKey": "TriggerId",
-                "ParameterValue": self.triggerId
-            },
-            {
-                "ParameterKey": "ProjectId",
-                "ParameterValue": self.projectId
-            },
-        ]
-        return parameters
-
     def not_need_update(self):
         self.result['status'] = 'ok'
         self.result['message'] = 'resource does not need to be updated'
@@ -142,7 +113,32 @@ class TriggersResources:
             StackName=self.stackName,
             ChangeSetName=changeSetName,
             TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+            Parameters=[
+                {
+                    "ParameterKey": "TimerName",
+                    "ParameterValue": self.stackName
+                },
+                {
+                    "ParameterKey": "ScheduleExpression",
+                    "ParameterValue": self.cronExpression
+                },
+                {
+                    "ParameterKey": "TenantId",
+                    "ParameterValue": self.tenantId
+                },
+                {
+                    "ParameterKey": "ScenarioId",
+                    "ParameterValue": self.scenarioId
+                },
+                {
+                    "ParameterKey": "TriggerId",
+                    "ParameterValue": self.triggerId
+                },
+                {
+                    "ParameterKey": "ProjectId",
+                    "ParameterValue": self.projectId
+                },
+            ]
         )
 
         while True:
@@ -165,7 +161,32 @@ class TriggersResources:
         response = self.cf.create_stack(
             StackName=self.stackName,
             TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+            Parameters=[
+                {
+                    "ParameterKey": "TimerName",
+                    "ParameterValue": self.stackName
+                },
+                {
+                    "ParameterKey": "ScheduleExpression",
+                    "ParameterValue": self.cronExpression
+                },
+                {
+                    "ParameterKey": "TenantId",
+                    "ParameterValue": self.tenantId
+                },
+                {
+                    "ParameterKey": "ScenarioId",
+                    "ParameterValue": self.scenarioId
+                },
+                {
+                    "ParameterKey": "TriggerId",
+                    "ParameterValue": self.triggerId
+                },
+                {
+                    "ParameterKey": "ProjectId",
+                    "ParameterValue": self.projectId
+                },
+            ]
         )
         print(" create trigger Reponse "*50 + "\n", response)
 

@@ -168,6 +168,29 @@ class TriggersResources:
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
 
+class GenCronExpression:
+    def __init__(self, start_time, period, value):
+        self.start_time = start_time
+        self.period = period
+        self.period_value = value
+
+    def get_base(self):
+        import re
+        base_match_patter = r"(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})"
+        time_value = re.findall(pattern=base_match_patter, string=str(self.start_time))[0]
+        time_attribute = ["year", "month", "day", "hour", "minute", "second"]
+        timeDict = dict(zip(time_attribute, time_value))
+        return timeDict
+
+    def get_cron_expression(self):
+        timeDict = self.get_base()
+        timeDict[self.period] = timeDict[self.period] + "/" + str(self.period_value)
+        #-------asw event rule cron 精度为分，没有秒-------------#
+        cron_data = list(reversed(timeDict.values()))
+        cron_expression = " ".join(cron_data[1:4]) + " ? " + cron_data[-1]
+        return cron_expression
+
+
 def lambda_handler(event, context):
     print("*"*50 + " event " + "*"*50)
     print(event)
@@ -178,7 +201,10 @@ def lambda_handler(event, context):
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']
     #------- 拼cron表达式------------------------------------#
-    cronExpression = event['triggers'][0]['detail']['cron']
+    start_time = event['triggers'][0]['detail']['start']
+    period = event['triggers'][0]['detail']['period']
+    value = event['triggers'][0]['detail']['value']
+    cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)

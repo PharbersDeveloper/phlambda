@@ -209,13 +209,15 @@ def lambda_handler(event, context):
     period = event['triggers'][0]['detail']['period']
     value = event['triggers'][0]['detail']['value']
     cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
+    print("Cron Expression --" * 50 + "\n", cronExpression)
+    cronExpression = "cron(* * * * ? *)"
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
 
     try:
         stack = triggers.checkStackStatus()
-        print("*" *50 + "STack" + "*"*50 + "\n", stack)
+        print("*"* 50 + "STack" + "*"*50 + "\n", stack)
         #--------------更新逻辑------------------------------#
         if triggers.checkNeedUpdateResouce(stack):
             triggers.update_trigger()

@@ -56,28 +56,28 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
 
     return response
 
-# def put_failed_execution(runnerId, jobName, date, logs, status, dynamodb=None):
-#     # 首先从dynamodb的execution表获取item
-#     if not dynamodb:
-#         dynamodb = boto3.resource('dynamodb')
-#     execution_table = dynamodb.Table('execution')
+def put_failed_execution(runnerId, jobName, date, logs, status, dynamodb=None):
+    # 首先从dynamodb的execution表获取item
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb')
+    execution_table = dynamodb.Table('execution')
 
-#     res = execution_table.query(
-#         IndexName='runnerId-jobName-index',
-#         KeyConditionExpression=Key("runnerId").eq(runnerId)
-#                                & Key("jobName").begins_with(jobName)
-#     )
-#     item = res["Items"][0]
+    res = execution_table.query(
+        IndexName='runnerId-jobName-index',
+        KeyConditionExpression=Key("runnerId").eq(runnerId)
+                               & Key("jobName").begins_with(jobName)
+    )
+    item = res["Items"][0]
 
-#     # 更改status和endAt
-#     item.update({"endAt": date})
-#     item.update({"status": status})
-#     item.update({"logs": logs})
+    # 更改status和endAt
+    item.update({"endAt": date})
+    item.update({"status": status})
+    item.update({"logs": logs})
 
-#     response = execution_table.put_item(
-#         Item=item
-#     )
-#     return response
+    response = execution_table.put_item(
+        Item=item
+    )
+    return response
 
 # def put_metrics(runnerId, projectId, projectName, currentUserId, currentName, action="dag_execution_end"):
 #     aws_cloudwatch_put_metric_data(projectId, projectName,
@@ -162,7 +162,7 @@ def lambda_handler(event, context):
 
             if item['status'] == 'running':
                 put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='failed')
-                # put_failed_execution(item['id'], item['projectId'], str(int(ts)), logs, status="failed", dynamodb=None)
+                put_failed_execution(item['id'], item['projectId'], str(int(ts)), "", status="failed", dynamodb=None)
             elif item['status'] == 'queued':
                 put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='canceled')
     

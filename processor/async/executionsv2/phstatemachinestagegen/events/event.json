@@ -1,0 +1,388 @@
+{
+    "runnerId": "automax_automax_developer_2022-05-24T09:29:43 00:00",
+      "projectId": "s7nBDbpqfUShq1w",
+      "projectName": "automax",
+      "owner": "APqnkJ2TjdeYG-gsc9n8",
+      "showName": "渊杨",
+      "tenantId": "zudIcG_17yj8CEUoCTHg",
+      "engine": {
+          "type": "awsemr",
+          "id": "j-294Q24LIRJWSA",
+          "dss": {
+            "ip": "192.168.32.58"
+          }
+        },
+      "index": 0,
+      "doneJobs": [],
+      "fullfilled": false,
+      "args": {
+        "common": {
+          "runnerId": "automax_automax_developer_2022-05-24T09:29:43 00:00",
+          "projectId": "s7nBDbpqfUShq1w",
+          "projectName": "automax",
+          "owner": "APqnkJ2TjdeYG-gsc9n8",
+          "showName": "渊杨"
+        },
+        "compute_raw_data_adding_final": {
+          "name": "compute_raw_data_adding_final",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_raw_data_adding_final/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_raw_data_adding_final/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_raw_data_adding_final",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_raw_data_deal_poi": {
+          "name": "compute_raw_data_deal_poi",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_raw_data_deal_poi/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_raw_data_deal_poi/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_raw_data_deal_poi",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_original_range_raw": {
+          "name": "compute_original_range_raw",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_original_range_raw/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_original_range_raw/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_original_range_raw",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_price_city": {
+          "name": "compute_price_city",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_price_city/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_price_city/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_price_city",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_growth_rate": {
+          "name": "compute_growth_rate",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_growth_rate/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_growth_rate/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_growth_rate",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_new_hospital": {
+          "name": "compute_new_hospital",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_new_hospital/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_new_hospital/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_new_hospital",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_price": {
+          "name": "compute_price",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_price/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_price/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_price",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_product_mapping_out": {
+          "name": "compute_product_mapping_out",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_product_mapping_out/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_product_mapping_out/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_product_mapping_out",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        },
+        "compute_hospital_mapping_out": {
+          "name": "compute_hospital_mapping_out",
+          "type": "spark-submit",
+          "clusterId": "j-294Q24LIRJWSA",
+          "HadoopJarStep": {
+            "Jar": "command-runner.jar",
+            "Args": [
+              "spark-submit",
+              "--deploy-mode",
+              "cluster",
+              "--jars",
+              "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar",
+              "--py-files",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_hospital_mapping_out/phjob.py",
+              "s3://ph-platform/2020-11-11/jobs/python/phcli/automax_automax_developer/automax_automax_developer_compute_hospital_mapping_out/phmain.py",
+              "--owner",
+              "渊杨",
+              "--dag_name",
+              "automax_automax_developer",
+              "--run_id",
+              "automax_automax_developer_2022-05-24T09:29:43 00:00",
+              "--job_full_name",
+              "automax_automax_developer_compute_hospital_mapping_out",
+              "--project_ip",
+              "192.168.32.58",
+              "--ph_conf",
+              "{\"datasets\": [{\"name\": \"not_arrived\", \"representId\": \"xkgyES3Pkg6rpQj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"not_arrived\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"cpa_pha_mapping\", \"representId\": \"temHHkBqKt74WKH\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"cpa_pha_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"universe_base\", \"representId\": \"sw2qtFWTB2end2E\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"universe_base\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"max_raw_data\", \"representId\": \"eV78Pks36x6MucK\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"max_raw_data\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"poi\", \"representId\": \"b5c99k1qR1T2HKM\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"poi\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"published\", \"representId\": \"U0dxVCcsjGziwnj\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"published\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }, {\"name\": \"prod_mapping\", \"representId\": \"Ny1R9MM3SfmjFtc\", \"version\": [], \"cat\": \"catalog\", \"prop\": {\"path\": \"\", \"partitions\": 1, \"format\": \"\", \"tableName\": \"prod_mapping\", \"databaseName\": \"zudIcG_17yj8CEUoCTHg\"} }], \"scripts\": [], \"userConf\": {}, \"ownerId\": \"APqnkJ2TjdeYG-gsc9n8\", \"showName\": \"渊杨\", \"jobDesc\": \"runDag1653384566925\"}"
+            ]
+          }
+        }
+      },
+      "dags": [
+        {
+          "name": "compute_raw_data_adding_final",
+          "parents": [
+            "compute_raw_data_deal_poi",
+            "compute_original_range_raw",
+            "compute_new_hospital",
+            "compute_price_city",
+            "compute_growth_rate",
+            "compute_price"
+          ],
+          "children": []
+        },
+        {
+          "name": "compute_raw_data_deal_poi",
+          "parents": [
+            "compute_product_mapping_out"
+          ],
+          "children": [
+            "compute_original_range_raw",
+            "compute_raw_data_adding_final",
+            "compute_new_hospital",
+            "compute_price_city",
+            "compute_growth_rate",
+            "compute_price"
+          ]
+        },
+        {
+          "name": "compute_original_range_raw",
+          "parents": [
+            "compute_raw_data_deal_poi"
+          ],
+          "children": [
+            "compute_new_hospital",
+            "compute_raw_data_adding_final"
+          ]
+        },
+        {
+          "name": "compute_price_city",
+          "parents": [
+            "compute_raw_data_deal_poi"
+          ],
+          "children": [
+            "compute_raw_data_adding_final"
+          ]
+        },
+        {
+          "name": "compute_growth_rate",
+          "parents": [
+            "compute_raw_data_deal_poi"
+          ],
+          "children": [
+            "compute_raw_data_adding_final"
+          ]
+        },
+        {
+          "name": "compute_new_hospital",
+          "parents": [
+            "compute_raw_data_deal_poi",
+            "compute_original_range_raw"
+          ],
+          "children": [
+            "compute_raw_data_adding_final"
+          ]
+        },
+        {
+          "name": "compute_price",
+          "parents": [
+            "compute_raw_data_deal_poi"
+          ],
+          "children": [
+            "compute_raw_data_adding_final"
+          ]
+        },
+        {
+          "name": "compute_product_mapping_out",
+          "parents": [
+            "compute_hospital_mapping_out"
+          ],
+          "children": [
+            "compute_raw_data_deal_poi"
+          ]
+        },
+        {
+          "name": "compute_hospital_mapping_out",
+          "parents": [],
+          "children": [
+            "compute_product_mapping_out"
+          ]
+        }
+      ]
+    }

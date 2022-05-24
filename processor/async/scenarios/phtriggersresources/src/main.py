@@ -158,37 +158,38 @@ class TriggersResources:
 
     def create_trigger(self):
         print("--Create--"*50)
-        response = self.cf.create_stack(
-            StackName="test_mzhang",#self.stackName,
+        cf = boto3.client('cloudformation')
+        response = cf.create_stack(
+            StackName=self.stackName,
             TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml',
             Parameters=[
                 {
                     "ParameterKey": "TimerName",
-                    "ParameterValue": "test"#self.stackName
+                    "ParameterValue": self.stackName
                 },
                 {
                     "ParameterKey": "ScheduleExpression",
-                    "ParameterValue": "cron(* * * * ? *)"#self.cronExpression
+                    "ParameterValue": self.cronExpression
                 },
                 {
                     "ParameterKey": "TenantId",
-                    "ParameterValue": "test"#self.tenantId
+                    "ParameterValue": self.tenantId
                 },
                 {
                     "ParameterKey": "ScenarioId",
-                    "ParameterValue": "test"#self.scenarioId
+                    "ParameterValue": self.scenarioId
                 },
                 {
                     "ParameterKey": "TriggerId",
-                    "ParameterValue": "test"#self.triggerId
+                    "ParameterValue": self.triggerId
                 },
                 {
                     "ParameterKey": "ProjectId",
-                    "ParameterValue": "test"#self.projectId
+                    "ParameterValue": self.projectId
                 },
             ]
         )
-        print(" 创建完毕, create trigger Reponse "*50 + "\n", response)
+        print(" 创建完毕, create trigger Reponse "* 50 + "\n", response)
 
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
@@ -230,7 +231,6 @@ def lambda_handler(event, context):
     period = event['triggers'][0]['detail']['period']
     value = event['triggers'][0]['detail']['value']
     cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
-    print("Cron Expression --" * 50 + "\n", cronExpression)
     cronExpression = "cron(* * * * ? *)"
     templateUrl = os.getenv("TEMPLATEURL")
 

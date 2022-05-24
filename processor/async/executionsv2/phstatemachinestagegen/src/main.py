@@ -26,6 +26,7 @@ from smsv2 import *
 def lambda_handler(event, context):
     # result = event
     result = stageIterator(event["dags"], event["doneJobs"])
+    print(result)
     sm = {}
     stack2smdefs(result["stack"], event, sm, 'StateMachineStartHook')
     s3 = boto3.client('s3')
@@ -39,11 +40,12 @@ def lambda_handler(event, context):
     result["dags"] = event["dags"]
     result["sm"] = '2020-08-11/' + event['runnerId'] + "-step-" + str(event["index"]) + '.json'
     result["smarn"] = ""
+    print(sm)
     del result["stack"]
     return result
 
 
 if __name__ == "__main__":
-    with open("../events/event.json", "r") as read_file:
+    with open("../events/event2.json", "r") as read_file:
         event = json.load(read_file)
         lambda_handler(event, None)

@@ -1,6 +1,8 @@
 
 import json
 from Yarn import Yarn_Logs
+from Lambda import Lambda_Logs
+from Emr import Emr_Logs
 from Step import Step_Logs
 from AWS.DynamoDB import DynamoDB
 from boto3.dynamodb.conditions import Key
@@ -19,8 +21,8 @@ def query_data(projectId, jobIndex, **kwargs):
 
 
 COMMANDS = {
-    'lambdalog': None,
-    'emrlog': None,
+    'lambdalog': Lambda_Logs,
+    'emrlog': Emr_Logs,
     'yarnlog': Yarn_Logs,
     'steplog': Step_Logs
 }

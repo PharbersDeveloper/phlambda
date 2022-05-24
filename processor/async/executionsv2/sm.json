@@ -57,6 +57,11 @@
                "Next": "endExecutionHook"
             },
             {
+               "Variable": "$.error",
+               "IsPresent": true,
+               "Next": "failedExecutionHook"
+            },
+            {
                "Variable": "$.iterator.fullfilled",
                "BooleanEquals": true,
                "Next": "endExecutionHook"
@@ -100,15 +105,15 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           } ],
          "ResultPath": "$.iterator.smarn",
          "Next": "executeDag"
@@ -123,18 +128,18 @@
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
              "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           }, {
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
+             "Next": "clearDag"
           } ],
          "ResultPath": null,
-         "Next": "nextDagIterCheck"
+         "Next": "clearDag"
       },
       "endExecutionHook": {
          "Type": "Task",
@@ -148,7 +153,7 @@
            "stage" : "end"
          },
          "ResultPath": null,
-         "Next": "clearDag"
+         "End": true
       },
       "failedExecutionHook": {
          "Type": "Task",
@@ -159,25 +164,25 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "Input.$": "$.executeArgs.args",
             "engine.$": "$.engine",
             "error.$": "$.error"
          },
          "ResultPath": null,
-         "Next": "clearDag"
+         "End": true
       },
       "clearDag": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachineclear-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinestageclear-dev",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName"
+            "showName.$": "$.common.showName",
+            "index.$": "$.iterator.index"
          },
          "ResultPath": null,
-         "End": true
+         "Next": "nextDagIterCheck"
       }
    }
 }

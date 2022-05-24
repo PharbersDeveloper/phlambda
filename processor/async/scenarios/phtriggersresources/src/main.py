@@ -168,6 +168,7 @@ class TriggersResources:
             Parameters=self.get_parameters()
         )
         print(" create trigger Reponse "*50 + "\n", response)
+
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
 

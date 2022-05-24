@@ -162,11 +162,12 @@ class TriggersResources:
 
     def create_trigger(self):
         print("--Create--"*50)
-        reponse = self.cf.create_stack(
+        response = self.cf.create_stack(
             StackName=self.stackName,
             TemplateURL=self.template_url,
             Parameters=self.get_parameters()
         )
+        print(" create trigger Reponse "*50 + "\n", response)
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
 

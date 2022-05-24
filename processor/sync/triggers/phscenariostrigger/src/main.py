@@ -25,7 +25,8 @@ def lambda_handler(event, context):
         result["message"] = "start run " + trace_id
         result["trace_id"] = trace_id
 
-    except Exception:
+    except Exception as e:
+        print("*"*50 + "ERROR" + "*"*50 + "\n", str(e))
         result["status"] = "failed"
         result["message"] = "succeed"
         result["trace_id"] = "Couldn't start run " + trace_id

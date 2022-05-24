@@ -158,6 +158,7 @@ class TriggersResources:
 
     def create_trigger(self):
         print("--Create--"*50)
+
         cf = boto3.client('cloudformation')
         response = cf.create_stack(
             StackName=self.stackName,

@@ -36,7 +36,7 @@ def build_execution_process(event, ts, dynamodb):
     jobs = list(filter(lambda x: x['ctype'] == 'node' and x['cat'] == 'job', items))
     links = list(filter(lambda x: x['ctype'] == 'link', items))
     links = list(map(messageAdapter, links))
-    result = buildExecutionDag(datasets, jobs, links, event["calculate"]["name"])
+    result = buildExecutionDag(datasets, jobs, links, event["calculate"]["name"], event["calculate"]["recursive"])
     result["args"] = extractJobArgs(result["jobs"], jobs, event)
 
     print(result)
@@ -48,12 +48,7 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
-    # if event["calculate"].get("type") == "sample":
-    #     result = build_sample_process(event, ts, dynamodb)
-    # else:
-    #     result = build_execution_process(event, ts, dynamodb)
-
-    result = build_execution_process(event, ts, dynamodb, event["calculate"]["recursive"])
+    result = build_execution_process(event, ts, dynamodb)
 
     return result
 

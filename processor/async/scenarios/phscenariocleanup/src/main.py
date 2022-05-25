@@ -76,6 +76,8 @@ class RollBack:
         self.trigger = event['triggers'][0]
         self.step = event['steps'][0]
         self.errorMessage = {}
+        print("*"*50+"event"+"*"*50)
+        print(self.event)
 
     def get_projectId(self):
         return self.event['common']['projectId']

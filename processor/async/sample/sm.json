@@ -1,0 +1,130 @@
+{
+   "Comment": "Pharbers Dag Trigger Factory",
+   "StartAt": "genStartArgs",
+   "States": {
+      "genStartArgs": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsamplegen-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "engine.$": "$.engine",
+            "calculate.$": "$.calculate"
+         },
+         "ResultPath": "$.executeArgs",
+         "Next": "genDag"
+      },
+      "genDag": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsampledag-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "dag.$": "$.executeArgs.sm"
+         },
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "failedExecutionHook"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "failedExecutionHook"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "failedExecutionHook"
+          } ],
+         "ResultPath": "$.smarn",
+         "Next": "startExecutionHook"
+      },
+      "startExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "Input.$": "$.executeArgs.args",
+            "smarn.$": "$.smarn",
+            "stage": "start"
+         },
+         "ResultPath": null,
+         "Next": "executeDag"
+      },
+      "executeDag": {
+         "Type": "Task",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.executeArgs.args",
+            "StateMachineArn.$": "$.smarn"
+         },
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "failedExecutionHook"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "failedExecutionHook"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "failedExecutionHook"
+          } ],
+         "ResultPath": null,
+         "Next": "endExecutionHook",
+      },
+      "endExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsamplehook-dev",
+         "Parameters": {
+            "runnerId.$" : "$.common.runnerId",
+           "projectId.$" : "$.common.projectId",
+           "projectName.$" : "$.common.projectName",
+           "owner.$" : "$.common.owner",
+           "showName.$" : "$.common.showName",
+           "stage" : "end"
+         },
+         "ResultPath": null,
+         "Next": "clearDag"
+      },
+      "failedExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsamplefailedhook-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "Input.$": "$.executeArgs.args",
+            "engine.$": "$.engine",
+            "error.$": "$.error"
+         },
+         "ResultPath": null,
+         "Next": "clearDag"
+      },
+      "clearDag": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsampleclear-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+         },
+         "ResultPath": null,
+         "End": true
+      }
+   }
+}

@@ -247,7 +247,11 @@ def lambda_handler(event, context):
             triggers.not_need_update()
     except ScenarioStackNotExistError:
         #--------------创建逻辑-------------------------------#
-        triggers.create_trigger()
+        try:
+            triggers.create_trigger()
+        except Exception as e:
+            print("*"*50 + "打印创建错误日志" + "*"*50)
+            print(str(e))
     except ScenarioResourceError as e:
         traceback_output = traceback.format_exc()
         print(traceback_output)

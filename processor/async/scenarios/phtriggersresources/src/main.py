@@ -206,7 +206,7 @@ def lambda_handler(event, context):
     value = event['triggers'][0]['detail']['value']
     cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
     print(cronExpression)
-    cronExpression = "cron(* * * * ? *)"
+    #cronExpression = "cron(* * * * ? *)"
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)

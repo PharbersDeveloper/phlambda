@@ -67,7 +67,18 @@ args:
             "Cause": ""
         }
     }
+    
 '''
+
+event = {'traceId': '8762901a0d0e4b9c884632f84f341670', 'owner': 'c89b8123-a120-498f-963c-5be102ee9082', 'showName': '张璐',
+         'scenario': {'id': 'd67bf68432784cdd8ab4e75f03a11', 'active': True, 'scenarioName': '啊啊啊', 'deletion': False,
+                      'index': 0, 'OldImage': {'id': 'd67bf68432784cdd8ab4e75f03a11', 'active': True, 'scenarioName': '啊啊啊',
+                                               'index': 0}}, 'triggers': [
+        {'active': True, 'detail': {'timezone': '中国北京', 'start': '2022-06-25 16:10:14', 'period': 'minute', 'value': 6},
+         'index': 0, 'mode': 'timer', 'id': '4a46a48a35c24889b48718e3486af0f5'}], 'projectId': 'ggjpDje0HUC2JW',
+         'steps': [
+             {'confData': {}, 'detail': {'type': 'dataset', 'recursive': False, 'ignore-error': False, 'name': '1235'},
+              'index': 0, 'mode': 'dataset', 'name': 'alfred', 'id': '7a0d0e52f6014f6082f3b22d49b10c8c'}]}
 
 class RollBack:
     def __init__(self, event):
@@ -80,7 +91,7 @@ class RollBack:
         print(self.event)
 
     def get_projectId(self):
-        return self.event['common']['projectId']
+        return self.event['projectId']
 
     def get_scenarioId(self):
         return self.scenario['id']
@@ -92,13 +103,13 @@ class RollBack:
         return self.trigger['id']
 
     def get_traceId(self):
-        return self.event['common']['traceId']
+        return self.event['traceId']
 
     def get_owner(self):
-        return self.event['common']['owner']
+        return self.event['owner']
 
     def get_projectName(self):
-        return self.event['common']['projectName']
+        return self.event['projectName']
 
     def check_OldImage(self, mode_type):
         try:

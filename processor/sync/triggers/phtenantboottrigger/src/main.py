@@ -85,6 +85,17 @@ def lambda_handler(event, context):
         }   
     }
 
+    # TODO: ... 在这里看是否能创建。这个地方也会是创建流程的唯一入口
+    # 1. stack 是否存在，如果存在 报错，不能重复创建
+    #     1.1 stackname 的获取方法是 在dynamodb中找到resource 表中 tenantid 下的所有 ownership 为 shared 值的 
+    #     1.2 对每一个值中的property 遍历，形成一个stackname 的数组
+    #     1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>
+    #     1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
+    #        
+    # 2. ssm 是否存在，如果存在，报错，不能重复创建并提交管理员
+    # @ylzhang
+
+
     try:
         trace_id = args["common"]["traceId"]
         # state_machine_arn = os.environ["ARN"]

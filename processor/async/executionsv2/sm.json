@@ -1,0 +1,174 @@
+{
+   "Comment": "Pharbers Dag Trigger Factory",
+   "StartAt": "genStartArgs",
+   "States": {
+      "genStartArgs": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinedaggen-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "engine.$": "$.engine",
+            "calculate.$": "$.calculate"
+         },
+         "ResultSelector": {
+            "dags.$": "$.dags",
+            "args.$": "$.args",
+            "index": 0,
+            "doneJobs.$": "$.doneJobs",
+            "fullfilled": false
+         },
+         "ResultPath": "$.iterator",
+         "Next": "startExecutionHook"
+      },
+      "startExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "Input.$": "$.iterator.args",
+            "stage": "start"
+         },
+         "ResultPath": null,
+         "Next": "nextDagIterCheck"
+      },
+      "nextDagIterCheck": {
+         "Type": "Choice",
+         "Choices": [
+            {
+               "Variable": "$.error",
+               "IsPresent": true,
+               "Next": "failedExecutionHook"
+            },
+            {
+               "Variable": "$.iterator.fullfilled",
+               "BooleanEquals": true,
+               "Next": "endExecutionHook"
+            }
+         ],
+         "Default": "genStageDag"
+      },
+      "genStageDag": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinestagegen-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "engine.$": "$.engine",
+            "index.$": "$.iterator.index",
+            "doneJobs.$": "$.iterator.doneJobs",
+            "fullfilled.$": "$.iterator.fullfilled",
+            "args.$": "$.iterator.args",
+            "dags.$": "$.iterator.dags",
+            "sm": "",
+            "smarn": ""
+         },
+         "ResultPath": "$.iterator",
+         "Next": "createStageSm"
+      },
+      "createStageSm": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinecreatesm-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "definition.$": "$.iterator.sm",
+            "index.$": "$.iterator.index"
+         },
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "clearDag"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "clearDag"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error.genDagError",
+             "Next": "clearDag"
+          } ],
+         "ResultPath": "$.iterator.smarn",
+         "Next": "executeDag"
+      },
+      "executeDag": {
+         "Type": "Task",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.iterator.args",
+            "StateMachineArn.$": "$.iterator.smarn"
+         },
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "clearDag"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "clearDag"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error.executeError",
+             "Next": "clearDag"
+          } ],
+         "ResultPath": null,
+         "Next": "clearDag"
+      },
+      "endExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Parameters": {
+            "runnerId.$" : "$.common.runnerId",
+           "projectId.$" : "$.common.projectId",
+           "projectName.$" : "$.common.projectName",
+           "owner.$" : "$.common.owner",
+           "showName.$" : "$.common.showName",
+           "stage" : "end"
+         },
+         "ResultPath": null,
+         "End": true
+      },
+      "failedExecutionHook": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinefailedhook-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "engine.$": "$.engine",
+            "error.$": "$.error"
+         },
+         "ResultPath": null,
+         "End": true
+      },
+      "clearDag": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinestageclear-dev",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "index.$": "$.iterator.index"
+         },
+         "ResultPath": null,
+         "Next": "nextDagIterCheck"
+      }
+   }
+}

@@ -28,6 +28,10 @@ args = {
 }
 '''
 
+
+ssm = boto3.client('ssm')
+
+
 class Check:
 
     # def get_cloudformation_stack(self):
@@ -36,8 +40,16 @@ class Check:
     #     return [response.get("StackName") for response in responses]
 
 
-    def get_ssm(self):
-        ssm = boto3.client('ssm', region_name="cn-northwest-1")
+    # def get_ssm(self, stack_name):
+    #     try:
+    #         response = ssm.get_parameter(
+    #             Name=stack_name
+    #         )
+    #     except:
+    #         raise Exception('ssm already exist')
+
+
+
         responses = ssm.describe_parameters().get("Parameters")
         return [response.get("name") for response in responses]
 
@@ -49,7 +61,9 @@ class Check:
             raise Exception('action.cat not tenantStart')
 
         # 2. resources 当前只能是以下值的一种
-        stack_name = data.get("traceId")
+        stack_name = data.get("traceId").replace("=", "-")
+        self.get_ssm(stack_name)
+        
         resources_args = ["emr", "ec2", "clickhouse", "chproxy", "dns", "target group", "load balance rule"]
         resources = data.get("resources")
         for resource in resources:
@@ -60,6 +74,7 @@ class Check:
         #     raise Exception('cloudformation already exist')
         # if stack_name in self.get_ssm():
         #     raise Exception('ssm already exist')
+
         return True
 
 

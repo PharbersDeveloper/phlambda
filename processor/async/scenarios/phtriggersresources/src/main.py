@@ -4,6 +4,7 @@ import traceback
 import time
 from datetime import datetime
 from exceptions import ScenarioResourceError, ScenarioStackNotExistError
+from gencronexpression import GenCronExpression
 import os
 
 '''
@@ -55,7 +56,7 @@ class TriggersResources:
     def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
-        self.stackName = "-".join(["scenario", projectId, scenarioId, triggerId])
+        self.stackName = get_stackName("-".join(["scenario", projectId, scenarioId, triggerId]))
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
         self.result = {}
@@ -98,8 +99,16 @@ class TriggersResources:
             result |= item['ParameterValue'] != checkDict[item['ParameterKey']]
         return result
 
-    def get_parameters(self):
-        parameters = [
+    def not_need_update(self):
+        self.result['status'] = 'ok'
+        self.result['message'] = 'resource does not need to be updated'
+
+    def ScenarioResourceError(self, error_message):
+        self.result['status'] = 'error'
+        self.result['message'] = str(error_message)
+
+    def get_Parameters(self):
+        Parameters = [
             {
                 "ParameterKey": "TimerName",
                 "ParameterValue": self.stackName
@@ -125,23 +134,16 @@ class TriggersResources:
                 "ParameterValue": self.projectId
             },
         ]
-        return parameters
-
-    def not_need_update(self):
-        self.result['status'] = 'ok'
-        self.result['message'] = 'resource does not need to be updated'
-
-    def ScenarioResourceError(self, error_message):
-        self.result['status'] = 'error'
-        self.result['message'] = str(error_message)
+        return Parameters
 
     def update_trigger(self):
-        changeSetName = "-".join([self.stackName, self.current_time])
+        print("*"*50 + "  Update  " + "*"*50)
+        changeSetName = get_stackName("-".join([self.stackName, self.current_time]))
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,
             TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+            Parameters=self.get_Parameters()
         )
 
         while True:
@@ -160,13 +162,34 @@ class TriggersResources:
         self.result['message'] = 'updating resource'
 
     def create_trigger(self):
-        reponse = self.cf.create_stack(
+        print("*"*50 + " Create  " + "*"*50)
+        response = self.cf.create_stack(
             StackName=self.stackName,
             TemplateURL=self.template_url,
-            Parameters=self.get_parameters()
+            Parameters=self.get_Parameters()
         )
+        print("*"*50 + " 创建完毕, create trigger Reponse " + "*"*50 + "\n", response)
+
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
+
+def get_stackName(stackName):
+    import re
+    stackName = re.sub(pattern='[:\s+.]', repl='', string= stackName)
+    #----------限制字符串长度---------------------#
+    if len(stackName) <= 62:
+        return stackName
+    else:
+        data = str(stackName).split('-')
+        scenario = data[0]
+        projectId = data[1]
+        #--------取奇数,反转，切片---------------#
+        scenarioId = ''.join(reversed(str(data[2])[::2]))
+        #--------取偶数-----------------#
+        triggerId = str(data[3])[1::2]
+        stackName = '-'.join([scenario, projectId, scenarioId, triggerId]) if len(data) == 4 else '-'.join([scenario, projectId, scenarioId, triggerId, str(''.join(data[4:]))])
+        return get_stackName(stackName)
+
 
 def lambda_handler(event, context):
     print("*"*50 + " event " + "*"*50)
@@ -177,13 +200,20 @@ def lambda_handler(event, context):
     projectId = event['projectId']
     scenarioId = event['scenario']['id']
     triggerId = event['triggers'][0]['id']
-    cronExpression = event['triggers'][0]['detail']['cron']
+    #------- 拼cron表达式------------------------------------#
+    start_time = event['triggers'][0]['detail']['start']
+    period = event['triggers'][0]['detail']['period']
+    value = event['triggers'][0]['detail']['value']
+    cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
+    print(cronExpression)
+    #cronExpression = "cron(* * * * ? *)"
     templateUrl = os.getenv("TEMPLATEURL")
 
     triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
 
     try:
         stack = triggers.checkStackStatus()
+        print("*"* 50 + "STack" + "*"*50 + "\n", stack)
         #--------------更新逻辑------------------------------#
         if triggers.checkNeedUpdateResouce(stack):
             triggers.update_trigger()
@@ -191,7 +221,13 @@ def lambda_handler(event, context):
             triggers.not_need_update()
     except ScenarioStackNotExistError:
         #--------------创建逻辑-------------------------------#
-        triggers.create_trigger()
+        try:
+            triggers.create_trigger()
+        except Exception as e:
+            print("*"*50 + "打印创建错误日志" + "*"*50)
+            print(str(e))
+            triggers.result['status'] = 'error'
+            triggers.result['message'] = str(e)
     except ScenarioResourceError as e:
         traceback_output = traceback.format_exc()
         print(traceback_output)
@@ -201,5 +237,6 @@ def lambda_handler(event, context):
         traceback_output = traceback.format_exc()
         print(traceback_output)
     finally:
+        print("--"*50 + "RESULT" + "--"*50)
         print(triggers.result)
         return triggers.result

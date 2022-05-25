@@ -76,8 +76,7 @@ def lambda_handler(event, context):
             },
             {
                 'ParameterKey': 'S3Bucket',
-                # 'ParameterValue': 'ph-platform'
-                'ParameterValue': 'ph-max-auto'
+                'ParameterValue': 'ph-platform'
             },
             {
                 'ParameterKey': 'S3TemplateKey',

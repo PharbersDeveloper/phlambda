@@ -12,6 +12,16 @@ dynamodb = boto3.resource('dynamodb')
     1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
        
 2. ssm 是否存在，如果存在，报错，不能重复创建并提交管理员
+
+event = {
+    "tenantId": "12345"
+}
+
+return = {
+    "status": Number [ 0: stoped , 1: starting , 2: started , 4: stoping ]
+    "message": String
+    "traceId": String
+}
 '''
 
 
@@ -38,6 +48,13 @@ def ssmCheck():
     pass
 
 
+def ssmQueryTraceId():
+    '''
+    @return: traceId
+    '''
+    pass
+
+
 def errorMessage(e):
     code = 503
     message = {
@@ -51,8 +68,12 @@ def errorMessage(e):
 
 def lambda_handler(event, context):
     print(event)
+    event = json.loads(event["body"])
     code = 200
     status = 0
+    result = {
+        ""
+    }
     try:
 
         table = dynamodb.Table('resource')

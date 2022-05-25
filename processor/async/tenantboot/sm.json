@@ -11,7 +11,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootargsvalidation-dev",
          "ResultPath": null,
-         "Next": "Actions",
+         "Next": "SSMTracePass",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
@@ -25,6 +25,25 @@
              "ResultPath": "$.error",
              "Next": "CleanUp"
           } ],
+      },
+      "SSMTracePass": {
+         "Type": "Pass",         
+         "Result": {
+            "traceId.$": "$.common.traceId"
+         },
+         "ResultPath": "$.result",
+         "Next": "SSMTrace"
+      },
+      "SSMTrace": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "write",
+            "key.$": "$.common.tenantId",
+            "value.$": "$.result" 
+         },
+         "ResultPath": null,
+         "Next": "Actions"
       },
       "ResouceMetadata": {
          "Type": "Task",
@@ -319,6 +338,16 @@
              "ResultPath": "$.error",
              "Next": "CleanUp"
           } ] 
+      },
+      "SSMResultPass": {
+         "Type": "Pass",         
+         "Result": {
+            "traceId.$": "$.common.traceId",
+            "engine.$": "$.result.engine",
+            "olap.$": "$.result.olap"
+         },
+         "ResultPath": "$.result",
+         "Next": "SSMTrace"
       },
       "SSMCreation": {
          "Type": "Task",

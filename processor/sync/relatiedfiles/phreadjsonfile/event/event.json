@@ -1,5 +1,5 @@
 {
-    "body": "{\"path\":  \"s3://ph-max-auto/2020-08-11/demo_demo_developer_2022-04-14T10:58:53+00:00.json\"}",
+    "body": "{\"path\":  \"s3://ph-platform/2020-11-11/jobs/statemachine/pharbers/demo_demo_developer/demo_demo_developer_2022-05-25T04:59:23+00:00/\"}",
     "resource": "/act/{type}",
     "path": "/act/sendCode",
     "httpMethod": "GET",

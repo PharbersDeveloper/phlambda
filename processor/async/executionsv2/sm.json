@@ -43,20 +43,6 @@
          "Type": "Choice",
          "Choices": [
             {
-               "And": [
-                  {
-                     "Variable": "$.calculate.recursive",
-                     "BooleanEquals": false
-                     
-                  },
-                  {
-                     "Variable": "$.iterator.index",
-                     "NumericGreaterThan": 0
-                  }
-               ],
-               "Next": "endExecutionHook"
-            },
-            {
                "Variable": "$.error",
                "IsPresent": true,
                "Next": "failedExecutionHook"

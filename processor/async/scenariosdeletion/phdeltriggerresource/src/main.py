@@ -18,6 +18,24 @@ args:
     }
 '''
 
+def get_stackName(stackName):
+    import re
+    stackName = re.sub(pattern='[:\s+.]', repl='_', string= stackName)
+    #----------限制字符串长度---------------------#
+    if len(stackName) <= 62:
+        return stackName
+    else:
+        data = str(stackName).split('-')
+        scenario = data[0]
+        projectId = data[1]
+        #--------取奇数,反转，切片---------------#
+        scenarioId = ''.join(reversed(str(data[2])[::2]))
+        #--------取偶数-----------------#
+        triggerId = str(data[3])[1::2]
+        stackName = '-'.join([scenario, projectId, scenarioId, triggerId]) if len(data) == 4 else '-'.join([scenario, projectId, scenarioId, triggerId, str('_'.join(data[4:]))])
+        return get_stackName(stackName)
+
+
 class DelTriggerRule:
 
     def __int__(self, event):
@@ -38,7 +56,7 @@ class DelTriggerRule:
 
     def get_stackName(self):
 
-        return "-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])
+        return get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()]))
 
     def del_trigger_rule(self, stackName):
         try:

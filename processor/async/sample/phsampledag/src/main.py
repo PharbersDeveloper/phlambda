@@ -5,18 +5,6 @@ import boto3
 from datetime import datetime
 
 
-'''
-event = {
-    "runnerId.$": "$.common.runnerId",
-    "projectId.$": "$.common.projectId",
-    "projectName.$": "$.common.projectName",
-    "owner.$": "$.common.owner",
-    "showName.$": "$.common.showName",
-    "definition.$": "$.iterator.sm"
-}
-'''
-
-
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,
     jobCat='notification', jobDesc='executionSuccess', message='', status='gendag',
     dynamodb=None):
@@ -58,14 +46,14 @@ def lambda_handler(event, context):
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
-    smTemplateKey = event["definition"]
-    stackName = "-".join([event['runnerId'], "step", str(event["index"])]).replace("_", "-").replace(":", "-").replace("+", "-").replace(" ", "-")
+    smTemplateKey = event["dag"]
+    stackName = event['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
     # 1. put notification
     put_notification(event['runnerId'], event['projectId'], None, 0, "", int(ts), event['owner'], event['showName'])
 
     # 2. create state via cloudformation
     client = boto3.client('cloudformation')
-    
+    dagName = ("_").join(event['runnerId'].split("_")[:-1])
     response = client.create_stack(
         StackName=stackName, # event['runnerId'],
         TemplateURL='https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/steps-cfn.yaml',

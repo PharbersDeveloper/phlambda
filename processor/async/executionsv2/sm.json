@@ -18,7 +18,7 @@
             "dags.$": "$.dags",
             "args.$": "$.args",
             "index": 0,
-            "doneJobs": [],
+            "doneJobs.$": "$.doneJobs",
             "fullfilled": false
          },
          "ResultPath": "$.iterator",
@@ -42,20 +42,6 @@
       "nextDagIterCheck": {
          "Type": "Choice",
          "Choices": [
-            {
-               "And": [
-                  {
-                     "Variable": "$.calculate.recursive",
-                     "BooleanEquals": false
-                     
-                  },
-                  {
-                     "Variable": "$.iterator.index",
-                     "NumericGreaterThan": 0
-                  }
-               ],
-               "Next": "endExecutionHook"
-            },
             {
                "Variable": "$.error",
                "IsPresent": true,

@@ -29,16 +29,17 @@ def lambda_handler(event, context):
     print(result)
     sm = {}
     stack2smdefs(result["stack"], event, sm, 'StateMachineStartHook')
+    dagName = ("_").join(event['runnerId'].split("_")[:-1])
     s3 = boto3.client('s3')
     s3.put_object(
         Body=json.dumps(sm).encode(),
-        Bucket='ph-max-auto',
-        Key='2020-08-11/' + event['runnerId'] + "-step-" + str(event["index"]) + '.json'
+        Bucket='ph-platform',
+        Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + "step-" + str(event["index"]) + '.json'
     )
     result["index"] = event["index"] + 1
     result["args"] = event["args"]
     result["dags"] = event["dags"]
-    result["sm"] = '2020-08-11/' + event['runnerId'] + "-step-" + str(event["index"]) + '.json'
+    result["sm"] = '2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + "step-" + str(event["index"]) + '.json'
     result["smarn"] = ""
     print(sm)
     del result["stack"]

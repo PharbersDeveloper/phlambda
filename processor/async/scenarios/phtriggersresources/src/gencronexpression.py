@@ -21,5 +21,7 @@ class GenCronExpression:
         timeDict[self.period] = timeDict[self.period] + "/" + str(self.period_value)
         #-------asw event rule cron 精度为分，没有秒-------------#
         cron_data = list(reversed(timeDict.values()))
-        cron_expression = "cron(" + " ".join(cron_data[1:4]) + " ? " + cron_data[-1] + ")"
+        print(cron_data)
+        cron_expression = "cron(" + " ".join(cron_data[1:5]) + " ? " + cron_data[-1] + ")"
         return cron_expression
+

@@ -20,7 +20,6 @@ args:
 
 def get_stackName(stackName):
     import re
-    stackName = re.sub(pattern='[:\s+.]', repl='_', string= stackName)
     #----------限制字符串长度---------------------#
     if len(stackName) <= 62:
         return stackName
@@ -32,7 +31,11 @@ def get_stackName(stackName):
         scenarioId = ''.join(reversed(str(data[2])[::2]))
         #--------取偶数-----------------#
         triggerId = str(data[3])[1::2]
-        stackName = '-'.join([scenario, projectId, scenarioId, triggerId]) if len(data) == 4 else '-'.join([scenario, projectId, scenarioId, triggerId, str('_'.join(data[4:]))])
+        if len(data) > 4:
+            timeTag = re.sub(pattern='[-:\s+.]', repl='', string=''.join(data[4:]))
+            stackName = '-'.join([scenario, projectId, scenarioId, triggerId, timeTag])
+        else:
+            stackName = '-'.join([scenario, projectId, scenarioId, triggerId])
         return get_stackName(stackName)
 
 

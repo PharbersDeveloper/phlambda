@@ -56,6 +56,7 @@ def lambda_handler(event, context):
     trace_id = ""
     edition = "" if os.getenv("EDITION") == "V2" else "-dev"
     traceId = event.get("common").get("traceId")
+    
     # TODO: 缺判断当前这个是否已经启动 @ylzhang
     if traceId in get_ssm():
         pass

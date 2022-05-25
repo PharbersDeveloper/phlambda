@@ -173,9 +173,7 @@
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "scenario.$": "$.result.scenario",

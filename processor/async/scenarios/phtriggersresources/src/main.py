@@ -56,7 +56,7 @@ class TriggersResources:
     def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
-        self.stackName = "-".join(["scenario", projectId, scenarioId, triggerId])
+        self.stackName = get_stackName("-".join(["scenario", projectId, scenarioId, triggerId]))
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
         self.result = {}
@@ -138,7 +138,7 @@ class TriggersResources:
 
     def update_trigger(self):
         print("*"*50 + "  Update  " + "*"*50)
-        changeSetName = "-".join([self.stackName, self.current_time])
+        changeSetName = get_stackName("-".join([self.stackName, self.current_time]))
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,
@@ -168,10 +168,28 @@ class TriggersResources:
             TemplateURL=self.template_url,
             Parameters=self.get_Parameters()
         )
-        print(" 创建完毕, create trigger Reponse "* 50 + "\n", response)
+        print("*"*50 + " 创建完毕, create trigger Reponse " + "*"*50 + "\n", response)
 
         self.result['status'] = 'ok'
         self.result['message'] = 'create resource'
+
+def get_stackName(stackName):
+    import re
+    stackName = re.sub(pattern='[:\s+.]', repl='_', string= stackName)
+    #----------限制字符串长度---------------------#
+    if len(stackName) <= 62:
+        return stackName
+    else:
+        data = str(stackName).split('-')
+        scenario = data[0]
+        projectId = data[1]
+        #--------取奇数,反转，切片---------------#
+        scenarioId = ''.join(reversed(str(data[2])[::2]))
+        #--------取偶数-----------------#
+        triggerId = str(data[3])[1::2]
+        stackName = '-'.join([scenario, projectId, scenarioId, triggerId]) if len(data) == 4 else '-'.join([scenario, projectId, scenarioId, triggerId, str('_'.join(data[4:]))])
+        return get_stackName(stackName)
+
 
 def lambda_handler(event, context):
     print("*"*50 + " event " + "*"*50)
@@ -208,6 +226,8 @@ def lambda_handler(event, context):
         except Exception as e:
             print("*"*50 + "打印创建错误日志" + "*"*50)
             print(str(e))
+            triggers.result['status'] = 'error'
+            triggers.result['message'] = str(e)
     except ScenarioResourceError as e:
         traceback_output = traceback.format_exc()
         print(traceback_output)

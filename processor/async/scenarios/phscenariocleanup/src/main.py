@@ -107,9 +107,6 @@ class RollBack:
     def get_OldImage(self, mode_type):
         return mode_type['OldImage']
 
-    def get_stackName(self):
-        return "-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])
-
     def get_scenarioItem(self, OldImage):
         scenarioItem = {
             'projectId': self.get_projectId(),
@@ -226,17 +223,6 @@ class RollBack:
                 },
             )
 
-    def del_trigger_resource(self, stackName):
-        result = {}
-        client = boto3.client('cloudformation')
-        response = client.delete_stack(
-            StackName=stackName    # event['runnerId']
-        )
-        print(response)
-        result['status'] = 'ok'
-        result['message'] = 'delete resource success'
-        return result
-
     def fetch_result(self):
         return {"type": "notification", "opname": self.get_projectId(),
                 "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
@@ -248,7 +234,5 @@ def lambda_handler(event, context):
     rollBackClient.scenarioRollBack()
     rollBackClient.triggerRollBack()
     rollBackClient.stepsRollBack()
-    #TODO deleteResource 逻辑后面再做
-    #result = rollBackClient.del_trigger_resource(rollBackClient.get_stackName())
 
     return rollBackClient.fetch_result()

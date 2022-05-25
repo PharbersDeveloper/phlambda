@@ -219,7 +219,13 @@ def lambda_handler(event, context):
         print("*"* 50 + "STack" + "*"*50 + "\n", stack)
         #--------------更新逻辑------------------------------#
         if triggers.checkNeedUpdateResouce(stack):
-            triggers.update_trigger()
+            try:
+                triggers.update_trigger()
+            except Exception as e:
+                print("*"*50 + "打印更新错误日志" + "*"*50)
+                print(str(e))
+                triggers.result['status'] = 'error'
+                triggers.result['message'] = str(e)
         else:
             triggers.not_need_update()
     except ScenarioStackNotExistError:

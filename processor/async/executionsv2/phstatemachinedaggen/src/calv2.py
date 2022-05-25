@@ -76,6 +76,7 @@ def buildExecutionDag(datasets, jobs, links, destination, recursive=True):
             tn.children.append(n)
             tn.children = list(set(tn.children))
 
+    
     def deepFirstSearchForJobs(nodes):
         if len(nodes) == 0:
             return
@@ -84,13 +85,21 @@ def buildExecutionDag(datasets, jobs, links, destination, recursive=True):
             genNextHeightSpace(job)
             deepFirstSearchForJobs(job.parents)
 
-    if recursive:
-        deepFirstSearchForJobs([destinationJobNode])
     
-    return {
-        "dags": extractDags(nodeSpace),
-        "jobs": extractAllJobs(nodeSpace)
-    }
+    deepFirstSearchForJobs([destinationJobNode])
+    
+    if recursive:
+        return {
+            "dags": extractDags(nodeSpace),
+            "jobs": extractAllJobs(nodeSpace),
+            "doneJobs": []
+        }
+    else:
+        return {
+            "dags": extractDagsRoot(nodeSpace),
+            "jobs": extractRootJob(nodeSpace),
+            "doneJobs": list(set(extractAllJobs(nodeSpace)) - set(extractRootJob(nodeSpace)))
+        }
 
 
 def extractAllJobs(nodeSpace):
@@ -98,6 +107,13 @@ def extractAllJobs(nodeSpace):
     分为两种新的便利方式，第一种顺序无关走路径便利过程
     '''
     return list(map(lambda x: x.name, nodeSpace.nodes))
+
+
+def extractRootJob(nodeSpace):
+    '''
+    分为两种新的便利方式，第一种顺序无关走路径便利过程
+    '''
+    return list(map(lambda x: x.name, [nodeSpace.root]))
 
 
 def extractDags(nodeSpace):
@@ -109,4 +125,12 @@ def extractDags(nodeSpace):
 
     return result
 
+
+def extractDagsRoot(nodeSpace):
+    result = []
+    node = nodeSpace.root    
+    tmpParents = list(map(lambda x: x.name, node.parents))
+    tmpChildren = list(map(lambda x: x.name, node.children))
+    result.append({"name": node.name, "parents": tmpParents, "children": tmpChildren})
+    return result
 

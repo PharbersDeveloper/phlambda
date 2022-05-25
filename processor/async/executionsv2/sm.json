@@ -18,7 +18,7 @@
             "dags.$": "$.dags",
             "args.$": "$.args",
             "index": 0,
-            "doneJobs": [],
+            "doneJobs.$": "$.doneJobs",
             "fullfilled": false
          },
          "ResultPath": "$.iterator",

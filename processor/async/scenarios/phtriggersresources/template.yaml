@@ -12,7 +12,7 @@ Resources:
       FunctionName: lmd-phtriggersresource-dev
       MemorySize: 1024
       Description: "phtriggersresources"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
           EDITION: "DEV"

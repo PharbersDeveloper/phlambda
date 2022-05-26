@@ -2,6 +2,9 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr,Key
 from datetime import datetime
+from decimal import Decimal
+
+
 
 '''
 删除 scenario 里面的东西
@@ -21,12 +24,13 @@ class DelScenarioIndex:
 
     def __init__(self, event):
         self.event = event
+        self.scenario = event['scenario']
 
     def get_projectId(self):
         return self.event['projectId']
 
     def get_scenarioId(self):
-        return self.event['id']
+        return self.scenario['id']
 
     def del_table_item(self, tableName, **kwargs):
 
@@ -37,23 +41,53 @@ class DelScenarioIndex:
             Key=DelItem,
         )
 
-    #TODO 因为scenario为父级，所以需同时获取子级的OldImage,现在不知道返回的数据结果，后面对接的时候再做
+    def query_table_item(self, tableName, partitionKey, sortKey):
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(self.get_projectId())
+                               & Key(sortKey).eq(self.get_scenarioId())
+        )
+        return res["Items"]
+
+
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
     def get_OldImage(self):
-        pass
+        Items= self.query_table_item('scenario', 'projectId', 'id')
+        print("*"*50+"OldImage contents"+"*"*50)
+        print(Items)
+        if len(Items) != 0:
+            ItemDict = Items[0]
+            OldImage = {
+                "id": ItemDict['id'],
+                "active": ItemDict['active'],
+                "scenarioName": ItemDict['scenarioName'],
+                "index": self.turn_decimal_into_int(ItemDict['index'])
+            }
+        else:
+            OldImage = {}
+        self.OldImage = OldImage
+        return OldImage
 
     def fetch_result(self):
-        return True
+        self.scenario['OldImage'] = self.OldImage
+        return self.scenario
 
 
 def lambda_handler(event, context):
+
     DelClient = DelScenarioIndex(event)
+
     #-------------------delete step---------------------------------------------#
-    #TODO 删除Item前需将数据保存到OldImage，以便后面回滚操作时用
-    DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId())
-    #-------------------delete trigger---------------------------------------------#
-    DelClient.del_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId())
-    #-------------------delete scenario---------------------------------------------#
-    DelClient.del_table_item('scenario', projectId=DelClient.get_projectId(), id=DelClient.get_scenarioId())
+    OldImage = DelClient.get_OldImage()
+    if len(OldImage) == 0:
+        print(f"{DelClient.get_scenarioId()} not exits, please check data")
+    else:
+        #-------------------delete scenario---------------------------------------------#
+        DelClient.del_table_item('scenario', projectId=DelClient.get_projectId(), id=DelClient.get_scenarioId())
+
     return DelClient.fetch_result()
 
 

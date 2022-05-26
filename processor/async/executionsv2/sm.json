@@ -48,6 +48,19 @@
                "Next": "failedExecutionHook"
             },
             {
+               "And": [
+                  {
+                     "Variable": "$.calculate.recursive",
+                     "BooleanEquals": false
+                  },
+                  {
+                     "Variable": "$.iterator.index",
+                     "NumericGreaterThan": 0 
+                  }
+               ],
+               "Next": "endExecutionHook"
+            },
+            {
                "Variable": "$.iterator.fullfilled",
                "BooleanEquals": true,
                "Next": "endExecutionHook"

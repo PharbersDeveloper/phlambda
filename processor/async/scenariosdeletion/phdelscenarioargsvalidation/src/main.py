@@ -63,6 +63,10 @@ class CheckParameters:
 
     def __init__(self, event):
         self.event = event
+        self.common = event['common']
+        self.scenario = event['scenario']
+        self.triggers = event['triggers'][0]
+        self.steps = event['steps'][0]
         self.check_dict = {
             "common": self.check_common,
             "action": self.check_action,
@@ -83,6 +87,7 @@ class CheckParameters:
             if isinstance(self.event[key], data_type) is False:
                 raise Exception(f"type error: {key} is not belong {str(data_type)}")
         except Exception as e:
+            print("*" * 50 + "error" + "*" * 50 + "\n", str(e))
             raise e
 
     def check_common(self, key):
@@ -96,12 +101,53 @@ class CheckParameters:
 
     def check_scenario(self, key):
         self.check_type(key, dict)
+        self.check_DsData_Exists('scenario')
 
     def check_triggers(self, key):
         self.check_type(key, list)
+        self.check_DsData_Exists('scenario_trigger')
 
     def check_steps(self, key):
         self.check_type(key, list)
+        self.check_DsData_Exists('scenario_step')
+
+    def get_projectId(self):
+        return self.common['projectId']
+
+    def get_scenarioId(self):
+        return self.scenario['id']
+
+    def get_triggerId(self):
+        return self.triggers['id']
+
+    def get_stepId(self):
+        return self.steps['id']
+
+    def map_query_table_condition(self):
+
+        queryConditionDict = {
+            "scenario": {"projectId": self.get_projectId(), "id": self.get_scenarioId()},
+            "scenario_trigger": {"scenarioId": self.get_scenarioId(), "id": self.get_triggerId()},
+            "scenario_step": {"scenarioId": self.get_scenarioId(), "id": self.get_stepId()}
+        }
+        return queryConditionDict
+
+    #-------检查表中数据是否存在----------------------#
+    def check_DsData_Exists(self, tableName):
+        queryConditionDict = self.map_query_table_condition()[tableName]
+        Item = self.query_table_item(tableName, **queryConditionDict)
+        if len(Item) == 0:
+            raise Exception(f"{queryConditionDict} not exists, please check you data.")
+
+    def query_table_item(self, tableName, **kwargs):
+        QueryItem = dict(kwargs.items())
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            Key=QueryItem,
+        )
+        return res["Items"]
+
 
     def RaiseErrorMessage(self, IntersectionElement):
         common = ['common', 'action', 'notification']

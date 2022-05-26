@@ -23,12 +23,13 @@ class DeltriggerIndex:
 
     def __init__(self, event):
         self.event = event
+        self.triggers = event['triggers']
 
     def get_scenarioId(self):
-        return self.event['scenario']
+        return self.event['scenario']['id']
 
     def get_triggerId(self):
-        return self.event['triggers']
+        return self.triggers['id']
 
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
@@ -68,19 +69,20 @@ class DeltriggerIndex:
         return OldImage
 
     def fetch_result(self):
+        self.triggers['OldImage'] = self.OldImage
         return self.OldImage
 
 
-
-
 def lambda_handler(event, context):
+
     DelClient = DeltriggerIndex(event)
     #--------------------------get OldImage-------------------------------------------------------#
     OldImageItem = DelClient.query_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
-    DelClient.get_OldImage(OldImageItem)
+    OldImage = DelClient.get_OldImage(OldImageItem)
+    if len(OldImage) == 0:
+        print(f"triggersId :{DelClient.get_triggerId()} not exits, please check data")
+    else:
+        #-------------------------delete trigger----------------------------------------------------------#
+        DelClient.del_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
 
-    #-------------------------delete trigger----------------------------------------------------------#
-    DelClient.del_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
-
-    #TODO 返回结果后面对接时再调整
     return DelClient.fetch_result()

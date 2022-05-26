@@ -1,5 +1,5 @@
 {
-   "Comment": "Pharbers Resource Creation",
+   "Comment": "Pharbers tenant boot Creation",
    "StartAt": "StartState",
    "States": {
       "StartState": {
@@ -11,7 +11,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootargsvalidation-dev",
          "ResultPath": null,
-         "Next": "SSMTracePass",
+         "Next": "SSMTrace",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
@@ -24,15 +24,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
-      },
-      "SSMTracePass": {
-         "Type": "Pass",         
-         "Result": {
-            "traceId.$": "$.common.traceId"
-         },
-         "ResultPath": "$.result",
-         "Next": "SSMTrace"
+          } ]
       },
       "SSMTrace": {
          "Type": "Task",
@@ -40,7 +32,9 @@
          "Parameters": {
             "action": "write",
             "key.$": "$.common.tenantId",
-            "value.$": "$.result" 
+            "value": {
+               "traceId.$": "$.common.traceId"
+            }
          },
          "ResultPath": null,
          "Next": "Actions"
@@ -76,6 +70,7 @@
          "Type": "Parallel",
          "InputPath": "$",
          "ResultSelector": {
+            "traceId.$": "$.[0].common.traceId",
             "engine.$": "$.[0].engine",
             "olap.$": "$.[1].olap"
          },
@@ -147,11 +142,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                                 "NumericEqualsPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -161,11 +156,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                                 "NumericLessThanPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -268,11 +263,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                                 "NumericEqualsPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -282,11 +277,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                                 "NumericLessThanPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -339,16 +334,6 @@
              "Next": "CleanUp"
           } ] 
       },
-      "SSMResultPass": {
-         "Type": "Pass",         
-         "Result": {
-            "traceId.$": "$.common.traceId",
-            "engine.$": "$.result.engine",
-            "olap.$": "$.result.olap"
-         },
-         "ResultPath": "$.result",
-         "Next": "SSMTrace"
-      },
       "SSMCreation": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
@@ -372,8 +357,24 @@
             "jobDesc.$": "$.action.desc",
             "message.$": "$.action.message",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            
+            "required.$": "$.action.required"
+         },
+         "ResultPath": null,
+         "Next": "StartingNotification"
+      },
+      "StartingNotification": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
+            "status": "starting"
          },
          "ResultPath": null,
          "Next": "ResouceMetadata"
@@ -390,7 +391,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.action.message",
-            "status": "success"
+            "status": "started"
          },
          "End": true
       },
@@ -402,7 +403,6 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName"
@@ -422,10 +422,10 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.error",
-            "status": "failed"
+            "status": "start failed"
          },
          "End": true
-      },
+      }
    }
 
 }

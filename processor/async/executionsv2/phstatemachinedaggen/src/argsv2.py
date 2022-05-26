@@ -1,5 +1,5 @@
 import json
-
+import os
 
 def extractJobArgs(jobNames, jobs, event):
     args = {}
@@ -39,10 +39,10 @@ def submitArgsByEngine(curJ, event):
     # tmp.append('spark.executor.cores=' + os.getenv("SPARK_EXECUTOR_CORES")) # To ENV
     # tmp.append('--conf')
     # tmp.append('spark.executor.memory=' + os.getenv("SPARK_EXECUTOR_MEMORY")) # To ENV
-    # tmp.append('--conf')
-    # tmp.append('spark.executor.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
-    # tmp.append('--conf')
-    # tmp.append('spark.driver.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.executor.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.driver.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
 
     projectName = event['projectName']
     projectIp = event['engine']['dss']['ip']

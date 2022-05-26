@@ -1,84 +1,13 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr,Key
-from datetime import datetime
+from decimal import Decimal
 
 '''
 这个函数只做两件事情，
 # 1. 将所有的错误都提取出来写入到notification中
 2. 将创建成功但整体失败的东西会滚
-
-args:
-    event = {
-        "common": {
-            "traceId": "alfred-resource-creation-traceId",
-            "projectId": "ggjpDje0HUC2JW",
-            "projectName": "demo",
-            "owner": "alfred",
-            "showName": "alfred"
-        },
-        "action": {
-            "cat": "createOrUpdateScenario",
-            "desc": "create or update scenario",
-            "comments": "something need to say",
-            "message": "something need to say",
-            "required": true
-        },
-        "notification": {
-            "required": true      
-        },
-        "scenario": {
-            "id": "scenario id",       # 如果有就是update，如果没有就是新建
-            "active": true,
-            "scenarioName": "scenario name",
-            "deletion": true | false      # 如果是true，则所有和scenario相关的全部删除
-        },
-        "triggers": [
-            {
-                "active": true,
-                "detail": {
-                    "timezone":"中国北京",
-                    "start":"2022-04-26 16:10:14",
-                    "period":"minute",
-                    "value":1
-                },
-                "index": 0,
-                "mode": "timer",
-                "id": "trigger id",       # 如果有就是update，如果没有就是新建
-            }
-        ],
-        "steps": [
-            {
-                "confData": {},
-                "detail": {
-                    "type":"dataset",
-                    "recursive":false,
-                    "ignore-error":false,
-                    "name":"1235"
-                },
-                "index": 0,
-                "mode": "dataset",,
-                "name": "alfred"
-                "id": "step id",       # 如果有就是update，如果没有就是新建
-            }
-        ],
-        "error": {
-            "Error": "Exception",
-            "Cause": ""
-        }
-    }
-    
 '''
-
-event = {'traceId': '8762901a0d0e4b9c884632f84f341670', 'owner': 'c89b8123-a120-498f-963c-5be102ee9082', 'showName': '张璐',
-         'scenario': {'id': 'd67bf68432784cdd8ab4e75f03a11', 'active': True, 'scenarioName': '啊啊啊', 'deletion': False,
-                      'index': 0, 'OldImage': {'id': 'd67bf68432784cdd8ab4e75f03a11', 'active': True, 'scenarioName': '啊啊啊',
-                                               'index': 0}}, 'triggers': [
-        {'active': True, 'detail': {'timezone': '中国北京', 'start': '2022-06-25 16:10:14', 'period': 'minute', 'value': 6},
-         'index': 0, 'mode': 'timer', 'id': '4a46a48a35c24889b48718e3486af0f5'}], 'projectId': 'ggjpDje0HUC2JW',
-         'steps': [
-             {'confData': {}, 'detail': {'type': 'dataset', 'recursive': False, 'ignore-error': False, 'name': '1235'},
-              'index': 0, 'mode': 'dataset', 'name': 'alfred', 'id': '7a0d0e52f6014f6082f3b22d49b10c8c'}]}
 
 class RollBack:
     def __init__(self, event):
@@ -121,16 +50,23 @@ class RollBack:
     def get_OldImage(self, mode_type):
         return mode_type['OldImage']
 
+    def get_showName(self):
+        return self.event['showName']
+
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
     def get_scenarioItem(self, OldImage):
         scenarioItem = {
             'projectId': self.get_projectId(),
             'id': OldImage['id'],
             'active': OldImage['active'],
             'args': '',
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'owner': self.get_owner(),
             'projectName': self.get_projectName(),
             'scenarioName': OldImage['scenarioName'],
+            'showName': self.get_showName(),
             'traceId': self.get_traceId()
         }
         return scenarioItem
@@ -141,7 +77,7 @@ class RollBack:
             'id': OldImage['id'],
             'active': OldImage['active'],
             'detail': OldImage['detail'],
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
             'traceId': self.get_traceId()
         }
@@ -153,7 +89,7 @@ class RollBack:
             'id': OldImage['id'],
             'confData': OldImage['confData'],
             'detail': OldImage['detail'],
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
             'name': OldImage['name'],
             'traceId': self.get_traceId()

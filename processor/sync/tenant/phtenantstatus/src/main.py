@@ -1,8 +1,11 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Key
+import traceback
+from boto3.dynamodb.conditions import Key, Attr
 
 dynamodb = boto3.resource('dynamodb')
+client = boto3.client('cloudformation')
+ssm = boto3.client('ssm')
 
 '''
 1. 看stack 在不在 
@@ -25,7 +28,7 @@ return = {
 '''
 
 
-def resourceCheck(resouce):
+def resourceCheck(resource):
     '''
     check resouce stack name
     & operator
@@ -36,78 +39,128 @@ def resourceCheck(resouce):
         2: started
         4: stoping
     '''
-    pass
+
+    result = 0
+    properties = json.loads(resource["properties"])
+    for prop in properties:
+        tmpsm = "-".join([resource["role"], prop["type"], resource["tenantId"]]).replace("_", "-").replace(":", "-").replace("+", "-")
+        try:
+            response = client.describe_stacks(StackName=tmpsm)["Stacks"]
+        except:
+            traceback.print_exc()
+            print("{} is stoped".format(tmpsm))
+            response = []
+        finally:
+            if len(response) == 0:
+                print("{} is stoped".format(tmpsm))
+                result |= 0
+            elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"]:
+                print("{} is starting".format(tmpsm))
+                result |=1
+            elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
+                print("{} is started".format(tmpsm))
+                result |= 2
+            elif len(response) == 1 and response[0]["StackStatus"] in ["DELETE_IN_PROGRESS"]:
+                print("{} is stoping".format(tmpsm))
+                result |= 4
+            else:
+                raise Exception("unexcept status ({}) for {}".format(response[0]["StackStatus"], tmpsm))
+
+    return result
 
 
-def ssmCheck():
+def ssmCheck(tenantId):
     '''
     @return: 
         0: stoped
         2: started
     '''
-    pass
+    result = 0
+    name = tenantId.replace("=", "-")
+    try: 
+        response = client.get_parameter(
+            Name=tenantId
+        )
+        print(response)
+        result |= 2
+    except:
+        result |= 0
+    finally:
+        return result
 
 
-def ssmQueryTraceId():
+def ssmQueryTraceId(tenantId):
     '''
     @return: traceId
     '''
-    pass
-
+    name = tenantId.replace("=", "-")    
+    response = ssm.get_parameter(
+        Name=tenantId
+    )
+    print(response)
+    value = json.loads(response["Parameter"]["Value"])
+    return value["traceId"]
+    
 
 def errorMessage(e):
     code = 503
     message = {
-        "status": "error",
-        "data": {
-            "message": json.dumps(str(e))
-        }
+        "status": -99,
+        "message": json.dumps(str(e)),
+        "traceId": ""
     }
     return code, message
 
 
 def lambda_handler(event, context):
-    print(event)
     event = json.loads(event["body"])
+    print(event)
     code = 200
     status = 0
     result = {
-        ""
+        "status": -99,
+        "message": "",
+        "traceId": ""
     }
     try:
 
         table = dynamodb.Table('resource')
         res = table.query(
-            KeyConditionExpression=Key("tenantId").eq(tenantId),
-            FilterExpression=Attr("ownership") == "shared"
+            KeyConditionExpression=Key("tenantId").eq(event["tenantId"]),
+            FilterExpression=Attr("ownership").eq("shared")
         )
         resources = res["Items"]
+        print(resources)
 
-        result = 0
+        statusCode = 0
         for item in resources:
-            result |= resourceCheck(item)
+            statusCode |= resourceCheck(item)
 
-        result |= ssmCheck()
+        statusCode |= ssmCheck(event["tenantId"])
 
-        print(result)
-        if (result & 4) not 0:
-            status = 4
-            message = "stoping"
-        elif (result & 2) not 0:
-            status = 2
-            message = "started"
-        elif (result & 1) not 0:
-            status = 1
-            message = "starting"
-        elif result == 0:
-            status = 0
-            message = "stoped"
+        print(statusCode)
+        if (statusCode & 4) != 0:
+            result["status"] = 4
+            result["message"] = "stoping"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+        elif (statusCode & 1) != 0:
+            result["status"] = 1
+            result["message"] = "starting"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+        elif (statusCode & 2) != 0:
+            result["status"] = 2
+            result["message"] = "started"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+        elif statusCode == 0:
+            result["status"] = 0
+            result["message"] = "stoped"
+            result["traceId"] = ""
         else:
-            status = -99
-            message = "unknown error"
-            raise Exception(message)
+            raise Exception("unknown error")
     except Exception as e:
-        code, message = errorMessage(e)
+        # printing stack trace
+        traceback.print_exc()
+        code, result = errorMessage(e)
     finally:
         return {
             "statusCode": code,
@@ -116,5 +169,5 @@ def lambda_handler(event, context):
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
             },
-            "body": json.dumps(message)
+            "body": json.dumps(result)
     }

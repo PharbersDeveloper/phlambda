@@ -2,6 +2,7 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 import traceback
+from copy import deepcopy
 
 
 '''
@@ -17,8 +18,9 @@ client = boto3.client('cloudformation')
 def lambda_handler(event, context):
     print(event)
     stackNames = event["stackNames"]
+    initialNames = deepcopy(stackNames)
 
-    while len(stackNames) == 0:
+    while len(stackNames) != 0:
         curSn = stackNames[0]
         stackNames = stackNames[1:]
         
@@ -27,8 +29,9 @@ def lambda_handler(event, context):
                 StackName=curSn
             )
             print(response)
+            
             return {
-               "stackNames": stackNames,
+               "stackNames": initialNames,
                 "wait": True
             }
         except:

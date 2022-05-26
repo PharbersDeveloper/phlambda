@@ -51,15 +51,15 @@ class DelTriggerRule:
 
     def get_scenarioId(self):
 
-        return self.event['scenario']
+        return self.event['scenario']['id']
 
     def get_triggerId(self):
 
-        return self.event['triggers']
+        return self.event['triggers']['id']
 
     def get_stackName(self):
 
-        return get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()]))
+        return get_stackName(get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])))
 
     def del_trigger_rule(self, stackName):
         try:
@@ -77,6 +77,7 @@ class DelTriggerRule:
 def lambda_handler(event, context):
 
     delRuleClient = DelTriggerRule(event)
+
     delRuleClient.del_trigger_rule(delRuleClient.get_stackName())
 
     return delRuleClient.result

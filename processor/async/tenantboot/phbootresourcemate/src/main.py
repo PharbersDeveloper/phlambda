@@ -67,7 +67,7 @@ def get_resource_items_by_tenantId(tenantId):
     ds_table = dynamodb.Table('resource')
     res = ds_table.query(
         KeyConditionExpression=Key("tenantId").eq(tenantId),
-        FilterExpression=Attr("ownership") == "shared"
+        FilterExpression=Attr("ownership").eq("shared")
     )
 
     return res["Items"]

@@ -1,4 +1,6 @@
 import json
+import boto3
+from boto3.dynamodb.conditions import Key
 
 
 '''
@@ -26,8 +28,65 @@ args = {
     }
 }
 '''
+
+
+
+ssm = boto3.client('ssm', region_name="cn-northwest-1")
+cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+
+
+class Check:
+
+    def check_ssm(self, stack_name, tenantId):
+        try:
+            response = ssm.get_parameter(
+                Name=stack_name
+            )
+            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}")
+        except:
+            pass
+
+    def query_resource(self, tenantId):
+        table = dynamodb.Table("resource")
+        response = table.query(
+            KeyConditionExpression=Key('tenantId').eq(tenantId),
+        )
+        return response.get("Items")
+
+    def get_stack_name(self, tenantId):
+        resource_item = self.query_resource(tenantId)
+        item_list = [item for item in resource_item if item.get("ownership") == "shared"]
+
+        res_list = []
+        for item in item_list:
+            res_list += [
+                f'{item.get("role")}-{property.get("type")}-{tenantId.replace("_", "-").replace(":", "-").replace("+", "-")}'
+                for property in json.loads(item.get("properties"))]
+        return res_list
+
+    def check_parameter(self, data):
+
+        # 1. action.cat 只能是 tenantStart
+        if not data.get("action").get("cat") == "tenantStop":
+            raise Exception('action.cat not tenantStop')
+
+        # 2. resources 当前只能是以下值的一种
+        resources_args = ["emr", "ec2", "clickhouse", "chproxy", "dns", "target group", "load balance rule"]
+        resources = data.get("resources")
+        for resource in resources:
+            if resource not in resources_args:
+                raise Exception('resouces error')
+
+        tenantId = data["common"]["tenantId"]
+        stack_list = self.get_stack_name(tenantId)
+        for stack_name in stack_list:
+            self.check_ssm(stack_name, tenantId)
+        return True
+
+
 def lambda_handler(event, context):
-    
+    return Check().check_parameter(event)
     # 1. action.cat 只能是 tenantStop
     # 2. resources 当前只能是以下值的一种
     #     2.1 emr: 暂时不支持，只是为以后project reboot => tenant reboot 做准备
@@ -38,4 +97,3 @@ def lambda_handler(event, context):
     #     2.5 target group (deprecated 以后会被无服务器替换)
     #     2.7 load balance rule (deprecated 以后会被无服务器替换)
 
-    return True

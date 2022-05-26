@@ -1,5 +1,5 @@
 {
-   "Comment": "Pharbers Resource Creation",
+   "Comment": "Pharbers tenant boot Creation",
    "StartAt": "StartState",
    "States": {
       "StartState": {
@@ -9,9 +9,9 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootargsvalidation-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootargsvalidation-dev",
          "ResultPath": null,
-         "Next": "Actions",
+         "Next": "SSMTrace",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
              "ResultPath": "$.error",
@@ -24,11 +24,24 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
+          } ]
+      },
+      "SSMTrace": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "write",
+            "key.$": "$.common.tenantId",
+            "value": {
+               "traceId.$": "$.common.traceId"
+            }
+         },
+         "ResultPath": null,
+         "Next": "Actions"
       },
       "ResouceMetadata": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresoucemate-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresourcemate-dev",
          "Parameters": {
             "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
@@ -57,6 +70,7 @@
          "Type": "Parallel",
          "InputPath": "$",
          "ResultSelector": {
+            "traceId.$": "$.[0].common.traceId",
             "engine.$": "$.[0].engine",
             "olap.$": "$.[1].olap"
          },
@@ -83,7 +97,7 @@
                   },
                   "EngineStepsArg": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
                      "Parameters": {
                         "iterator.$": "$.iterator.index",
                         "steps.$": "$.metadata.engine.steps"
@@ -93,7 +107,7 @@
                   },
                   "EngineCreation": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
                         "action": "creation",
                         "name.$": "$.currentStep.stackName",
@@ -112,9 +126,9 @@
                   },
                   "EngineCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current.$": "$.iterator",
+                        "current.$": "$.iterator.index",
                         "name.$": "$.currentStep.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
@@ -128,11 +142,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                                 "NumericEqualsPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -142,11 +156,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                                 "NumericLessThanPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -157,7 +171,7 @@
                   },
                   "EngineResultStepsCollection": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
                      "Parameters": {
                         "result.$": "$.engine",
                         "resultPath": "engine",
@@ -169,7 +183,7 @@
                   },
                   "EngineResultCollection": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
                      "Parameters": {
                         "result.$": "$.engine",
                         "resultPath": "engine",
@@ -204,7 +218,7 @@
                   },
                   "OlapStepsArg": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaargs-dev",
                      "Parameters": {
                         "iterator.$": "$.iterator.index",
                         "steps.$": "$.metadata.olap.steps"
@@ -214,7 +228,7 @@
                   },
                   "OlapCreation": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
                         "action": "creation",
                         "name.$": "$.currentStep.stackName",
@@ -233,9 +247,9 @@
                   },
                   "OlapCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current.$": "$.iterator",
+                        "current.$": "$.iterator.index",
                         "name.$": "$.currentStep.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
@@ -249,11 +263,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.engine.counts",
+                                 "NumericEqualsPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -263,11 +277,11 @@
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericLessThanPath": "$.metadata.engine.counts",
+                                 "NumericLessThanPath": "$.metadata.engine.counts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success",
+                                 "StringEquals": "success"
                               }
 
                            ],
@@ -278,7 +292,7 @@
                   },
                   "OlapResultStepsCollection": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
                      "Parameters": {
                         "result.$": "$.olap",
                         "resultPath": "olap",
@@ -290,7 +304,7 @@
                   },
                   "OlapResultCollection": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-V2:Current",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
                      "Parameters": {
                         "result.$": "$.olap",
                         "resultPath": "olap",
@@ -322,7 +336,7 @@
       },
       "SSMCreation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "write",
             "key.$": "$.common.tenantId",
@@ -333,7 +347,7 @@
       },
       "Actions": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -343,15 +357,31 @@
             "jobDesc.$": "$.action.desc",
             "message.$": "$.action.message",
             "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            
+            "required.$": "$.action.required"
+         },
+         "ResultPath": null,
+         "Next": "StartingNotification"
+      },
+      "StartingNotification": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
+            "status": "starting"
          },
          "ResultPath": null,
          "Next": "ResouceMetadata"
       },
       "Success": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -367,13 +397,12 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootfailedcleanup-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootfailedcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName"
@@ -383,7 +412,7 @@
       },
       "Failed": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-V2:Current",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -396,7 +425,7 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
 
 }

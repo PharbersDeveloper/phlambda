@@ -53,6 +53,12 @@ class ScenarioIndex:
     def get_traceId(self):
         return self.event['traceId']
 
+    def get_showName(self):
+        return self.event['showName']
+
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
     def put_item(self):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario')
@@ -62,10 +68,11 @@ class ScenarioIndex:
                 'id': self.get_id(),
                 'active': self.get_active(),
                 'args': self.get_args(),
-                'index': self.get_index(),
+                'index': self.turn_decimal_into_int(self.get_index()),
                 'owner': self.get_owner(),
                 'projectName': self.get_projectName(),
                 'scenarioName': self.get_scenarioName(),
+                'showName': self.get_showName(),
                 'traceId': self.get_traceId()
                 }
         )
@@ -80,9 +87,6 @@ class ScenarioIndex:
         )
         return res["Items"]
 
-    def turn_decimal_into_int(self, data):
-        return int(data) if isinstance(data, Decimal) else data
-
     def get_OldImage(self):
         Items= self.query_table_item('scenario', 'projectId', 'id')
         print("*"*50+"OldImage contents"+"*"*50)
@@ -93,7 +97,6 @@ class ScenarioIndex:
                 "id": ItemDict['id'],
                 "active": ItemDict['active'],
                 "scenarioName": ItemDict['scenarioName'],
-                #"deletion": Items['deletion'],
                 "index": self.turn_decimal_into_int(ItemDict['index'])
             }
         else:

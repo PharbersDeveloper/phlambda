@@ -41,12 +41,8 @@ event = {
 
 
 ssm = boto3.client('ssm', region_name="cn-northwest-1")
-cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1",
-                              aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                              aws_secret_access_key="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")
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                           aws_secret_access_key="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")
+cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
 
 def check_cloudformation_stack(StackName):
@@ -78,15 +74,13 @@ def query_resource(tenantId):
 
 
 def get_stack_name(tenantId):
-    tenantId = "zudIcG_17yj8CEUoCTHg"
     resource_item = query_resource(tenantId)
     item_list = [item for item in resource_item if item.get("ownership") == "shared"]
 
     res_list = []
-    for i in item_list:
-        print(res_list)
-        res_list += [f'{i.get("role")}-{j.get("type")}-{tenantId.replace("_", "-")}' for j in
-                     json.loads(i.get("properties"))]
+    for item in item_list:
+        res_list += [f'{item.get("role")}-{property.get("type")}-{tenantId.replace("_", "-").replace(":", "-").replace("+", "-")}' for property in
+                     json.loads(item.get("properties"))]
     return res_list
 
 
@@ -128,21 +122,19 @@ def lambda_handler(event, context):
         }   
     }
 
-    message = ""
-    status = ""
-    tenantId = event.get("common").get("tenantId")
+    ssm_message = []
+    cloudformation_message = []
+    tenantId = args.get("common").get("tenantId")
     stack_list = get_stack_name(tenantId)
     for stack_name in stack_list:
         if check_cloudformation_stack(stack_name):
-            status = "failed"
-            message += f"stack_Name in cloudformation already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}. "
+            cloudformation_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
         if check_ssm(stack_name):
-            status = "failed"
-            message += f"stack_Name in ssm already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}. "
+            ssm_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
 
-    if status:
+    if ssm_message or cloudformation_message:
         result["status"] = "failed"
-        result["message"] = message
+        result["message"] = json.dumps({"stackName already exits": {"ssm_exits": ssm_message, "cloudformation_exits": cloudformation_message}})
         result["trace_id"] = args["common"]["traceId"]
         return {
             "statusCode": 200,

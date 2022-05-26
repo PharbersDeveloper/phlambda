@@ -32,12 +32,8 @@ args = {
 
 
 ssm = boto3.client('ssm', region_name="cn-northwest-1")
-cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1",
-                              aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                              aws_secret_access_key="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")
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
-                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
-                           aws_secret_access_key="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")
+cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
 
 class Check:
@@ -59,15 +55,14 @@ class Check:
         return response.get("Items")
 
     def get_stack_name(self, tenantId):
-        tenantId = "zudIcG_17yj8CEUoCTHg"
         resource_item = self.query_resource(tenantId)
         item_list = [item for item in resource_item if item.get("ownership") == "shared"]
 
         res_list = []
-        for i in item_list:
-            print(res_list)
-            res_list += [f'{i.get("role")}-{j.get("type")}-{tenantId.replace("_", "-")}' for j in
-                         json.loads(i.get("properties"))]
+        for item in item_list:
+            res_list += [
+                f'{item.get("role")}-{property.get("type")}-{tenantId.replace("_", "-").replace(":", "-").replace("+", "-")}'
+                for property in json.loads(item.get("properties"))]
         return res_list
 
     def check_parameter(self, data):

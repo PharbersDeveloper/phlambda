@@ -23,12 +23,13 @@ class DelStepsIndex:
 
     def __init__(self, event):
         self.event = event
+        self.steps = event['steps']
 
     def get_scenarioId(self):
-        return self.event['scenario']
+        return self.event['scenario']['id']
 
     def get_stepId(self):
-        return self.event['steps']
+        return self.steps['id']
 
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
@@ -69,18 +70,20 @@ class DelStepsIndex:
         return OldImage
 
     def fetch_result(self):
+        self.steps['OldImage'] = self.OldImage
         return self.OldImage
 
 
 def lambda_handler(event, context):
-    DelClient = DelStepsIndex(event)
 
+    DelClient = DelStepsIndex(event)
     #--------------------------get OldImage-------------------------------------------------------#
     OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
-    DelClient.get_OldImage(OldImageItem)
+    OldImage = DelClient.get_OldImage(OldImageItem)
+    if len(OldImage) == 0:
+        print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
+    else:
+        #-------------------------delete step----------------------------------------------------------#
+        DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
 
-    #-------------------------delete step----------------------------------------------------------#
-    DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
-
-    #TODO 返回结果后面对接时再调整
     return DelClient.fetch_result()

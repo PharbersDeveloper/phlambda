@@ -207,7 +207,13 @@ class DelRollBack:
         return modeType['OldImage']
 
     def scenarioRollBack(self):
-        pass
+        RollBackMode = self.check_OldImage(self.scenario)
+        self.errorMessage['scenario'] = f" error handle mode: {RollBackMode}"
+        if RollBackMode == "RollBack":
+            self.RollBackProcess(self.scenario, "scenario")
+        else:
+            self.NotNeedRollBack()
+
 
     def triggerRollBack(self):
         RollBackMode = self.check_OldImage(self.trigger)
@@ -236,7 +242,7 @@ def lambda_handler(event, context):
     delClient = DelRollBack(event)
     #TODO 回滚scenario时，需同时回滚子级层次的trigger 和step 数据,现在暂时没确定scenario里的oldimage数据结构，后面对接时候再做
     #------------------------- scenario -------------------------#
-    #delClient.scenarioRollBack()
+    delClient.scenarioRollBack()
     delClient.triggerRollBack()
     delClient.stepRollBack()
 

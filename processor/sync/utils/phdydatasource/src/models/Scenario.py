@@ -8,6 +8,7 @@ class Scenario(Model):
         "projectId": fields.Str(required=True),
         "scenarioName": fields.Str(dump_default="unknown"),
         "projectName": fields.Str(dump_default="unknown"),
+        "showName": fields.Str(dump_default="unknown"),
         "index": fields.Int(dump_default=-1),
         "active": fields.Boolean(dump_default=False),
         "args": fields.Str(dump_default="unknown"),

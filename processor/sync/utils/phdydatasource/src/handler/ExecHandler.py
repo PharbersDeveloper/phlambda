@@ -57,7 +57,7 @@ __table_structure = {
     "version": Version,
     "scenario": Scenario,
     "scenario_step": ScenarioStep,
-    "scenario_trigger": ScenarioTrigger
+    "scenario_trigger": ScenarioTrigger,
     "resource": Resource
 }
 

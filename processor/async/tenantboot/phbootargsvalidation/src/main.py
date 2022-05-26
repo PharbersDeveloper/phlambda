@@ -1,5 +1,7 @@
 import json
 import boto3
+from boto3.dynamodb.conditions import Key
+
 
 '''
 这个函数是对所有的reboot的数据参数的validate
@@ -29,30 +31,43 @@ args = {
 '''
 
 
-ssm = boto3.client('ssm')
+ssm = boto3.client('ssm', region_name="cn-northwest-1")
+cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1",
+                              aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                              aws_secret_access_key="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")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
+                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                           aws_secret_access_key="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")
 
 
 class Check:
 
-    # def get_cloudformation_stack(self):
-    #     cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
-    #     responses = cloudformation.list_stacks().get("StackSummaries", [])
-    #     return [response.get("StackName") for response in responses]
+    def check_ssm(self, stack_name, tenantId):
+        try:
+            response = ssm.get_parameter(
+                Name=stack_name
+            )
+            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}")
+        except:
+            pass
 
+    def query_resource(self, tenantId):
+        table = dynamodb.Table("resource")
+        response = table.query(
+            KeyConditionExpression=Key('tenantId').eq(tenantId),
+        )
+        return response.get("Items")
 
-    # def get_ssm(self, stack_name):
-    #     try:
-    #         response = ssm.get_parameter(
-    #             Name=stack_name
-    #         )
-    #     except:
-    #         raise Exception('ssm already exist')
+    def get_stack_name(self, tenantId):
+        tenantId = "zudIcG_17yj8CEUoCTHg"
+        resource_item = self.query_resource(tenantId)
+        item_list = [item for item in resource_item if item.get("ownership") == "shared"]
 
-
-
-        responses = ssm.describe_parameters().get("Parameters")
-        return [response.get("name") for response in responses]
-
+        res_list = []
+        for i in item_list:
+            res_list += [f'{i.get("role")}-{j.get("type")}-{tenantId.replace("_", "-")}' for j in
+                         json.loads(i.get("properties"))]
+        return res_list
 
     def check_parameter(self, data):
 
@@ -61,20 +76,16 @@ class Check:
             raise Exception('action.cat not tenantStart')
 
         # 2. resources 当前只能是以下值的一种
-        stack_name = data.get("traceId").replace("=", "-")
-        self.get_ssm(stack_name)
-        
         resources_args = ["emr", "ec2", "clickhouse", "chproxy", "dns", "target group", "load balance rule"]
         resources = data.get("resources")
         for resource in resources:
             if resource not in resources_args:
                 raise Exception('resouces error')
 
-        # if stack_name in self.get_cloudformation_stack:
-        #     raise Exception('cloudformation already exist')
-        # if stack_name in self.get_ssm():
-        #     raise Exception('ssm already exist')
-
+        tenantId = data["common"]["tenantId"]
+        stack_list = self.get_stack_name(tenantId)
+        for stack_name in stack_list:
+            self.check_ssm(stack_name, tenantId)
         return True
 
 
@@ -90,4 +101,3 @@ def lambda_handler(event, context):
     #     2.5 target group (deprecated 以后会被无服务器替换)
     #     2.7 load balance rule (deprecated 以后会被无服务器替换)
     # 3. 当resource不存在的时候，启动全部记录在数据库中的参数
-

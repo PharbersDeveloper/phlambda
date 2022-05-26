@@ -2,6 +2,7 @@ import os
 import json
 import boto3
 import traceback
+from boto3.dynamodb.conditions import Key
 
 
 '''
@@ -39,13 +40,55 @@ event = {
 '''
 
 
-def get_ssm():
-    '''
-    @ylzhang 不能这样做，一次性不可能load到所有的数据
-    '''
-    ssm = boto3.client('ssm', region_name="cn-northwest-1")
-    responses = ssm.describe_parameters().get("Parameters")
-    return [response.get("name") for response in responses]
+ssm = boto3.client('ssm', region_name="cn-northwest-1")
+cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1",
+                              aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                              aws_secret_access_key="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")
+dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1",
+                           aws_access_key_id="AKIAWPBDTVEANKEW2XNC",
+                           aws_secret_access_key="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")
+
+
+def check_cloudformation_stack(StackName):
+    try:
+        response = cloudformation.describe_stacks(
+            StackName=StackName,
+        )
+        return True
+    except:
+        pass
+
+
+def check_ssm(stack_name):
+    try:
+        response = ssm.get_parameter(
+            Name=stack_name
+        )
+        return True
+    except:
+        pass
+
+
+def query_resource(tenantId):
+    table = dynamodb.Table("resource")
+    response = table.query(
+        KeyConditionExpression=Key('tenantId').eq(tenantId),
+    )
+    return response.get("Items")
+
+
+def get_stack_name(tenantId):
+    tenantId = "zudIcG_17yj8CEUoCTHg"
+    resource_item = query_resource(tenantId)
+    item_list = [item for item in resource_item if item.get("ownership") == "shared"]
+
+    res_list = []
+    for i in item_list:
+        print(res_list)
+        res_list += [f'{i.get("role")}-{j.get("type")}-{tenantId.replace("_", "-")}' for j in
+                     json.loads(i.get("properties"))]
+    return res_list
+
 
 
 def lambda_handler(event, context):
@@ -58,14 +101,8 @@ def lambda_handler(event, context):
     }
     trace_id = ""
     edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
-
-    traceId = event.get("common").get("traceId")
     # TODO: ... 缺判断当前这个是否已经启动 @ylzhang
-    # 1. ssm 必须存在，如果存在，报错，不能重复创建并提交管理员
-    # @ylzhang
 
-    if traceId in get_ssm():
-        pass
     # 1. event to args
     args = {
         "common": {
@@ -90,6 +127,32 @@ def lambda_handler(event, context):
             "required": True
         }   
     }
+
+    message = ""
+    status = ""
+    tenantId = event.get("common").get("tenantId")
+    stack_list = get_stack_name(tenantId)
+    for stack_name in stack_list:
+        if check_cloudformation_stack(stack_name):
+            status = "failed"
+            message += f"stack_Name in cloudformation already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}. "
+        if check_ssm(stack_name):
+            status = "failed"
+            message += f"stack_Name in ssm already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}. "
+
+    if status:
+        result["status"] = "failed"
+        result["message"] = message
+        result["trace_id"] = args["common"]["traceId"]
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "body": json.dumps(result)
+        }
 
     try:
         trace_id = args["common"]["traceId"]

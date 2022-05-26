@@ -44,21 +44,27 @@ def resourceCheck(resource):
     properties = json.loads(resource["properties"])
     for prop in properties:
         tmpsm = "-".join([resource["role"], prop["type"], resource["tenantId"]]).replace("_", "-").replace(":", "-").replace("+", "-")
-        response = client.describe_stacks(StackName=tmpsm)["Stacks"]
-        if len(response) == 0:
+        try:
+            response = client.describe_stacks(StackName=tmpsm)["Stacks"]
+        except:
+            traceback.print_exc()
             print("{} is stoped".format(tmpsm))
-            result |= 0
-        elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"]:
-            print("{} is starting".format(tmpsm))
-            result |=1
-        elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
-            print("{} is started".format(tmpsm))
-            result |= 2
-        elif len(response) == 1 and response[0]["StackStatus"] in ["DELETE_IN_PROGRESS"]:
-            print("{} is stoping".format(tmpsm))
-            result |= 4
-        else:
-            raise Exception("unexcept status ({}) for {}".format(response[0]["StackStatus"], tmpsm))
+            response = []
+        finally:
+            if len(response) == 0:
+                print("{} is stoped".format(tmpsm))
+                result |= 0
+            elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"]:
+                print("{} is starting".format(tmpsm))
+                result |=1
+            elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
+                print("{} is started".format(tmpsm))
+                result |= 2
+            elif len(response) == 1 and response[0]["StackStatus"] in ["DELETE_IN_PROGRESS"]:
+                print("{} is stoping".format(tmpsm))
+                result |= 4
+            else:
+                raise Exception("unexcept status ({}) for {}".format(response[0]["StackStatus"], tmpsm))
 
     return result
 
@@ -88,7 +94,7 @@ def ssmQueryTraceId(tenantId):
     @return: traceId
     '''
     name = tenantId.replace("=", "-")    
-    response = client.get_parameter(
+    response = ssm.get_parameter(
         Name=tenantId
     )
     print(response)
@@ -136,17 +142,19 @@ def lambda_handler(event, context):
         if (statusCode & 4) != 0:
             result["status"] = 4
             result["message"] = "stoping"
-        elif (statusCode & 2) != 0:
-            result["status"] = 2
-            result["message"] = "started"
-            status = 2
-            message = "started"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
         elif (statusCode & 1) != 0:
             result["status"] = 1
             result["message"] = "starting"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+        elif (statusCode & 2) != 0:
+            result["status"] = 2
+            result["message"] = "started"
+            result["traceId"] = ssmQueryTraceId(event["tenantId"])
         elif statusCode == 0:
             result["status"] = 0
             result["message"] = "stoped"
+            result["traceId"] = ""
         else:
             raise Exception("unknown error")
     except Exception as e:

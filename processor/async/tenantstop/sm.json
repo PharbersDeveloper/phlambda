@@ -11,7 +11,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationargsvalidation-dev",
          "ResultPath": null,
-         "Next": "Actions",
+         "Next": "SSMRead",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
             "ResultPath": "$.error",
@@ -35,13 +35,30 @@
             "value": {}
          },
          "ResultPath": "$.resources",
+         "Next": "Actions"
+      },
+      "StopingNotification": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.resources.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
+            "status": "stoping"
+         },
+         "ResultPath": null,
          "Next": "ResourceDeletion"
       },
       "ResourceDeletion": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationresourcesteps-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "traceId.$": "$.resources.traceId",
             "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -104,7 +121,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsactions-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "traceId.$": "$.resources.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
@@ -115,13 +132,13 @@
             "required.$": "$.action.required"
          },
          "ResultPath": null,
-         "Next": "SSMRead"
+         "Next": "StopingNotification"
       },
       "Success": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "traceId.$": "$.resources.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
@@ -137,11 +154,10 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationcleanup-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "traceId.$": "$.resources.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName"
@@ -153,7 +169,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "traceId.$": "$.resources.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",

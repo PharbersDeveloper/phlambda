@@ -2,6 +2,7 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 from datetime import datetime
+from decimal import Decimal
 
 '''
 删除失败后将所有的东西写回到数据库中，
@@ -105,13 +106,17 @@ class DelRollBack:
             print("*"*50+"OldImage ERROR"+"*"*50 + "\n", str(e))
             return "NotNeedRollBack"
 
+    def turn_decimal_into_int(self, data):
+        return int(data) if isinstance(data, Decimal) else data
+
+
     def get_scenarioItem(self, OldImage):
         scenarioItem = {
             'projectId': self.get_projectId(),
             'id': OldImage['id'],
             'active': OldImage['active'],
             'args': '',
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'owner': self.get_owner(),
             'projectName': self.get_projectName(),
             'scenarioName': OldImage['scenarioName'],
@@ -125,7 +130,7 @@ class DelRollBack:
             'id': OldImage['id'],
             'active': OldImage['active'],
             'detail': OldImage['detail'],
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
             'traceId': self.get_traceId()
         }
@@ -137,7 +142,7 @@ class DelRollBack:
             'id': OldImage['id'],
             'confData': OldImage['confData'],
             'detail': OldImage['detail'],
-            'index': OldImage['index'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
             'name': OldImage['name'],
             'traceId': self.get_traceId()
@@ -179,7 +184,6 @@ class DelRollBack:
         }
         return queryConditionDict
 
-    #TODO item是否一致的标准对接的时候确定
     #-------------------检查Item是否一致----------------------------#
     def IsTheSameItem(self, OldItem, CurrentItem):
 
@@ -190,14 +194,14 @@ class DelRollBack:
         oldImage = self.get_OldImage(modeType)
         Item = self.map_Item(tableName, oldImage)
         #--------------检查item是否一致-------------------------------#
-        queryTableItem = self.query_table_item(tableName, self.map_query_table_condition()[tableName])
+        queryTableItem = self.query_table_item(tableName, **(self.map_query_table_condition()[tableName]))
         if len(queryTableItem) == 0:
             self.put_item(tableName, Item)
         else:
-            if self.IsTheSameItem(Item, queryTableItem):
-                pass
-            else: #----TODO oldItem 和当前item不一致时的处理方式  覆盖or保留？
-                pass
+            if self.IsTheSameItem(Item, self.map_Item(tableName, queryTableItem[0])):
+                self.NotNeedRollBack()
+            else: #----覆盖操作-----------------#
+                self.put_item(tableName, Item)
 
 
     def NotNeedRollBack(self):
@@ -240,8 +244,6 @@ def lambda_handler(event, context):
 
     #---------------------回滚操作--------------------------------#
     delClient = DelRollBack(event)
-    #TODO 回滚scenario时，需同时回滚子级层次的trigger 和step 数据,现在暂时没确定scenario里的oldimage数据结构，后面对接时候再做
-    #------------------------- scenario -------------------------#
     delClient.scenarioRollBack()
     delClient.triggerRollBack()
     delClient.stepRollBack()

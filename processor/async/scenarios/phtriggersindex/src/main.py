@@ -122,6 +122,4 @@ def lambda_handler(event, context):
         triggersClient.get_OldImage()
         triggersClient.put_item()
 
-    #return triggersClient.fetch_result()
-    return {"type": "notification", "opname": event['owner'],
-            "cnotification": {"data": {"datasets": [triggersClient.fetch_result()]}, "error": ''}}
+    return triggersClient.fetch_result()

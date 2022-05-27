@@ -165,7 +165,4 @@ def lambda_handler(event, context):
     else:
         StepsClient.get_OldImage()
         StepsClient.put_item()
-
-    #return StepsClient.fetch_result()
-    return {"type": "notification", "opname": event['owner'],
-            "cnotification": {"data": {"datasets": [StepsClient.fetch_result()]}, "error": ''}}
+    return StepsClient.fetch_result()

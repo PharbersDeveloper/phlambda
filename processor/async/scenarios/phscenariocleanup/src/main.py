@@ -13,10 +13,8 @@ class RollBack:
     def __init__(self, event):
         self.event = event
         self.scenario = event['scenario']
-        self.trigger_all = event['triggers']
-        self.steps_all = event['steps']
-        self.trigger = event['triggers'][0]
-        self.step = event['steps'][0]
+        self.trigger = event['triggers'] if len(event['triggers']) == 0 else event['triggers'][0]
+        self.step = event['steps'] if len(event['steps']) == 0 else event['steps'][0]
         self.errorMessage = {}
         print("*"*50+"event"+"*"*50)
         print(self.event)
@@ -185,13 +183,13 @@ def lambda_handler(event, context):
     rollBackClient = RollBack(event)
     rollBackClient.scenarioRollBack()
 
-    if len(rollBackClient.trigger_all) == 0:
+    if len(rollBackClient.trigger) == 0:
         rollBackClient.errorMessage = "trigger not need rollBack, because the data of triggers not exits"
         pass
     else:
         rollBackClient.triggerRollBack()
 
-    if len(rollBackClient.steps_all) == 0:
+    if len(rollBackClient.steps) == 0:
         rollBackClient.errorMessage = "steps not need rollBack, because the data of steps not exits"
         pass
     else:

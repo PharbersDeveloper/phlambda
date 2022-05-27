@@ -189,7 +189,7 @@ def lambda_handler(event, context):
     else:
         rollBackClient.triggerRollBack()
 
-    if len(rollBackClient.steps) == 0:
+    if len(rollBackClient.step) == 0:
         rollBackClient.errorMessage = "steps not need rollBack, because the data of steps not exits"
         pass
     else:

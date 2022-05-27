@@ -206,7 +206,9 @@ def lambda_handler(event, context):
         result = {}
         result['status'] = 'error'
         result['message'] = 'triggers is not exists, can not create any resources.'
-        return result
+        #return result
+        return {"type": "notification", "opname": event['owner'],
+                       "cnotification": {"data": {"datasets": "", "error": result}}}
     else:
         triggerId = event['triggers'][0]['id']
         #------- 拼cron表达式------------------------------------#

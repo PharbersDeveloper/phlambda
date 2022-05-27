@@ -255,6 +255,4 @@ def lambda_handler(event, context):
         finally:
             print("--"*50 + "RESULT" + "--"*50)
             print(triggers.result)
-            #return triggers.result
-            return {"type": "notification", "opname": event['owner'],
-                 "cnotification": {"data": {"datasets": "", "error": triggers.result}}}
+            return triggers.result

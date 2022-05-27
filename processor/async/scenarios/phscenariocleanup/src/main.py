@@ -174,7 +174,7 @@ class RollBack:
             )
 
     def fetch_result(self):
-        return {"type": "notification", "opname": self.get_projectId(),
+        return {"type": "notification", "opname": self.get_owner(),
                 "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
 
 def lambda_handler(event, context):

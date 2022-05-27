@@ -156,6 +156,7 @@ class StepsIndex:
             self.steps['OldImage'] = self.OldImage
             return [self.steps]
 
+
 def lambda_handler(event, context):
 
     StepsClient = StepsIndex(event)
@@ -165,4 +166,6 @@ def lambda_handler(event, context):
         StepsClient.get_OldImage()
         StepsClient.put_item()
 
-    return StepsClient.fetch_result()
+    #return StepsClient.fetch_result()
+    return {"type": "notification", "opname": event['owner'],
+            "cnotification": {"data": {"datasets": [StepsClient.fetch_result()]}, "error": ''}}

@@ -13,6 +13,8 @@ class RollBack:
     def __init__(self, event):
         self.event = event
         self.scenario = event['scenario']
+        self.trigger_all = event['triggers']
+        self.steps_all = event['steps']
         self.trigger = event['triggers'][0]
         self.step = event['steps'][0]
         self.errorMessage = {}
@@ -182,7 +184,17 @@ def lambda_handler(event, context):
     #-------------------回滚操作-----------------------------------#
     rollBackClient = RollBack(event)
     rollBackClient.scenarioRollBack()
-    rollBackClient.triggerRollBack()
-    rollBackClient.stepsRollBack()
+
+    if len(rollBackClient.trigger_all) == 0:
+        rollBackClient.errorMessage = "trigger not need rollBack, because the data of triggers not exits"
+        pass
+    else:
+        rollBackClient.triggerRollBack()
+
+    if len(rollBackClient.steps_all) == 0:
+        rollBackClient.errorMessage = "steps not need rollBack, because the data of steps not exits"
+        pass
+    else:
+        rollBackClient.stepsRollBack()
 
     return rollBackClient.fetch_result()

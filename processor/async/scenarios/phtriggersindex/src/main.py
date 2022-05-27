@@ -37,8 +37,7 @@ args:
 class TriggersIndex:
     def __init__(self, event):
         self.event = event
-        self.triggers_all = event['triggers']
-        self.triggers = self.event['triggers'][0]
+        self.triggers = event['triggers'] if len(event['triggers']) == 0 else event['triggers'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
@@ -108,8 +107,8 @@ class TriggersIndex:
         return OldImage
 
     def fetch_result(self):
-        if len(self.triggers_all) == 0:
-            return self.triggers_all
+        if len(self.triggers) == 0:
+            return self.triggers
         else:
             self.triggers['OldImage'] = self.OldImage
         return [self.triggers]
@@ -117,7 +116,7 @@ class TriggersIndex:
 def lambda_handler(event, context):
 
     triggersClient = TriggersIndex(event)
-    if len(triggersClient.triggers_all) == 0:
+    if len(triggersClient.triggers) == 0:
         pass
     else:
         triggersClient.get_OldImage()

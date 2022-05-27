@@ -69,7 +69,7 @@ return = {
 class StepsIndex:
     def __init__(self, event):
         self.event = event
-        self.steps = event['steps'] if len(event['event']) == 0 else event['steps'][0]
+        self.steps = event['steps'] if len(event['steps']) == 0 else event['steps'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']

@@ -10,7 +10,7 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
       FunctionName: lmd-phcreateproject-V2
-      Description: "创建Project同时在挂载EFS创建文件"
+      Description: "创建Project，该接口可废弃，可直接调用platform"
       Timeout: 600
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
       MemorySize: 1024

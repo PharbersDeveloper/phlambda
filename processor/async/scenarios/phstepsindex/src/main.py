@@ -69,7 +69,7 @@ return = {
 class StepsIndex:
     def __init__(self, event):
         self.event = event
-        self.steps = self.event['steps'][0]
+        self.steps = event['steps'] if len(event['steps']) == 0 else event['steps'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
@@ -150,13 +150,19 @@ class StepsIndex:
         return OldImage
 
     def fetch_result(self):
-        self.steps['OldImage'] = self.OldImage
-        return [self.steps]
+        if len(self.steps) == 0:
+            return self.steps
+        else:
+            self.steps['OldImage'] = self.OldImage
+            return [self.steps]
+
 
 def lambda_handler(event, context):
 
     StepsClient = StepsIndex(event)
-    StepsClient.get_OldImage()
-    StepsClient.put_item()
-
+    if len(StepsClient.steps) == 0:
+        pass
+    else:
+        StepsClient.get_OldImage()
+        StepsClient.put_item()
     return StepsClient.fetch_result()

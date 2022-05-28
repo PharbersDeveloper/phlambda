@@ -13,8 +13,8 @@ class RollBack:
     def __init__(self, event):
         self.event = event
         self.scenario = event['scenario']
-        self.trigger = event['triggers'][0]
-        self.step = event['steps'][0]
+        self.trigger = event['triggers'] if len(event['triggers']) == 0 else event['triggers'][0]
+        self.step = event['steps'] if len(event['steps']) == 0 else event['steps'][0]
         self.errorMessage = {}
         print("*"*50+"event"+"*"*50)
         print(self.event)
@@ -174,7 +174,7 @@ class RollBack:
             )
 
     def fetch_result(self):
-        return {"type": "notification", "opname": self.get_projectId(),
+        return {"type": "notification", "opname": self.get_owner(),
                 "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
 
 def lambda_handler(event, context):
@@ -182,7 +182,17 @@ def lambda_handler(event, context):
     #-------------------回滚操作-----------------------------------#
     rollBackClient = RollBack(event)
     rollBackClient.scenarioRollBack()
-    rollBackClient.triggerRollBack()
-    rollBackClient.stepsRollBack()
+
+    if len(rollBackClient.trigger) == 0:
+        rollBackClient.errorMessage = "trigger not need rollBack, because the data of triggers not exits"
+        pass
+    else:
+        rollBackClient.triggerRollBack()
+
+    if len(rollBackClient.step) == 0:
+        rollBackClient.errorMessage = "steps not need rollBack, because the data of steps not exits"
+        pass
+    else:
+        rollBackClient.stepsRollBack()
 
     return rollBackClient.fetch_result()

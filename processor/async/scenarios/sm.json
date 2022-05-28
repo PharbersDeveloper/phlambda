@@ -24,7 +24,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
+          } ]
       },
       "Actions": {
          "Type": "Task",
@@ -78,7 +78,7 @@
             "steps.$": "$.[1].steps"
          },
          "ResultPath": "$.result",
-         "Next": "Success",
+         "Next": "ConvertScenariosMessage",
          "Branches": [
             {
                "StartAt": "TriggersIndex",
@@ -149,7 +149,17 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ],
+          } ]
+      },
+      "ConvertScenariosMessage": {
+         "Type": "Task",
+         "ResultPath": "$.result",
+         "Next": "Success",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertscenariosmessage-dev",
+         "Parameters": {
+            "owner.$": "$.common.owner",
+            "result.$": "$.result"
+         }
       },
       "Success": {
          "Type": "Task",

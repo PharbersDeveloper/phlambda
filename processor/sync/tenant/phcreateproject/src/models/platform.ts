@@ -1,6 +1,6 @@
 import * as fortune from "fortune"
-import OptEfsHandler from "../handler/optEfsHandler"
-import OptCrawlerHandler from "../handler/optCrawlerHandler"
+// import OptEfsHandler from "../handler/optEfsHandler"
+// import OptCrawlerHandler from "../handler/optCrawlerHandler"
 import ObjectUtil from "../utils/ObjectUtil"
 
 export default class Platform {
@@ -118,8 +118,8 @@ export default class Platform {
 
 
     async hookProjectInput(context, record, update) {
-        const optEfsHandler = new OptEfsHandler()
-        const optCrawlerHandler = new OptCrawlerHandler()
+        // const optEfsHandler = new OptEfsHandler()
+        // const optCrawlerHandler = new OptCrawlerHandler()
         const { errors: { BadRequestError } } = fortune
         const { request: { method } } = context
         switch (method) {
@@ -129,13 +129,13 @@ export default class Platform {
                     record.created = date
                 }
                 record.id = ObjectUtil.generateId()
-                optEfsHandler.create(record.id)
-                await optCrawlerHandler.create(record.id, record.provider)
+                // optEfsHandler.create(record.id)
+                // await optCrawlerHandler.create(record.id, record.provider)
                 return record
-            case "delete":
-                await optCrawlerHandler.delete(record.id, record.provider)
-                optEfsHandler.remove(record.id)
-                return null
+            // case "delete":
+            //     await optCrawlerHandler.delete(record.id, record.provider)
+            //     optEfsHandler.remove(record.id)
+            //     return null
         }
     }
 }

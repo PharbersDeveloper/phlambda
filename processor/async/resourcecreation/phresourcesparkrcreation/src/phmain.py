@@ -1,6 +1,6 @@
 
 def create_ph_main_file(conf):
-    runtime = "r"
+    runtime = "sparkr"
 
     file_lines = conf.get("s3").open_object_by_lines(conf.get("bucket"),
                                                      conf.get("cliVersion") + conf.get("templatePhmainFile"))

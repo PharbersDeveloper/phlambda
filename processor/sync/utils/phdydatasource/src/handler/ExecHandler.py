@@ -6,8 +6,6 @@ from util.AWS.DynamoDB import DynamoDB
 from models.Execution import Execution
 from models.Step import Step
 from models.Action import Action
-from models.ProjectFile import ProjectFile
-from models.Partition import Partition
 from models.DataSet import DataSet
 from models.Version import Version
 from models.Notification import Notification
@@ -45,8 +43,6 @@ __table_structure = {
     "step": Step,
     "action": Action,
     "action_dev": Action,
-    "project_files": ProjectFile,
-    "partition": Partition,
     "dataset": DataSet,
     "notification": Notification,
     "dag": Dag,

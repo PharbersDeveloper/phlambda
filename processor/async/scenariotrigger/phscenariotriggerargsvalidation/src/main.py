@@ -6,6 +6,7 @@ import boto3
 args = {
     "common": {
         "traceId": "alfred-resource-creation-traceId",
+        "scenarioId": "alfred-resource-creation-scenarioId",
         "projectId": "ggjpDje0HUC2JW",
         "projectName": "demo",
         "owner": "alfred",
@@ -52,6 +53,6 @@ def check_parameter(data, **kwargs):
 
 def lambda_handler(event, context):
     return check_parameter(**event)
-    # 1. action.cat 只能是 personalResBoots
-    # 2. resourcesId 必须存在
+    # 1. action.cat 只能是 scenarioTrigger
+    # 2. scenarioId 必须存在
     # 3. ssm 中必须存在 key 为 tenantId的项

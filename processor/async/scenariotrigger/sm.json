@@ -1,0 +1,214 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenarioargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "Actions",
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ]
+      },
+      "Actions": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "required.$": "$.action.required",
+            "message.$": "$.action.message"
+         },
+         "ResultPath": null,
+         "Next": "ScenarioCreationOrUpdation"
+      },
+      "ScenarioCreationOrUpdation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenarioindex-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.scenario"
+         },
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ],
+         "ResultPath": "$.scenario",
+         "Next": "ScenarioDetailCreationOrUpdation"
+      },
+      "ScenarioDetailCreationOrUpdation": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "ResultSelector": {
+            "triggers.$": "$.[0].triggers",
+            "steps.$": "$.[1].steps"
+         },
+         "ResultPath": "$.result",
+         "Next": "ConvertScenariosMessage",
+         "Branches": [
+            {
+               "StartAt": "TriggersIndex",
+               "States": {
+                  "TriggersIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersindex-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scenario.$": "$.scenario",
+                        "triggers.$": "$.triggers"
+                     },
+                     "ResultPath": "$.triggers",
+                     "Next": "TriggersResources"
+                  },
+                  "TriggersResources": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersresource-dev",
+                     "Parameters": {
+                        "tenantId.$": "$.common.tenantId",
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scenario.$": "$.scenario",
+                        "triggers.$": "$.triggers"
+                     },
+                     "ResultPath": null,
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "StepsIndex",
+               "States": {
+                  "StepsIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstepsindex-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scenario.$": "$.scenario",
+                        "steps.$": "$.steps"
+                     },
+                     "ResultPath": "$.steps",
+                     "End": true
+                  }
+               }
+            },
+         ],
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.error",
+             "Next": "CleanUp"
+          } ]
+      },
+      "ConvertScenariosMessage": {
+         "Type": "Task",
+         "ResultPath": "$.result",
+         "Next": "Success",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertscenariosmessage-dev",
+         "Parameters": {
+            "owner.$": "$.common.owner",
+            "result.$": "$.result"
+         }
+      },
+      "Success": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.result",
+            "status": "success"
+         },
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariocleanup-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.result.scenario",
+            "triggers.$": "$.result.triggers",
+            "steps.$": "$.steps",
+         },
+         "ResultPath": null,
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.error",
+            "status": "failed"
+         },
+         "End": true
+      },
+   }
+
+}

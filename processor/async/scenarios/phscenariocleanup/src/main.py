@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr,Key
+from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 
 '''
@@ -42,7 +42,10 @@ class RollBack:
 
     def check_OldImage(self, mode_type):
         try:
-            return "Delete" if len(mode_type['OldImage']) == 0 else "RollBack"
+            if isinstance(mode_type, list) and len(mode_type) == 0:
+                return "NotNeedRollBack"
+            else:
+                return "Delete" if len(mode_type['OldImage']) == 0 else "RollBack"
         except Exception as e:
             print("*"*50+"OldImage ERROR"+"*"*50 + "\n", str(e))
             return "NotNeedRollBack"
@@ -179,20 +182,14 @@ class RollBack:
 
 def lambda_handler(event, context):
 
-    #-------------------回滚操作-----------------------------------#
-    rollBackClient = RollBack(event)
-    rollBackClient.scenarioRollBack()
-
-    if len(rollBackClient.trigger) == 0:
-        rollBackClient.errorMessage = "trigger not need rollBack, because the data of triggers not exits"
-        pass
-    else:
+    try:
+        #-------------------回滚操作-----------------------------------#
+        rollBackClient = RollBack(event)
+        rollBackClient.scenarioRollBack()
         rollBackClient.triggerRollBack()
-
-    if len(rollBackClient.step) == 0:
-        rollBackClient.errorMessage = "steps not need rollBack, because the data of steps not exits"
-        pass
-    else:
         rollBackClient.stepsRollBack()
-
-    return rollBackClient.fetch_result()
+        return rollBackClient.fetch_result()
+    except Exception as e:
+        print(f'UNKnonw ERROR: {str(e)}')
+        return {"type": "notification", "opname": event['owner'],
+                "cnotification": {"data": {"datasets": []}, "error": str(e)}}

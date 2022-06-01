@@ -26,7 +26,24 @@ args = {
 }
 '''
 
+class Check:
+    def check_parameter(self, data):
+
+        # 1. common 必须存在
+        if not data.get("common"):
+            raise Exception('common not exits')
+
+        # 2. action 必须存在
+        if not data.get("action"):
+            raise Exception('action not exits')
+
+        # 3. notification 必须存在
+        if not data.get("notification"):
+            raise Exception('notificaiton not exits')
+
+        return True
+
 
 def lambda_handler(event, context):
-    return True
+    return Check().check_parameter(event)
 

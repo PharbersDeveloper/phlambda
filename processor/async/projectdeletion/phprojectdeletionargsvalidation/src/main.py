@@ -46,4 +46,3 @@ class Check:
 
 def lambda_handler(event, context):
     return Check().check_parameter(event)
-

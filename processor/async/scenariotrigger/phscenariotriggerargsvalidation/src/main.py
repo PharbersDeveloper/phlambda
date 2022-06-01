@@ -1,58 +1,41 @@
 import json
 import boto3
+from boto3.dynamodb.conditions import Attr,Key
+from decimal import Decimal
 
 '''
-这个函数是对所有的reboot的数据参数的validate
-args = {
-    "common": {
-        "traceId": "alfred-resource-creation-traceId",
-        "scenarioId": "alfred-resource-creation-scenarioId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "scenarioTrigger",
-        "desc": "scenario trigger",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": true
-    },
-    "resourcesId": "String",
-    "notification": {
-        "required": true
+这个函数只做一件事情，检查参数是否合法
+args:
+    event = {
+        "common": {
+            "traceId": "alfred-resource-creation-traceId",
+            "projectId": "ggjpDje0HUC2JW",
+            "tenantId": "zudIcG_17yj8CEUoCTHg",
+            "projectName": "demo",
+            "owner": "alfred",
+            "showName": "alfred"
+        },
+        "action": {
+            "cat": "scenarioTrigger",
+            "desc": "scenario trigger",
+            "comments": "something need to say",
+            "message": "something need to say",
+            "required": true
+        },
+        "notification": {
+            "required": true      
+        },
+        "scenario": {
+            "scenarioId": "scenario id",       
+        }
     }
-}
 '''
-
-
-def get_ssm():
-    ssm = boto3.client('ssm', region_name="cn-northwest-1")
-    responses = ssm.describe_parameters().get("Parameters")
-    return [response.get("name") for response in responses]
-
-
-def check_parameter(data, **kwargs):
-    common = data.get("action", {})
-    # 1. action.cat 只能是 personalResBoots
-    if not common.get("cat") == "personalResBoots":
-        raise Exception('action.cat must be personalResBoots')
-
-    # 2. resourcesId 必须存在
-    if not data.get("resourcesId"):
-        raise Exception('resourcesId not exits')
-
-    # 3. ssm 中必须存在 key 为 tenantId的项
-    traceId = common.get("traceId")
-    if not traceId in get_ssm():
-        raise Exception('traceId not in ssm')
-
-    return True
 
 
 def lambda_handler(event, context):
-    return check_parameter(**event)
-    # 1. action.cat 只能是 scenarioTrigger
-    # 2. scenarioId 必须存在
-    # 3. ssm 中必须存在 key 为 tenantId的项
+    # 1. common 必须存在
+    # 2. action 必须存在
+    # 3. scenarioId 在 ScenarioStep 表中必须存在
+    # 4. scenarioStep中 detail里的 name 必须在dag表中存在
+    # 5. ssm 中必须存在 key 为 tenantId的项
+    return True

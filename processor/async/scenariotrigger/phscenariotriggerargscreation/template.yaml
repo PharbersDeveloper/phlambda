@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda scenariotriggerhttp
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,11 +9,11 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      FunctionName: lmd-phscenariotriggerargscreate-dev
+      MemorySize: 1024
+      Description: "phscenariotriggerargscreate"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-scenariotriggerhttp-dev
-      Description: "phstatemachinetrigger"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      MemorySize: 512
-      Timeout: 30
+

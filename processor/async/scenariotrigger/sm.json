@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenarioargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
@@ -41,125 +41,89 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
-         "Next": "ScenarioCreationOrUpdation"
+         "Next": "ScenarioTriggerStepsIterator"
       },
-      "ScenarioCreationOrUpdation": {
+      "ScenarioTriggerStepsIterator": {
+         "Type": "Pass",
+         "Result": {
+            "index": 0,
+            "currentStatus": "running"
+         },
+         "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerGetDetail"
+      },
+      "ScenarioTriggerGetDetail": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenarioindex-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
+         "Parameters": {
+            "projectId.$": "$.common.projectId",
+            "scenarioId.$": "$.scenario.scenarioId"
+         },
+         "ResultPath": "$.scenario.details",
+         "Next": "ScenarioTriggerArgsCreation"
+      },
+      "ScenarioTriggerArgsCreation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargscreation-dev",
+         "Parameters": {
+            "projectId.$": "$.common.projectId",
+            "tenantId.$": "$.common.tenantId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenarioSteps.$": "$.scenario.details"
+         },
+         "ResultPath": "$.scenario",
+         "Next": "ExecutionTrigger"
+      },
+      "ExecutionTrigger": {
+         "Type":"Task",
+         "Resource":"arn:aws:states:::states:startExecution.sync:2",
+         "Parameters":{
+            "Input.$": "$.scenario.currentScenarioStep",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
+            "Name":"$.common.runnerId"
+         },
+         "ResultPath": "$",
+         "Next": "ScenarioTriggerStepCheck"
+      },
+      "ScenarioTriggerStepCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerstepcheck-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.scenario"
+            "scenarioId.$": "$.scenario.scenarioId"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
-         "ResultPath": "$.scenario",
-         "Next": "ScenarioDetailCreationOrUpdation"
+         "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerStepCountReached"
       },
-      "ScenarioDetailCreationOrUpdation": {
-         "Type": "Parallel",
-         "InputPath": "$",
-         "ResultSelector": {
-            "triggers.$": "$.[0].triggers",
-            "steps.$": "$.[1].steps"
-         },
-         "ResultPath": "$.result",
-         "Next": "ConvertScenariosMessage",
-         "Branches": [
+      "ScenarioTriggerStepCountReached": {
+         "Type": "Choice",
+         "Choices": [
             {
-               "StartAt": "TriggersIndex",
-               "States": {
-                  "TriggersIndex": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersindex-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
-                     },
-                     "ResultPath": "$.triggers",
-                     "Next": "TriggersResources"
+               "And": [
+                  {
+                     "Variable": "$.iterator.index",
+                     "NumericEqualsPath": "$.metadata.codeeditor.counts"
                   },
-                  "TriggersResources": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phtriggersresource-dev",
-                     "Parameters": {
-                        "tenantId.$": "$.common.tenantId",
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
-                     },
-                     "ResultPath": null,
-                     "End": true
+                  {
+                     "Variable": "$.iterator.currentStatus",
+                     "StringEquals": "success"
                   }
-               }
-            },
-            {
-               "StartAt": "StepsIndex",
-               "States": {
-                  "StepsIndex": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstepsindex-dev",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "steps.$": "$.steps"
-                     },
-                     "ResultPath": "$.steps",
-                     "End": true
-                  }
-               }
-            },
+               ],
+               "Next": "SendEmail"
+            }
          ],
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ]
+         "Default": "ExecutionTrigger"
       },
-      "ConvertScenariosMessage": {
-         "Type": "Task",
-         "ResultPath": "$.result",
-         "Next": "Success",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phconvertscenariosmessage-dev",
-         "Parameters": {
-            "owner.$": "$.common.owner",
-            "result.$": "$.result"
-         }
+      "SendEmail": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "Success"
       },
       "Success": {
          "Type": "Task",
@@ -188,7 +152,7 @@
             "showName.$": "$.common.showName",
             "scenario.$": "$.result.scenario",
             "triggers.$": "$.result.triggers",
-            "steps.$": "$.steps",
+            "steps.$": "$.steps"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -208,7 +172,7 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
 
 }

@@ -1,5 +1,28 @@
 import boto3
 import json
+import time
+
+
+def put_action(event):
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('action')
+
+    response = table.put_item(
+        Item={
+            'projectId': event['common']['projectId'],
+            'date': str(int(round(time.time() * 1000))),
+            'jobCat': event['action']['cat'],
+            'jobDesc': event['action']['desc'],
+            'comments': event['action']['comments'],
+            'message': event['action']['message'],
+            'code': 0,
+            'owner': event['common']['owner'],
+            'showName': event['common']['showName'],
+            'traceId': event['common']['traceId']
+        }
+    )
+    print(response)
 
 
 def lambda_handler(event, context):
@@ -11,7 +34,7 @@ def lambda_handler(event, context):
             event = json.loads(event)
         print(event)
 
-        run_id = event['runnerId']
+        run_id = event['common']['runnerId']
         tenant = "pharbers"
         dag_name = "_".join(run_id.split("_")[:-1])
         s3_bucket = "ph-platform"
@@ -32,6 +55,9 @@ def lambda_handler(event, context):
             )
             executionArn = events["executions"][0]["executionArn"]
             sfn_client.stop_execution(executionArn=executionArn)
+
+            if event.get("action"):
+                put_action(event)
 
             result_message = {
                 "status": "ok",

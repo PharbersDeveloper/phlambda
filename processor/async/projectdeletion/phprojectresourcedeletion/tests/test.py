@@ -19,7 +19,7 @@ event = {
 		"message": "something need to say",
 		"required": True
 	},
-	"resources": {"host": "", "port": ""},
+	"resources": {"traceId": "alfred-resource-creation-traceId", "engine": {"ClusterID": "j-PX68RDFOX82D", "ClusterDNS": "ec2-52-82-68-6.cn-northwest-1.compute.amazonaws.com.cn"}, "olap": {"PrivateIp": "192.168.55.39", "PublicIp": "69.230.248.188", "PrivateDns": "ip-192-168-55-39.cn-northwest-1.compute.internal", "PublicDns": "ec2-69-230-248-188.cn-northwest-1.compute.amazonaws.com.cn"}},
 	"notification": {
 		"required": True
 	}

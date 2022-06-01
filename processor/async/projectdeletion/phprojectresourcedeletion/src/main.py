@@ -23,10 +23,10 @@ args = {
 
 class ResourceDeletion:
 
-    def __init__(self, host, port, **kwargs):
+    def __init__(self, host):
         self.dynamodb = boto3.client("dynamodb")
         self.s3 = boto3.resource("s3")
-        self.clickhouse = Client(host=host, port=port)
+        self.clickhouse = Client(host=host, port=9000)
 
     def del_clickhouse(self, table_name):
         sql = f"DROP TABLE IF EXISTS `default`.`{table_name}`"
@@ -61,6 +61,6 @@ class ResourceDeletion:
 
 def lambda_handler(event, context):
     common = event.get("common")
-    resources = event.get("resources")
-    ResourceDeletion(**resources).run(**common)
+    clickhouse_ip = event.get("resources").get("olap").get("PrivateIp")
+    ResourceDeletion(clickhouse_ip).run(**common)
     return True

@@ -70,7 +70,7 @@
             "projectId.$": "$.common.projectId",
             "scenarioId.$": "$.scenario.scenarioId"
          },
-         "ResultPath": "$.scenario.details",
+         "ResultPath": "$.metadata",
          "Next": "ScenarioTriggerArgsCreation"
       },
       "ScenarioTriggerArgsCreation": {
@@ -83,16 +83,16 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "tenantInfo.$": "$.tenantInfo",
-            "scenarioSteps.$": "$.scenario.details"
+            "scenarioSteps.$": "$.metadata.scenarioSteps"
          },
-         "ResultPath": "$.scenario",
+         "ResultPath": "$.currentTriggerStep",
          "Next": "ExecutionTrigger"
       },
       "ExecutionTrigger": {
          "Type":"Task",
          "Resource":"arn:aws:states:::states:startExecution.sync:2",
          "Parameters":{
-            "Input.$": "$.iterator。currentTriggerStep",
+            "Input.$": "$.currentTriggerStep",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
             "Name":"$.common.runnerId"
          },
@@ -120,22 +120,27 @@
                "And": [
                   {
                      "Variable": "$.iterator.index",
-                     "NumericEqualsPath": "$.metadata.codeeditor.counts"
+                     "NumericEqualsPath": "$.metadata.scenarioSteps.count"
                   },
                   {
                      "Variable": "$.iterator.currentStatus",
                      "StringEquals": "success"
                   }
                ],
-               "Next": "SendEmail"
+               "Next": "Success"
+            },
+            {
+               "Variable": "$.iterator.currentStatus",
+               "StringEquals": "failed",
+               "Next": "CleanUp"
             }
          ],
-         "Default": "ExecutionTrigger"
+         "Default": "ScenarioTriggerArgsCreation"
       },
       "SendEmail": {
          "Type": "Pass",
          "ResultPath": null,
-         "Next": "Success"
+         "End": true
       },
       "Success": {
          "Type": "Task",
@@ -151,7 +156,7 @@
             "message.$": "$.result",
             "status": "success"
          },
-         "End": true
+         "Next": "SendEmail"
       },
       "CleanUp": {
          "Type": "Task",
@@ -162,11 +167,9 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.result.scenario",
-            "triggers.$": "$.result.triggers",
-            "steps.$": "$.steps"
+            "errors.$" : "$.error"
          },
-         "ResultPath": null,
+         "ResultPath": "$.error",
          "Next": "Failed"
       },
       "Failed": {
@@ -183,7 +186,7 @@
             "message.$": "$.error",
             "status": "failed"
          },
-         "End": true
+         "Next": "SendEmail"
       }
    }
 

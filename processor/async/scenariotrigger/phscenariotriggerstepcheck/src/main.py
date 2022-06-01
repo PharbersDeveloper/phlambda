@@ -24,19 +24,13 @@ args:
         "iterator": {
             "index": 0,
             "currentStatus": "running"
-            "currentTriggerStep": ""
         }
-        "triggerSteps"：[
-            {...}
-        ]
 
 return:
     {
-        "triggerSteps":
         "Iterator": {
             "index": ""
-            "currentStatus": ""
-            "currentTrigger": ""
+            "currentStatus": "running"
         }
     }
 '''

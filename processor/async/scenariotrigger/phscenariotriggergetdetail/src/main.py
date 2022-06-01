@@ -8,12 +8,17 @@ from decimal import Decimal
 当前scenarioId下的所有item并根据index排序返回details
 args:
     event = {
+            "iterator": {
+                "index": 0,
+                "currentStatus": "running"
+            }
             "scenarioId": "ggjpDje0HUC2JW_f06f093f8f684289b949335e5e48edcd",
             "projectId": "ggjpDje0HUC2JW"
     }
 
 return:
     {
+        "count": "",
         "scenarioSteps": [
             {
                 "detail": {

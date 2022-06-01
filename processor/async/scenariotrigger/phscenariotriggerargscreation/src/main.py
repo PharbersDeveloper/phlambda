@@ -24,6 +24,10 @@ args:
                   "PrivateDns": "ip-192-168-31-189.cn-northwest-1.compute.internal",
                   "PublicDns": "ec2-52-83-49-104.cn-northwest-1.compute.amazonaws.com.cn"
                 }
+            },
+            "iterator": {
+                "index": 0,
+                "currentStatus": "running"
             }
             "scenarioSteps": [
                 {
@@ -41,8 +45,6 @@ args:
         }
 
 return:
-        {
-            "triggerSteps": [
             {
                 "common": {
                     "traceId": "autoweight_autoweight_developer_2022-06-01T01:54:08+00:00",
@@ -95,10 +97,8 @@ return:
                         "ip": "192.168.55.39"
                     }
                 }
-            },
-            {...},
-            ]
-        }
+            }
+        
 '''
 
 

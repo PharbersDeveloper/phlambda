@@ -56,6 +56,11 @@ def query_table_item(tableName, QueryKey, Queryvalue):
                 KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
             )
             return res['Items'], tableScheamDict
+        elif tableScheamDict['PartitionKey'] == str(QueryKey):
+            res = ds_table.query(
+                KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
+            )
+            return res['Items'], tableScheamDict
         else:
             return None, None
 

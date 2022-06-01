@@ -60,7 +60,8 @@ class ResourceDeletion:
 
 
 def lambda_handler(event, context):
-    common = event.get("common")
+    print(event)
     clickhouse_ip = event.get("resources").get("olap").get("PrivateIp")
-    ResourceDeletion(clickhouse_ip).run(**common)
+    ResourceDeletion(clickhouse_ip).run(**event)
     return True
+

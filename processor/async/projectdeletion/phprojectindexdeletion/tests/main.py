@@ -96,3 +96,4 @@ def lambda_handler(event, context):
         result['status'] = 'error'
         result['message'] = str(e)
     return result
+

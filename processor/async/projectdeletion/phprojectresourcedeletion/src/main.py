@@ -23,7 +23,7 @@ args = {
 class ResourceDeletion:
     dynamodb = boto3.resource("dynamodb")
     s3 = boto3.resource("s3")
-    # clickhouse = Client()
+    clickhouse = Client()
 
     def del_clickhouse(self, table_name):
         sql = f"DROP TABLE IF EXISTS `{table_name}`"
@@ -47,7 +47,7 @@ class ResourceDeletion:
         )
 
     def del_s3_obj(self, key):
-        bucket = s3.Bucket("ph-platform")
+        bucket = self.s3.Bucket("ph-platform")
         bucket.objects.filter(Prefix=key).delete()
 
     def ls_s3_key(self, file_key):
@@ -92,29 +92,5 @@ class ResourceDeletion:
 
 
 def lambda_handler(event, context):
+    ResourceDeletion().run(**event)
     return True
-
-
-dynamodb = boto3.resource("dynamodb")
-s3 = boto3.resource("s3")
-
-
-def query_item(table,projectId, index, traceId):
-    table = dynamodb.Table(table)
-    response = table.query(
-        IndexName=index,
-        # KeyConditionExpression=Key('projectId').eq(projectId) & Key("traceId").eq(traceId),
-        KeyConditionExpression=Key('projectId').eq(projectId),
-    )
-    return response.get("Items")
-
-
-def del_s3_obj(key):
-    bucket = s3.Bucket("ph-platform")
-    bucket.objects.filter(Prefix=key).delete()
-
-
-# dy_dataset = query_item("dataset", "ZyQpzttbwmvQcCf", "dataset-projectId-traceId-index", "8190b3910b774c83a00150cc28c8831f")
-# for ds in dy_dataset:
-#     print(ds)
-del_s3_obj("2020-11-11/lake/pharbers/testdel/")

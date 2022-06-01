@@ -28,6 +28,17 @@
             "required.$": "$.action.required"
          },
          "ResultPath": null,
+         "Next": "SSMRead"
+      },
+      "SSMRead": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "read",
+            "key.$": "$.common.tenantId",
+            "value": {}
+         },
+         "ResultPath": "$.resources",
          "Next": "ProjectResourceDeletion"
       },
       "ProjectResourceDeletion": {

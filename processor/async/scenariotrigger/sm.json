@@ -167,7 +167,7 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error"
+            "errors.$" : "$.error",
          },
          "ResultPath": "$.error",
          "Next": "Failed"

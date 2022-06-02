@@ -2,6 +2,7 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
+dynamodb = boto3.resource('dynamodb')
 
 '''
 需要通过scenarioId从dynamodb表scenario_step获取
@@ -36,6 +37,28 @@ return:
 '''
 
 
-def lambda_handler(event, context):
+def get_all_scenario_id_items(scenarioId):
+    ds_table = dynamodb.Table('scenario_step')
+    res = ds_table.query(
+        KeyConditionExpression=Key("scenarioId").eq(scenarioId)
+    )
+    return res.get("Items")
 
-    return 1
+
+def lambda_handler(event, context):
+    print(event)
+    scenarioSteps = []
+    all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
+
+    for scenario_step_item in all_scenario_items:
+        scenarioSteps.insert(round(scenario_step_item.get("index")), {"detail": scenario_step_item.get("detail"),
+                                                                      "confData": scenario_step_item.get("confData")})
+    count = len(scenarioSteps)
+    print(scenarioSteps)
+
+    # {'count': 2, 'scenarioSteps': [{'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}, {'detail': '{"type": "dataset", "recursive": false, "ignore-error": false, "name": "A2"}', 'confData': {}}]}
+
+    return {
+        "count": count,
+        "scenarioSteps": scenarioSteps
+    }

@@ -36,7 +36,8 @@ args:
                         "recursive": false, 
                         "ignore-error": false, 
                         "name": "1235"
-                    }
+                    },
+                    'confData': {}
                 }，
                 {
                     ...
@@ -45,59 +46,59 @@ args:
         }
 
 return:
-            {
-                "common": {
-                    "traceId": "autoweight_autoweight_developer_2022-06-01T01:54:08+00:00",
-                    "runnerId": "autoweight_autoweight_developer_2022-06-01T01:54:08+00:00",
-                    "projectId": "xu68bxmMFJo6-o9",
-                    "projectName": "autoweight",
-                    "owner": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
+        {
+            "common": {
+                "traceId": "autoweight_autoweight_developer_2022-06-01T01:54:08+00:00",
+                "runnerId": "autoweight_autoweight_developer_2022-06-01T01:54:08+00:00",
+                "projectId": "xu68bxmMFJo6-o9",
+                "projectName": "autoweight",
+                "owner": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
+                "showName": "赵浩博",
+                "tenantId": "zudIcG_17yj8CEUoCTHg"
+            },
+            "action": {
+                "cat": "runDag",
+                "desc": "runDag",
+                "comments": "something need to say",
+                "message": "{\"optionName\":\"run_dag\",\"cat\":\"intermediate\",\"actionName\":\"weight_data_target (autoweight_autoweight_developer_2022-06-01T01:54:08+00:00)\"}",
+                "required": true
+            },
+            "calculate": {
+                "type": "dataset",
+                "name": "weight_data_target",
+                "conf": {
+                    "datasets": [
+                        {
+                            "name": "mkt_mapping",
+                            "representId": "QZwGeezIODKYA2H",
+                            "version": [],
+                            "cat": "catalog",
+                            "prop": {
+                                "path": "",
+                                "partitions": 1,
+                                "format": "",
+                                "tableName": "mkt_mapping",
+                                "databaseName": "zudIcG_17yj8CEUoCTHg"
+                            }
+                        },
+                        {...}
+                    ],
+                    "scripts": [],
+                    "userConf": {},
+                    "ownerId": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
                     "showName": "赵浩博",
-                    "tenantId": "zudIcG_17yj8CEUoCTHg"
+                    "jobDesc": "runDag1654047907372"
                 },
-                "action": {
-                    "cat": "runDag",
-                    "desc": "runDag",
-                    "comments": "something need to say",
-                    "message": "{\"optionName\":\"run_dag\",\"cat\":\"intermediate\",\"actionName\":\"weight_data_target (autoweight_autoweight_developer_2022-06-01T01:54:08+00:00)\"}",
-                    "required": true
+                "recursive": false
                 },
-                "calculate": {
-                    "type": "dataset",
-                    "name": "weight_data_target",
-                    "conf": {
-                        "datasets": [
-                            {
-                                "name": "mkt_mapping",
-                                "representId": "QZwGeezIODKYA2H",
-                                "version": [],
-                                "cat": "catalog",
-                                "prop": {
-                                    "path": "",
-                                    "partitions": 1,
-                                    "format": "",
-                                    "tableName": "mkt_mapping",
-                                    "databaseName": "zudIcG_17yj8CEUoCTHg"
-                                }
-                            },
-                            {...}
-                        ],
-                        "scripts": [],
-                        "userConf": {},
-                        "ownerId": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
-                        "showName": "赵浩博",
-                        "jobDesc": "runDag1654047907372"
-                    },
-                    "recursive": false
-                    },
-                "engine": {
-                    "type": "awsemr",
-                    "id": "j-PX68RDFOX82D",
-                    "dss": {
-                        "ip": "192.168.55.39"
-                    }
+            "engine": {
+                "type": "awsemr",
+                "id": "j-PX68RDFOX82D",
+                "dss": {
+                    "ip": "192.168.55.39"
                 }
             }
+        }
         
 '''
 

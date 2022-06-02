@@ -32,6 +32,12 @@ args:
 '''
 
 
+def get_ssm():
+    ssm = boto3.client('ssm', region_name="cn-northwest-1")
+    responses = ssm.describe_parameters().get("Parameters")
+    return [response.get("name") for response in responses]
+
+
 def get_item_from_dag(name, projectId):
     ds_table = dynamodb.Table('dag')
     res = ds_table.query(
@@ -39,6 +45,7 @@ def get_item_from_dag(name, projectId):
         KeyConditionExpression=Key("projectId").eq(projectId)
                                & Key("name").eq(name)
     )
+    return res.get(res["Items"])
 
 
 def get_scenario_item_from_dynamodb(scenarioId):
@@ -46,7 +53,7 @@ def get_scenario_item_from_dynamodb(scenarioId):
     res = ds_table.query(
         KeyConditionExpression=Key("scenarioId").eq(scenarioId)
     )
-    return res.get(res["Items"])
+    return res.get("Items")
 
 
 def check_parameter(event):
@@ -70,15 +77,20 @@ def check_parameter(event):
     # 4. scenarioStep中 detail里的 name 必须在dag表中存在
     for scenarioItem in scenarioItems:
         ds_name = scenarioItem["detail"]["name"]
-        get_item_from_dag(ds_name, event["common"]["projectId"])
-
+        dag_item = get_item_from_dag(ds_name, event["common"]["projectId"])
+        if len(dag_item) == 0:
+            raise Exception('dag item must exist')
 
     # 5. ssm 中必须存在 key 为 tenantId的项
+    tenantId = event["common"].get("traceId")
+    if not tenantId in get_ssm():
+        raise Exception('tenantId not in ssm')
+
     return True
 
 
 def lambda_handler(event, context):
-
+    print(event)
     return check_parameter(event)
     # 1. common 必须存在
     # 2. action 必须存在 cat 必须是 scenarioTrigger

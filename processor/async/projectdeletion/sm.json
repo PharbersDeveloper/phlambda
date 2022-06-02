@@ -1,0 +1,89 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phprojectdeletionargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "Actions"
+      },
+      "Actions": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsactions-dev",
+         "Parameters": {
+            "traceId.$": "$.resources.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
+            "required.$": "$.action.required"
+         },
+         "ResultPath": null,
+         "Next": "SSMRead"
+      },
+      "SSMRead": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "read",
+            "key.$": "$.common.tenantId",
+            "value": {}
+         },
+         "ResultPath": "$.resources",
+         "Next": "ProjectResourceDeletion"
+      },
+      "ProjectResourceDeletion": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phprojectresourcedeletion-dev",
+         "Parameters": {
+            "traceId.$": "$.resources.traceId",
+            "tenantId.$": "$.common.tenantId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "resources.$": "$.resources"
+         },
+         "ResultPath": null,
+         "Next": "ProjectIndexDeletion"
+      },
+      "ProjectIndexDeletion": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phprojectindexdeletion-dev",
+         "Parameters": {
+            "traceId.$": "$.resources.traceId",
+            "tenantId.$": "$.common.tenantId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName"
+         },
+         "ResultPath": null,
+         "Next": "Success"
+      },
+      "Success": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.resources.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.action.message",
+            "status": "stoped"
+         },
+         "End": true
+      }
+   }
+
+}

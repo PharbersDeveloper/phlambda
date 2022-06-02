@@ -1,0 +1,20 @@
+{
+	"common": {
+		"traceId": "Pharbers-Schedule-Stop-TraceId",
+		"tenantId": "zudIcG_17yj8CEUoCTHg",
+		"projectId": "ggjpDje0HUC2JW",
+		"projectName": "demo",
+		"owner": "alfred",
+		"showName": "alfred"
+	},
+	"action": {
+		"cat": "projectClear",
+		"desc": "terminate project",
+		"comments": "something need to say",
+		"message": "something need to say",
+		"required": true
+	},
+	"notification": {
+		"required": true
+	}
+}

@@ -11,10 +11,10 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenario-process
-          EDITION: "V2"
-      FunctionName: lmd-phscenariostrigger-V2
-      Description: Http Post接口触发StepFunctions创建sceanrio（scenarios)
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:project-deletion
+          EDITION: "dev"
+      FunctionName: lmd-phprojectdeletiontrigger-dev
+      Description: Http Post接口触发StepFunctions创建 删除project
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

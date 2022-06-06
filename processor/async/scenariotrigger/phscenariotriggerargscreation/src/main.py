@@ -25,24 +25,15 @@ args:
                   "PublicDns": "ec2-52-83-49-104.cn-northwest-1.compute.amazonaws.com.cn"
                 }
             },
-            "iterator": {
-                "index": 0,
-                "currentStatus": "running"
+            "scenarioStep": {
+                "detail": {
+                    "type": "dataset",
+                    "recursive": false, 
+                    "ignore-error": false, 
+                    "name": "1235"
+                },
+                'confData': {}
             }
-            "scenarioSteps": [
-                {
-                    "detail": {
-                        "type": "dataset",
-                        "recursive": false, 
-                        "ignore-error": false, 
-                        "name": "1235"
-                    },
-                    'confData': {}
-                }，
-                {
-                    ...
-                }
-            ]
         }
 
 return:
@@ -104,5 +95,10 @@ return:
 
 
 def lambda_handler(event, context):
+    # 1 遍历dag表 取出所有相关item
 
+    # 2 执行statemachine select方法获取所有representId
+    # 输入{"projectId":"2LWyqFPIIwCSZEV","projectName":"autorffactor2","element":{"job":{"name":"compute_randomforest_result","represent-id":"QygahUFX4wE2586"}}}:
+
+    # 3 拼接好trigger参数
     return 1

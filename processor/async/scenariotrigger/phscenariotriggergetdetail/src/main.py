@@ -60,7 +60,7 @@ def lambda_handler(event, context):
 
     print(scenarioStep)
 
-    # {'count': 2, 'scenarioSteps': [{'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}, {'detail': '{"type": "dataset", "recursive": false, "ignore-error": false, "name": "A2"}', 'confData': {}}]}
+    # {'count': 2, 'scenarioStep': {'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}}
 
     return {
         "count": count,

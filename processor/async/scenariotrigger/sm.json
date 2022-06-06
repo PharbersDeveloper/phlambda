@@ -84,7 +84,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "tenantInfo.$": "$.tenantInfo",
-            "scenarioSteps.$": "$.metadata.scenarioSteps"
+            "scenarioStep.$": "$.metadata.scenarioStep"
          },
          "ResultPath": "$.currentTriggerStep",
          "Next": "ExecutionTrigger"

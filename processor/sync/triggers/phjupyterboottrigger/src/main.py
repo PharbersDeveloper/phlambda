@@ -97,6 +97,7 @@ def lambda_handler(event, context):
     #resourceType = "jupyter"
     #trace_id = event["traceId"]
 
+
     #--------- 数据验证 --------------------------------#
     stackClient = SolveStackName()
     Items = stackClient.query_resource_item('resource', tenantId, resourceId)

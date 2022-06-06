@@ -109,8 +109,8 @@ def lambda_handler(event, context):
         "action": {
             "cat": "tenantStart",
             "desc": "reboot project",
-            "comments": "something need to say",
-            "message": "something need to say",
+            "comments": "",
+            "message": "",
             "required": True
         },
         "resources": [

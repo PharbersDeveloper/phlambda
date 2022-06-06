@@ -38,9 +38,9 @@ event = {
     showName: "String"
 }
 '''
-ssm = boto3.client('ssm', region_name="cn-northwest-1")
-cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+ssm = boto3.client('ssm')
+cloudformation = boto3.client('cloudformation')
+dynamodb = boto3.resource("dynamodb")
 
 
 def check_cloudformation_stack(StackName):
@@ -107,14 +107,14 @@ def lambda_handler(event, context):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "tenant-boot",
+            "cat": "tenantStart",
             "desc": "reboot project",
             "comments": "something need to say",
             "message": "something need to say",
             "required": True
         },
         "resources": [
-            "emr", "chlickhouse", "chproxy"
+            "emr", "clickhouse", "chproxy"
         ],
         "notification": {
             "required": True
@@ -159,7 +159,7 @@ def lambda_handler(event, context):
         # state_machine_arn = os.environ["ARN"]
         state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenant-boot"
         client = boto3.client("stepfunctions")
-        res = client.start_execution(stateMachineArn=state_machine_arn + edition,
+        res = client.start_execution(stateMachineArn=state_machine_arn,
                                      name=trace_id, input=json.dumps(args, ensure_ascii=False))
         run_arn = res["executionArn"]
         print("Started run %s. ARN is %s.", trace_id, run_arn)

@@ -37,7 +37,7 @@ def get_all_scenario_id_items(scenarioId):
 
 
 def lambda_handler(event, context):
-
+    print(event)
     all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
     count = len(all_scenario_items)
 

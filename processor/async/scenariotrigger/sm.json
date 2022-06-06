@@ -140,7 +140,7 @@
                      "StringEquals": "success"
                   }
                ],
-               "Next": "Success"
+               "Next": "SuccessMessage"
             },
             {
                "Variable": "$.iterator.currentStatus",
@@ -155,6 +155,21 @@
          "ResultPath": null,
          "End": true
       },
+      "SuccessMessage":{
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.message"
+         },
+         "Next": "Success"
+      },
       "Success": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
@@ -166,7 +181,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
+            "message.$": "$.message",
             "status": "success"
          },
          "Next": "SendEmail"
@@ -182,7 +197,7 @@
             "showName.$": "$.common.showName",
             "errors.$" : "$.error"
          },
-         "ResultPath": "$.error",
+         "ResultPath": "$.message",
          "Next": "Failed"
       },
       "Failed": {
@@ -196,7 +211,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.error",
+            "message.$": "$.message",
             "status": "failed"
          },
          "Next": "SendEmail"

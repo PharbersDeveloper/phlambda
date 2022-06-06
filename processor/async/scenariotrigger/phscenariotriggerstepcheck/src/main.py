@@ -57,7 +57,7 @@ def get_execution_status_from_execution(runnerId):
     return res["Items"][0]["status"]
 
 
-def execution_success(iterator, count):
+def execution_succeed(iterator, count):
     index = iterator["index"] + 1
     currentStatus = "succeed" if index == count else "running"
 
@@ -67,9 +67,24 @@ def execution_success(iterator, count):
     return iterator
 
 
+def execution_failed(iterator, count, ignoreError):
+    # 失败查看ignore-error参数
+    # 如果为false scenario 结束 status == failed
+    # 如果为true scenario继续 index+1
+    #   如果 index+1 == count -1 scenario结束 status==succeed
+    #   如果index+1 != count -1 scenario继续 status==running
+    if ignoreError:
+        index = iterator["index"] + 1
+        currentStatus = "succeed" if index == count else "running"
+        iterator.update({"index": index})
+        iterator.update({"currentStatus": currentStatus})
+    else:
+        iterator.update({"currentStatus": "failed"})
+
+
 
 def lambda_handler(event, context):
-
+    print(event)
     count = event["count"]
     currntIndex = event["scenarioStep"]["detail"]["ignore-error"]
     # 根据runnerId 获取执行状态

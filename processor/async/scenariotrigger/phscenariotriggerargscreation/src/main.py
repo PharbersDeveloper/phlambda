@@ -178,6 +178,7 @@ def create_trigger_args(trigger_datasets, event):
 
 
 def lambda_handler(event, context):
+    print(event)
     # 1 遍历dag表 取出所有相关item
     dag_items = get_dags_by_projectId(event["projectId"])
     # 2 执行statemachine select方法获取所有representId

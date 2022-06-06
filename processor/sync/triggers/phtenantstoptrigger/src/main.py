@@ -110,8 +110,8 @@ def lambda_handler(event, context):
         "action": {
             "cat": "tenantStop",
             "desc": "reboot project",
-            "comments": "something need to say",
-            "message": "something need to say",
+            "comments": "",
+            "message": "",
             "required": True
         },
         "resources": [
@@ -132,9 +132,9 @@ def lambda_handler(event, context):
         if check_ssm(stack_name):
             ssm_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
 
-    if ssm_message or cloudformation_message:
+    if not ssm_message or not cloudformation_message:
         result["status"] = "failed"
-        result["message"] = json.dumps({"stackName already exits": {"ssm_exits": ssm_message, "cloudformation_exits": cloudformation_message}})
+        result["message"] = json.dumps({"stackName not exits": {"ssm": ssm_message, "cloudformation": cloudformation_message}})
         result["trace_id"] = args["common"]["traceId"]
         return {
             "statusCode": 200,

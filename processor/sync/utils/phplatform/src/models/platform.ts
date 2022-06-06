@@ -180,7 +180,6 @@ export default class Platform {
         db: {
             name: String,
             provider: String,
-            tables: { link: "table", isArray: true, inverse: "db" },
             owner: Array(String),
         },
         // resource: {

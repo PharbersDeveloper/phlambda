@@ -24,7 +24,7 @@ args =
         "required": true
     },
     "resources": [
-        "emr", "chlickhouse", "chproxy"
+        "emr", "clickhouse", "chproxy"
     ],
     "notification": {
         "required": true
@@ -40,9 +40,9 @@ event = {
 '''
 
 
-ssm = boto3.client('ssm', region_name="cn-northwest-1")
-cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+ssm = boto3.client('ssm')
+cloudformation = boto3.client('cloudformation')
+dynamodb = boto3.resource("dynamodb")
 
 
 def check_cloudformation_stack(StackName):
@@ -108,14 +108,14 @@ def lambda_handler(event, context):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "tenant-boot",
+            "cat": "tenantStop",
             "desc": "reboot project",
-            "comments": "something need to say",
-            "message": "something need to say",
+            "comments": "",
+            "message": "",
             "required": True
         },
         "resources": [
-            "emr", "chlickhouse", "chproxy"
+            "emr", "clickhouse", "chproxy"
         ],
         "notification": {
             "required": True
@@ -129,12 +129,12 @@ def lambda_handler(event, context):
     for stack_name in stack_list:
         if check_cloudformation_stack(stack_name):
             cloudformation_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
-        if check_ssm(stack_name):
+        if check_ssm(event["tenantId"]):
             ssm_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
 
-    if ssm_message or cloudformation_message:
+    if not ssm_message or not cloudformation_message:
         result["status"] = "failed"
-        result["message"] = json.dumps({"stackName already exits": {"ssm_exits": ssm_message, "cloudformation_exits": cloudformation_message}})
+        result["message"] = json.dumps({"stackName not exits": {"ssm": ssm_message, "cloudformation": cloudformation_message}})
         result["trace_id"] = args["common"]["traceId"]
         return {
             "statusCode": 200,
@@ -151,7 +151,7 @@ def lambda_handler(event, context):
         # state_machine_arn = os.environ["ARN"]
         state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenant-termination"
         client = boto3.client("stepfunctions")
-        res = client.start_execution(stateMachineArn=state_machine_arn + edition,
+        res = client.start_execution(stateMachineArn=state_machine_arn,
                                      name=trace_id, input=json.dumps(args, ensure_ascii=False))
         run_arn = res["executionArn"]
         print("Started run %s. ARN is %s.", trace_id, run_arn)
@@ -161,8 +161,8 @@ def lambda_handler(event, context):
 
     except Exception:
         result["status"] = "failed"
-        result["message"] = "succeed"
-        result["trace_id"] = "Couldn't start run " + trace_id
+        result["message"] = "Couldn't start run " + trace_id
+        result["trace_id"] = trace_id
 
     return {
         "statusCode": 200,

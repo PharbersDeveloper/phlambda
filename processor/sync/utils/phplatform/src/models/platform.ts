@@ -177,6 +177,11 @@ export default class Platform {
             modified: Date,
             description: String,
         },
+        db: {
+            name: String,
+            provider: String,
+            owner: Array(String),
+        },
         // resource: {
         //     name: String,
         //     resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter

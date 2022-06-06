@@ -67,6 +67,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
          "Parameters": {
+            "iterator.$": "$.iterator",
             "projectId.$": "$.common.projectId",
             "scenarioId.$": "$.scenario.scenarioId"
          },
@@ -108,7 +109,8 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenarioId.$": "$.scenario.scenarioId"
+            "scenarioId.$": "$.scenario.scenarioId",
+            "iterator.$": "$.iterator"
          },
          "ResultPath": "$.iterator",
          "Next": "ScenarioTriggerStepCountReached"

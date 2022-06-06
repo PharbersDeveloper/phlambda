@@ -47,18 +47,22 @@ def get_all_scenario_id_items(scenarioId):
 
 def lambda_handler(event, context):
     print(event)
-    scenarioSteps = []
+    scenarioStep = {}
     all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
+    count = len(all_scenario_items)
+
+    currentIndex = event["iterator"]["index"]
 
     for scenario_step_item in all_scenario_items:
-        scenarioSteps.insert(round(scenario_step_item.get("index")), {"detail": scenario_step_item.get("detail"),
-                                                                      "confData": scenario_step_item.get("confData")})
-    count = len(scenarioSteps)
-    print(scenarioSteps)
+        if round(scenario_step_item.get("index")) == currentIndex:
+            scenarioStep["detail"] = scenario_step_item.get("detail"),
+            scenarioStep["confData"] = scenario_step_item.get("confData"),
+
+    print(scenarioStep)
 
     # {'count': 2, 'scenarioSteps': [{'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}, {'detail': '{"type": "dataset", "recursive": false, "ignore-error": false, "name": "A2"}', 'confData': {}}]}
 
     return {
         "count": count,
-        "scenarioSteps": scenarioSteps
+        "scenarioStep": scenarioStep
     }

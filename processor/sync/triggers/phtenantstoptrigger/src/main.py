@@ -129,7 +129,7 @@ def lambda_handler(event, context):
     for stack_name in stack_list:
         if check_cloudformation_stack(stack_name):
             cloudformation_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
-        if check_ssm(stack_name):
+        if check_ssm(event["tenantId"]):
             ssm_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
 
     if not ssm_message or not cloudformation_message:

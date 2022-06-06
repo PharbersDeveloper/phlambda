@@ -12,7 +12,7 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phtenantboottrigger-dev
+      FunctionName: lmd-phjupyterboottrigger-dev
       Description: "启动集群"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

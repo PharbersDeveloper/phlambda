@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phplatform-V2
+      FunctionName: lmd-phplatform-dev
       Description: "JSONAPI Lambda cloudformation"
       Timeout: 600
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
@@ -21,13 +21,13 @@ Resources:
       Environment:
         Variables:
           ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
-          EDITION: "V2"
+          EDITION: "DEV"
           ENTITY: "platform"
-          DATABASE: "phplatform"
+          DATABASE: "phplatform_dev"
           USER: "pharbers"
           PASSWORD: "Abcde196125"
-          HOST: "192.168.26.64"
-          PORT: "5439"
+          HOST: "ph-db-lambda-2021-11-15.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
+          PORT: "5432"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

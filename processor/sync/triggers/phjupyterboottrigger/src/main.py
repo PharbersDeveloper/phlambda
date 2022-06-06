@@ -14,7 +14,6 @@ from boto3.dynamodb.conditions import Key
 # 2. ssm 是否存在，如果存在，报错，不能重复创建并提交管理员
 # @mzhang
 
-
 class SolveStackName:
 
     def query_resource_item(self, tableName, ValueOfPartitionKey, ValueOfSortKey):
@@ -44,7 +43,7 @@ class SolveStackName:
             self.getStackExisted(stackName)
 
     def getStackExisted(self, stackName):
-        cf = boto3.client('cloudformation', region_name='cn-northwest-1', aws_access_key_id='AKIAWPBDTVEANKEW2XNC', aws_secret_access_key='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')
+        cf = boto3.client('cloudformation')
         try:
             stacks = cf.describe_stacks(StackName=stackName)
             if len(stacks) > 0:
@@ -91,13 +90,16 @@ class SolveStackName:
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
-    resourceId = "mIMzFAKEyU6JBc7nl1NmBA=="
-    trace_id = "alfredtest"
+    tenantId = event["tenantId"]
+    resourceId = event["resourceId"]
+    #resourceId = "mIMzFAKEyU6JBc7nl1NmBA=="
+    #trace_id = "alfredtest"
+    #resourceType = "jupyter"
     #trace_id = event["traceId"]
 
     #--------- 数据验证 --------------------------------#
     stackClient = SolveStackName()
-    Items = stackClient.query_resource_item('resource', trace_id, resourceId)
+    Items = stackClient.query_resource_item('resource', tenantId, resourceId)
     stackNameList = stackClient.generate_stackName_by_ResourceItem(Items)
     stackClient.IsCloudFomationContainStackName(stackNameList)
     stackClient.IsSSMExist(stackNameList, resourceId)
@@ -115,8 +117,8 @@ def lambda_handler(event, context):
     # 1. event to args
     args = {
         "common": {
-            "tenantId": event["tenantId"],
-            "traceId": trace_id,
+            "tenantId": tenantId,
+            "traceId": event["traceId"],
             "projectId": "ggjpDje0HUC2JW",
             "projectName": "demo",
             "owner": event["owner"],

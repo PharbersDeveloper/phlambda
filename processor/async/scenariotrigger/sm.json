@@ -61,6 +61,16 @@
             "currentStatus": "running"
          },
          "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerCalCount"
+      },
+      "ScenarioTriggerCalCount": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercalcount-dev",
+         "Parameters": {
+            "projectId.$": "$.common.projectId",
+            "scenarioId.$": "$.scenario.scenarioId"
+         },
+         "ResultPath": "$.metadata",
          "Next": "ScenarioTriggerGetDetail"
       },
       "ScenarioTriggerGetDetail": {
@@ -68,10 +78,9 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
          "Parameters": {
             "iterator.$": "$.iterator",
-            "projectId.$": "$.common.projectId",
-            "scenarioId.$": "$.scenario.scenarioId"
+            "scenarioItems.$": "$.metadata.scenarioItems"
          },
-         "ResultPath": "$.metadata",
+         "ResultPath": "$.currentScenarioStep",
          "Next": "ScenarioTriggerArgsCreation"
       },
       "ScenarioTriggerArgsCreation": {
@@ -84,7 +93,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "tenantInfo.$": "$.tenantInfo",
-            "scenarioStep.$": "$.metadata.scenarioStep"
+            "scenarioStep.$": "$.currentScenarioStep"
          },
          "ResultPath": "$.currentTriggerStep",
          "Next": "ExecutionTrigger"
@@ -95,7 +104,7 @@
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
-            "Name":"$.common.runnerId"
+            "Name":"$.currentTriggerStep.common.runnerId"
          },
          "ResultPath": "$",
          "Next": "ScenarioTriggerStepCheck"
@@ -104,7 +113,9 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerstepcheck-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "scenarioStep.$": "$.currentScenarioStep",
+            "count.$": "$.metadata.count",
+            "runnerId.$": "$.currentTriggerStep.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
@@ -122,7 +133,7 @@
                "And": [
                   {
                      "Variable": "$.iterator.index",
-                     "NumericEqualsPath": "$.metadata.scenarioSteps.count"
+                     "NumericEqualsPath": "$.metadata.count"
                   },
                   {
                      "Variable": "$.iterator.currentStatus",
@@ -137,7 +148,7 @@
                "Next": "CleanUp"
             }
          ],
-         "Default": "ScenarioTriggerArgsCreation"
+         "Default": "ScenarioTriggerGetDetail"
       },
       "SendEmail": {
          "Type": "Pass",
@@ -169,7 +180,7 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error",
+            "errors.$" : "$.error"
          },
          "ResultPath": "$.error",
          "Next": "Failed"

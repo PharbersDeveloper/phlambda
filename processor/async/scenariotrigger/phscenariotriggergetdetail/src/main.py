@@ -18,9 +18,7 @@ args:
     }
 
 return:
-    {
-        "count": "",
-        "scenarioSteps": [
+        "scenarioSteps": 
             {
                 "detail": {
                     "type": "dataset",
@@ -28,12 +26,7 @@ return:
                     "ignore-error": false, 
                     "name": "1235"
                 }
-            }，
-            {
-                ...
             }
-        ]
-    }
 '''
 
 
@@ -48,10 +41,9 @@ def get_all_scenario_id_items(scenarioId):
 def lambda_handler(event, context):
     print(event)
     scenarioStep = {}
-    all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
-    count = len(all_scenario_items)
-
+    # all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
     currentIndex = event["iterator"]["index"]
+    all_scenario_items = event["scenarioItems"]
 
     for scenario_step_item in all_scenario_items:
         if round(scenario_step_item.get("index")) == currentIndex:
@@ -60,9 +52,6 @@ def lambda_handler(event, context):
 
     print(scenarioStep)
 
-    # {'count': 2, 'scenarioStep': {'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}}
+    # 'scenarioStep': {'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}
 
-    return {
-        "count": count,
-        "scenarioStep": scenarioStep
-    }
+    return scenarioStep

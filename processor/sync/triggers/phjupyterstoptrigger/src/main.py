@@ -124,7 +124,7 @@ def lambda_handler(event, context):
             "message": "something need to say",
             "required": True
         },
-        "resourcesId": resourceId,
+        "resourceId": resourceId,
         "notification": {
             "required": True
         }   

@@ -87,7 +87,7 @@ class SolveStackName:
                 pass
             else:
                 raise Exception(f"{ssmName} already exist")
-            print(responses)
+            print(SSMNameList)
         except Exception as e:
             print(str(e))
 
@@ -137,7 +137,7 @@ def lambda_handler(event, context):
             "message": "something need to say",
             "required": True
         },
-        "resourcesId": resourceId,  # TODO: 从 event 中找到 resourceID @mzhang
+        "resourceId": resourceId,  # TODO: 从 event 中找到 resourceID @mzhang
         "notification": {
             "required": True
         }   

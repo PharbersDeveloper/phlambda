@@ -201,3 +201,5 @@ phaccounts/lmdcode/
 processor/async/inputindexdatasets/phxlsxtockhouse/package.yaml
 
 phschemaexplorer/buildspec.yaml
+
+processor/sync/olap/pholapcreateview/readme

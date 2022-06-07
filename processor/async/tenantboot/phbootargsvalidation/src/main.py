@@ -31,9 +31,9 @@ args = {
 '''
 
 
-ssm = boto3.client('ssm', region_name="cn-northwest-1")
-cloudformation = boto3.client('cloudformation', region_name="cn-northwest-1")
-dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
+ssm = boto3.client('ssm')
+cloudformation = boto3.client('cloudformation')
+dynamodb = boto3.resource("dynamodb")
 
 
 class Check:
@@ -74,6 +74,7 @@ class Check:
 
         # 2. resources 当前只能是以下值的一种
         resources_args = ["emr", "ec2", "clickhouse", "chproxy", "dns", "target group", "load balance rule"]
+
         resources = data.get("resources")
         for resource in resources:
             if resource not in resources_args:
@@ -87,6 +88,7 @@ class Check:
 
 
 def lambda_handler(event, context):
+    print(event)
     return Check().check_parameter(event)
     # 1. action.cat 只能是 tenantStart
     # 2. resources 当前只能是以下值的一种

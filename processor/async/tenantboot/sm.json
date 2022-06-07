@@ -72,7 +72,15 @@
          "ResultSelector": {
             "traceId.$": "$.[0].common.traceId",
             "engine.$": "$.[0].engine",
-            "olap.$": "$.[1].olap"
+            "olap.$": "$.[1].olap",
+            "notify": {
+               "type": "notification",
+               "opname.$": "$.[0].common.owner",
+               "cnotification": {
+                  "data": {},
+                  "error": {}
+               }
+            }
          },
          "ResultPath": "$.result",
          "Next": "SSMCreation",
@@ -390,7 +398,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message.$": "$.result.notify",
             "status": "started"
          },
          "End": true

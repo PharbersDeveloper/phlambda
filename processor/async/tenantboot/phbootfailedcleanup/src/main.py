@@ -50,9 +50,9 @@ class CleanUp:
 
 
 def lambda_handler(event, context):
-    common = event.get("common")
-    errors = event.get("errors")
-    CleanUp().run(**common)
+    print(event)
+    errors = event.get("error")
+    CleanUp().run(**event)
 
     return {
         "type": "notification",
@@ -62,4 +62,3 @@ def lambda_handler(event, context):
             "error": errors
         }
     }
-

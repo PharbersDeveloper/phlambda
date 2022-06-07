@@ -9,11 +9,12 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      FunctionName: lmd-phresourcepysparkcreation-dev
+      MemorySize: 1024
+      Description: "创建pyspark脚本"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phjupyterstoptrigger-dev
-      Description: "stop jupyter trigger"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      MemorySize: 1024
-      Timeout: 600
+
+

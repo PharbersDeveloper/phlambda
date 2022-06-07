@@ -74,7 +74,7 @@ def lambda_handler(event, context):
         "status": "",
         "message": "",
         "trace_id": "",
-        "resouceId": ""
+        "resourceId": ""
     }
     # trace_id = ""
     # edition = "" if os.getenv("EDITION") == "V2" else "-dev"

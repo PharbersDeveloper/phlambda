@@ -150,11 +150,14 @@ def lambda_handler(event, context):
         result["status"] = "succeed"
         result["message"] = "start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
 
     except Exception:
         result["status"] = "failed"
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
+
 
     return {
         "statusCode": 200,

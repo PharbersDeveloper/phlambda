@@ -51,7 +51,7 @@ class SSMAndCloudFormationState:
         client = boto3.client('ssm')
         try:
             response = client.describe_association(
-                Name=ssmName,
+                Name=str(ssmName).replace("=", "-"),
             )
             return True
         except Exception as e:

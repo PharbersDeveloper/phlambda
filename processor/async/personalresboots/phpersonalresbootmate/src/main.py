@@ -75,7 +75,7 @@ def get_resource_items_by_tenantId(tenantId, id):
 def lambda_handler(event, context):
     print(event)
     # 获取有关tenantId的所有信息
-    tenant_all_items = get_resource_items_by_tenantId(event["tenantId"], str(event["resourceId"]).replace("=", "-"))
+    tenant_all_items = get_resource_items_by_tenantId(event["tenantId"], event["resourceId"])
 
     metadata = {}
 

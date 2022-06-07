@@ -81,7 +81,7 @@ class SolveStackName:
         client = boto3.client('ssm')
         try:
             response = client.describe_association(
-                Name=ssmName,
+                Name=str(ssmName).replace("=", "-"),
             )
             print(response)
         except Exception as e:

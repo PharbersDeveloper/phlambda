@@ -4,7 +4,9 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "ResultPath": null,
+         "Result": {
+         },
+         "ResultPath": "$.iterator",
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {
@@ -14,15 +16,15 @@
          "Next": "Actions",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           } ]
       },
@@ -194,7 +196,7 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error",
+            "errors.$" : "$.iterator.error",
             "status": "failed"
          },
          "ResultPath": "$.message",

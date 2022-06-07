@@ -25,6 +25,12 @@ return:
             "error": errors
     }
 }
+scenarioId
+runnerId
+date:
+runtime:      manual / timer / dataset change
+owner:
+reporter
 '''
 
 

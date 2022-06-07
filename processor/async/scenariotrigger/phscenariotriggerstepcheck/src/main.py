@@ -80,6 +80,7 @@ def execution_failed(iterator, count, ignoreError):
         iterator.update({"currentStatus": currentStatus})
     else:
         iterator.update({"currentStatus": "failed"})
+        iterator.update({"error": "job execution error"})
 
     return iterator
 

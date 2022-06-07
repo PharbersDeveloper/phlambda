@@ -80,7 +80,7 @@ class SolveStackName:
     def checkSSMExist(self, ssmName):
         client = boto3.client('ssm')
         try:
-            response = client.describe_association(
+            response = client.get_parameter(
                 Name=str(ssmName).replace("=", "-"),
             )
             print(response)

@@ -4,20 +4,43 @@ template:
       - key: a
         Index: 0
     content: |-
-      import a from b
-      import c from d
-
-      def datasetname2path(n):
-        return s3path
-        pass
-
-      def execute():
-        df_$a = spark.read(datasetname2path($a))
-        pass
+        from phjob import execute
+        def debug_execute():
+            result = execute()
+        if __name__ == '__main__':
+            debug_execute() 
 
   phjob.py:
     args:
-      - key: alfred
+      - key: projectId
         Index: 0
+      - key: dagName
+        Index: 1
+      - key: out_version
+        Index: 2
+      - key: version_col
+        Index: 3
+      - key: lack_path
+        Index: 4
+      - key: out_table
+        Index: 5
     content: |-
-      import 
+        from pyspark.sql.functions import col
+
+        def getInputPath(projectId, dagName, lack_path):
+            return f"{lack_path}/{projectId}/{dagName}"
+
+        def getOutputPath(projectId, out_table, lack_path):
+            return f"{lack_path}/{projectId}/{out_table}"
+
+        def choiceVersion(version_col, out_version, df):
+            if len(out_version) > 0:
+                df = df.where(col(f"{version_col}").isin(out_version))
+            return df
+    
+        def execute():
+            df = spark.read.parquet(getInputPath($projectId, $dagName, $lack_path) )
+            df = choiceVersion($version_col, $out_version, df)
+            df = df.repartition(2).write.format("parquet") \
+                     .mode("append").partitionBy("traceId") \
+                     .save(getOutputPath($projectId, $out_table, $lack_path))

@@ -129,7 +129,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.action.message",
-            "status": "success"
+            "status": "stopped"
          },
          "End": true
       },
@@ -162,7 +162,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.error",
-            "status": "failed"
+            "status": "stopfailed"
          },
          "End": true
       },

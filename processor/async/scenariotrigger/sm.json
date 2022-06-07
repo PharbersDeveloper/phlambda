@@ -126,6 +126,19 @@
             "iterator.$": "$.iterator"
          },
          "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerRecord"
+      },
+      "ScenarioTriggerRecord": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerrecord-dev",
+         "Parameters": {
+            "scenarioId.$": "$.scenario.scenarioId",
+            "runnerId.$": "$.currentTriggerStep.common.runnerId",
+            "owner.$": "$.common.owner",
+            "runtime.$": "$.scenario.runtime",
+            "reporter": "default_reporter"
+         },
+         "ResultPath": null,
          "Next": "ScenarioTriggerStepCountReached"
       },
       "ScenarioTriggerStepCountReached": {

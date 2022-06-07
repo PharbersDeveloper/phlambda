@@ -1,5 +1,7 @@
 import json
 import boto3
+import math
+import datetime
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 dynamodb = boto3.resource('dynamodb')
@@ -34,20 +36,19 @@ reporter
 '''
 
 
-def get_all_scenario_id_items(scenarioId):
-    ds_table = dynamodb.Table('scenario_step')
-    res = ds_table.query(
-        KeyConditionExpression=Key("scenarioId").eq(scenarioId)
-    )
-    return res.get("Items")
-
-
 def lambda_handler(event, context):
-    print(event)
-    all_scenario_items = get_all_scenario_id_items(event["scenarioId"])
-    count = len(all_scenario_items)
 
-    return {
-        "count": count,
-        "scenarioItems": all_scenario_items
-    }
+    ds_table = dynamodb.Table('scenario_execution')
+
+    response = ds_table.put_item(
+        Item={
+            'scenarioId': event['scenarioId'],
+            'runnerId': event['runnerId'],
+            'date': math.floor(datetime.datetime.now().timestamp() * 1000),
+            'runtime': event['runtime'],
+            'owner': event['owner'],
+            'reporter': event['reporter'],
+        }
+    )
+
+    return True

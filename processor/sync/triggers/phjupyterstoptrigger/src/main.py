@@ -89,10 +89,18 @@ def lambda_handler(event, context):
         client.IsStackNameAndSSMNameExist(stackNameAndSSMNameList)
     except Exception as e:
         result["status"] = "failed"
-        result["message"] = json.dumps(str(e))
+        result["message"] = str(e)
         result["trace_id"] = traceId
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "body": json.dumps(result)
+        }
     #------------判断启动----------------------#
-
 
     # 1. event to args
     args = {

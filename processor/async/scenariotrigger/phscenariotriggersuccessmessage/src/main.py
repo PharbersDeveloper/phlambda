@@ -12,8 +12,6 @@ args:
                 "projectName": "demo",
                 "owner": "alfred",
                 "showName": "alfred",
-                "errors": {
-                }
             },
 return:
     {
@@ -35,7 +33,7 @@ def lambda_handler(event, context):
         "opname": opname,
         "cnotification": {
             "data": "{}",
-            "error": json.dumps(event["errors"])
+            "error": "{}"
         }
     }
     return message

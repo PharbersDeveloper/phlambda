@@ -9,9 +9,9 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phscenariotriggerargscreation-dev
+      FunctionName: lmd-phscenariotriggercalcount-dev
       MemorySize: 1024
-      Description: "phscenariotriggerargscreate"
+      Description: "phscenariotriggercalcount"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:

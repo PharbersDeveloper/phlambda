@@ -61,16 +61,26 @@
             "currentStatus": "running"
          },
          "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerCalCount"
+      },
+      "ScenarioTriggerCalCount": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercalcount-dev",
+         "Parameters": {
+            "projectId.$": "$.common.projectId",
+            "scenarioId.$": "$.scenario.scenarioId"
+         },
+         "ResultPath": "$.metadata",
          "Next": "ScenarioTriggerGetDetail"
       },
       "ScenarioTriggerGetDetail": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
          "Parameters": {
-            "projectId.$": "$.common.projectId",
-            "scenarioId.$": "$.scenario.scenarioId"
+            "iterator.$": "$.iterator",
+            "scenarioItems.$": "$.metadata.scenarioItems"
          },
-         "ResultPath": "$.metadata",
+         "ResultPath": "$.currentScenarioStep",
          "Next": "ScenarioTriggerArgsCreation"
       },
       "ScenarioTriggerArgsCreation": {
@@ -83,7 +93,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "tenantInfo.$": "$.tenantInfo",
-            "scenarioSteps.$": "$.metadata.scenarioSteps"
+            "scenarioStep.$": "$.currentScenarioStep"
          },
          "ResultPath": "$.currentTriggerStep",
          "Next": "ExecutionTrigger"
@@ -94,7 +104,7 @@
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
-            "Name":"$.common.runnerId"
+            "Name":"$.currentTriggerStep.common.runnerId"
          },
          "ResultPath": "$",
          "Next": "ScenarioTriggerStepCheck"
@@ -103,12 +113,15 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerstepcheck-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
+            "scenarioStep.$": "$.currentScenarioStep",
+            "count.$": "$.metadata.count",
+            "runnerId.$": "$.currentTriggerStep.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenarioId.$": "$.scenario.scenarioId"
+            "scenarioId.$": "$.scenario.scenarioId",
+            "iterator.$": "$.iterator"
          },
          "ResultPath": "$.iterator",
          "Next": "ScenarioTriggerStepCountReached"
@@ -120,14 +133,14 @@
                "And": [
                   {
                      "Variable": "$.iterator.index",
-                     "NumericEqualsPath": "$.metadata.scenarioSteps.count"
+                     "NumericEqualsPath": "$.metadata.count"
                   },
                   {
                      "Variable": "$.iterator.currentStatus",
                      "StringEquals": "success"
                   }
                ],
-               "Next": "Success"
+               "Next": "SuccessMessage"
             },
             {
                "Variable": "$.iterator.currentStatus",
@@ -135,12 +148,27 @@
                "Next": "CleanUp"
             }
          ],
-         "Default": "ScenarioTriggerArgsCreation"
+         "Default": "ScenarioTriggerGetDetail"
       },
       "SendEmail": {
          "Type": "Pass",
          "ResultPath": null,
          "End": true
+      },
+      "SuccessMessage":{
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.message"
+         },
+         "Next": "Success"
       },
       "Success": {
          "Type": "Task",
@@ -153,7 +181,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
+            "message.$": "$.message",
             "status": "success"
          },
          "Next": "SendEmail"
@@ -167,9 +195,9 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error",
+            "errors.$" : "$.error"
          },
-         "ResultPath": "$.error",
+         "ResultPath": "$.message",
          "Next": "Failed"
       },
       "Failed": {
@@ -183,7 +211,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.error",
+            "message.$": "$.message",
             "status": "failed"
          },
          "Next": "SendEmail"

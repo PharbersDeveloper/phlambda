@@ -1,8 +1,12 @@
 import json
+import time
 import boto3
-from boto3.dynamodb.conditions import Attr,Key
+from boto3.dynamodb.conditions import Key
 from decimal import Decimal
 
+from phstatemachineselect.main import statemachine_select
+
+dynamodb = boto3.resource('dynamodb')
 '''
 通过scenarioSteps 创建每个step的pharbers-trigger参数
 并返回triggerSteps
@@ -15,34 +19,25 @@ args:
             "showName": "alfred",
             "tenantInfo": {
                 "engine": {
-                  "ClusterID": "j-1YZ9KPDZOMM57",
-                  "ClusterDNS": "ec2-161-189-52-21.cn-northwest-1.compute.amazonaws.com.cn"
+                  "ClusterID": "j-3FFGAYRYQ8UN2",
+                  "ClusterDNS": "ec2-69-230-249-153.cn-northwest-1.compute.amazonaws.com.cn"
                 },
                 "olap": {
-                  "PrivateIp": "192.168.31.189",
-                  "PublicIp": "52.83.49.104",
-                  "PrivateDns": "ip-192-168-31-189.cn-northwest-1.compute.internal",
-                  "PublicDns": "ec2-52-83-49-104.cn-northwest-1.compute.amazonaws.com.cn"
+                  "PrivateIp": "192.168.35.250",
+                  "PublicIp": "161.189.42.22",
+                  "PrivateDns": "ip-192-168-35-250.cn-northwest-1.compute.internal",
+                  "PublicDns": "ec2-161-189-42-22.cn-northwest-1.compute.amazonaws.com.cn"
                 }
             },
-            "iterator": {
-                "index": 0,
-                "currentStatus": "running"
+            "scenarioStep": {
+                "detail": {
+                    "type": "dataset",
+                    "recursive": false, 
+                    "ignore-error": false, 
+                    "name": "1235"
+                },
+                'confData': {}
             }
-            "scenarioSteps": [
-                {
-                    "detail": {
-                        "type": "dataset",
-                        "recursive": false, 
-                        "ignore-error": false, 
-                        "name": "1235"
-                    },
-                    'confData': {}
-                }，
-                {
-                    ...
-                }
-            ]
         }
 
 return:
@@ -103,6 +98,107 @@ return:
 '''
 
 
-def lambda_handler(event, context):
+def get_dags_by_projectId(projectId):
+    ds_table = dynamodb.Table('dag')
+    res = ds_table.query(
+        KeyConditionExpression=Key("projectId").eq(projectId)
+    )
+    return res.get("Items")
 
-    return 1
+
+def create_trigger_datasets(select_res, dag_items):
+    trigger_datasets = []
+    selected_items = list(filter(lambda x: x['representId'] in select_res["selected"] and
+                                           x['representId'] != select_res["calculate"]["represent-id"] and
+                                           x["cat"] == "dataset", dag_items))
+    for selected_item in selected_items:
+        trigger_datasets.append({
+            "name": selected_item["name"],
+            "representId": selected_item["representId"],
+            "version": [],
+            "cat": selected_item["runtime"],
+            "prop": json.loads(selected_item["prop"])
+        })
+    return trigger_datasets
+
+
+def create_trigger_args(trigger_datasets, event):
+    # 创建runnerId
+    run_time = time.strftime("%Y-%m-%dT%H:%M:%S+00:00", time.localtime())
+    runnerId = "{}_{}_developer_{}".format(event["projectName"], event["projectName"], run_time)
+    trigger_args = {}
+
+    # trigger的common部分
+    common = {}
+    common["traceId"] = runnerId
+    common["runnerId"] = runnerId
+    common["projectId"] = event["projectId"]
+    common["projectName"] = event["projectName"]
+    common["owner"] = event["owner"]
+    common["showName"] = event["showName"]
+    common["tenantId"] = event["tenantId"]
+    trigger_args["common"] = common
+
+    # trigger的action部分
+    action = {}
+    action["cat"] = "runDag"
+    action["desc"] = "runDag"
+    action["comments"] = "something need to say"
+    jobShowName = event["scenarioStep"]["detail"]["name"]
+    message = {
+        "optionName": "run_dag",
+        "cat": "intermediate",
+        "actionName": f"{jobShowName} ({runnerId})"
+    }
+    action["message"] = json.dumps(message, ensure_ascii=False)
+    action["required"] = True
+    trigger_args["action"] = action
+    
+    # trigger的calculate部分
+    calculate = {"conf": {}}
+    calculate["type"] = "dataset"
+    calculate["name"] = jobShowName
+    calculate["conf"]["datasets"] = trigger_datasets
+    calculate["conf"]["scripts"] = []
+    calculate["conf"]["userConf"] = event["scenarioStep"]["confData"]
+    calculate["conf"]["ownerId"] = event["owner"]
+    calculate["conf"]["showName"] = event["showName"]
+    calculate["conf"]["jobDesc"] = "runDag" + str(int(round(time.time() * 1000)))
+    calculate["recursive"] = False
+    trigger_args["calculate"] = calculate
+
+    # trigger的engine部分
+    engine = { "dss": {} }
+    engine["type"] = "awsemr"
+    engine["id"] = event["tenantInfo"]['engine']["ClusterID"]
+    engine["dss"]["ip"] = event["tenantInfo"]["olap"]["PrivateIp"]
+    trigger_args["engine"] = engine
+
+    return trigger_args
+
+
+def lambda_handler(event, context):
+    print(event)
+    # 1 遍历dag表 取出所有相关item
+    dag_items = get_dags_by_projectId(event["projectId"])
+    # 2 执行statemachine select方法获取所有representId
+    # 输入{"projectId":"2LWyqFPIIwCSZEV","projectName":"autorffactor2","element":{"job":{"name":"compute_randomforest_result","represent-id":"QygahUFX4wE2586"}}}:
+    representId = [item["representId"] for item in dag_items if item["name"] == event["scenarioStep"]["detail"]["name"]]
+    element = {
+        "dataset": {
+            "name": event["scenarioStep"]["detail"]["name"],
+            "represent-id": representId[0]
+        }
+    }
+    select_event = {
+        "projectId": event["projectId"],
+        "projectName": event["projectName"],
+        "element": element
+    }
+    select_res = statemachine_select(select_event)
+    # 3 从selected的 id中 从dag_items根据selected的id查询 item 在去除job item和当前dataset item 创建好 calculate下conf下datasets
+    trigger_datasets = create_trigger_datasets(select_res, dag_items)
+    # 3拼接好trigger参数
+    trigger_args = create_trigger_args(trigger_datasets, event)
+
+    return trigger_args

@@ -1,0 +1,23 @@
+template:
+  phmain.py:
+    args:
+      - key: a
+        Index: 0
+    content: |-
+      import a from b
+      import c from d
+
+      def datasetname2path(n):
+        return s3path
+        pass
+
+      def execute():
+        df_$a = spark.read(datasetname2path($a))
+        pass
+
+  phjob.py:
+    args:
+      - key: alfred
+        Index: 0
+    content: |-
+      import 

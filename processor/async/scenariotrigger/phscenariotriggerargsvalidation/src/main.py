@@ -26,7 +26,7 @@ args:
             "required": true      
         },
         "scenario": {
-            "scenarioId": "scenario id",       
+            "scenarioId": "ggjpDje0HUC2JW_77ba3f12b3f142108f834822cc3eb65b",       
         }
     }
 '''
@@ -35,7 +35,7 @@ args:
 def get_ssm():
     ssm = boto3.client('ssm', region_name="cn-northwest-1")
     responses = ssm.describe_parameters().get("Parameters")
-    return [response.get("name") for response in responses]
+    return [response.get("Name") for response in responses]
 
 
 def get_item_from_dag(name, projectId):
@@ -45,7 +45,7 @@ def get_item_from_dag(name, projectId):
         KeyConditionExpression=Key("projectId").eq(projectId)
                                & Key("name").eq(name)
     )
-    return res.get(res["Items"])
+    return res.get("Items")
 
 
 def get_scenario_item_from_dynamodb(scenarioId):
@@ -69,20 +69,20 @@ def check_parameter(event):
         raise Exception('action.cat must be scenarioTrigger')
 
     # 3. scenarioId 在 ScenarioStep 表中必须存在
-    scenarioId = event["scenarioId"].get("scenarioId")
+    scenarioId = event["scenario"].get("scenarioId")
     scenarioItems = get_scenario_item_from_dynamodb(scenarioId)
     if len(scenarioItems) == 0:
         raise Exception('scenario step must exist')
 
     # 4. scenarioStep中 detail里的 name 必须在dag表中存在
     for scenarioItem in scenarioItems:
-        ds_name = scenarioItem["detail"]["name"]
+        ds_name = json.loads(scenarioItem["detail"])["name"]
         dag_item = get_item_from_dag(ds_name, event["common"]["projectId"])
         if len(dag_item) == 0:
             raise Exception('dag item must exist')
 
     # 5. ssm 中必须存在 key 为 tenantId的项
-    tenantId = event["common"].get("traceId")
+    tenantId = event["common"].get("tenantId")
     if not tenantId in get_ssm():
         raise Exception('tenantId not in ssm')
 

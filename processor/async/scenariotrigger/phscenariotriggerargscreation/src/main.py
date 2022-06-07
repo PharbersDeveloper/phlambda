@@ -131,6 +131,7 @@ def create_trigger_args(trigger_datasets, event):
     # trigger的common部分
     common = {}
     common["traceId"] = runnerId
+    common["runName"] = runnerId.replace("_", "-").replace(":", "-").replace("+", "-")
     common["runnerId"] = runnerId
     common["projectId"] = event["projectId"]
     common["projectName"] = event["projectName"]

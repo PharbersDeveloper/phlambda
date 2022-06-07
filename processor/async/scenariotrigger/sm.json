@@ -100,13 +100,13 @@
       },
       "ExecutionTrigger": {
          "Type":"Task",
-         "Resource":"arn:aws:states:::states:startExecution.sync:2",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
-            "Name":"$.currentTriggerStep.common.runnerId"
+            "Name.$":"$.currentTriggerStep.common.runName"
          },
-         "ResultPath": "$",
+         "ResultPath": null,
          "Next": "ScenarioTriggerStepCheck"
       },
       "ScenarioTriggerStepCheck": {
@@ -115,7 +115,7 @@
          "Parameters": {
             "scenarioStep.$": "$.currentScenarioStep",
             "count.$": "$.metadata.count",
-            "runnerId.$": "$.currentTriggerStep.runnerId",
+            "runnerId.$": "$.currentTriggerStep.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
@@ -137,7 +137,7 @@
                   },
                   {
                      "Variable": "$.iterator.currentStatus",
-                     "StringEquals": "success"
+                     "StringEquals": "succeed"
                   }
                ],
                "Next": "SuccessMessage"
@@ -157,7 +157,7 @@
       },
       "SuccessMessage":{
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggersuccessmessage-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -165,9 +165,9 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.message"
+            "comments.$": "$.action.comments"
          },
+         "ResultPath": "$.message",
          "Next": "Success"
       },
       "Success": {
@@ -181,21 +181,21 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.message",
-            "status": "success"
+            "message.$": "$.message"
          },
          "Next": "SendEmail"
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariocleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error"
+            "errors.$" : "$.error",
+            "status": "success"
          },
          "ResultPath": "$.message",
          "Next": "Failed"

@@ -195,7 +195,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "errors.$" : "$.error",
-            "status": "success"
+            "status": "failed"
          },
          "ResultPath": "$.message",
          "Next": "Failed"

@@ -23,6 +23,9 @@ args = {
 '''
 
 '''
+s3path: 
+s3://ph-platform/2020-11-11/jobs/python/phcli/<projectName>_<projectName>_<scripts.flowVersion>/<projectName>_<projectName>_<scripts.flowVersion>_<script.name>
+
 phjob
 spark.read()
 df.write()

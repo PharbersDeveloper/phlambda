@@ -8,7 +8,7 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "common": {
-            "traceId": "alfred-resource-creation-traceId",
+            "traceId": "hbzhao-scenario-trigger-traceId",
             "projectId": "ggjpDje0HUC2JW",
             "tenantId": "zudIcG_17yj8CEUoCTHg",
             "projectName": "demo",
@@ -32,10 +32,13 @@ args:
 '''
 
 
-def get_ssm():
+def get_ssm(tenantId):
     ssm = boto3.client('ssm', region_name="cn-northwest-1")
-    responses = ssm.describe_parameters().get("Parameters")
-    return [response.get("Name") for response in responses]
+    try:
+        res = ssm.get_parameter(Name=tenantId)
+    except Exception:
+        raise Exception('tenantId not in ssm')
+    return True
 
 
 def get_item_from_dag(name, projectId):
@@ -81,10 +84,11 @@ def check_parameter(event):
         if len(dag_item) == 0:
             raise Exception('dag item must exist')
 
+
     # 5. ssm 中必须存在 key 为 tenantId的项
     tenantId = event["common"].get("tenantId")
-    if not tenantId in get_ssm():
-        raise Exception('tenantId not in ssm')
+    print(tenantId)
+    get_ssm(tenantId)
 
     return True
 

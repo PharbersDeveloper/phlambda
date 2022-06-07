@@ -183,7 +183,8 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.message"
+            "message.$": "$.message",
+            "status": "success"
          },
          "Next": "SendEmail"
       },

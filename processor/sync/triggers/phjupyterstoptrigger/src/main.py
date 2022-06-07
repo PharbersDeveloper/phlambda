@@ -33,7 +33,7 @@ class SSMAndCloudFormationState:
             stackTag = self.checkStackExisted(stackName)
             ssmTag = self.checkSSMExist(ssmName)
             if any([stackTag, ssmTag]) is False:
-                errorMessage = stackName if stackTag is False else " " + ssmName if ssmTag is False else " "
+                errorMessage = "stackName: " + stackName if stackTag is False else " " + " SSMName: " + ssmName if ssmTag is False else " "
                 raise Exception(f"{errorMessage} not exist")
 
 
@@ -74,7 +74,7 @@ def lambda_handler(event, context):
         "status": "",
         "message": "",
         "trace_id": "",
-        "resouceId": ""
+        "resourceId": ""
     }
     # trace_id = ""
     # edition = "" if os.getenv("EDITION") == "V2" else "-dev"
@@ -91,6 +91,8 @@ def lambda_handler(event, context):
         result["status"] = "failed"
         result["message"] = str(e)
         result["trace_id"] = traceId
+        result["resourceId"] = resourceId
+
         return {
             "statusCode": 200,
             "headers": {
@@ -137,11 +139,13 @@ def lambda_handler(event, context):
         result["status"] = "succeed"
         result["message"] = "start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
 
     except Exception:
         result["status"] = "failed"
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
 
     return {
         "statusCode": 200,

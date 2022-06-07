@@ -50,15 +50,13 @@ class SSMAndCloudFormationState:
     def checkSSMExist(self, ssmName):
         client = boto3.client('ssm')
         try:
-            responses = client.describe_parameters().get("Parameters")
-            SSMNameList = [response.get("Name") for response in responses]
             ssmName = str(ssmName).replace("=", "-")
-            if ssmName in SSMNameList:
-                return True
-            else:
-                return False
+            res = client.get_parameter(Name=ssmName)
+            return True
         except Exception as e:
             print(str(e))
+            return False
+
 
 
 def lambda_handler(event, context):

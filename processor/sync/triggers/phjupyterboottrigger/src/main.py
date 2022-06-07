@@ -80,14 +80,11 @@ class SolveStackName:
     def checkSSMExist(self, ssmName):
         client = boto3.client('ssm')
         try:
-            responses = client.describe_parameters().get("Parameters")
-            SSMNameList = [response.get("Name") for response in responses]
             ssmName = str(ssmName).replace("=", "-")
-            if ssmName not in SSMNameList:
-                pass
-            else:
-                raise Exception(f"{ssmName} already exist")
-            print(SSMNameList)
+            res = client.get_parameter(Name=ssmName)
+            if res:
+                raise Exception(f'{ssmName} already exist')
+            return True
         except Exception as e:
             print(str(e))
 

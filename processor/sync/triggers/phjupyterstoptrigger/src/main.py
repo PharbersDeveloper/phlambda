@@ -116,7 +116,7 @@ def lambda_handler(event, context):
             "showName": showName
         },
         "action": {
-            "cat": "tenant-boot",
+            "cat": "personalResStops",
             "desc": "reboot project",
             "comments": "something need to say",
             "message": "something need to say",

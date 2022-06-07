@@ -128,7 +128,7 @@ def lambda_handler(event, context):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "personalres-boot",
+            "cat": "personalResBoots",
             "desc": "reboot project",
             "comments": "something need to say",
             "message": "something need to say",

@@ -31,8 +31,11 @@ template:
         def execute(**kwargs):
             spark = kwargs['spark']
             filecat = kwargs['filecat']
-            schema_type = kwargs['schema_type']
+            schemas = kwargs['schemas']
             if filecat == 'uploaded':
+                schema_type = StructType()
+                for item in schemas:
+                    schema_type = schema_type.add(item, StringType())
                 reader = spark.read.schema(schema_type)
                 df = reader.csv( getInputPath($projectId$, $inputs$, $lack_path$) )
             elif filecat == 'intermediate':
@@ -330,12 +333,9 @@ template:
                 
                 # ===== 获取schemas
                 filecat = ds_conf[0]['cat']
-                schemas = json.loads(get_ds_with_index(input, project_id).get("schema"))
-                schema_type = StructType()
-                for item in schemas:
-                    schema_type = schema_type.add(item["src"], StringType())
+                schemas = list(map(lambda item: item["src"], json.loads(get_ds_with_index(table, project_id)["schema"])))
                     
-                args.update({"schemas", schema_type})
+                args.update({"schemas", schemas})
                 args.update({"filecat", filecat})
                 # ============
 

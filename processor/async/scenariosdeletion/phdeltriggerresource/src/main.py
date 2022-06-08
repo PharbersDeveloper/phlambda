@@ -55,7 +55,7 @@ class DelTriggerRule(object):
 
     def get_triggerId(self):
 
-        return self.event['triggers']['id']
+        return self.event['triggers'][0]['id']
 
     def get_stackName(self):
 

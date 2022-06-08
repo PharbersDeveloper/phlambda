@@ -26,10 +26,14 @@ args = {
 }
 '''
 
-def get_ssm():
-    ssm = boto3.client('ssm', region_name="cn-northwest-1")
-    responses = ssm.describe_parameters().get("Parameters")
-    return [response.get("name") for response in responses]
+def check_ssm(tenantId):
+    ssm = boto3.client('ssm')
+    try:
+        response = ssm.get_parameter(
+            Name=tenantId
+        )
+    except:
+        raise Exception(f"ssm not exits tenantId: {tenantId}")
 
 
 def check_parameter(data, **kwargs):
@@ -43,9 +47,8 @@ def check_parameter(data, **kwargs):
         raise Exception('resourcesId not exits')
 
     # 3. ssm 中必须存在 key 为 tenantId的项
-    traceId = common.get("traceId")
-    if not traceId in get_ssm():
-        raise Exception('traceId not in ssm')
+    tenantId = common.get("tenantId")
+    check_ssm(tenantId)
 
     return True
 

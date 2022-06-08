@@ -38,33 +38,14 @@ dynamodb = boto3.resource("dynamodb")
 
 class Check:
 
-    def check_ssm(self, stack_name, tenantId):
+    def check_ssm(self, tenantId):
         try:
             response = ssm.get_parameter(
-                Name=stack_name
+                Name=tenantId
             )
-            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}")
+            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId}")
         except:
             pass
-
-    def query_resource(self, tenantId):
-        table = dynamodb.Table("resource")
-        response = table.query(
-            KeyConditionExpression=Key('tenantId').eq(tenantId),
-        )
-        return response.get("Items")
-
-    def get_stack_name(self, tenantId):
-        resource_item = self.query_resource(tenantId)
-        item_list = [item for item in resource_item if item.get("ownership") == "shared"]
-
-        res_list = []
-        for item in item_list:
-            res_list += [
-                f'{item.get("role")}-{property.get("type")}-{tenantId.replace("_", "-").replace(":", "-").replace("+", "-")}'
-                for property in json.loads(item.get("properties"))]
-
-        return res_list
 
     def check_parameter(self, data):
 
@@ -81,9 +62,7 @@ class Check:
                 raise Exception('resouces error')
 
         tenantId = data["common"]["tenantId"]
-        stack_list = self.get_stack_name(tenantId)
-        for stack_name in stack_list:
-            self.check_ssm(stack_name, tenantId)
+        self.check_ssm(tenantId)
         return True
 
 

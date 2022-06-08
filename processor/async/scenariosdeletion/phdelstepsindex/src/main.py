@@ -23,7 +23,7 @@ class DelStepsIndex:
 
     def __init__(self, event):
         self.event = event
-        self.steps = event['steps']
+        self.steps = event['steps'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
@@ -35,10 +35,14 @@ class DelStepsIndex:
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
+        res = ds_table.get_item(
            Key=QueryItem,
         )
-        return res["Items"]
+        try:
+            Item = res["Item"]
+        except:
+            Item = []
+        return Item
 
 
     def del_table_item(self, tableName, **kwargs):
@@ -53,9 +57,8 @@ class DelStepsIndex:
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
-    def get_OldImage(self, Items):
-        if len(Items) != 0:
-            ItemDict = Items[0]
+    def get_OldImage(self, ItemDict):
+        if len(ItemDict) != 0:
             OldImage = {
                 "confData": ItemDict['confData'],
                 "detail": ItemDict['detail'],
@@ -71,19 +74,23 @@ class DelStepsIndex:
 
     def fetch_result(self):
         self.steps['OldImage'] = self.OldImage
-        return self.OldImage
+        return self.steps
 
 
 def lambda_handler(event, context):
 
-    DelClient = DelStepsIndex(event)
-    #--------------------------get OldImage-------------------------------------------------------#
-    OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
-    OldImage = DelClient.get_OldImage(OldImageItem)
-    if len(OldImage) == 0:
-        print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
+    #----------- steps 输入为空 ----------#
+    if len(list(event["steps"])) == 0:
+        return event["steps"]
     else:
-        #-------------------------delete step----------------------------------------------------------#
-        DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
+        DelClient = DelStepsIndex(event)
+        #--------------------------get OldImage-------------------------------------------------------#
+        OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
+        OldImage = DelClient.get_OldImage(OldImageItem)
+        if len(OldImage) == 0:
+            print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
+        else:
+            #-------------------------delete step----------------------------------------------------------#
+            DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
 
-    return DelClient.fetch_result()
+        return DelClient.fetch_result()

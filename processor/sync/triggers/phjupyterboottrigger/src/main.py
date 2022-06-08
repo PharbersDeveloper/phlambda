@@ -80,12 +80,14 @@ class SolveStackName:
     def checkSSMExist(self, ssmName):
         client = boto3.client('ssm')
         try:
-            response = client.describe_association(
-                Name=ssmName,
-            )
-            print(response)
+            ssmName = str(ssmName).replace("=", "-")
+            res = client.get_parameter(Name=ssmName)
+            if res:
+                raise Exception(f'{ssmName} already exist')
+            return True
         except Exception as e:
-            print(e)
+            print(str(e))
+
 
 def lambda_handler(event, context):
     event = json.loads(event["body"])
@@ -126,13 +128,13 @@ def lambda_handler(event, context):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "personalres-boot",
+            "cat": "personalResBoots",
             "desc": "reboot project",
             "comments": "something need to say",
             "message": "something need to say",
             "required": True
         },
-        "resourcesId": resourceId,  # TODO: 从 event 中找到 resourceID @mzhang
+        "resourceId": resourceId,  # TODO: 从 event 中找到 resourceID @mzhang
         "notification": {
             "required": True
         }   
@@ -150,11 +152,16 @@ def lambda_handler(event, context):
         result["status"] = "succeed"
         result["message"] = "start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
 
-    except Exception:
+    except Exception as e:
+        print("*"*50 + str(e) + "*"*50)
+
         result["status"] = "failed"
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
+        result["resourceId"] = resourceId
+
 
     return {
         "statusCode": 200,

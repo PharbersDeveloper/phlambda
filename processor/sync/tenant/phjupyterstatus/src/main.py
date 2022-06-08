@@ -62,7 +62,7 @@ def resourceCheck(stackNameList):
                 print("{} is stoping".format(stackName))
                 result |= 4
             else:
-                raise Exception("unexcept status ({}) for {}".format(response[0]["StackStatus"], tmpsm))
+                raise Exception("unexcept status ({}) for {}".format(response[0]["StackStatus"], stackName))
 
     return result
 

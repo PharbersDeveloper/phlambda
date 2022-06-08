@@ -1,0 +1,437 @@
+version: 0.0.0
+framework: pyspark
+engine: spark
+language: python
+language_version: 3.8.9
+code:
+  phmain:
+    args:
+      - key: inputs
+        index: 0
+      - key: output
+        index: 1
+      - key: project_id
+        index: 2
+      - key: project_name
+        index: 3
+      - key: runtime
+        index: 4
+      - key: dag_name
+        index: 5
+      - key: script_name
+        index: 6
+    code: |
+      import os
+      import re
+      import json
+      import time
+      import boto3
+      import click
+      import requests
+      import traceback
+
+      from phjob import execute
+      from pyspark.sql import SparkSession
+      from pyspark.sql.functions import lit, col, struct, to_json, json_tuple
+      from pyspark.sql.types import StructType, StringType
+      from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+      from functools import reduce
+      from clickhouse_driver import Client
+      from boto3.dynamodb.conditions import Key
+
+      tenant = "pharbers"
+      lake_prefix = f"s3://ph-platform/2020-11-11/lake/{tenant}/"
+      dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+
+      def get_spark():
+        os.environ["PYSPARK_PYTHON"] = "python3"
+        spark = SparkSession.builder.master("yarn")
+        default_config = {
+            "spark.sql.codegen.wholeStage": False,
+            "spark.sql.execution.arrow.pyspark.enabled": "true",
+        }
+        for k, v in default_config.items():
+          spark = spark.config(k, v)
+        spark = spark.enableHiveSupport().getOrCreate()
+        access_key = os.getenv("AWS_ACCESS_KEY_ID")
+        secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        if access_key is not None:
+          spark._jsc.hadoopConfiguration().set("fs.s3a.access.key", access_key)
+          spark._jsc.hadoopConfiguration().set("fs.s3a.secret.key", secret_key)
+          spark._jsc.hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true")
+          spark._jsc.hadoopConfiguration().set("fs.s3a.impl","org.apache.hadoop.fs.s3a.S3AFileSystem")
+          spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.cn-northwest-1.amazonaws.com.cn")
+        return spark
+
+      # 获取Spark实例
+      spark = get_spark()
+
+      # 获取DataFrame Schema转JSON字符串
+      def get_df_schema2json(df):
+        schema_list = list(filter(lambda item: item["name"] != "traceId", list(map(lambda item: {"name": item["name"], "type": item["type"]},
+                              df.schema.jsonValue()["fields"]))))
+        return json.dumps(schema_list, ensure_ascii=False)
+
+      # 将DataFrame统一Schema一致性
+      def convert_consistency_schema(df, schema):
+        return df.withColumn("data", to_json(struct(*[col(c) for c in list(map(lambda item: item["name"], json.loads(schema) ))]))) \
+          .withColumn("schema", lit(schema)) \
+          .select("traceId", "schema", "data")
+
+      # 对多TraceId取Schema的col的并集（暂时先不管类型）
+      def convert_union_schema(df):
+        rows = df.select("traceId", "schema").distinct().collect()
+        return list(reduce(lambda pre, next: set(pre).union(set(next)), list(map(lambda row: [schema["name"] for schema in json.loads(row["schema"])], rows))))
+
+      # 将统一Schema的DF转成正常的DataFrame
+      def convert_normal_df(df, cols):
+        return df.select(col("traceId"),json_tuple(col("data"), *cols)).toDF("traceId", *cols)
+
+      # 从spark df转成pandas df
+      def transform_spark_df2_other_df(runtime, df_map):
+        transform_df_map = {}
+        for k, df in df_map.items():
+          transform_df_map.update({k: df.toPandas() if runtime == "python3" else df})
+        return transform_df_map
+
+      # 从pandas转成spark df
+      def transform_other_df2_spark_df(runtime, df, kwargs):
+        if runtime == "python3":
+          return spark.createDataFrame(df)
+        return df
+
+      # 获取DynamoDB数据
+      def get_dynamodb_item(table_name, key):
+        table = dynamodb_resource.Table(table_name)
+        res = table.get_item( Key=key )
+        return res.get("Item")
+
+      # DynamoDB增加更新操作
+      def put_dynamodb_item(table_name, item):
+        table = dynamodb_resource.Table(table_name)
+        table.put_item(
+            Item=item
+        )
+
+      # Dynamodb 添加version
+      def put_item_to_version(output_id, project_id, output_version, owner):
+        table_name = "version"
+        version_item = {}
+        version_item.update({"id": project_id + "_" + output_id})
+        version_item.update({"projectId": project_id})
+        version_item.update({"datasetId": output_id})
+        version_item.update({"name": output_version})
+        version_item.update({"date": str(int(round(time.time() * 1000)))})
+        version_item.update({"owner": owner})
+        put_dynamodb_item(table_name, version_item)
+
+      # dataset 更新Schema
+      def put_scheme_to_dataset(output_id, project_id, df, output_version):
+
+        schema_list = []
+        file_scheme = df.dtypes
+        for i in file_scheme:
+          schema_map = {}
+          schema_map["src"] = i[0]
+          schema_map["des"] = i[0]
+          schema_map["type"] = i[1].capitalize().replace('Int', 'Double')
+          schema_list.append(schema_map)
+
+        table_name = "dataset"
+        key = {
+          "id": output_id,
+          "projectId": project_id
+        }
+        dataset_item = get_dynamodb_item(table_name, key)
+        dataset_item.update({"schema": json.dumps(schema_list, ensure_ascii=False)})
+        dataset_item.update({"version": json.dumps(output_version, ensure_ascii=False)})
+        put_dynamodb_item(table_name, dataset_item)
+
+      # 根据DynamoDB index查询
+      def get_ds_with_index(dsName, projectId):
+        ds_table = dynamodb_resource.Table('dataset')
+        res = ds_table.query(
+            IndexName='dataset-projectId-name-index',
+            KeyConditionExpression=Key("projectId").eq(projectId)
+                                   & Key("name").begins_with(dsName)
+        )
+        return res["Items"][0]
+
+      # 添加version
+      def addVersion(df, version, version_colname='version'):
+        df = df.withColumn(version_colname, lit(version))
+        return df
+
+      def s3_to_df(path, version):
+        suffix = path.split(".")[-1].lower()
+        if suffix != "csv":
+          suffix = "other"
+        read_s3_funcs = {
+          "csv": lambda path: spark.read.csv(path, header=True),
+          "other": lambda path: spark.read.parquet(path)
+        }
+        df = read_s3_funcs[suffix](path)
+        if len(version) != 0:
+          df = df.where(df["traceId"].isin(version))
+        return df
+
+      def catalog_to_df(database, table):
+        return spark.sql(f"SELECT * FROM {database}.{table}")
+
+      def create_df(input_ds, output_version, project_id, project_name, is_single_run, logger):
+        cat = input_ds.get("cat")
+        version = input_ds.get("version")
+        if cat != "uploaded" and cat != "input_index" and cat != "catalog":
+          cat = "other"
+          if len(version) == 0 and is_single_run == False:
+            version.append(output_version)
+
+        name = input_ds.get("name")
+        def load_s3_df():
+          path = f"{lake_prefix}{project_id}/{name}"
+          return s3_to_df(path, version)
+
+        def uploaded_s3_df():
+          schemas = json.loads(get_ds_with_index(name, project_id).get("schema"))
+          schema_type = StructType()
+
+          for item in schemas:
+            schema_type = schema_type.add(item["src"], StringType())
+
+          reader = spark.read.schema(schema_type)
+          df = reader.csv(f"{lake_prefix}{project_id}/{name}")
+          if len(version) != 0:
+            df = df.where(df["version"].isin(version))
+          return df
+
+        def load_catalog_df():
+          prop = input_ds.get("prop")
+          database = prop.get("databaseName")
+          table = prop.get("tableName")
+          return catalog_to_df(database, table)
+
+        def load_input_index_df():
+          prop = input_ds.get("prop")
+          path = prop.get("path")
+          return s3_to_df(path, [])
+
+        cat_funcs = {
+          "uploaded": uploaded_s3_df,
+          "catalog": load_catalog_df,
+          "input_index": load_input_index_df,
+          "other": load_s3_df
+        }
+
+        def lowerColumns(df):
+          return df.toDF(*[i.lower() for i in df.columns])
+
+        df = cat_funcs[cat]() #lowerColumns(cat_funcs[cat]())
+        if cat == "other":
+          df = convert_normal_df(df, convert_union_schema(df)).drop("traceId")
+        return df.na.fill("None")
+
+      def create_normal_df(inputs, kwargs, project_id, project_name, output_version, logger):
+        df_map = {}
+        ds_list = kwargs.get("ds_conf")
+        name_ds_map_dict = {}
+        for ds in ds_list:
+          name_ds_map_dict.update({ds.get("name"): ds})
+        for input_ds_name in inputs:
+          if input_ds_name in name_ds_map_dict.keys():
+            input_df = create_df(name_ds_map_dict.get(input_ds_name),  output_version, project_id, project_name, True, logger)
+            df_map.update({"df_" +input_ds_name: input_df})
+          else:
+            input_ds = {
+              "name": input_ds_name,
+              "version": output_version.split(","),
+              "cat": "intermediate"
+            }
+            input_df = create_df(input_ds, output_version, project_id, project_name, False, logger)
+            df_map.update({"df_" +input_ds_name: input_df})
+        return df_map
+
+      # def create_prepare_df(inputs, kwargs, project_id, project_name, output_version, logger):
+      #   ds_list = kwargs.get("ds_conf")
+      #   name_ds_map_dict = {}
+      #   for ds in ds_list:
+      #     name_ds_map_dict.update({ds.get("name"): ds})
+      #   for input_ds_name in inputs:
+      #     if input_ds_name in name_ds_map_dict.keys():
+      #       input_df = create_df(name_ds_map_dict.get(input_ds_name), output_version, project_id, project_name, True, logger)
+      #     else:
+      #       input_ds = {
+      #         "name": input_ds_name,
+      #         "version": output_version.split(","),
+      #         "cat": "intermediate"
+      #       }
+      #       input_df = create_df(input_ds, output_version, project_id, project_name, False, logger)
+      #   return {"input_df": input_df}
+
+      def create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger):
+        # df_choose = {
+        #   "prepare": create_prepare_df(inputs, args, project_id, project_name, output_version, logger)
+        # }
+        df_map = transform_spark_df2_other_df(runtime,
+            create_normal_df(inputs, args, project_id, project_name, output_version, logger))
+
+        # df_map = transform_spark_df2_other_df(runtime,
+        #   df_choose.get(runtime, create_normal_df(inputs, args, project_id, project_name, output_version, logger)
+        # ))
+        return df_map
+
+      def createClickhouseTableSql(df, table_name, database='default', order_by='', partition_by='version'):
+        def getSchemeSql(df):
+          file_scheme = df.dtypes
+          sql_scheme = ""
+          for i in file_scheme:
+            if i[0] in [order_by, partition_by]:
+              # 主键和分区键不支持null
+              coltype = i[1].capitalize()
+            else:
+              coltype = f"Nullable({i[1].capitalize()})"
+            sql_scheme += f"`{i[0]}` {coltype},"
+          sql_scheme = re.sub(r",$rep", "", sql_scheme)
+          return sql_scheme
+        return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
+
+      def get_sample_df(output_id, project_id, df):
+        table_name = "dataset"
+        key = {
+          "id": output_id,
+          "projectId": project_id
+        }
+        dataset_item = get_dynamodb_item(table_name, key)
+        sample = dataset_item.get("sample", "F_1")
+        df_sample = sample.split("_")[0]
+        df_count = sample.split("_")[1]
+        if df_sample == "F":
+          sample_df = df.limit(int(df_count) * 10000)
+        elif df_sample == "R":
+          fraction = float(int(df_count) * 20000 / df.count())
+          if fraction >= 1.0:
+            fraction = 1.0
+          sample_df = df.sample(withReplacement=False, fraction=fraction)
+          sample_df = sample_df.limit(int(df_count) * 10000)
+        return sample_df
+
+      def df_out(ph_conf, output_version, ch_client, df, project_ip, project_id,  table, output_id, mode="append", numPartitions = 2, database='default'):
+          # 写入s3
+          table_name = "_".join(table.split("_")[1:])
+          path = f"{lake_prefix}{project_id}/{table_name}/"
+          consistency_df = convert_consistency_schema(df, get_df_schema2json(df))
+          consistency_df.repartition(numPartitions).write.format("parquet") \
+              .mode("append") \
+              .partitionBy("traceId") \
+              .save(path)
+          # 先判断 clickhouse 中是否有数据
+          sql = f"SELECT COUNT(*) from `{table}`"
+          res = ch_client.execute(sql)
+          count = res[0][0]
+          if count == 0:
+            # 进行sample 策略
+            sample_df = get_sample_df(output_id, project_id, df).drop("traceId")
+
+            # 写入clickhouse
+            sample_df.write.format("jdbc").mode(mode) \
+              .option("url", f"jdbc:clickhouse://{project_ip}:8123/{database}") \
+              .option("dbtable", f"`{table}`") \
+              .option("driver", "ru.yandex.clickhouse.ClickHouseDriver") \
+              .option("user", "default") \
+              .option("password", "") \
+              .option("batchsize", 1000) \
+              .option("socket_timeout", 300000) \
+              .option("numPartitions", numPartitions) \
+              .option("rewrtieBatchedStatements", True) \
+              .save()
+
+            # 更新Schema
+            put_scheme_to_dataset(output_id, project_id, sample_df, output_version)
+
+          # 创建version表
+          put_item_to_version(output_id, project_id, output_version, ph_conf.get("ownerId"))
+
+      def createOutputs(runtime, args, ph_conf, output, project_ip, project_id, project_name, output_version, logger):
+        out_df = args.get("out_df")
+        out_df = transform_other_df2_spark_df(runtime, out_df, args)
+        if out_df:
+          table_name = project_id + "_" + output
+          output_id = get_ds_with_index(output, project_id).get("id")
+          ch_client = Client(host=project_ip)
+          out_df = addVersion(out_df, output_version, version_colname='version')
+          # 保持原有产品层级的version，新增traceId内容与version一致
+          add_traceId_df = addVersion(out_df, output_version, version_colname='traceId')
+
+          sql_create_table = createClickhouseTableSql(out_df, table_name)
+
+          # 因为schema可能会与原不一致导致插入错误，在此之前会进行删除表操作
+          ch_client.execute(f"DROP TABLE IF EXISTS default.`{project_id}_{output}`")
+
+          ch_client.execute(sql_create_table)
+
+          ds_list = args.get("ds_conf")
+          # 注释掉这段代码没啥用，真是逻辑总是会走df_out
+          # name_ds_map_dict = {}
+          # for ds in ds_list:
+          #   name_ds_map_dict.update({ds.get("name"): ds})
+
+         # if output in name_ds_map_dict.keys():
+         #   out_to_s3(add_traceId_df, name_ds_map_dict.get(output), logger)
+         # else:
+          add_traceId_df.show(10)
+          df_out(ph_conf, output_version, ch_client, add_traceId_df, project_ip, project_id, table_name, output_id)
+
+      @click.command()
+      @click.option("--owner")
+      @click.option("--dag_name")
+      @click.option("--run_id")
+      @click.option("--job_full_name")
+      @click.option("--project_ip")
+      @click.option("--ph_conf")
+      def debug_execute(**kwargs):
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+        try:
+          dag_name = "$dag_name"
+          script_name = "$script_name"
+          args = {"name": f"{dag_name}_{script_name}"}
+          inputs = $inputs
+          output = "$output"
+          project_id = "$project_id"
+          project_name = "$project_name"
+          runtime = "$runtime"
+          ip = kwargs.get("project_ip")
+          ph_conf = json.loads(kwargs.get("ph_conf", {}))
+          user_conf = ph_conf.get("userConf", {})
+          ds_conf = ph_conf.get("datasets", {})
+          args.update(user_conf)
+          args.update({"ds_conf": ds_conf})
+          args.update({"spark": spark})
+          args.update(kwargs)
+          output_version = args.get("run_id") + "_" + ph_conf.get("showName")
+
+          df_map = create_input_df(runtime, inputs, args, project_id, project_name, output_version, logger)
+
+          args.update(df_map)
+          result = execute(**args)
+          args.update(result if isinstance(result, dict) else {})
+
+          createOutputs(runtime, args, ph_conf, output, ip, project_id, project_name, output_version, logger)
+
+          return result
+        except Exception as e:
+          logger.error(traceback.format_exc())
+          print(traceback.format_exc())
+          raise e
+
+      if __name__ == '__main__':
+        debug_execute()
+
+  phjob:
+    input_var_args: ~
+    code: |
+      def execute(**kwargs):
+        data_frame = None
+        $input_var_args
+
+        return {"out_df": data_frame}
+
+

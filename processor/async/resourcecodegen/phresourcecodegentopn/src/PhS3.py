@@ -5,10 +5,8 @@ import sys
 import string
 import boto3
 
-from util.AWS.PhAWS import PhAWS
 
-
-class PhS3(PhAWS):
+class PhS3:
     def __init__(self, *args, **kwargs):
         self.access_key = kwargs.get('access_key', None)
         self.secret_key = kwargs.get('secret_key', None)

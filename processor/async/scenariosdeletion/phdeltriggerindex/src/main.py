@@ -23,7 +23,7 @@ class DeltriggerIndex:
 
     def __init__(self, event):
         self.event = event
-        self.triggers = event['triggers']
+        self.triggers = event['triggers'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
@@ -35,7 +35,7 @@ class DeltriggerIndex:
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
+        res = ds_table.get_item(
             Key=QueryItem,
         )
         return res["Items"]

@@ -35,7 +35,7 @@ class DelStepsIndex:
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
+        res = ds_table.get_item(
            Key=QueryItem,
         )
         return res["Items"]

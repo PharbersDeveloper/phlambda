@@ -93,3 +93,5 @@ def lambda_handler(event, context):
 
     toS3(phjob_script, projectName, flowVersion, scripts_name, "phjob.py")
     toS3(phmain_script, projectName, flowVersion, scripts_name, "phmain.py")
+    
+    return args['script']

@@ -58,6 +58,18 @@ class SSMAndCloudFormationState:
             return False
 
 
+def change_notification_status(traceId):
+    dynamodb = boto3.resource("dynamodb")
+
+    table = dynamodb.Table('notification')
+    responses = table.query(
+        IndexName='notification-traceId-id-index',
+        KeyConditionExpression=Key('traceId').eq(traceId),
+    ).get("Items")
+    for response in responses:
+        response["status"] = "stoping"
+        table.put_item(Item=response)
+
 
 def lambda_handler(event, context):
     event = json.loads(event["body"])
@@ -141,6 +153,8 @@ def lambda_handler(event, context):
         result["message"] = "start run " + trace_id
         result["trace_id"] = trace_id
         result["resourceId"] = resourceId
+
+        change_notification_status(traceId)
 
     except Exception:
         result["status"] = "failed"

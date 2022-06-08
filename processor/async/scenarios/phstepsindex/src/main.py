@@ -69,28 +69,10 @@ return = {
 class StepsIndex:
     def __init__(self, event):
         self.event = event
-        self.steps = event['steps'] if len(event['steps']) == 0 else event['steps'][0]
+        self.steps = event['steps']
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
-
-    def get_id(self):
-        return self.steps['id']
-
-    def get_confData(self):
-        return self.steps['confData']
-
-    def get_detail(self):
-        return self.steps['detail']
-
-    def get_index(self):
-        return self.steps['index']
-
-    def get_mode(self):
-        return self.steps['mode']
-
-    def get_name(self):
-        return self.steps['name']
 
     def get_traceId(self):
         return self.event['traceId']
@@ -101,37 +83,37 @@ class StepsIndex:
         else:
             return json.dumps(data)
 
-    def put_item(self):
+    def put_item(self, scenarioId, stepID, confData, detail, index, mode, name, traceId):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_step')
         response = table.put_item(
             Item={
-                'scenarioId': self.get_scenarioId(),
-                'id': self.get_id(),
-                'confData': self.get_confData(),
-                'detail': self.dumps_data_by_json(self.get_detail()),
-                'index': self.get_index(),
-                'mode': self.get_mode(),
-                'name': self.get_name(),
-                'traceId': self.get_traceId()
+                'scenarioId': scenarioId,
+                'id': stepID,
+                'confData': confData,
+                'detail': self.dumps_data_by_json(detail),
+                'index': index,
+                'mode': mode,
+                'name': name,
+                'traceId': traceId
             }
         )
         return response
 
-    def query_table_item(self, tableName, partitionKey, sortKey):
+    def query_table_item(self, tableName, partitionKey, sortKey, stepId):
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
         res = ds_table.query(
             KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
-                                   & Key(sortKey).eq(self.get_id())
+                                   & Key(sortKey).eq(stepId)
         )
         return res["Items"]
 
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
-    def get_OldImage(self):
-        Items= self.query_table_item('scenario_step', 'scenarioId', 'id')
+    def get_OldImage(self, stepId):
+        Items= self.query_table_item('scenario_step', 'scenarioId', 'id', stepId)
         print("*"*50+"step content"+"*"*50)
         print(Items)
         if len(Items) != 0:
@@ -146,23 +128,29 @@ class StepsIndex:
             }
         else:
             OldImage = {}
-        self.OldImage = OldImage
         return OldImage
 
-    def fetch_result(self):
-        if len(self.steps) == 0:
-            return self.steps
-        else:
-            self.steps['OldImage'] = self.OldImage
-            return [self.steps]
+
+    def putStepItemIntoDyDB(self):
+        for step in self.steps:
+            stepID = step["id"]
+            detail = step["detail"]
+            confData = step["confData"]
+            index = step["index"]
+            mode = step["mode"]
+            name = step["name"]
+            #-------- get oldImage -------------------------#
+            oldImage = self.get_OldImage(stepID)
+            step["OldImage"] = oldImage
+            #-------- put step item int dyDB-----------------#
+            self.put_item(self.get_scenarioId(), stepID, confData, detail, index, mode, name, self.get_traceId())
+        return self.steps
 
 
 def lambda_handler(event, context):
 
     StepsClient = StepsIndex(event)
-    if len(StepsClient.steps) == 0:
-        pass
-    else:
-        StepsClient.get_OldImage()
-        StepsClient.put_item()
-    return StepsClient.fetch_result()
+
+    result = StepsClient.putStepItemIntoDyDB()
+
+    return result

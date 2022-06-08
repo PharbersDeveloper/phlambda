@@ -82,7 +82,7 @@ def lambda_handler(event, context):
         return event["scenario"]
     else:
         DelClient = DelScenarioIndex(event)
-        #-------------------delete scenario---------------------------------------------#
+        #-------------------delete ---------------------------------------------#
         OldImage = DelClient.get_OldImage()
         if len(OldImage) == 0:
             print(f"{DelClient.get_scenarioId()} not exits, please check data")

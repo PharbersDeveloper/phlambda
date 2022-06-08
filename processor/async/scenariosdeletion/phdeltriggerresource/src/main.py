@@ -39,9 +39,9 @@ def get_stackName(stackName):
         return get_stackName(stackName)
 
 
-class DelTriggerRule:
+class DelTriggerRule(object):
 
-    def __int__(self, event):
+    def __init__(self, event):
         self.event = event
         self.result = {}
 
@@ -72,7 +72,6 @@ class DelTriggerRule:
         except Exception as e:
             self.result['status'] = 'error'
             self.result['message'] = str(e)
-
 
 def lambda_handler(event, context):
 

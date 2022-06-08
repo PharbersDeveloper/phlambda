@@ -39,9 +39,9 @@ def get_stackName(stackName):
         return get_stackName(stackName)
 
 
-class DelTriggerRule:
+class DelTriggerRule(object):
 
-    def __int__(self, event):
+    def __init__(self, event):
         self.event = event
         self.result = {}
 
@@ -55,13 +55,14 @@ class DelTriggerRule:
 
     def get_triggerId(self):
 
-        return self.event['triggers']['id']
+        return self.event['triggers'][0]['id']
 
     def get_stackName(self):
 
         return get_stackName(get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])))
 
     def del_trigger_rule(self, stackName):
+        print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
         try:
             client = boto3.client('cloudformation')
             response = client.delete_stack(
@@ -69,10 +70,12 @@ class DelTriggerRule:
             )
             self.result['status'] = 'ok'
             self.result['message'] = f'delete {stackName} resource success'
+            print(response)
         except Exception as e:
+            print("*"*50 + "error" + "*"*50)
+            print(str(e))
             self.result['status'] = 'error'
             self.result['message'] = str(e)
-
 
 def lambda_handler(event, context):
 

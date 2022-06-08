@@ -23,58 +23,75 @@ args = {
     },
 }
 
+
+
 args = {
     "traceId": "automax_automax_developer_2022-05-24T02%3A01%3A19+00%3A00_袁毓蔚",
     "projectId": "s7nBDbpqfUShq1w",
     "owner": "String",
     "showName": "String",
-    "dagName": "hospital_mapping_out",
+    "dagName": "String",
     "owner": "String",
     "projectName": "automax",
-    "scripts": {
+    "script": {
         "id": "String",
-        "runtime": "String",
-        "name": "sync_test",
+        "runtime": "pyspark",
+        "name": "compute_test_sync_hospital_mapping_out",
         "flowVersion": "developer",
-        "inputs": "['automax_automax_developer_2022-05-26T01:45:57+00:00_袁毓蔚']",
-        "output": "test_out_hospital_mapping_out"
+        "inputs": "hospital_mapping_out",
+        "output": "test_sync_hospital_mapping_out",
+        "version": "['automax_automax_developer_2022-05-26T01:45:57+00:00_袁毓蔚']",
     },
 }
 '''
-projectId = args['projectId']
-dagName = args['dagName']
-out_table = args['scripts']['output']
-out_version = args['scripts']['inputs']
-flowVersion = args['scripts']['flowVersion']
-scripts_name = args['scripts']['name']
-projectName = args['projectName']
 
-# 读取yaml文件
-template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
-template_yaml = yaml.load(template_yaml, Loader=yaml.FullLoader)
+def lambda_handler(event, context):
+    args = event
+    projectId = args['projectId']
+    dagName = args['dagName']
+    scripts_name = args['script']['name']
+    output = args['script']['output']
+    inputs = args['script']['inputs']
+    inputs = json.loads(inputs)[0]
+    version = args['script']['version']
+    flowVersion = args['script']['flowVersion']
+    projectName = args['projectName']
+    args_scripts = args['script']
+    runtime = args['script']['runtime']
 
-# 获取phjob.py 模板
-phjob_script = template_yaml['template']['phjob.py']['content'] \
-                    .replace("$projectId", f"'{projectId}'") \
-                    .replace("$dagName", f"'{dagName}'") \
-                    .replace("$out_table", f"'{out_table}'") \
-                    .replace("$out_version", out_version) \
-                    .replace("$version_col", f"'traceId'") \
-                    .replace("$lack_path", f"'s3://ph-platform/2020-11-11/lake/pharbers'")
-# 获取phmain.py 模板
-phmain_script = template_yaml['template']['phmain.py']['content']  
+    # 读取yaml文件
+    template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
+    template_yaml = yaml.load(template_yaml, Loader=yaml.FullLoader)
 
-# 写出到s3
-def getScriptPathKey(projectName, flowVersion, scripts_name):
-    return f"2020-11-11/jobs/python/phcli/{projectName}_{projectName}_{flowVersion}/{projectName}_{projectName}_{flowVersion}_{scripts_name}"
+    # 获取phjob.py 模板
+    phjob_script = template_yaml['template']['phjob.py']['content'] \
+                        .replace("$projectId$", f"'{projectId}'") \
+                        .replace("$inputs$", f"'{inputs}'") \
+                        .replace("$output$", f"'{output}'") \
+                        .replace("$version$", str(version)) \
+                        .replace("$version_col$", f"'traceId'") \
+                        .replace("$lack_path$", f"'s3://ph-platform/2020-11-11/lake/pharbers'")
+    # 获取phmain.py 模板
+    phmain_script = template_yaml['template']['phmain.py']['content'] \
+                        .replace("$projectId$", f"'{projectId}'") \
+                        .replace("$runtime$", f"'{runtime}'") \
+                        .replace("$output$", f"'{output}'") \
+                        .replace("$args_scripts$", str(args_scripts))
 
-def toS3(script, filename):
-    script_bytes = str.encode(script)
-    client = boto3.client('s3')
-    response = client.put_object(
-        Body = script_bytes,
-        Bucket='ph-platform',
-        Key=f"{getScriptPathKey(projectName, flowVersion, scripts_name)}/{filename}") 
+
+    # 写出到s3
+    def getScriptPathKey(projectName, flowVersion, output):
+        return f"2020-11-11/jobs/python/phcli/{projectName}_{projectName}_{flowVersion}/{projectName}_{projectName}_{flowVersion}_{output}"
+
+    def toS3(script, projectName, flowVersion, scripts_name, filename):
+        script_bytes = str.encode(script)
+        client = boto3.client('s3')
+        response = client.put_object(
+            Body = script_bytes,
+            Bucket='ph-platform',
+            Key=f"{getScriptPathKey(projectName, flowVersion, scripts_name)}/{filename}") 
+
+    toS3(phjob_script, projectName, flowVersion, scripts_name, "phjob.py")
+    toS3(phmain_script, projectName, flowVersion, scripts_name, "phmain.py")
     
-toS3(phjob_script, "phjob.py")
-toS3(phmain_script, "phmain.py")
+    return args['script']

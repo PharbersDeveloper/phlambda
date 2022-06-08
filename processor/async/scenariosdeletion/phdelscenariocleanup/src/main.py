@@ -156,8 +156,11 @@ class DelRollBack:
         res = ds_table.query(
             Key=QueryItem,
         )
-        return res["Items"]
-
+        try:
+            item = res["Items"]
+        except:
+            item = []
+        return item
 
     def map_Item(self, tableName, OldImage):
         tableMap = {
@@ -198,7 +201,7 @@ class DelRollBack:
         if len(queryTableItem) == 0:
             self.put_item(tableName, Item)
         else:
-            if self.IsTheSameItem(Item, self.map_Item(tableName, queryTableItem[0])):
+            if self.IsTheSameItem(Item, self.map_Item(tableName, queryTableItem)):
                 self.NotNeedRollBack()
             else: #----覆盖操作-----------------#
                 self.put_item(tableName, Item)
@@ -243,9 +246,17 @@ class DelRollBack:
 def lambda_handler(event, context):
 
     #---------------------回滚操作--------------------------------#
-    delClient = DelRollBack(event)
-    delClient.scenarioRollBack()
-    delClient.triggerRollBack()
-    delClient.stepRollBack()
+    try:
+        delClient = DelRollBack(event)
+        delClient.scenarioRollBack()
+        delClient.triggerRollBack()
+        delClient.stepRollBack()
+        return delClient.fetch_result()
+    except Exception as e:
+        try:
+            opname = event["common"]["owner"]
+        except:
+            opname = "unknown"
+        return {"type": "notification", "opname": opname,
+         "cnotification": {"data": {"datasets": []}, "error": str(e)}}
 
-    return delClient.fetch_result()

@@ -38,7 +38,11 @@ class DelStepsIndex:
         res = ds_table.get_item(
            Key=QueryItem,
         )
-        return res["Item"]
+        try:
+            Item = res["Item"]
+        except:
+            Item = []
+        return Item
 
 
     def del_table_item(self, tableName, **kwargs):
@@ -53,9 +57,8 @@ class DelStepsIndex:
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
-    def get_OldImage(self, Items):
-        if len(Items) != 0:
-            ItemDict = Items[0]
+    def get_OldImage(self, ItemDict):
+        if len(ItemDict) != 0:
             OldImage = {
                 "confData": ItemDict['confData'],
                 "detail": ItemDict['detail'],

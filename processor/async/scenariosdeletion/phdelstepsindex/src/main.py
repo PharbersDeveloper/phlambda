@@ -38,7 +38,7 @@ class DelStepsIndex:
         res = ds_table.get_item(
            Key=QueryItem,
         )
-        return res["Items"]
+        return res["Item"]
 
 
     def del_table_item(self, tableName, **kwargs):

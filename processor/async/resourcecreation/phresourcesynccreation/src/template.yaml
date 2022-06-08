@@ -29,7 +29,13 @@ template:
     
         def execute(**kwargs):
             spark = kwargs['spark']
-            df = spark.read.parquet(getInputPath($projectId$, $inputs$, $lack_path$) )
+            filecat = kwargs['filecat']
+            schema_type = kwargs['schema_type']
+            if filecat == 'uploaded':
+                reader = spark.read.schema(schema_type)
+                df = reader.csv( getInputPath($projectId$, $inputs$, $lack_path$) )
+            elif filecat == 'intermediate':
+                df = spark.read.parquet( getInputPath($projectId$, $inputs$, $lack_path$))
             df = choiceVersion($version_col$, $version$, df)
             df.write.format("parquet") \
                      .mode("append").partitionBy("traceId") \
@@ -300,6 +306,7 @@ template:
             try:
                 logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
                 args = $args_scripts$
+                input = $input$
                 output = $output$
                 project_id = $projectId$
                 project_name = $projectId$
@@ -318,6 +325,18 @@ template:
                 args.update(user_conf)
                 args.update({"ds_conf": ds_conf})
                 args.update({"spark": spark})
+                
+                
+                # ===== 获取schemas
+                filecat = ds_conf[0]['cat']
+                schemas = json.loads(get_ds_with_index(input, project_id).get("schema"))
+                schema_type = StructType()
+                for item in schemas:
+                    schema_type = schema_type.add(item["src"], StringType())
+                    
+                args.update({"schemas", schema_type})
+                args.update({"filecat", filecat})
+                # ============
 
                 args.update(kwargs)
                 output_version =  args.get("run_id") + "_" + ph_conf.get("showName")

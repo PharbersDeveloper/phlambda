@@ -333,10 +333,11 @@ template:
                 
                 # ===== 获取schemas
                 filecat = ds_conf[0]['cat']
-                schemas = list(map(lambda item: item["src"], json.loads(get_ds_with_index(table, project_id)["schema"])))
+                schemas = list(map(lambda item: item["src"], json.loads(get_ds_with_index(input, project_id)["schema"])))
+                print(schemas)
                     
-                args.update({"schemas", schemas})
-                args.update({"filecat", filecat})
+                args.update({"schemas": schemas})
+                args.update({"filecat": filecat})
                 # ============
 
                 args.update(kwargs)

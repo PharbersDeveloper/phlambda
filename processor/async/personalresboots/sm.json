@@ -205,7 +205,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.result",
-            "status": "success"
+            "status": "started"
          },
          "End": true
       },
@@ -238,7 +238,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.error",
-            "status": "failed"
+            "status": "startfailed"
          },
          "End": true
       },

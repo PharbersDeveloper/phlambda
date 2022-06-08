@@ -29,9 +29,13 @@ args:
 
 def del_s3_job_dir(bucket_name, s3_dir):
 
-    s3_resource = boto3.resource('s3')
-    bucket = s3_resource.Bucket(bucket_name)
-    bucket.objects.filter(Prefix=s3_dir).delete()
+    s3_client = boto3.resource('s3')
+    objects_to_delete = s3_client.list_objects(Bucket=bucket_name, Prefix=s3_dir)
+
+    delete_keys = {'Objects' : []}
+    delete_keys['Objects'] = [{'Key': k} for k in [obj['Key'] for obj in objects_to_delete.get('Contents', [])]]
+    print(delete_keys)
+    s3_client.delete_objects(Bucket="ph-platform", Delete=delete_keys)
 
 
 def __create_clickhouse(resource):

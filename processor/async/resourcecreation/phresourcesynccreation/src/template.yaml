@@ -15,6 +15,7 @@ template:
         Index: 5
     content: |-
         from pyspark.sql.functions import col
+        from pyspark.sql.types import StructType, StringType
 
         def getInputPath(projectId, inputs, lack_path):
             return f"{lack_path}/{projectId}/{inputs}"

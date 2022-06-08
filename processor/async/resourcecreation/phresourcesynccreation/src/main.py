@@ -76,6 +76,7 @@ def lambda_handler(event, context):
                         .replace("$projectId$", f"'{projectId}'") \
                         .replace("$runtime$", f"'{runtime}'") \
                         .replace("$output$", f"'{output}'") \
+                        .replace("$input$", f"'{inputs}'") \
                         .replace("$args_scripts$", str(args_scripts))
 
 

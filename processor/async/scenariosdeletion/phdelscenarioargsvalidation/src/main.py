@@ -157,8 +157,9 @@ class CheckParameters:
                 if len(DiffElement) == 0:
                     raise Exception("A key fields may be missing from: [scenario, triggers, steps]")
                 #-------- 字段同时存在检测 --------------------------------#
-                #if len(DiffElement) > 1:
-                #    raise Exception(f"{list(DiffElement)} can not exist at the  same time")
+                if any(["scenario" and "triggers" in DiffElement, "steps" in DiffElement]) is False:
+                    raise Exception(f"scenario,triggers or steps may be missing in {list(DiffElement)}")
+            #if len(DiffElement) > 1:
             else:
                 missBasicKey = " or ".join([x for x in common if x not in IntersectionElement])
                 raise Exception(f"Basic fields may be missing: {missBasicKey}")

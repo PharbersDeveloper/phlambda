@@ -74,19 +74,23 @@ class DelStepsIndex:
 
     def fetch_result(self):
         self.steps['OldImage'] = self.OldImage
-        return self.OldImage
+        return self.steps
 
 
 def lambda_handler(event, context):
 
-    DelClient = DelStepsIndex(event)
-    #--------------------------get OldImage-------------------------------------------------------#
-    OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
-    OldImage = DelClient.get_OldImage(OldImageItem)
-    if len(OldImage) == 0:
-        print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
+    #----------- steps 输入为空 ----------#
+    if len(list(event["steps"])) == 0:
+        return event["steps"]
     else:
-        #-------------------------delete step----------------------------------------------------------#
-        DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
+        DelClient = DelStepsIndex(event)
+        #--------------------------get OldImage-------------------------------------------------------#
+        OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
+        OldImage = DelClient.get_OldImage(OldImageItem)
+        if len(OldImage) == 0:
+            print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
+        else:
+            #-------------------------delete step----------------------------------------------------------#
+            DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
 
-    return DelClient.fetch_result()
+        return DelClient.fetch_result()

@@ -85,7 +85,7 @@ export default class Platform {
             title: String,
             data: Number,
             uri: String
-        }
+        },
         // 官网 结束
 
         // 账户 开始

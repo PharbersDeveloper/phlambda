@@ -37,6 +37,6 @@ def lambda_handler(event, context):
 
     for script in event["scripts"]:
         s3_dir = "/".join(script["jobPath"].split("/")[:-1])
-        del_s3_job_dir("ph-platform", s3_dir)
+        del_s3_job_dir("ph-platform", s3_dir + "/")
     return True
 

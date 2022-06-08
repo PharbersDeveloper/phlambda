@@ -11,8 +11,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phstatemachinetrigger-dev
+          EDITION: "V2"
+      FunctionName: lmd-phstatemachinetrigger-V2
       Description: "触发脚本运行 Start Execution"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

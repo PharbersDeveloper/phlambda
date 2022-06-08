@@ -6,8 +6,13 @@ def create_ph_job_file(conf):
         for line in file_lines:
             line = line + "\n"
             if "# $alfred_data_frame_input" in line:
-                input_item = "\n".join(list(map(lambda item: f"""\tdata_frame <- cmd_args$df_{item}""",
-                                                conf.get("inputs"))))
+                input_item = "\n".join(list(map(lambda item: 
+                    f"""
+\tdf_name <- "df_{item}"\n
+\tEncoding(df_name)\n
+\tEncoding(df_name) <- "UTF-8"\n
+\tdata_frame <- cmd_args[[df_name]]
+                    """,conf.get("inputs"))))
                 file.write(input_item + "\n")
             else:
                 file.write(line)

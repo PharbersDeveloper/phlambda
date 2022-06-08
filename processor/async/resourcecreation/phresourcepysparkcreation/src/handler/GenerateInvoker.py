@@ -47,9 +47,9 @@ class GenerateInvoker:
             "pyspark": write_python,
             "r": write_r,
             "sparkr": write_r,
-            "prepare": write_prepare
+            "prepare": write_prepare,
         }
-        return funcs[runtime]()
+        return funcs.get(runtime, write_python)()
 
     def execute(self, operator_parameters, runtime):
         cmd_instance = list(map(lambda item: self.commands[item["type"].lower()](Receiver(), json.dumps(item)),

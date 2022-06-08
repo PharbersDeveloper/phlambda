@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcesparkrcreation-V2
+      FunctionName: lmd-phresourcesparkrcreation-dev
       MemorySize: 1024
       Description: "创建Spark R File文件,后续供Spark Submit提交"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
@@ -21,7 +21,7 @@ Resources:
           TM_PHMAIN_FILE: /template/python/phcli/maxauto/phmain-r_dev.tmp
           TM_PHJOB_FILE: /template/python/phcli/maxauto/phjob-r_dev.tmp
           DAG_S3_JOBS_PATH: /jobs/python/phcli/
-          EDITION: V2
+          EDITION: DEV
       Tags:
         edition: dev
         owner: pqian
@@ -31,12 +31,5 @@ Resources:
         - Arn: arn:aws-cn:elasticfilesystem:cn-northwest-1:444603803904:access-point/fsap-03c2a9f1b9fcf6942
           LocalMountPath: /mnt/tmp
       Timeout: 600
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-058404c2ad02dcbb9
-          - sg-09f5205a1194149ab
-        SubnetIds:
-          - subnet-0260eab5acd58bc53
-          - subnet-0e3daa88acef9b136
 
 

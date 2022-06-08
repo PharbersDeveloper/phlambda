@@ -1,7 +1,30 @@
 import os
 import json
 import boto3
+import time
 import traceback
+
+
+def put_action(event):
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('action')
+
+    response = table.put_item(
+        Item={
+            'projectId': event['common']['projectId'],
+            'date': str(int(round(time.time() * 1000))),
+            'jobCat': event['action']['cat'],
+            'jobDesc': event['action']['desc'],
+            'comments': event['action']['comments'],
+            'message': event['action']['message'],
+            'code': 0,
+            'owner': event['common']['owner'],
+            'showName': event['common']['showName'],
+            'traceId': event['common']['traceId']
+        }
+    )
+    print(response)
 
 
 def lambda_handler(event, context):
@@ -33,6 +56,9 @@ def lambda_handler(event, context):
         res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
         run_arn = res['executionArn']
         print("Started run %s. ARN is %s.", run_name, run_arn)
+
+    if event.get("action"):
+        put_action(event)
 
     # try:
     #     client = boto3.client('stepfunctions')

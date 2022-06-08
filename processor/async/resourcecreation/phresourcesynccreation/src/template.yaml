@@ -48,7 +48,7 @@ template:
             df.write.format("parquet") \
                      .mode("append").partitionBy(version_col) \
                      .save(getOutputPath($projectId$, $output$, $lack_path$))
-            return {"df_out":df}
+            return {"out_df":df}
             
   phmain.py:
     args:
@@ -201,8 +201,8 @@ template:
                 putOutputSchema(output_id, project_id, sample_df, output_version)
 
             # 创建version表
-            df_versions = df.select('version').distinct()
-            for i_version in df_versions:
+            list_versions = [str(i) for i in df.select('version').distinct().toPandas()['version'].tolist()]
+            for i_version in list_versions:
                 put_item_to_version(output_id, project_id, i_version, ph_conf.get("ownerId"))
 
         def get_dynamodb_item(table_name, key):

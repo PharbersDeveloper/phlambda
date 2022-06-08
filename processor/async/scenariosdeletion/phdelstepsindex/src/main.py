@@ -23,7 +23,7 @@ class DelStepsIndex:
 
     def __init__(self, event):
         self.event = event
-        self.steps = event['steps']
+        self.steps = event['steps'][0]
 
     def get_scenarioId(self):
         return self.event['scenario']['id']

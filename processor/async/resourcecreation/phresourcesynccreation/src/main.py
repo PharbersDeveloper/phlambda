@@ -69,7 +69,6 @@ def lambda_handler(event, context):
                         .replace("$inputs$", f"'{inputs}'") \
                         .replace("$output$", f"'{output}'") \
                         .replace("$version$", str(version)) \
-                        .replace("$version_col$", f"'traceId'") \
                         .replace("$lack_path$", f"'s3://ph-platform/2020-11-11/lake/pharbers'")
     # 获取phmain.py 模板
     phmain_script = template_yaml['template']['phmain.py']['content'] \

@@ -70,7 +70,10 @@ class DelTriggerRule(object):
             )
             self.result['status'] = 'ok'
             self.result['message'] = f'delete {stackName} resource success'
+            print(response)
         except Exception as e:
+            print("*"*50 + "error" + "*"*50)
+            print(str(e))
             self.result['status'] = 'error'
             self.result['message'] = str(e)
 

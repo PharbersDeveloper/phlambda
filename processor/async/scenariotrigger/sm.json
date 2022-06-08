@@ -4,7 +4,9 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "ResultPath": null,
+         "Result": {
+         },
+         "ResultPath": "$.iterator",
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {
@@ -14,15 +16,15 @@
          "Next": "Actions",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
+             "ResultPath": "$.iterator.error",
              "Next": "CleanUp"
           } ]
       },
@@ -100,13 +102,13 @@
       },
       "ExecutionTrigger": {
          "Type":"Task",
-         "Resource":"arn:aws:states:::states:startExecution.sync:2",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
-            "Name":"$.currentTriggerStep.common.runnerId"
+            "Name.$":"$.currentTriggerStep.common.runName"
          },
-         "ResultPath": "$",
+         "ResultPath": null,
          "Next": "ScenarioTriggerStepCheck"
       },
       "ScenarioTriggerStepCheck": {
@@ -115,7 +117,7 @@
          "Parameters": {
             "scenarioStep.$": "$.currentScenarioStep",
             "count.$": "$.metadata.count",
-            "runnerId.$": "$.currentTriggerStep.runnerId",
+            "runnerId.$": "$.currentTriggerStep.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
@@ -124,6 +126,19 @@
             "iterator.$": "$.iterator"
          },
          "ResultPath": "$.iterator",
+         "Next": "ScenarioTriggerRecord"
+      },
+      "ScenarioTriggerRecord": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerrecord-dev",
+         "Parameters": {
+            "scenarioId.$": "$.scenario.scenarioId",
+            "runnerId.$": "$.currentTriggerStep.common.runnerId",
+            "owner.$": "$.common.owner",
+            "runtime.$": "$.scenario.runtime",
+            "reporter": "default_reporter"
+         },
+         "ResultPath": null,
          "Next": "ScenarioTriggerStepCountReached"
       },
       "ScenarioTriggerStepCountReached": {
@@ -137,7 +152,7 @@
                   },
                   {
                      "Variable": "$.iterator.currentStatus",
-                     "StringEquals": "success"
+                     "StringEquals": "succeed"
                   }
                ],
                "Next": "SuccessMessage"
@@ -157,7 +172,7 @@
       },
       "SuccessMessage":{
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggersuccessmessage-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -165,9 +180,9 @@
             "showName.$": "$.common.showName",
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.message"
+            "comments.$": "$.action.comments"
          },
+         "ResultPath": "$.message",
          "Next": "Success"
       },
       "Success": {
@@ -188,14 +203,15 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariocleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.error"
+            "errors.$" : "$.iterator.error",
+            "status": "failed"
          },
          "ResultPath": "$.message",
          "Next": "Failed"

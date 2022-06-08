@@ -80,18 +80,24 @@ def execution_failed(iterator, count, ignoreError):
         iterator.update({"currentStatus": currentStatus})
     else:
         iterator.update({"currentStatus": "failed"})
+        iterator.update({"error": "job execution error"})
 
+    return iterator
 
 
 def lambda_handler(event, context):
     print(event)
     count = event["count"]
-    currntIndex = event["scenarioStep"]["detail"]["ignore-error"]
+    ignoreError = event["scenarioStep"]["detail"]["ignore-error"]
     # 根据runnerId 获取执行状态
     execution_status = get_execution_status_from_execution(event["runnerId"])
 
     # 如果成功 index + 1
+    if execution_status == "success":
+        iterator = execution_succeed(event["iterator"], count)
+    elif execution_status == "failed":
+        iterator = execution_failed(event["iterator"], count, ignoreError)
 
-    return 1
+    return iterator
 
 

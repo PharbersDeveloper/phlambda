@@ -33,7 +33,7 @@ args = {
     "dagName": "String",
     "owner": "String",
     "projectName": "automax",
-    "scripts": {
+    "script": {
         "id": "String",
         "runtime": "pyspark",
         "name": "compute_test_sync_hospital_mapping_out",
@@ -49,14 +49,15 @@ def lambda_handler(event, context):
     args = event
     projectId = args['projectId']
     dagName = args['dagName']
-    scripts_name = args['scripts']['name']
-    output = args['scripts']['output']
-    inputs = args['scripts']['inputs']
-    version = args['scripts']['version']
-    flowVersion = args['scripts']['flowVersion']
+    scripts_name = args['script']['name']
+    output = args['script']['output']
+    inputs = args['script']['inputs']
+    inputs = json.loads(inputs)[0]
+    version = args['script']['version']
+    flowVersion = args['script']['flowVersion']
     projectName = args['projectName']
-    args_scripts = args['scripts']
-    runtime = args['scripts']['runtime']
+    args_scripts = args['script']
+    runtime = args['script']['runtime']
 
     # 读取yaml文件
     template_yaml = open('template.yaml', 'r', encoding='utf-8').read()

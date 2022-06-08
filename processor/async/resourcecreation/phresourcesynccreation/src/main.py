@@ -68,7 +68,7 @@ def lambda_handler(event, context):
                         .replace("$projectId$", f"'{projectId}'") \
                         .replace("$inputs$", f"'{inputs}'") \
                         .replace("$output$", f"'{output}'") \
-                        .replace("$version$", version) \
+                        .replace("$version$", str(version)) \
                         .replace("$version_col$", f"'traceId'") \
                         .replace("$lack_path$", f"'s3://ph-platform/2020-11-11/lake/pharbers'")
     # 获取phmain.py 模板

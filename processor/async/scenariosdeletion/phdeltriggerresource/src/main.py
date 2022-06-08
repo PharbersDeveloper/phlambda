@@ -62,6 +62,7 @@ class DelTriggerRule(object):
         return get_stackName(get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), self.get_triggerId()])))
 
     def del_trigger_rule(self, stackName):
+        print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
         try:
             client = boto3.client('cloudformation')
             response = client.delete_stack(

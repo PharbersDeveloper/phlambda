@@ -47,15 +47,15 @@ args = {
 
 def lambda_handler(event, context):
     args = event
-    projectId = args['projectId']
-    dagName = args['dagName']
+    projectId = args['common']['projectId']
+    dagName = args['common']['dagName']
     scripts_name = args['script']['name']
     output = args['script']['output']
     inputs = args['script']['inputs']
     inputs = json.loads(inputs)[0]
     version = args['script']['version']
     flowVersion = args['script']['flowVersion']
-    projectName = args['projectName']
+    projectName = args['common']['projectName']
     args_scripts = args['script']
     runtime = args['script']['runtime']
 

@@ -258,7 +258,7 @@ template:
         def createOutputs(runtime, args, ph_conf, output, project_ip, project_id, project_name, output_version, logger):
 
             out_df = args.get("out_df")
-            out_df = transform_other_df2_spark_df(runtime, out_df, args)
+            # out_df = transform_other_df2_spark_df(runtime, out_df, args)
 
             if out_df:
                 # out_df = changeIntToDouble(out_df)

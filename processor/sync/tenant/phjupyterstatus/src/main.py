@@ -154,15 +154,15 @@ def lambda_handler(event, context):
         if (statusCode & 4) != 0:
             result["status"] = 4
             result["message"] = "stoping"
-            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
         elif (statusCode & 1) != 0:
             result["status"] = 1
             result["message"] = "starting"
-            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
         elif (statusCode & 2) != 0:
             result["status"] = 2
             result["message"] = "started"
-            result["traceId"] = ssmQueryTraceId(event["tenantId"])
+            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
         elif statusCode == 0:
             result["status"] = 0
             result["message"] = "stoped"

@@ -61,6 +61,7 @@ args:
 '''
 
 
+
 class CheckParameters:
 
     def __init__(self, event):
@@ -153,10 +154,14 @@ class CheckParameters:
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
+        res = ds_table.get_item(
             Key=QueryItem,
         )
-        return res["Items"]
+        try:
+            Item = res["Item"]
+        except:
+            Item = []
+        return Item
 
 
     def RaiseErrorMessage(self, IntersectionElement):
@@ -182,15 +187,17 @@ class Check:
         event_data = CheckParameters(event)
         input_keys = event_data.get_prefix_key()
         #---------------------------------检查字段缺失---------------------------------------------------------#
-        _key_triggers = ['common', 'action', 'notification', 'triggers']
+        _key_scenario_triggers = ['common', 'action', 'notification', 'scenario', 'triggers']
         _key_steps = ['common', 'action', 'notification',  'steps']
-        _key_scenario = ['common', 'action', 'notification', 'scenario']
         _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
         IntersectionElement = set(input_keys) & set(_key_all)      #--交集
-        if any((IntersectionElement == set(_key_triggers), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_scenario))):
+        print((IntersectionElement))
+        print(IntersectionElement == set(_key_steps))
+        if any((IntersectionElement == set(_key_scenario_triggers), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_all))):
             for key in input_keys:
                 if key in _key_all:
                     #----检查内层每个字段------#
+                    print(key)
                     event_data.check_key(key)
         else:
             event_data.RaiseErrorMessage(IntersectionElement)

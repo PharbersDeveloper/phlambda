@@ -18,7 +18,8 @@ args:
     }
 '''
 
-def get_stackName(stackName):
+
+def reduce_length_of_stackName(stackName):
     import re
     #----------限制字符串长度---------------------#
     if len(stackName) <= 62:
@@ -36,7 +37,7 @@ def get_stackName(stackName):
             stackName = '-'.join([scenario, projectId, scenarioId, triggerId, timeTag])
         else:
             stackName = '-'.join([scenario, projectId, scenarioId, triggerId])
-        return get_stackName(stackName)
+        return reduce_length_of_stackName(stackName)
 
 
 class DelTriggerRule(object):
@@ -55,26 +56,12 @@ class DelTriggerRule(object):
 
     def get_stackName(self, triggerId):
 
-        return get_stackName(get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)])))
-
-
-    def checkStackExisted(self, stackName):
-        cf = boto3.client('cloudformation')
-        try:
-            stacks = cf.describe_stacks(StackName=stackName)['Stacks']
-            if len(stacks) > 0:
-                pass
-        except Exception as e:
-            print("*"*50 + "error" + "*"*50)
-            print(str(e))
-            raise Exception(f"{stackName}  not exist")
+        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)]))
 
     def del_trigger_rule(self, stackName):
         print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
         processMessage = {}
         processMessage["Name"] = stackName
-        #----- 检测stackName是否存在 -------------------#
-        self.checkStackExisted(stackName)
 
         try:
             client = boto3.client('cloudformation')

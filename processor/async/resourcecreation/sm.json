@@ -171,12 +171,31 @@
                         "Variable" : "$.script.runtime",
                         "StringEquals" : "sparkr",
                         "Next" : "SparkrFiles"
-                     } ],
+                     }, {
+                        "Variable" : "$.script.runtime",
+                        "StringEquals" : "syncfiles",
+                        "Next" : "SyncFiles"
+                     }],
                      "Default" : "PysparkFiles"
+                  },
+                  "SyncFiles" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesynccreation-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "dagName.$" : "$.common.dagName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.script",
+                     "End" : true
                   },
                   "PythonFiles" : {
                      "Type" : "Task",
-                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepythoncreation-dev",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepycodegen-dev",
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
@@ -191,7 +210,7 @@
                   },
                   "RFiles" : {
                      "Type" : "Task",
-                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresoucercreation-dev",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcercodegen-dev",
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
@@ -206,7 +225,7 @@
                   },
                   "SparkrFiles" : {
                      "Type" : "Task",
-                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesparkrcreation-dev",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcercodegen-dev",
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",
@@ -221,7 +240,7 @@
                   },
                   "PysparkFiles" : {
                      "Type" : "Task",
-                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepysparkcreation-dev",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepycodegen-dev",
                      "Parameters" : {
                         "traceId.$" : "$.common.traceId",
                         "projectId.$" : "$.common.projectId",

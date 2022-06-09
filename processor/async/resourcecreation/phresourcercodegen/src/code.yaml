@@ -1,0 +1,561 @@
+version: 0.0.0
+framework: sparkr
+engine: spark
+language: r
+language_version: 3.6.3
+code:
+  phmain:
+    args:
+      - key: inputs
+        index: 0
+      - key: output
+        index: 1
+      - key: project_id
+        index: 2
+      - key: project_name
+        index: 3
+      - key: runtime
+        index: 4
+      - key: dag_name
+        index: 5
+      - key: script_name
+        index: 6
+    code: |
+      library(SparkR)
+      library(jsonlite)
+      library(httr)
+      library(paws)
+
+      cmd_args <- commandArgs(T)
+
+      owner <- cmd_args[1]
+      dag_name <- cmd_args[2]
+      run_id <- cmd_args[3]
+      job_full_name <- cmd_args[4]
+      job_id <- cmd_args[5]
+      project_ip <- cmd_args[6]
+      ph_conf <- cmd_args[7]
+      tenant <- "pharbers"
+
+      Encoding(owner)
+      Encoding(owner) <- "UTF-8"
+      Encoding(ph_conf)
+      Encoding(ph_conf) <- "UTF-8"
+      Encoding(dag_name)
+      Encoding(dag_name) <- "UTF-8"
+      Encoding(job_full_name)
+      Encoding(job_full_name) <- "UTF-8"
+
+      input_args <- list(
+          owner = owner, dag_name = dag_name, run_id = run_id,
+          job_full_name = job_full_name, job_id = job_id, ph_conf = ph_conf,
+          project_ip = project_ip
+      )
+
+      sparkJars <- "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar"
+
+      click_house_jdbc_url <- paste("jdbc:clickhouse://", project_ip, ":8123", sep = "")
+
+      click_house_jdbc_driver <- "ru.yandex.clickhouse.ClickHouseDriver"
+
+      lake_prefix <- paste("s3://ph-platform/2020-11-11/lake/", tenant, "/", sep = "")
+
+
+      spark <- sparkR.session(
+          sparkConfig = list(
+              sparkJars = sparkJars,
+              spark.sql.execution.arrow.sparkr.enabled = "true")
+          )
+
+      print("Spark Init")
+
+
+      db <- dynamodb(
+          config = list(
+              region = "cn-northwest-1"
+          )
+      )
+
+      # 获取df schema 转成 json 字符串
+      get_schema2str <- function(df) {
+          schemas <- list()
+          for (item in schema(df)$fields()) {
+              if (item$name() != "traceId") {
+                  content <- list(name=item$name(), dataType=item$dataType.toString())
+                  schemas <- append(schemas, list(content))
+              }
+          }
+          return(paste0(toJSON(schemas, auto_unbox = TRUE), sep=""))
+      }
+
+      # 将DataFrame统一Schema一致性
+      convert_consistency_schema <- function(df, schema) {
+          cols <- list()
+          for (item in fromJSON(schema, simplifyVector = FALSE)) {
+              content <- paste("`", item$name ,"`", sep="")
+              cols <- append(cols, content)
+          }
+          combine_df <- selectExpr(df, "*", paste("to_json(struct(", paste(cols, collapse = ','), ")) as data", sep=""))
+          return(select(withColumn(combine_df, "schema", schema), "traceId", "schema", "data"))
+      }
+
+      # 对多TraceId取Schema的col的并集（暂时先不管类型）
+      convert_union_schema <- function(df) {
+          rows <- collect(distinct(select(df, "traceId", "schema")))
+          cols <- list()
+          union_cols <- list()
+          for (row in split(rows, 1:nrow(rows))) {
+              content <- list()
+              for (item in fromJSON(row$schema, simplifyVector = FALSE)) {
+                  content <- append(content, item$name)
+              }
+              cols <- append(cols, list(content))
+          }
+
+          for (item in cols) {
+              union_cols <- union(union_cols, item)
+          }
+          return(union_cols)
+      }
+
+      # 将统一Schema的DF转成正常的 Data Frame
+      convert_normal_df <- function(df, schema_cols) {
+          cols <- list()
+          for (item in schema_cols) {
+              content <- paste("`", item, "` STRING", sep="")
+              cols <- append(cols, content)
+          }
+          result_df <- withColumn(df, "json", from_json(df$data, paste(cols, collapse = ",")))
+          return(select(result_df, "traceId", "json.*"))
+      }
+
+
+      create_table_http_call <- function(sql) {
+          url <- paste("http://", project_ip,
+              ":8123", "/?query=", URLencode(sql),
+              sep = ""
+          )
+          return(gsub("[\n]", "", POST(url)))
+      }
+
+      get_ds_item <- function(project_id, name) {
+        result <- db$query(
+          TableName = "dataset",
+          IndexName = "dataset-projectId-name-index",
+          ExpressionAttributeNames = list(
+            "#name" = "name"
+          ),
+          ExpressionAttributeValues = list(
+            `:projectId` = list( S = project_id ),
+            `:dsName` = list( S = name )
+          ),
+          KeyConditionExpression = "projectId = :projectId AND #name = :dsName",
+        )$Item
+
+        result_item <- list()
+
+        for(item in result) {
+          for (key in names(item)) {
+            value <- item[[key]]$S
+            if (length(value) == 0) {
+              value <- item[[key]]$N
+            }
+            if (value == "") {
+              value <- " "
+            }
+            Encoding(value)
+            Encoding(value) <- "UTF-8"
+
+            if (length(item[[key]]$S) == 0) {
+              result_item[[key]] <- list(N=value)
+            } else {
+              result_item[[key]] <- list(S=value)
+            }
+          }
+        }
+        return(result_item)
+      }
+
+      put_dy_item <- function(table, item) {
+          db$put_item(
+              Item = item,
+              TableName = table,
+          )
+      }
+
+      handle_msg_to_ds <- function(project_id, name) {
+          ds_name <- paste(project_id, "_", name, sep = "")
+          schema <- list()
+          item <- get_ds_item(project_id, name)
+          result <- create_table_http_call(paste("SELECT name, type from system.columns where database='default' AND table='", ds_name, "' FORMAT JSON", sep = ""))
+
+          for (data in fromJSON(result, simplifyVector = FALSE)$data) {
+              content <- list(src = data$name, des = data$name, type = data$type)
+              schema <- append(schema, list(content))
+          }
+          schema_str <- paste0(toJSON(schema, auto_unbox = TRUE), spe = "")
+          item$schema <- list(S = schema_str)
+          put_dy_item("dataset", item)
+      }
+
+      handle_msg_to_version <- function(project_id, output_id, output_version, owner) {
+        item = list(
+            id = list(
+                S = paste(project_id, "_", output_id, sep = "")
+            ),
+            projectId = list(
+                S = project_id
+            ),
+            datasetId = list(
+                S = output_id
+            ),
+            name = list(
+                S = output_version
+            ),
+            date = list(
+                S = paste(round(as.numeric(Sys.time()), 0) * 1000, sep = "")
+            ),
+            owner = list(
+                S = owner
+            )
+        )
+        put_dy_item("version", item)
+      }
+
+
+      create_table_sql <- function(df, table_name, database="default") {
+          get_schema <- function(df) {
+              cols <- columns(df)
+              sql_schema <- ""
+              for (col in cols) {
+                  coltype <- "String"
+                  col_str <- paste("`", col, "` ", coltype, sep = "")
+                  sql_schema <- paste(sql_schema, col_str, ",", sep = "")
+              }
+              sql_schema <- sub(",$", "", sql_schema)
+              return(sql_schema)
+          }
+          return(paste("CREATE TABLE IF NOT EXISTS ", database, ".",
+              "`", table_name, "`", "(", get_schema(df), ") ",
+              "ENGINE = MergeTree() PRIMARY KEY version ORDER BY version;",
+              sep = ""
+          ))
+      }
+
+
+      s3_to_df <- function(path, version) {
+          suffix_str <- strsplit(path, split = ".", fixed = TRUE)
+          num_suffix <- length(suffix_str[[1]])
+          suffix <- tolower(suffix_str[[1]][num_suffix])
+
+          read_csv <- function() {
+              return(read.df(path, "csv", header = TRUE))
+          }
+
+          read_other <- function() {
+              return(read.df(path))
+          }
+
+          read_s3_funcs <- list(csv = read_csv, other = read_other)
+
+          if (suffix != "csv") {
+              suffix <- "other"
+          }
+
+          df <- read_s3_funcs[[suffix]]()
+
+          if (length(version) != 0) {
+              df <- filter(df, df$traceId %in% version)
+          }
+          return(df)
+      }
+
+
+      catalog_to_df <- function(database, table) {
+          return(sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
+      }
+
+
+      load_df <- function(input_ds, output_version, project_id, project_name, is_single_run) {
+
+          transform_lower_columns <- function(df) {
+              for (item in columns(df)) {
+                  df <- withColumnRenamed(df, item, tolower(item))
+              }
+              return(df)
+          }
+
+          cat <- input_ds$cat
+          version <- input_ds$version
+          if (cat != "uploaded" && cat != "input_index" && cat != "catalog") {
+              cat <- "other"
+              if (length(version) == 0 & !is_single_run) {
+                  version <- append(version, output_version)
+              }
+          }
+          name <- input_ds$name
+
+          load_s3_df <- function() {
+              path <- paste(lake_prefix, project_id, "/", name, sep = "")
+              return(s3_to_df(path, version))
+          }
+
+          uploaded_s3_df <- function() {
+              result <- get_ds_item(project_id, name)
+              schemas <- list()
+              for (item in fromJSON(result$schema$S, simplifyVector = FALSE)) {
+                  content <- paste("`", item$src, "` STRING", sep="")
+                  schemas <- append(schemas, content)
+              }
+              df <- read.df(paste(lake_prefix, project_id, "/", name, sep = ""), "csv", paste(schemas, collapse = ","))
+              if (length(version) != 0) {
+                  df <- filter(df, df$version %in% version)
+              }
+              return(df)
+          }
+
+          load_catalog_df <- function() {
+              prop <- input_ds$prop
+              database <- prop$databaseName
+              table <- prop$tableName
+              return(catalog_to_df(database, table))
+          }
+
+          load_input_index_df <- function() {
+              prop <- input_ds$prop
+              path <- prop$path
+              return(s3_to_df(path, list()))
+          }
+
+          cat_funcs <- list(
+              uploaded = uploaded_s3_df,
+              catalog = load_catalog_df,
+              input_index = load_input_index_df,
+              other = load_s3_df
+          )
+
+          df <- cat_funcs[[cat]]()
+          if (cat == "other") {
+              df <- drop(convert_normal_df(df, convert_union_schema(df)), "traceId")
+              return(fillna(df, "None"))
+          }
+          # transform_lower_columns(df)
+          return(fillna(df, "None"))
+      }
+
+      # spark dataframe转换成R dataframe
+      transform_spark_df2_other_df <- function(runtime, df_map) {
+          keys <- names(df_map)
+          transform_df_map <- list()
+          for (key in keys) {
+              if (runtime == "sparkr") {
+                  transform_df_map[[key]] <- df_map[[key]]
+              } else {
+                  transform_df_map[[key]] <- collect(df_map[[key]])
+              }
+          }
+          return(transform_df_map)
+      }
+
+      # R dataframe转换成spark dataframe
+      transform_other_df2_spark_df <- function(runtime, df) {
+          if (runtime == "sparkr") {
+              return(df)
+          } else {
+              return(createDataFrame(df))
+          }
+      }
+
+      read_df <- function(inputs, kwargs, project_id, project_name, output_version) {
+
+          df_map <- list()
+          ds_list <- kwargs$ds_conf
+
+          name_ds_map_dict <- list()
+
+
+          for (ds in ds_list) {
+              key <- ds$name
+              name_ds_map_dict[[key]] <- ds
+          }
+
+
+          for (input_ds_name in inputs) {
+              Encoding(input_ds_name)
+              Encoding(input_ds_name) <- "UTF-8"
+              key <- paste("df_", input_ds_name, sep = "")
+              if (input_ds_name %in% names(name_ds_map_dict)) {
+                  input_df <- load_df(
+                      name_ds_map_dict[[input_ds_name]],
+                      output_version, project_id, project_name, TRUE
+                  )
+                  df_map[[key]] <- input_df
+              } else {
+                  input_ds <- list(
+                      name = input_ds_name,
+                      version = strsplit(output_version, split = ","),
+                      cat = "intermediate"
+                  )
+                  input_df <- load_df(
+                      input_ds, output_version,
+                      project_id, project_name, FALSE
+                  )
+                  df_map[[key]] <- input_df
+              }
+          }
+          return(df_map)
+      }
+
+      create_input_df <- function(
+          runtime, inputs,
+          args, project_id,
+          project_name, output_version) {
+          Encoding(output_version)
+          Encoding(output_version) <- "UTF-8"
+          df_map <- read_df(inputs, args, project_id, project_name, output_version)
+          return(transform_spark_df2_other_df(runtime, df_map))
+      }
+
+      out_to_s3 <- function(df, ds_conf) {
+          prop <- ds_conf$prop
+          ds_format <- tolower(prop$format)
+          path <- prop$path
+          partitions <- prop$partitions
+
+          consistency_df <- convert_consistency_schema(df, get_schema2str(df))
+
+          to_parquet <- function() {
+              write.df(
+                  repartition(consistency_df, partitions), path,
+                  "parquet", "append",
+                  partitionBy = "traceId"
+              )
+          }
+
+          to_csv <- function() {
+              write.df(
+                  repartition(consistency_df, partitions), path,
+                  "csv", "overwrite",
+                  header = TRUE
+              )
+          }
+
+          write_funcs <- list(parquet = to_parquet, csv = to_csv)
+
+          write_funcs[[ds_format]]()
+      }
+
+      out_click_house <- function(df, table) {
+          host <- paste("jdbc:clickhouse://", project_ip, ":8123", sep = "")
+          user <- "default"
+          password <- ""
+          driver <- "ru.yandex.clickhouse.ClickHouseDriver"
+          write.jdbc(limit(df, 10000), host, table, "append",
+              user = user,
+              password = password, driver = driver,
+              batchsize = "10000", queryTimeout = "300000"
+          )
+      }
+
+      add_version <- function(df, version, version_colname="version") {
+          return(withColumn(df, version_colname, version))
+      }
+
+      create_outputs <- function(runtime, args, ph_conf, output, project_id, project_name, output_version) {
+
+          Encoding(output_version)
+          Encoding(output_version) <- "UTF-8"
+          out_df <- transform_other_df2_spark_df(runtime, args$out_df)
+
+          table_name <- paste(project_id, "_", output, sep = "")
+          Encoding(table_name)
+          Encoding(table_name) <- "UTF-8"
+
+          normal_out_df <- add_version(out_df, output_version, "version")
+          normal_out_df <- drop(normal_out_df, "traceId")
+
+          ds_list <- args$ds_conf
+
+          name_ds_map_dict <- list()
+
+          for (ds in ds_list) {
+              name_ds_map_dict[[ds$name]] <- ds
+          }
+
+          # 因为schema可能会与原不一致导致插入错误，在此之前会进行删除表操作
+          create_table_http_call(paste("DROP TABLE IF EXISTS default.","`", table_name, "`", sep = ""))
+
+          create_table_http_call(create_table_sql(normal_out_df, table_name))
+
+          count_sql <- paste("SELECT COUNT(*) FROM ", "`", table_name, "`", sep = "")
+          response <- create_table_http_call(count_sql)
+          path <- paste(lake_prefix, project_id, "/", output, "/", sep = "")
+          Encoding(path)
+          Encoding(path) <- "UTF-8"
+
+          if (response == "0") {
+              out_click_house(normal_out_df, paste("`", table_name, "`", sep = ""))
+          }
+
+          # 保持原有产品层级的version，新增traceId内容与version一致
+          add_traceId_df <- add_version(normal_out_df, output_version, "traceId")
+
+          out_to_s3(
+              add_traceId_df,
+              list(prop = list(format = "Parquet", path = path, partitions = 2))
+          )
+
+          output_result <- get_ds_item(project_id, output)
+          output_id <- output_result$id$S
+
+          handle_msg_to_ds(project_id, output)
+
+          handle_msg_to_version(project_id, output_id, output_version, owner)
+      }
+
+      source("phjob.R")
+
+      dag_name <- "$$dag_name"
+      script_name <- "$$script_name"
+
+      args <- list(name=paste(dag_name, "_", script_name, sep=""))
+
+      inputs <- list($$inputs)
+
+      output <- "$$output"
+
+      project_id <- "$$project_id"
+      project_name <- "$$project_name"
+      runtime <- "$$runtime"
+
+      ph_conf <- fromJSON(input_args$ph_conf, simplifyVector=FALSE)
+
+      user_conf <- ph_conf$userConf
+
+      ds_conf <- as.list(ph_conf$datasets)
+
+      args <- c(args, user_conf)
+      args[["ds_conf"]] <- ds_conf
+      args <- c(args, input_args)
+
+      output_version <- paste(args$run_id, "_", ph_conf$showName, sep="")
+
+      df_map <- create_input_df(runtime, inputs, args, project_id, project_name, output_version)
+
+      args <- c(args, df_map)
+
+      result <- exec(args)
+
+      args <- c(args, result)
+
+      create_outputs(runtime, args, ph_conf, output, project_id, project_name, output_version)
+
+  phjob:
+    input_var_args: ~
+    code: >+
+      exec <- function(cmd_args) {
+      	$$input_var_args
+      	return(list(out_df=data_frame))
+      }
+
+

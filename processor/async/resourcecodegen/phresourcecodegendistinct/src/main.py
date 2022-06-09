@@ -34,11 +34,11 @@ event = {
             "groupName": "",
             "expressionsValue": "JSON",
             "expressions": { "parmas": {
-                                "keys": ["Find Distinct values of a subset of all columns"],
+                                "keys": ["city_tier_2010"],
                                 "preFilter": {
                                     "distinct": False,
                                     "enabled": True,
-                                    "expression":  "`姓名` LIKE '%A%' and `xxx` = xxx"
+                                    "expression": "`brand` LIKE '人血白蛋白' and `city` = '济南市'"
                                 },
                                 "postFilter": {
                                     "distinct": False,
@@ -55,7 +55,12 @@ event = {
 
 def lambda_handler(event, context):
     args = event
-    input = args['script']['inputs'][0]   
+    flowVersion = args['flowVersion']
+    projectName = args['projectName']
+    output = args['script']['outputs']
+    input = args['script']['inputs'][0]
+    scripts_name = args['script']['jobName']
+    
     distinct_args = args["steps"][0]["expressions"]["params"]
     args_preFilter = distinct_args['preFilter']
     args_postFilter = distinct_args['postFilter']

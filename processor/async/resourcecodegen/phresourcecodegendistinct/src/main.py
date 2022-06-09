@@ -66,7 +66,7 @@ def lambda_handler(event, context):
     runtime = args["steps"][0]['runtime']
     scripts_name = args['script']['jobName']
     
-    distinct_args = args["steps"][0]["expressions"]["parmas"]
+    distinct_args = args["steps"][0]["expressions"]["params"]
     args_preFilter = distinct_args['preFilter']
     args_postFilter = distinct_args['postFilter']
     distinct_key = distinct_args['keys']

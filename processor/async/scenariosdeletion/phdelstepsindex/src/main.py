@@ -23,13 +23,10 @@ class DelStepsIndex:
 
     def __init__(self, event):
         self.event = event
-        self.steps = event['steps'][0]
+        self.steps = event['steps']
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
-
-    def get_stepId(self):
-        return self.steps['id']
 
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
@@ -69,28 +66,31 @@ class DelStepsIndex:
             }
         else:
             OldImage = {}
-        self.OldImage = OldImage
         return OldImage
 
-    def fetch_result(self):
-        self.steps['OldImage'] = self.OldImage
+    def DelStepItemFromDyDB(self):
+
+        for step in self.steps:
+            stepId = step["id"]
+            #----------per oldImageItem of step -----------------#
+            OldImageItem = self.query_table_item('scenario_step', scenarioId=self.get_scenarioId(), id=stepId)
+            OldImage = self.get_OldImage(OldImageItem)
+            #---------- item not exist --------------------------#
+            if len(OldImage) == 0:
+                pass
+            else:
+                #--------delete step item ------------------------#
+                self.del_table_item('scenario_step', scenarioId=self.get_scenarioId(), id=stepId)
+            step['OldImage'] = OldImage
+
         return self.steps
 
 
 def lambda_handler(event, context):
 
-    #----------- steps 输入为空 ----------#
-    if len(list(event["steps"])) == 0:
-        return event["steps"]
-    else:
         DelClient = DelStepsIndex(event)
-        #--------------------------get OldImage-------------------------------------------------------#
-        OldImageItem = DelClient.query_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
-        OldImage = DelClient.get_OldImage(OldImageItem)
-        if len(OldImage) == 0:
-            print(f"stepsId :{DelClient.get_stepId()} not exists ,please check data")
-        else:
-            #-------------------------delete step----------------------------------------------------------#
-            DelClient.del_table_item('scenario_step', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_stepId())
 
-        return DelClient.fetch_result()
+        #----- delete each step in array of steps -----------#
+        result = DelClient.DelStepItemFromDyDB()
+
+        return result

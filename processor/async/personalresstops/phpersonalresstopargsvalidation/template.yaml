@@ -17,6 +17,3 @@ Resources:
         Variables:
           EDITION: "DEV"
       Timeout: 600
-
-
-

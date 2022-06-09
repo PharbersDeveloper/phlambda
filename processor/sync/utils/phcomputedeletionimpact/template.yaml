@@ -19,10 +19,4 @@ Resources:
       Description: "计算删除DS产生的影响"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-058404c2ad02dcbb9
-          - sg-09f5205a1194149ab
-        SubnetIds:
-          - subnet-0260eab5acd58bc53
-          - subnet-0e3daa88acef9b136
+

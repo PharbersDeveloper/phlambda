@@ -37,45 +37,36 @@ args:
 class TriggersIndex:
     def __init__(self, event):
         self.event = event
-        self.triggers = event['triggers'] if len(event['triggers']) == 0 else event['triggers'][0]
+        self.triggers = event['triggers']
 
     def get_scenarioId(self):
         return self.event['scenario']['id']
-    def get_id(self):
-        return self.triggers['id']
-    def get_active(self):
-        return self.triggers['active']
-    def get_detail(self):
-        return self.triggers['detail']
-    def get_index(self):
-        return self.triggers['index']
-    def get_mode(self):
-        return self.triggers['mode']
+
     def get_traceId(self):
         return self.event['traceId']
 
-    def put_item(self):
+    def put_item(self, scenarioId, TriggerId, active, detail, index, mode, traceId):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_trigger')
         response = table.put_item(
             Item={
-                'scenarioId': self.get_scenarioId(),
-                'id': self.get_id(),
-                'active': self.get_active(),
-                'detail': self.dumps_data_by_json(self.get_detail()),
-                'index': self.get_index(),
-                'mode': self.get_mode(),
-                'traceId': self.get_traceId()
+                'scenarioId': scenarioId,
+                'id': TriggerId,
+                'active': active,
+                'detail': self.dumps_data_by_json(detail),
+                'index': index,
+                'mode': mode,
+                'traceId': traceId
             }
         )
         return response
 
-    def query_table_item(self, tableName, partitionKey, sortKey):
+    def query_table_item(self, tableName, partitionKey, sortKey, TriggerId):
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
         res = ds_table.query(
             KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
-                                   & Key(sortKey).eq(self.get_id())
+                                   & Key(sortKey).eq(TriggerId)
         )
         return res["Items"]
 
@@ -84,12 +75,13 @@ class TriggersIndex:
             return data
         else:
             return json.dumps(data)
+
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
 
-    def get_OldImage(self):
-        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id')
+    def get_OldImage(self, TriggerId):
+        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id', TriggerId)
         print("*"*50+"trigger content " + "*"*50)
         print(Items)
         if len(Items) != 0:
@@ -103,23 +95,27 @@ class TriggersIndex:
             }
         else:
             OldImage = {}
-        self.OldImage = OldImage
         return OldImage
 
-    def fetch_result(self):
-        if len(self.triggers) == 0:
-            return self.triggers
-        else:
-            self.triggers['OldImage'] = self.OldImage
-        return [self.triggers]
+
+    def putTriggersItemIntoDyDB(self):
+        for trigger in self.triggers:
+            triggerId = trigger["id"]
+            detail = trigger["detail"]
+            active = trigger["active"]
+            index = trigger["index"]
+            mode = trigger["mode"]
+            #-------- get oldImage -------------------------#
+            oldImage = self.get_OldImage(triggerId)
+            trigger["OldImage"] = oldImage
+            #-------- put Trigger item int dyDB-----------------#
+            self.put_item(self.get_scenarioId(), triggerId, active, detail, index, mode, self.get_traceId())
+        return self.triggers
 
 def lambda_handler(event, context):
 
     triggersClient = TriggersIndex(event)
-    if len(triggersClient.triggers) == 0:
-        pass
-    else:
-        triggersClient.get_OldImage()
-        triggersClient.put_item()
 
-    return triggersClient.fetch_result()
+    result = triggersClient.putTriggersItemIntoDyDB()
+
+    return result

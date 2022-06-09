@@ -15,6 +15,7 @@ template:
         Index: 5
     content: |-
         from pyspark.sql.functions import col
+        from pyspark.sql.types import StructType, StringType
 
         def getInputPath(projectId, inputs, lack_path):
             return f"{lack_path}/{projectId}/{inputs}"
@@ -29,12 +30,25 @@ template:
     
         def execute(**kwargs):
             spark = kwargs['spark']
-            df = spark.read.parquet(getInputPath($projectId$, $inputs$, $lack_path$) )
-            df = choiceVersion($version_col$, $version$, df)
+            filecat = kwargs['filecat']
+            schemas = kwargs['schemas']
+            if filecat == 'uploaded':
+                schema_type = StructType()
+                for item in schemas:
+                    schema_type = schema_type.add(item, StringType())
+                reader = spark.read.schema(schema_type)
+                df = reader.csv( getInputPath($projectId$, $inputs$, $lack_path$) )
+                version_col = "version"
+
+            elif filecat == 'intermediate':
+                df = spark.read.parquet( getInputPath($projectId$, $inputs$, $lack_path$))
+                version_col = "traceId"
+                
+            df = choiceVersion(version_col, $version$, df)    
             df.write.format("parquet") \
-                     .mode("append").partitionBy("traceId") \
+                     .mode("append").partitionBy(version_col) \
                      .save(getOutputPath($projectId$, $output$, $lack_path$))
-            return {"df_out":df}
+            return {"out_df":df}
             
   phmain.py:
     args:
@@ -187,8 +201,8 @@ template:
                 putOutputSchema(output_id, project_id, sample_df, output_version)
 
             # 创建version表
-            df_versions = df.select('version').distinct()
-            for i_version in df_versions:
+            list_versions = [str(i) for i in df.select('version').distinct().toPandas()['version'].tolist()]
+            for i_version in list_versions:
                 put_item_to_version(output_id, project_id, i_version, ph_conf.get("ownerId"))
 
         def get_dynamodb_item(table_name, key):
@@ -283,9 +297,9 @@ template:
 
                 # 获取df count
                 logger.debug("输出df的count")
-                add_traceId_df.show(10)
-                logger.debug(add_traceId_df.count())
-                df_out(ph_conf, output_version, ch_client, add_traceId_df, project_ip, project_id, table_name, output_id)
+                #add_traceId_df.show(10)
+                #logger.debug(add_traceId_df.count())
+                df_out(ph_conf, output_version, ch_client, out_df, project_ip, project_id, table_name, output_id)
                 logger.debug("向创建的表写入数据成功")
 
 
@@ -300,6 +314,7 @@ template:
             try:
                 logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
                 args = $args_scripts$
+                input = $input$
                 output = $output$
                 project_id = $projectId$
                 project_name = $projectId$
@@ -318,6 +333,16 @@ template:
                 args.update(user_conf)
                 args.update({"ds_conf": ds_conf})
                 args.update({"spark": spark})
+                
+                
+                # ===== 获取schemas
+                filecat = ds_conf[0]['cat']
+                schemas = list(map(lambda item: item["src"], json.loads(get_ds_with_index(input, project_id)["schema"])))
+                print(schemas)
+                    
+                args.update({"schemas": schemas})
+                args.update({"filecat": filecat})
+                # ============
 
                 args.update(kwargs)
                 output_version =  args.get("run_id") + "_" + ph_conf.get("showName")

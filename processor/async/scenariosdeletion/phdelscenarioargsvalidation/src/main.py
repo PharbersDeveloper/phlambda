@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr
+from reduceLengthOfstackName import reduce_length_of_stackName
 '''
 这个函数只做一件事情，检查参数是否合法
 args:
@@ -59,14 +60,16 @@ args:
     }
 '''
 
+
+
 class CheckParameters:
 
     def __init__(self, event):
         self.event = event
         self.common = event['common']
         self.scenario = event['scenario']
-        self.triggers = event['triggers'][0]
-        self.steps = event['steps'][0]
+        self.triggers = event['triggers']
+        self.steps = event['steps']
         self.check_dict = {
             "common": self.check_common,
             "action": self.check_action,
@@ -101,15 +104,38 @@ class CheckParameters:
 
     def check_scenario(self, key):
         self.check_type(key, dict)
-        self.check_DsData_Exists('scenario')
+        self.check_DsData_Exists('scenario', **{"projectId": self.get_projectId(), "id": self.get_scenarioId()})
 
     def check_triggers(self, key):
         self.check_type(key, list)
-        self.check_DsData_Exists('scenario_trigger')
+        for trigger in self.triggers:
+            triggerId = trigger["id"]
+            self.check_DsData_Exists('scenario_trigger', **{"scenarioId": self.get_scenarioId(), "id": triggerId})
+            #--------- 检测stackName --------------------#
+            stackName = self.get_stackName(triggerId)
+            self.checkStackExisted(stackName)
 
     def check_steps(self, key):
         self.check_type(key, list)
-        self.check_DsData_Exists('scenario_step')
+        for step in self.steps:
+            stepId = step["id"]
+            self.check_DsData_Exists('scenario_step', **{"scenarioId": self.get_scenarioId(), "id": stepId})
+
+    def get_stackName(self, triggerId):
+
+        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)]))
+
+
+    def checkStackExisted(self, stackName):
+        cf = boto3.client('cloudformation')
+        try:
+            stacks = cf.describe_stacks(StackName=stackName)['Stacks']
+            if len(stacks) > 0:
+                pass
+        except Exception as e:
+            print("*"*50 + "error" + "*"*50)
+            print(str(e))
+            raise Exception(f"{stackName}  not exist")
 
     def get_projectId(self):
         return self.common['projectId']
@@ -117,24 +143,9 @@ class CheckParameters:
     def get_scenarioId(self):
         return self.scenario['id']
 
-    def get_triggerId(self):
-        return self.triggers['id']
-
-    def get_stepId(self):
-        return self.steps['id']
-
-    def map_query_table_condition(self):
-
-        queryConditionDict = {
-            "scenario": {"projectId": self.get_projectId(), "id": self.get_scenarioId()},
-            "scenario_trigger": {"scenarioId": self.get_scenarioId(), "id": self.get_triggerId()},
-            "scenario_step": {"scenarioId": self.get_scenarioId(), "id": self.get_stepId()}
-        }
-        return queryConditionDict
-
     #-------检查表中数据是否存在----------------------#
-    def check_DsData_Exists(self, tableName):
-        queryConditionDict = self.map_query_table_condition()[tableName]
+    def check_DsData_Exists(self, tableName, **kwargs):
+        queryConditionDict = dict(kwargs.items())
         Item = self.query_table_item(tableName, **queryConditionDict)
         if len(Item) == 0:
             raise Exception(f"{queryConditionDict} not exists, please check you data.")
@@ -143,10 +154,14 @@ class CheckParameters:
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
+        res = ds_table.get_item(
             Key=QueryItem,
         )
-        return res["Items"]
+        try:
+            Item = res["Item"]
+        except:
+            Item = []
+        return Item
 
 
     def RaiseErrorMessage(self, IntersectionElement):
@@ -157,8 +172,9 @@ class CheckParameters:
                 if len(DiffElement) == 0:
                     raise Exception("A key fields may be missing from: [scenario, triggers, steps]")
                 #-------- 字段同时存在检测 --------------------------------#
-                #if len(DiffElement) > 1:
-                #    raise Exception(f"{list(DiffElement)} can not exist at the  same time")
+                if any(["scenario" and "triggers" in DiffElement, "steps" in DiffElement]) is False:
+                    raise Exception(f"scenario,triggers or steps may be missing in {list(DiffElement)}")
+            #if len(DiffElement) > 1:
             else:
                 missBasicKey = " or ".join([x for x in common if x not in IntersectionElement])
                 raise Exception(f"Basic fields may be missing: {missBasicKey}")
@@ -171,15 +187,17 @@ class Check:
         event_data = CheckParameters(event)
         input_keys = event_data.get_prefix_key()
         #---------------------------------检查字段缺失---------------------------------------------------------#
-        _key_triggers = ['common', 'action', 'notification', 'triggers']
+        _key_scenario_triggers = ['common', 'action', 'notification', 'scenario', 'triggers']
         _key_steps = ['common', 'action', 'notification',  'steps']
-        _key_scenario = ['common', 'action', 'notification', 'scenario']
         _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
         IntersectionElement = set(input_keys) & set(_key_all)      #--交集
-        if any((IntersectionElement == set(_key_triggers), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_scenario))):
+        print((IntersectionElement))
+        print(IntersectionElement == set(_key_steps))
+        if any((IntersectionElement == set(_key_scenario_triggers), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_all))):
             for key in input_keys:
                 if key in _key_all:
                     #----检查内层每个字段------#
+                    print(key)
                     event_data.check_key(key)
         else:
             event_data.RaiseErrorMessage(IntersectionElement)

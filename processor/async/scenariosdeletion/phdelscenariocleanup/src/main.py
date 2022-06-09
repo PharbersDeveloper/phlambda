@@ -74,21 +74,14 @@ class DelRollBack:
     def __init__(self, event):
         self.event = event
         self.scenario = event['scenario']
-        self.trigger = event['triggers'][0]
-        self.step = event['steps'][0]
-        self.errorMessage = {}
+        self.triggers = event['triggers']
+        self.steps = event['steps']
 
     def get_projectId(self):
         return self.event['common']['projectId']
 
     def get_scenarioId(self):
         return self.scenario['id']
-
-    def get_stepId(self):
-        return self.step['id']
-
-    def get_triggerId(self):
-        return self.trigger['id']
 
     def get_traceId(self):
         return self.event['common']['traceId']
@@ -98,6 +91,9 @@ class DelRollBack:
 
     def get_projectName(self):
         return self.event['common']['projectName']
+
+    def get_scenarioName(self):
+        return self.scenario["scenarioName"]
 
     def check_OldImage(self, mode_type):
         try:
@@ -178,26 +174,17 @@ class DelRollBack:
         )
         return response
 
-    def map_query_table_condition(self):
-
-        queryConditionDict = {
-            "scenario": {"projectId": self.get_projectId(), "id": self.get_scenarioId()},
-            "scenario_trigger": {"scenarioId": self.get_scenarioId(), "id": self.get_triggerId()},
-            "scenario_step": {"scenarioId": self.get_scenarioId(), "id": self.get_stepId()}
-        }
-        return queryConditionDict
-
     #-------------------检查Item是否一致----------------------------#
     def IsTheSameItem(self, OldItem, CurrentItem):
 
         return True if OldItem == CurrentItem else False
 
-
-    def RollBackProcess(self, modeType, tableName):
+    def RollBackProcess(self, modeType, tableName, **kwargs):
+        QueryConditionDict = dict(kwargs.items())
         oldImage = self.get_OldImage(modeType)
         Item = self.map_Item(tableName, oldImage)
         #--------------检查item是否一致-------------------------------#
-        queryTableItem = self.query_table_item(tableName, **(self.map_query_table_condition()[tableName]))
+        queryTableItem = self.query_table_item(tableName, **(QueryConditionDict))
         if len(queryTableItem) == 0:
             self.put_item(tableName, Item)
         else:
@@ -214,33 +201,70 @@ class DelRollBack:
         return modeType['OldImage']
 
     def scenarioRollBack(self):
+        scenarioRollBackMessage = {}
         RollBackMode = self.check_OldImage(self.scenario)
-        self.errorMessage['scenario'] = f" error handle mode: {RollBackMode}"
+
         if RollBackMode == "RollBack":
-            self.RollBackProcess(self.scenario, "scenario")
+            self.RollBackProcess(self.scenario, "scenario", **{"projectId": self.get_projectId(), "id": self.get_scenarioId()})
         else:
             self.NotNeedRollBack()
+        scenarioRollBackMessage["name"] = self.get_scenarioName()
+        scenarioRollBackMessage["mode"] = f"error handle mode: {RollBackMode}"
+        return scenarioRollBackMessage
 
 
     def triggerRollBack(self):
-        RollBackMode = self.check_OldImage(self.trigger)
-        self.errorMessage['scenario_trigger'] = f" error handle mode: {RollBackMode}"
-        if RollBackMode == "RollBack":
-            self.RollBackProcess(self.trigger, "scenario_trigger")
-        else:
-            self.NotNeedRollBack()
+        triggerCountNum = 0
+        triggerRollBackResult = []
+
+        for trigger in self.triggers:
+            triggerId = trigger["id"]
+            #-------- rollback message --------------------#
+            eachRollBackMessage = {}
+            eachRollBackMessage["index"] = triggerCountNum + 1
+            eachRollBackMessage["name"] = trigger["name"]
+            RollBackMode = self.check_OldImage(trigger)
+            eachRollBackMessage["mode"] = f" error handle mode: {RollBackMode}"
+            #-------- rollback message --------------------#
+
+            if RollBackMode == "RollBack":
+                self.RollBackProcess(trigger, "scenario_trigger", **{"scenarioId": self.get_scenarioId(), "id": triggerId})
+            else:
+                self.NotNeedRollBack()
+            triggerRollBackResult.append(eachRollBackMessage)
+
+        return triggerRollBackResult
 
     def stepRollBack(self):
-        RollBackMode = self.check_OldImage(self.step)
-        self.errorMessage['scenario_step'] = f" error handle mode: {RollBackMode}"
-        if RollBackMode == "RollBack":
-            self.RollBackProcess(self.trigger, "scenario_step")
-        else:
-            self.NotNeedRollBack()
 
-    def fetch_result(self):
-        return {"type": "notification", "opname": self.get_projectId(),
-                "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
+        stepCountNum = 0
+        StepRollBackResult = []
+        for step in self.steps:
+            eachRollBackMessage = {}
+            stepId = step["id"]
+            #-------- rollback message --------------------#
+            eachRollBackMessage["index"] = stepCountNum + 1
+            eachRollBackMessage["name"] = step["name"]
+            RollBackMode = self.check_OldImage(step)
+            eachRollBackMessage["mode"] = f" error handle mode: {RollBackMode}"
+            #-------- rollback message --------------------#
+
+            if RollBackMode == "RollBack":
+                self.RollBackProcess(step, "scenario_step", **{"scenarioId": self.get_scenarioId(), "id": stepId})
+            else:
+                self.NotNeedRollBack()
+            StepRollBackResult.append(eachRollBackMessage)
+        return StepRollBackResult
+
+    def fetch_result(self,scenarioRollBackResult, triggerRollBackResult, StepRollBackResult):
+        errorMessage = {
+            "scenario": scenarioRollBackResult,
+            "triggers": triggerRollBackResult,
+            "steps": StepRollBackResult
+        }
+
+        return {"type": "notification", "opname": self.get_owner(),
+                "cnotification": {"data": {"datasets": []}, "error": errorMessage}}
 
 
 def lambda_handler(event, context):
@@ -248,10 +272,10 @@ def lambda_handler(event, context):
     #---------------------回滚操作--------------------------------#
     try:
         delClient = DelRollBack(event)
-        delClient.scenarioRollBack()
-        delClient.triggerRollBack()
-        delClient.stepRollBack()
-        return delClient.fetch_result()
+        scenarioRollBackResult = delClient.scenarioRollBack()
+        triggerRollBackResult  = delClient.triggerRollBack()
+        StepRollBackResult = delClient.stepRollBack()
+        return delClient.fetch_result(scenarioRollBackResult, triggerRollBackResult, StepRollBackResult)
     except Exception as e:
         try:
             opname = event["common"]["owner"]

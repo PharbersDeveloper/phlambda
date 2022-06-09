@@ -34,11 +34,11 @@ event = {
             "groupName": "",
             "expressionsValue": "JSON",
             "expressions": { "parmas": {
-                                "keys": ["city_tier_2010"],
+                                "keys": ["Find Distinct values of a subset of all columns"],
                                 "preFilter": {
                                     "distinct": False,
                                     "enabled": True,
-                                    "expression": "`brand` LIKE '人血白蛋白' and `city` = '济南市'"
+                                    "expression":  "`姓名` LIKE '%A%' and `xxx` = xxx"
                                 },
                                 "postFilter": {
                                     "distinct": False,
@@ -55,17 +55,7 @@ event = {
 
 def lambda_handler(event, context):
     args = event
-    projectId = args['projectId']
-    dagName = args['dagName']
-    flowVersion = args['flowVersion']
-    projectName = args['projectName']
-    args_scripts = args['script']
-    output = args['script']['outputs']
-    inputs = args['script']['inputs']
-    input = inputs[0]
-    runtime = args["steps"][0]['runtime']
-    scripts_name = args['script']['jobName']
-    
+    input = args['script']['inputs'][0]   
     distinct_args = args["steps"][0]["expressions"]["params"]
     args_preFilter = distinct_args['preFilter']
     args_postFilter = distinct_args['postFilter']
@@ -82,16 +72,6 @@ def lambda_handler(event, context):
                         .replace("$distinct_key$", str(distinct_key)) \
                         .replace("$input$", str(input))
 
-    # 获取phmain.py 模板
-    phmain_script = template_yaml['template']['phmain.py']['content'] \
-                        .replace("$dagName$", f"'{dagName}'") \
-                        .replace("$script_name$", f"'{scripts_name}'") \
-                        .replace("$projectId$", f"'{projectId}'") \
-                        .replace("$runtime$", f"'{runtime}'") \
-                        .replace("$output$", f"'{output}'") \
-                        .replace("$inputs$", str(inputs)) \
-                        .replace("$project_name$", f"'{projectName}'")
-
 
     # 写出到s3
     def getScriptPathKey(projectName, flowVersion, output):
@@ -106,7 +86,6 @@ def lambda_handler(event, context):
             Key=f"{getScriptPathKey(projectName, flowVersion, scripts_name)}/{filename}") 
 
     toS3(phjob_script, projectName, flowVersion, scripts_name, "phjob.py")
-    toS3(phmain_script, projectName, flowVersion, scripts_name, "phmain.py")
     
     return args['script']
 

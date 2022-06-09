@@ -57,10 +57,25 @@ class DelTriggerRule(object):
 
         return get_stackName(get_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)])))
 
+
+    def checkStackExisted(self, stackName):
+        cf = boto3.client('cloudformation')
+        try:
+            stacks = cf.describe_stacks(StackName=stackName)['Stacks']
+            if len(stacks) > 0:
+                pass
+        except Exception as e:
+            print("*"*50 + "error" + "*"*50)
+            print(str(e))
+            raise Exception(f"{stackName}  not exist")
+
     def del_trigger_rule(self, stackName):
         print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
         processMessage = {}
         processMessage["Name"] = stackName
+        #----- 检测stackName是否存在 -------------------#
+        self.checkStackExisted(stackName)
+
         try:
             client = boto3.client('cloudformation')
             response = client.delete_stack(

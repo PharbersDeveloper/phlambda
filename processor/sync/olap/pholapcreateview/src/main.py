@@ -45,9 +45,10 @@ def lambda_handler(event, context):
         print(sql)
 
         # check view is exist
-        # result = execute_sql(f"SELECT name FROM system.tables where engine='View' and name = '{view_name}' FORMAT JSON", tenant_id)["data"]
-        # if result:
-        #     is_exist = True
+        result = execute_sql(f"SELECT name FROM system.tables where engine='View' and name = '{view_name}' FORMAT JSON", tenant_id)["data"]
+        if result:
+            is_exist = True
+            execute_sql(f"DROP VIEW `{view_name}` FORMAT JSON", tenant_id)
 
         # 不存在直接创建
         # if not is_exist:
@@ -58,7 +59,7 @@ def lambda_handler(event, context):
         #     execute_sql(f"DROP VIEW `{view_name}` FORMAT JSON", tenant_id)
         #     execute_sql(f"CREATE VIEW `{view_name}` AS {sql} FORMAT JSON", tenant_id)
         
-        execute_sql(f"DROP VIEW `{view_name}` FORMAT JSON", tenant_id)
+        
         execute_sql(f"CREATE VIEW `{view_name}` AS {sql} FORMAT JSON", tenant_id)
 
         response["status"] = "succeed"

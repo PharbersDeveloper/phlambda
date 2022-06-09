@@ -101,11 +101,11 @@ class TriggersResources:
 
     def not_need_update(self):
         self.result['status'] = 'ok'
-        self.result['message'] = 'resource does not need to be updated'
+        self.result['message'] = f'resource {self.stackName} does not need to be updated'
 
     def ScenarioResourceError(self, error_message):
         self.result['status'] = 'error'
-        self.result['message'] = str(error_message)
+        self.result['message'] = f"{self.stackName} create failed and error: " + str(error_message)
 
     def get_Parameters(self):
         Parameters = [
@@ -159,7 +159,7 @@ class TriggersResources:
             StackName=self.stackName
         )
         self.result['status'] = 'ok'
-        self.result['message'] = 'updating resource'
+        self.result['message'] = f'updating resource {self.stackName}'
 
     def create_trigger(self):
         print("*"*50 + " Create  " + "*"*50)
@@ -171,7 +171,7 @@ class TriggersResources:
         print("*"*50 + " 创建完毕, create trigger Reponse " + "*"*50 + "\n", response)
 
         self.result['status'] = 'ok'
-        self.result['message'] = 'create resource'
+        self.result['message'] = f'create resource {self.stackName} '
 
 def get_stackName(stackName):
     import re
@@ -210,49 +210,55 @@ def lambda_handler(event, context):
         return {"type": "notification", "opname": event['owner'],
                        "cnotification": {"data": {"datasets": "", "error": result}}}
     else:
-        triggerId = event['triggers'][0]['id']
-        #------- 拼cron表达式------------------------------------#
-        start_time = event['triggers'][0]['detail']['start']
-        period = event['triggers'][0]['detail']['period']
-        value = event['triggers'][0]['detail']['value']
-        cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
-        print(cronExpression)
-        templateUrl = os.getenv("TEMPLATEURL")
+        #---------- 处理每一个trigger ------------------------------#
+        messageList = []
+        for trigger in event["triggers"]:
+            triggerId = trigger['id']
+            #------- 拼cron表达式------------------------------------#
+            start_time = trigger['detail']['start']
+            period = trigger['detail']['period']
+            value = trigger['detail']['value']
+            cronExpression = GenCronExpression(start_time, period, value).get_cron_expression()
+            print(cronExpression)
+            templateUrl = os.getenv("TEMPLATEURL")
 
-        triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
+            triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
 
-        try:
-            stack = triggers.checkStackStatus()
-            print("*"* 50 + "STack" + "*"*50 + "\n", stack)
-            #--------------更新逻辑------------------------------#
-            if triggers.checkNeedUpdateResouce(stack):
+            try:
+                stack = triggers.checkStackStatus()
+                print("*"* 50 + "STack" + "*"*50 + "\n", stack)
+                #--------------更新逻辑------------------------------#
+                if triggers.checkNeedUpdateResouce(stack):
+                    try:
+                        triggers.update_trigger()
+                    except Exception as e:
+                        print("*"*50 + "打印更新错误日志" + "*"*50)
+                        print(str(e))
+                        triggers.result['status'] = 'error'
+                        triggers.result['message'] = str(e)
+                else:
+                    triggers.not_need_update()
+            except ScenarioStackNotExistError:
+                #--------------创建逻辑-------------------------------#
                 try:
-                    triggers.update_trigger()
+                    triggers.create_trigger()
                 except Exception as e:
-                    print("*"*50 + "打印更新错误日志" + "*"*50)
+                    print("*"*50 + "打印创建错误日志" + "*"*50)
                     print(str(e))
                     triggers.result['status'] = 'error'
                     triggers.result['message'] = str(e)
-            else:
-                triggers.not_need_update()
-        except ScenarioStackNotExistError:
-            #--------------创建逻辑-------------------------------#
-            try:
-                triggers.create_trigger()
-            except Exception as e:
-                print("*"*50 + "打印创建错误日志" + "*"*50)
-                print(str(e))
-                triggers.result['status'] = 'error'
-                triggers.result['message'] = str(e)
-        except ScenarioResourceError as e:
-            traceback_output = traceback.format_exc()
-            print(traceback_output)
-            triggers.ScenarioResourceError(e)
-        except Exception:
-            print('unknown error ===========>')
-            traceback_output = traceback.format_exc()
-            print(traceback_output)
-        finally:
-            print("--"*50 + "RESULT" + "--"*50)
-            print(triggers.result)
-            return triggers.result
+            except ScenarioResourceError as e:
+                traceback_output = traceback.format_exc()
+                print(traceback_output)
+                triggers.ScenarioResourceError(e)
+            except Exception:
+                print('unknown error ===========>')
+                traceback_output = traceback.format_exc()
+                print(traceback_output)
+            finally:
+                print("--"*50 + "RESULT" + "--"*50)
+                print(triggers.result)
+                messageList.append(triggers.result)
+
+        return {"type": "notification", "opname": event['owner'],
+                "cnotification": {"data": {"datasets": "", "error": messageList}}}

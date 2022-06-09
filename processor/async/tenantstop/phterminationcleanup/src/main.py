@@ -28,4 +28,13 @@ args = {
 }
 '''
 def lambda_handler(event, context):
-    return True
+    print(event)
+    errors = event.get("error")
+    return {
+        "type": "notification",
+        "opname": event["owner"],
+        "cnotification": {
+            "data": {},
+            "error": errors
+        }
+    }

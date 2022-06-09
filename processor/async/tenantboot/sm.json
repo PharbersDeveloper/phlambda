@@ -332,7 +332,7 @@
              "ErrorEquals": [ "States.ALL" ],
              "ResultPath": "$.error",
              "Next": "CleanUp"
-          } ] 
+          } ]
       },
       "SSMCreation": {
          "Type": "Task",
@@ -340,7 +340,7 @@
          "Parameters": {
             "action": "write",
             "key.$": "$.common.tenantId",
-            "value.$": "$.result" 
+            "value.$": "$.result"
          },
          "ResultPath": null,
          "Next": "Success"
@@ -373,7 +373,14 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {"tenantStart":"starting"},
+                  "error": {}
+               }
+            },
             "status": "starting"
          },
          "ResultPath": null,
@@ -390,7 +397,14 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {"tenantStart":"started"},
+                  "error": {}
+               }
+            },
             "status": "started"
          },
          "End": true
@@ -399,13 +413,15 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootfailedcleanup-dev",
          "Parameters": {
+            "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName"
+            "showName.$": "$.common.showName",
+            "error.$" : "$.error"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -422,7 +438,7 @@
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
             "message.$": "$.error",
-            "status": "start failed"
+            "status": "startfailed"
          },
          "End": true
       }

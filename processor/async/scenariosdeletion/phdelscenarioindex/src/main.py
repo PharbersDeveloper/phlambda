@@ -78,16 +78,18 @@ class DelScenarioIndex:
 
 def lambda_handler(event, context):
 
-    DelClient = DelScenarioIndex(event)
-
-    #-------------------delete step---------------------------------------------#
-    OldImage = DelClient.get_OldImage()
-    if len(OldImage) == 0:
-        print(f"{DelClient.get_scenarioId()} not exits, please check data")
+    if len(event["scenario"]) == 0:
+        return event["scenario"]
     else:
-        #-------------------delete scenario---------------------------------------------#
-        DelClient.del_table_item('scenario', projectId=DelClient.get_projectId(), id=DelClient.get_scenarioId())
+        DelClient = DelScenarioIndex(event)
+        #-------------------delete ---------------------------------------------#
+        OldImage = DelClient.get_OldImage()
+        if len(OldImage) == 0:
+            print(f"{DelClient.get_scenarioId()} not exits, please check data")
+        else:
+            #-------------------delete scenario---------------------------------------------#
+            DelClient.del_table_item('scenario', projectId=DelClient.get_projectId(), id=DelClient.get_scenarioId())
 
-    return DelClient.fetch_result()
+        return DelClient.fetch_result()
 
 

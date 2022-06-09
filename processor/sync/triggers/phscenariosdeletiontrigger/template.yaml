@@ -11,9 +11,10 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phjupyterstoptrigger-dev
-      Description: "stop jupyter trigger"
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenario-deletion
+          EDITION: "V2"
+      FunctionName: lmd-phscenariosdeletiontrigger-V2
+      Description: Http Post接口触发StepFunctions 删除 sceanrio（scenarios)
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

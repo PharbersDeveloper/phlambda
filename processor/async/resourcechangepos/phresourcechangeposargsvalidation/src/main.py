@@ -52,8 +52,8 @@ args:
                 "id": "HPaIxrMotW3ItPv"
             },
             "new": {
-                "name": compute_B,
-                "runtime: python,
+                "name": "compute_B",
+                "runtime": "python",
                 "inputs": "[\"B\"]",
                 "output": "compute_B"
             }

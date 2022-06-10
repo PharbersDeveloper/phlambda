@@ -33,7 +33,7 @@ event = {
             "groupIndex": 0,
             "groupName": "",
             "expressionsValue": "JSON",
-            "expressions": { "parmas": {
+            "expressions": { "params": {
                                 "keys": ["city_tier_2010"],
                                 "preFilter": {
                                     "distinct": False,
@@ -65,6 +65,7 @@ def lambda_handler(event, context):
     args_preFilter = distinct_args['preFilter']
     args_postFilter = distinct_args['postFilter']
     distinct_key = distinct_args['keys']
+    globalCount = distinct_args['globalCount']
 
     # 读取yaml文件
     template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
@@ -75,9 +76,9 @@ def lambda_handler(event, context):
                         .replace("$args_preFilter$", str(args_preFilter)) \
                         .replace("$args_postFilter$", str(args_postFilter)) \
                         .replace("$distinct_key$", str(distinct_key)) \
+                        .replace("$globalCount$", str(globalCount)) \
                         .replace("$input$", str(input))
-
-
+    
     # 写出到s3
     def getScriptPathKey(projectName, flowVersion, output):
         return f"2020-11-11/jobs/python/phcli/{projectName}_{projectName}_{flowVersion}/{projectName}_{projectName}_{flowVersion}_{output}"
@@ -93,4 +94,3 @@ def lambda_handler(event, context):
     toS3(phjob_script, projectName, flowVersion, scripts_name, "phjob.py")
     
     return args['script']
-

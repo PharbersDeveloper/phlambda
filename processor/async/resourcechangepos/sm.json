@@ -13,7 +13,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
@@ -45,7 +45,7 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
-         "Next": "NewItemCreation"
+         "Next": "NewItemsCreation"
       },
       "NewItemsCreation" : {
          "Type" : "Parallel",
@@ -94,20 +94,7 @@
                      "End": true
                   }
                }
-            } ],
-         "Catch" : [ {
-            "ErrorEquals" : [ "States.Runtime" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.TaskFailed" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.ALL" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         } ]
+            } ]
       },
       "UpdateNewItems": {
          "Type": "Task",
@@ -122,81 +109,47 @@
             "datasetItems.$" : "$.datasetItems"
          },
          "ResultPath": "$.metadata",
-         "Next": "ScenarioTriggerGetDetail"
+         "Next": "ExecutionCodeGen",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         } ]
       },
       "ExecutionCodeGen": {
          "Type":"Task",
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
-            "Input.$": "$.currentTriggerStep",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen",
-            "Name.$":"$.currentTriggerStep.common.runName"
+            "Input.$": "$.metadata.codeGenParameters",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
          },
          "ResultPath": null,
-         "Next": "ScenarioTriggerStepCheck"
-      },
-      "ScenarioTriggerStepCheck": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerstepcheck-dev",
-         "Parameters": {
-            "scenarioStep.$": "$.currentScenarioStep",
-            "count.$": "$.metadata.count",
-            "runnerId.$": "$.currentTriggerStep.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scenarioId.$": "$.scenario.scenarioId",
-            "iterator.$": "$.iterator"
-         },
-         "ResultPath": "$.iterator",
-         "Next": "ScenarioTriggerRecord"
-      },
-      "ScenarioTriggerRecord": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerrecord-dev",
-         "Parameters": {
-            "scenarioId.$": "$.scenario.scenarioId",
-            "runnerId.$": "$.currentTriggerStep.common.runnerId",
-            "owner.$": "$.common.owner",
-            "runtime.$": "$.scenario.runtime",
-            "reporter": "default_reporter"
-         },
-         "ResultPath": null,
-         "Next": "ScenarioTriggerStepCountReached"
-      },
-      "ScenarioTriggerStepCountReached": {
-         "Type": "Choice",
-         "Choices": [
-            {
-               "And": [
-                  {
-                     "Variable": "$.iterator.index",
-                     "NumericEqualsPath": "$.metadata.count"
-                  },
-                  {
-                     "Variable": "$.iterator.currentStatus",
-                     "StringEquals": "succeed"
-                  }
-               ],
-               "Next": "SuccessMessage"
-            },
-            {
-               "Variable": "$.iterator.currentStatus",
-               "StringEquals": "failed",
-               "Next": "CleanUp"
-            }
-         ],
-         "Default": "ScenarioTriggerGetDetail"
-      },
-      "SendEmail": {
-         "Type": "Pass",
-         "ResultPath": null,
-         "End": true
+         "Next": "SuccessMessage",
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
       },
       "SuccessMessage":{
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggersuccessmessage-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangepossuccessmsg-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -223,11 +176,11 @@
             "message.$": "$.message",
             "status": "success"
          },
-         "Next": "SendEmail"
+         "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposcleanup-dev",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -254,7 +207,7 @@
             "message.$": "$.message",
             "status": "failed"
          },
-         "Next": "SendEmail"
+         "End": true
       }
    }
 

@@ -95,11 +95,16 @@ def check_parameter(event):
         raise Exception('action.cat must be changeResourcePosition')
 
     # 3. datasets 中的 old["name"] 必须在dag中查询到
+    # 3. datasets 中的 new["name"] 必须在dag中查询到
     for dataset in event["datasets"]:
-        ds_name = dataset["old"]["name"]
-        dag_item = get_item_from_dag(ds_name, event["common"]["projectId"])
-        if len(dag_item) == 0:
-            raise Exception('dag item must exist')
+        old_dag_name = dataset["old"]["name"]
+        old_dag_item = get_item_from_dag(old_dag_name, event["common"]["projectId"])
+        if len(old_dag_item) == 0:
+            raise Exception(f'{old_dag_name} item must exist')
+        new_dag_name = dataset["old"]["name"]
+        new_dag_item = get_item_from_dag(new_dag_name, event["common"]["projectId"])
+        if len(new_dag_item) == 0:
+            raise Exception(f'{new_dag_name} item must exist')
 
     # 4. script中的 old id必须在dagconf表查询到
     dagconf_item = get_dag_conf_item_from_dynamodb(event["script"]["old"]["id"], event["common"]["projectId"])

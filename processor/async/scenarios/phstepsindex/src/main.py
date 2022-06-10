@@ -71,9 +71,6 @@ class StepsIndex:
         self.event = event
         self.steps = event['steps']
 
-    def get_scenarioId(self):
-        return self.event['scenario']['id']
-
     def get_traceId(self):
         return self.event['traceId']
 
@@ -100,11 +97,11 @@ class StepsIndex:
         )
         return response
 
-    def query_table_item(self, tableName, partitionKey, sortKey, stepId):
+    def query_table_item(self, tableName, partitionKey, sortKey, scenarioId ,stepId):
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
         res = ds_table.query(
-            KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
+            KeyConditionExpression=Key(partitionKey).eq(scenarioId)
                                    & Key(sortKey).eq(stepId)
         )
         return res["Items"]
@@ -112,8 +109,8 @@ class StepsIndex:
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
-    def get_OldImage(self, stepId):
-        Items= self.query_table_item('scenario_step', 'scenarioId', 'id', stepId)
+    def get_OldImage(self, scenarioId, stepId):
+        Items= self.query_table_item('scenario_step', 'scenarioId', 'id', scenarioId, stepId)
         print("*"*50+"step content"+"*"*50)
         print(Items)
         if len(Items) != 0:
@@ -124,7 +121,8 @@ class StepsIndex:
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
                 "name": ItemDict['name'],
-                "id": ItemDict['id']
+                "id": ItemDict['id'],
+                "scenarioId": ItemDict["scenarioId"]
             }
         else:
             OldImage = {}
@@ -134,16 +132,17 @@ class StepsIndex:
     def putStepItemIntoDyDB(self):
         for step in self.steps:
             stepID = step["id"]
+            scenarioId = step["scenarioId"]
             detail = step["detail"]
             confData = step["confData"]
             index = step["index"]
             mode = step["mode"]
             name = step["name"]
             #-------- get oldImage -------------------------#
-            oldImage = self.get_OldImage(stepID)
+            oldImage = self.get_OldImage(scenarioId, stepID)
             step["OldImage"] = oldImage
             #-------- put step item int dyDB-----------------#
-            self.put_item(self.get_scenarioId(), stepID, confData, detail, index, mode, name, self.get_traceId())
+            self.put_item(scenarioId, stepID, confData, detail, index, mode, name, self.get_traceId())
         return self.steps
 
 

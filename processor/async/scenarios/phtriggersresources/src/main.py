@@ -201,7 +201,7 @@ def lambda_handler(event, context):
     tenantId = event['tenantId']
     targetArn = os.getenv("TARGETARN")
     projectId = event['projectId']
-    scenarioId = event['scenario']['id']
+
     if len(event['triggers']) == 0:
         result = {}
         result['status'] = 'error'
@@ -214,6 +214,7 @@ def lambda_handler(event, context):
         messageList = []
         for trigger in event["triggers"]:
             triggerId = trigger['id']
+            EachScenarioId = triggerId["scenarioId"]
             #------- 拼cron表达式------------------------------------#
             start_time = trigger['detail']['start']
             period = trigger['detail']['period']
@@ -222,7 +223,7 @@ def lambda_handler(event, context):
             print(cronExpression)
             templateUrl = os.getenv("TEMPLATEURL")
 
-            triggers = TriggersResources(tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl)
+            triggers = TriggersResources(tenantId, targetArn, projectId, EachScenarioId, triggerId, cronExpression, templateUrl)
 
             try:
                 stack = triggers.checkStackStatus()

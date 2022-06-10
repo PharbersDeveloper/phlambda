@@ -111,9 +111,12 @@ class ScenarioIndex:
 def lambda_handler(event, context):
 
     scenarioClient = ScenarioIndex(event)
-    scenarioClient.get_OldImage()
-    scenarioClient.put_item()
-
-    return scenarioClient.fetch_result()
+    #------ scenario 输入为空的情况 --------#
+    if len(scenarioClient.scenario) == 0:
+        return scenarioClient.scenario
+    else:
+        scenarioClient.get_OldImage()
+        scenarioClient.put_item()
+        return scenarioClient.fetch_result()
 
 

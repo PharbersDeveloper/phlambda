@@ -1,4 +1,3 @@
-import json
 import boto3
 from boto3.dynamodb.conditions import Key
 
@@ -16,8 +15,8 @@ args:
             "showName": "alfred"
         },
         "action": {
-            "cat": "scenarioTrigger",
-            "desc": "scenario trigger",
+            "cat": "changeResourcePosition",
+            "desc": "change resource position",
             "comments": "something need to say",
             "message": "something need to say",
             "required": true
@@ -25,20 +24,42 @@ args:
         "notification": {
             "required": true      
         },
-        "scenario": {
-            "scenarioId": "ggjpDje0HUC2JW_77ba3f12b3f142108f834822cc3eb65b",       
+        "datasets": [
+            {
+                "old": {
+                    "name": "A",
+                    "cat": "uploaded"
+                },
+                "new": {
+                    "name": "B",
+                    "cat": "uploaded"
+                }
+            },
+            {
+                "old": {
+                    "name": "A_out",
+                    "cat": "intermediate"
+                },
+                "new": {
+                    "name": "B_out",
+                    "cat": "intermediate"
+                }
+            }
+        ],
+        script: {
+            "old": {
+                "name": compute_A,
+                "id": "HPaIxrMotW3ItPv"
+            },
+            "new": {
+                "name": compute_B,
+                "runtime: python,
+                "inputs": "[\"B\"]",
+                "output": "compute_B"
+            }
         }
     }
 '''
-
-
-def get_ssm(tenantId):
-    ssm = boto3.client('ssm', region_name="cn-northwest-1")
-    try:
-        res = ssm.get_parameter(Name=tenantId)
-    except Exception:
-        raise Exception('tenantId not in ssm')
-    return True
 
 
 def get_item_from_dag(name, projectId):
@@ -51,10 +72,12 @@ def get_item_from_dag(name, projectId):
     return res.get("Items")
 
 
-def get_scenario_item_from_dynamodb(scenarioId):
-    ds_table = dynamodb.Table('scenario_step')
+def get_dag_conf_item_from_dynamodb(jobId, projectId):
+    ds_table = dynamodb.Table('dagconf')
     res = ds_table.query(
-        KeyConditionExpression=Key("scenarioId").eq(scenarioId)
+        IndexName='dagconf-projectId-id-indexd',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("id").eq(jobId)
     )
     return res.get("Items")
 
@@ -68,27 +91,20 @@ def check_parameter(event):
     # 2. action 必须存在cat 必须是 scenarioTrigger
     if not event.get("action"):
         raise Exception('action must exist')
-    if not event["action"].get("cat") == "scenarioTrigger":
-        raise Exception('action.cat must be scenarioTrigger')
+    if not event["action"].get("cat") == "changeResourcePosition":
+        raise Exception('action.cat must be changeResourcePosition')
 
-    # 3. scenarioId 在 ScenarioStep 表中必须存在
-    scenarioId = event["scenario"].get("scenarioId")
-    scenarioItems = get_scenario_item_from_dynamodb(scenarioId)
-    if len(scenarioItems) == 0:
-        raise Exception('scenario step must exist')
-
-    # 4. scenarioStep中 detail里的 name 必须在dag表中存在
-    for scenarioItem in scenarioItems:
-        ds_name = json.loads(scenarioItem["detail"])["name"]
+    # 3. datasets 中的 old["name"] 必须在dag中查询到
+    for dataset in event["datasets"]:
+        ds_name = dataset["old"]["name"]
         dag_item = get_item_from_dag(ds_name, event["common"]["projectId"])
         if len(dag_item) == 0:
             raise Exception('dag item must exist')
 
-
-    # 5. ssm 中必须存在 key 为 tenantId的项
-    tenantId = event["common"].get("tenantId")
-    print(tenantId)
-    get_ssm(tenantId)
+    # 4. script中的 old id必须在dagconf表查询到
+    dagconf_item = get_dag_conf_item_from_dynamodb(event["script"]["old"]["id"], event["common"]["projectId"])
+    if len(dagconf_item) == 0:
+        raise Exception('script item must exist')
 
     return True
 
@@ -97,7 +113,6 @@ def lambda_handler(event, context):
     print(event)
     return check_parameter(event)
     # 1. common 必须存在
-    # 2. action 必须存在 cat 必须是 scenarioTrigger
-    # 3. scenarioId 在 ScenarioStep 表中必须存在
-    # 4. scenarioStep中 detail里的 name 必须在dag表中存在
-    # 5. ssm 中必须存在 key 为 tenantId的项
+    # 2. action 必须存在 cat 必须是 changeResourcePosition
+    # 3. datasets 中的 old["name"] 必须在dag中查询到
+    # 4. script中的 old id必须在dagconf表查询到

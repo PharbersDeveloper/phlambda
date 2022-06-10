@@ -1,69 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
-from reduceLengthOfstackName import reduce_length_of_stackName
 from decimal import Decimal
-
-'''
-这个函数只做一件事情，检查参数是否合法
-{
-  "common": {
-    "traceId": "alfred-resource-creation-traceIdw22234",
-    "tenantId": "pharbers",
-    "projectId": "HU3n443YN3IO6Rt",
-    "projectName": "demo",
-    "owner": "alfred",
-    "showName": "alfred"
-  },
-  "action": {
-    "cat": "createOrUpdateScenario",
-    "desc": "create or update scenario",
-    "comments": "something need to say",
-    "message": "something need to say",
-    "required": true
-  },
-  "notification": {
-    "required": true
-  },
-  "scenario": {
-    "id": "HU3n443YN3IO6Rt_601c6865249e475682064652d0745881wwwww",
-    "active": true,
-    "scenarioName": "scenario name",
-    "deletion": false
-  },
-  "triggers": [
-    {
-      "active": true,
-      "detail": {
-        "timezone": "中国北京",
-        "start": "2022-04-26 16:10:14",
-        "period": "minute",
-        "value": 1
-      },
-      "index": 0,
-      "mode": "timer",
-      "id": "093B40B9BC51CB76"
-    }
-  ],
-  "steps": [
-    {
-      "confData": {},
-      "detail": {
-        "type": "dataset",
-        "recursive": false,
-        "ignore-error": false,
-        "name": "1235"
-      },
-      "index": 0,
-      "mode": "dataset",
-      "name": "alfred",
-      "id": "step id"
-    }
-  ],
-  "result": {}
-}
-'''
-
 
 
 class FetchTriggersAndStepsFromScenarioId:
@@ -72,40 +10,65 @@ class FetchTriggersAndStepsFromScenarioId:
         self.event = event
         self.scenario = event['scenario']
 
-
-    def turn_decimal_into_int(self, data):
-        return int(data) if isinstance(data, Decimal) else data
-
-
     def query_table_item(self, tableName, partitionKey, ValueOfpartitionKey):
 
-        #dynamodb = boto3.resource('dynamodb')
-        dynamodb = boto3.resource('dynamodb', region_name='cn-northwest-1', aws_access_key_id='AKIAWPBDTVEANKEW2XNC',
-                            aws_secret_access_key='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')
+        dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
         res = ds_table.query(
-            KeyConditionExpression= Key(partitionKey).eq(ValueOfpartitionKey)
+            KeyConditionExpression=Key(partitionKey).eq(ValueOfpartitionKey)
         )
 
         return res["Items"]
 
-    def dumps_data_by_json(self, data):
-        if isinstance(data, str):
-            return data
-        else:
-            return json.dumps(data)
+    def ChangeStringToDict(self, StringData):
+
+        return StringData if isinstance(StringData, dict) else json.loads(StringData)
+
+    def ChangeDecimalToInt(self, data):
+
+        return int(data) if isinstance(data, Decimal) else data
+
+    def MakeEachTriggerItem(self, EachTriggerItem):
+        TriggerItem = {
+            "active": EachTriggerItem['active'],
+            "detail": self.ChangeStringToDict(EachTriggerItem['detail']),
+            "index": self.ChangeDecimalToInt(EachTriggerItem['index']),
+            "mode": EachTriggerItem['mode'],
+            "id": EachTriggerItem['id'],
+            "scenarioId": EachTriggerItem['scenarioId']
+        }
+        return TriggerItem
+
+    def MakeEachStepItem(self, EachStepItem):
+        StepItem = {
+            "confData": EachStepItem["confData"],
+            "detail": self.ChangeStringToDict(EachStepItem["detail"]),
+            "index": self.ChangeDecimalToInt(EachStepItem["index"]),
+            "mode": EachStepItem["mode"],
+            "name": EachStepItem["name"],
+            "id": EachStepItem["id"],
+            "scenarioId": EachStepItem['scenarioId']
+        }
+        return StepItem
 
     def GetTriggersItemsFromScenarioId(self):
 
         ItemsOfQuery = self.query_table_item("scenario_trigger", "scenarioId", self.scenario["id"])
+        AllTriggersItems = []
         for Item in ItemsOfQuery:
-
-            print(Item)
-
+            EachTrigggerItem = self.MakeEachTriggerItem(Item)
+            AllTriggersItems.append(EachTrigggerItem)
+        return AllTriggersItems
 
 
     def GetStepsItemsFromScenarioId(self):
-        pass
+        ItemsOfQuery = self.query_table_item("scenario_step", "scenarioId", self.scenario["id"])
+        AllStepsItems = []
+        for Item in ItemsOfQuery:
+            EachStepItem = self.MakeEachStepItem(Item)
+            AllStepsItems.append(EachStepItem)
+        return AllStepsItems
+
 
     def FetchItemsFromScenarioId(self):
 
@@ -116,73 +79,17 @@ class FetchTriggersAndStepsFromScenarioId:
             triggersItems = self.GetTriggersItemsFromScenarioId()
             stepsItems = self.GetStepsItemsFromScenarioId()
 
-        return triggersItems, stepsItems
+        return {
+            "triggers": triggersItems,
+            "steps": stepsItems
+        }
 
 def lambda_handler(event, context):
 
     FetchClient = FetchTriggersAndStepsFromScenarioId(event)
-    FetchClient.GetTriggersItemsFromScenarioId()
 
-    #fetchData = FetchClient.FetchItemsFromScenarioId()
+    TriggersAndStepItems = FetchClient.FetchItemsFromScenarioId()
 
-    return ""
+    print(TriggersAndStepItems)
 
-if __name__ == '__main__':
-    event = {
-        "common": {
-            "traceId": "alfred-resource-creation-traceIdw22234",
-            "tenantId": "pharbers",
-            "projectId": "HU3n443YN3IO6Rt",
-            "projectName": "demo",
-            "owner": "alfred",
-            "showName": "alfred"
-        },
-        "action": {
-            "cat": "createOrUpdateScenario",
-            "desc": "create or update scenario",
-            "comments": "something need to say",
-            "message": "something need to say",
-            "required": True
-        },
-        "notification": {
-            "required": True
-        },
-        "scenario": {
-            "id": "ggjpDje0HUC2JW_55a080cb402943869f3a1519bef2b989",
-            "active": True,
-            "scenarioName": "scenario name",
-            "deletion": False
-        },
-        "triggers": [
-            {
-                "active": True,
-                "detail": {
-                    "timezone": "中国北京",
-                    "start": "2022-04-26 16:10:14",
-                    "period": "minute",
-                    "value": 1
-                },
-                "index": 0,
-                "mode": "timer",
-                "id": "093B40B9BC51CB76"
-            }
-        ],
-        "steps": [
-            {
-                "confData": {},
-                "detail": {
-                    "type": "dataset",
-                    "recursive": False,
-                    "ignore-error": False,
-                    "name": "1235"
-                },
-                "index": 0,
-                "mode": "dataset",
-                "name": "alfred",
-                "id": "step id"
-            }
-        ],
-        "result": {}
-    }
-
-    lambda_handler(event, "")
+    return TriggersAndStepItems

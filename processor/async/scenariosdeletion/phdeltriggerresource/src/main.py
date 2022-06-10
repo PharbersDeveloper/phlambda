@@ -81,7 +81,7 @@ class DelTriggerRule(object):
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            scenarioId = triggerId["scenarioId"]
+            scenarioId = trigger["scenarioId"]
             eachStackName = self.get_stackName(scenarioId, triggerId)
             #------------ delete trigger resource ---------#
             EachDeleteResult = self.del_trigger_rule(eachStackName)

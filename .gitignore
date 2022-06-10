@@ -203,3 +203,7 @@ processor/async/inputindexdatasets/phxlsxtockhouse/package.yaml
 phschemaexplorer/buildspec.yaml
 
 processor/sync/olap/pholapcreateview/readme
+
+processor/sync/utils/phplatform/dist/
+
+processor/sync/utils/phplatform/lmdcode/

@@ -182,6 +182,13 @@ export default class Platform {
             provider: String,
             owner: Array(String),
         },
+        // table: {
+        //     name: String,
+        //     database: String,
+        //     provider: String,
+        //     version: String,
+        //     db: { link: "db", inverse: "tables" },
+        // },
         // resource: {
         //     name: String,
         //     resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter
@@ -238,7 +245,7 @@ export default class Platform {
         hooks: {
             file: [this.hooksDate],
             // diagram: [this.hooksDate],
-            // db: [null, this.hookDataBaseOutput],
+            db: [null, this.hookDataBaseOutput],
             // table: [null, this.hookTableOutput],
             account: [ this.hookAccountInput, this.hookAccountOutput],
         }
@@ -282,36 +289,36 @@ export default class Platform {
         return record
     }
 
-    protected async hookTableOutput(context, record) {
-        const { request: { method, type } } = context
-        const { request: { uriObject: { query }} } = context
-        switch (method) {
-            case "find":
-                try {
-                    const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
-                    record.created = content.Table.CreateTime.getTime()
-                    record.updated = content.Table.UpdateTime.getTime()
-                    record.retention = content.Table.Retention
-                    record.columns = content.Table.StorageDescriptor.Columns
-                    record.location = content.Table.StorageDescriptor.Location
-                    record.inputFormat = content.Table.StorageDescriptor.InputFormat
-                    record.outputFormat = content.Table.StorageDescriptor.OutputFormat
-                    record.compressed = content.Table.StorageDescriptor.Compressed
-                    record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
-                    record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
-                    record.sortColumns = content.Table.StorageDescriptor.SortColumns
-                    record.parameters = content.Table.Parameters
-                    record.partitionKeys = content.Table.PartitionKeys
-                    record.tableType = content.Table.TableType
-                    record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
-                } catch (e) {
-                    if (e.name === "EntityNotFoundException") {
-                        record.state = "Removed"
-                    }
-                }
-        }
-        return record
-    }
+    // protected async hookTableOutput(context, record) {
+    //     const { request: { method, type } } = context
+    //     const { request: { uriObject: { query }} } = context
+    //     switch (method) {
+    //         case "find":
+    //             try {
+    //                 const content = await GlueCatlogHandler.getInstance.findTable(record.database, record.name)
+    //                 record.created = content.Table.CreateTime.getTime()
+    //                 record.updated = content.Table.UpdateTime.getTime()
+    //                 record.retention = content.Table.Retention
+    //                 record.columns = content.Table.StorageDescriptor.Columns
+    //                 record.location = content.Table.StorageDescriptor.Location
+    //                 record.inputFormat = content.Table.StorageDescriptor.InputFormat
+    //                 record.outputFormat = content.Table.StorageDescriptor.OutputFormat
+    //                 record.compressed = content.Table.StorageDescriptor.Compressed
+    //                 record.serdeInfo = content.Table.StorageDescriptor.SerdeInfo
+    //                 record.bucketColumns = content.Table.StorageDescriptor.BucketColumns
+    //                 record.sortColumns = content.Table.StorageDescriptor.SortColumns
+    //                 record.parameters = content.Table.Parameters
+    //                 record.partitionKeys = content.Table.PartitionKeys
+    //                 record.tableType = content.Table.TableType
+    //                 record.isRegisteredWithLakeFormation = content.Table.IsRegisteredWithLakeFormation
+    //             } catch (e) {
+    //                 if (e.name === "EntityNotFoundException") {
+    //                     record.state = "Removed"
+    //                 }
+    //             }
+    //     }
+    //     return record
+    // }
 
     // CatLog End
 

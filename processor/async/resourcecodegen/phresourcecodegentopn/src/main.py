@@ -85,7 +85,7 @@ def lambda_handler(event, context):
     print(event)
     args = {
         "input": event["script"]["inputs"][0],
-        "topn_args": event["steps"][0]["expressions"]
+        "topn_args": event["steps"][0]["expressions"]["params"]
     }
     name = f"{event['projectName']}_{event['dagName']}_{event['flowVersion']}"
     job_full_name = f"""{name}_{event["script"]["jobName"]}"""

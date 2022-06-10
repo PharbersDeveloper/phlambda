@@ -23,10 +23,11 @@ code:
           return df
 
       def computed_columns(df, args):
-          if len(args) > 0:
-              for item in args:
-                  df = df.withColumn(item["name"], item["expr"]).withColumn(item["name"], col(item["name"]).cast(item["type"]))
-          return df
+        if len(args) > 0:
+            for item in args:
+                expr = f"{item['expr']} AS `{item['name']}`"
+                df = df.selectExpr('*', expr).withColumn(item["name"], col(item["name"]).cast(item["type"]))
+        return df
 
       def window_df(df, keys, order_cols, expr):
           return df.withColumn("__row_number", row_number().over(Window.partitionBy(keys).orderBy(order_cols))) \
@@ -72,8 +73,8 @@ code:
           _dense_rank = args["denseRank"]
           select_cols = args["retrievedColumns"]
 
-          if not select_cols:
-              select_cols = _total_cols
+          # if not select_cols:
+          #    select_cols = _total_cols
 
           if _row_number:
               select_cols.append("__row_number")

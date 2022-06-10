@@ -89,10 +89,15 @@
                    "Next": "JoinCodeGen"
                },
                {
-                "Variable": "$.script.runtime",
-                "StringEquals": "distinct",
-                "Next": "DistinctCodeGen"
-            }
+                    "Variable": "$.script.runtime",
+                    "StringEquals": "distinct",
+                    "Next": "DistinctCodeGen"
+               },
+               {
+                    "Variable": "$.script.runtime",
+                    "StringEquals": "orderby",
+                    "Next": "OrderByCodeGen"
+              }
            ],
            "Default": "PrepareCodeGen"
        },
@@ -219,6 +224,46 @@
        "DistinctCodeGen": {
             "Type": "Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegendistinct-dev",
+            "Parameters": {
+                "traceId.$": "$.common.traceId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "flowVersion.$": "$.common.flowVersion",
+                "dagName.$": "$.common.dagName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "script.$": "$.script",
+                "steps.$": "$.steps"
+            },
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Runtime"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                }
+            ],
+            "ResultPath": "$.message",
+            "Next": "Success"
+       },
+       "OrderByCodeGen": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenorder-dev",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",

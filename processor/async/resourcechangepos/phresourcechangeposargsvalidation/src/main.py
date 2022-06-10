@@ -7,7 +7,7 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "common": {
-            "traceId": "hbzhao-scenario-trigger-traceId",
+            "traceId": "hbzhao-resource-change-position-traceId",
             "projectId": "ggjpDje0HUC2JW",
             "tenantId": "zudIcG_17yj8CEUoCTHg",
             "projectName": "demo",
@@ -49,7 +49,7 @@ args:
         script: {
             "old": {
                 "name": compute_A,
-                "id": "HPaIxrMotW3ItPv"
+                "id": "22jpN8YtMIhGTnW"
             },
             "new": {
                 "name": "compute_B",

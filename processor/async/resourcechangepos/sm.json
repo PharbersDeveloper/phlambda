@@ -45,9 +45,9 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
-         "Next": "NewItemsCreation"
+         "Next": "NewItemsIndex"
       },
-      "NewItemsCreation" : {
+      "NewItemsIndex" : {
          "Type" : "Parallel",
          "InputPath" : "$",
          "ResultSelector": {
@@ -58,9 +58,9 @@
          "Next" : "UpdateNewItems",
          "Branches" : [
             {
-               "StartAt": "NewDagCreation",
+               "StartAt": "NewDagIndex",
                "States": {
-                  "NewDagCreation": {
+                  "NewDagIndex": {
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
                      "Parameters": {
@@ -77,9 +77,9 @@
                }
             },
             {
-               "StartAt" : "NewScriptCreation",
+               "StartAt" : "NewScriptIndex",
                "States" : {
-                  "NewScriptCreation" : {
+                  "NewScriptIndex" : {
                      "Type" : "Task",
                      "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
                      "Parameters" : {

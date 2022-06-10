@@ -104,26 +104,31 @@ class CheckParameters:
 
     def check_scenario(self, key):
         self.check_type(key, dict)
-        self.check_DsData_Exists('scenario', **{"projectId": self.get_projectId(), "id": self.get_scenarioId()})
+        if len(self.scenario) == 0:
+            pass
+        else:
+            self.check_DsData_Exists('scenario', **{"projectId": self.get_projectId(), "id": self.scenario["id"]})
 
     def check_triggers(self, key):
         self.check_type(key, list)
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            self.check_DsData_Exists('scenario_trigger', **{"scenarioId": self.get_scenarioId(), "id": triggerId})
+            scenarioId = trigger["scenarioId"]
+            self.check_DsData_Exists('scenario_trigger', **{"scenarioId": scenarioId, "id": triggerId})
             #--------- 检测stackName --------------------#
-            stackName = self.get_stackName(triggerId)
+            stackName = self.get_stackName(scenarioId, triggerId)
             self.checkStackExisted(stackName)
 
     def check_steps(self, key):
         self.check_type(key, list)
         for step in self.steps:
             stepId = step["id"]
-            self.check_DsData_Exists('scenario_step', **{"scenarioId": self.get_scenarioId(), "id": stepId})
+            scenarioId = step["scenarioId"]
+            self.check_DsData_Exists('scenario_step', **{"scenarioId": scenarioId, "id": stepId})
 
-    def get_stackName(self, triggerId):
+    def get_stackName(self, scenarioId, triggerId):
 
-        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)]))
+        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))
 
 
     def checkStackExisted(self, stackName):
@@ -140,8 +145,6 @@ class CheckParameters:
     def get_projectId(self):
         return self.common['projectId']
 
-    def get_scenarioId(self):
-        return self.scenario['id']
 
     #-------检查表中数据是否存在----------------------#
     def check_DsData_Exists(self, tableName, **kwargs):

@@ -177,11 +177,22 @@ export default class Platform {
             modified: Date,
             description: String,
         },
-        db: {
+
+        db: { // 缺少Hook未写
             name: String,
             provider: String,
-            owner: Array(String),
+            tables: { link: "table", isArray: true, inverse: "db" },
+            owner: Array(String), // Link To tenant Table ID（Logic）
         },
+
+        table: {
+            name: String,
+            database: String,
+            provider: String,
+            version: String,
+            db: { link: "db", inverse: "tables" },
+        },
+
         // resource: {
         //     name: String,
         //     resourceType: String, // 枚举值：暂时还可以是db、table、project、machine、jupyter
@@ -238,8 +249,8 @@ export default class Platform {
         hooks: {
             file: [this.hooksDate],
             // diagram: [this.hooksDate],
-            // db: [null, this.hookDataBaseOutput],
-            // table: [null, this.hookTableOutput],
+            db: [null, this.hookDataBaseOutput],
+            table: [null, this.hookTableOutput],
             account: [ this.hookAccountInput, this.hookAccountOutput],
         }
     }
@@ -316,62 +327,62 @@ export default class Platform {
     // CatLog End
 
     // State Machine Start
-    // protected async hookProjectOutput(context, record) {
-    //     const { request: { method, type } } = context
-    //     const { request: { uriObject: { query }} } = context
-    //     switch (method) {
-    //         case "find":
-    //             if (record.arn) {
-    //                 const stp = new StepFunctionHandler()
-    //                 const content = await stp.findStepFunctions(record.arn)
-    //                 record.type = content.type
-    //                 record.created = content.creationDate.getTime()
-    //                 record.define = JSON.stringify(JSON.parse(content.definition))
-    //             }
-    //     }
-    //     return record
+    protected async hookProjectOutput(context, record) {
+        const { request: { method, type } } = context
+        const { request: { uriObject: { query }} } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    const stp = new StepFunctionHandler()
+                    const content = await stp.findStepFunctions(record.arn)
+                    record.type = content.type
+                    record.created = content.creationDate.getTime()
+                    record.define = JSON.stringify(JSON.parse(content.definition))
+                }
+        }
+        return record
 
-    // }
+    }
 
-    // protected async hookExecutionInput(context, record) {
-    //     const { request: { method, type } } = context
-    //     const stp = new StepFunctionHandler()
-    //     switch (method) {
-    //         case "create":
-    //             if (record.input) {
-    //                 const {result, input} = await stp.startExecution(record.input)
-    //                 record.arn = result.executionArn
-    //                 record.input = input
-    //             }
-    //             return record
-    //     }
-    //     return record
-    // }
+    protected async hookExecutionInput(context, record) {
+        const { request: { method, type } } = context
+        const stp = new StepFunctionHandler()
+        switch (method) {
+            case "create":
+                if (record.input) {
+                    const {result, input} = await stp.startExecution(record.input)
+                    record.arn = result.executionArn
+                    record.input = input
+                }
+                return record
+        }
+        return record
+    }
 
-    // protected async hookExecutionOutput(context, record) {
-    //     const { request: { method, type } } = context
-    //     switch (method) {
-    //         case "find":
-    //             if (record.arn) {
-    //                 try {
-    //                     const stp = new StepFunctionHandler()
-    //                     const content = await stp.findExecutions(record.arn)
-    //                     record.name = record.arn.split(":").slice(-1)[0]
-    //                     record.status = content.status
-    //                     record.startTime = content.startDate.getTime()
-    //                     record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()
-    //                     record.input = JSON.stringify(content.input)
-    //                 } catch (err) {
-    //                     record.name = "已过期"
-    //                     record.status = "remove"
-    //                     record.startTime = 0
-    //                     record.stopTime = 0
-    //                 }
-    //             }
-    //             break
-    //     }
-    //     return record
-    // }
+    protected async hookExecutionOutput(context, record) {
+        const { request: { method, type } } = context
+        switch (method) {
+            case "find":
+                if (record.arn) {
+                    try {
+                        const stp = new StepFunctionHandler()
+                        const content = await stp.findExecutions(record.arn)
+                        record.name = record.arn.split(":").slice(-1)[0]
+                        record.status = content.status
+                        record.startTime = content.startDate.getTime()
+                        record.stopTime = content.stopDate === undefined ? -1 : content.stopDate.getTime()
+                        record.input = JSON.stringify(content.input)
+                    } catch (err) {
+                        record.name = "已过期"
+                        record.status = "remove"
+                        record.startTime = 0
+                        record.stopTime = 0
+                    }
+                }
+                break
+        }
+        return record
+    }
     // State Machine End
 
     // Account Start

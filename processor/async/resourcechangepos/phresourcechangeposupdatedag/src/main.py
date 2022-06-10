@@ -14,58 +14,59 @@ args:
         "owner": "owner",
         "showName": "showName",
         "datasets": {
-            "input": [
-            {
-                "old": {
-                    "name": "A",
-                    "cat": "uploaded"
-                },
-                "new": {
-                    "name": "B",
-                    "cat": "uploaded"
+            "inputs": {
+                    "old": [{
+                        "name": "A",
+                        "cat": "uploaded"
+                    }],
+                    "new": [{
+                        "name": "B",
+                        "cat": "uploaded"
+                    }]
                 }
-            },
-            {
-                "old": {
-                    "name": "A_out",
-                    "cat": "intermediate"
-                },
-                "new": {
-                    "name": "B_out",
-                    "cat": "intermediate"
+            "output": {
+                    "old": {
+                        "name": "A_out",
+                        "cat": "intermediate"
+                    },
+                    "new": {
+                        "name": "B_out",
+                        "cat": "intermediate"
+                    }
                 }
-            }
-        ]
+            
         }
         
         
     },
 return:
     {
-        "dagItems": [{
-                "old": {},
-                "new": {}
-            },
-            {
-                "old": {},
-                "new": {}
-            }
+        "deleteItems":[
+            {}
+        ],
+        "insertItems":[
+            {}
         ]
     }
 '''
 
 
-def get_item_from_dag(name, projectId):
+def get_all_item_from_dag(projectId):
     ds_table = dynamodb.Table('dag')
     res = ds_table.query(
-        IndexName='dag-projectId-name-index',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("name").eq(name)
     )
     return res.get("Items")
 
 
 def lambda_handler(event, context):
-    # 根据参数找到item 修改item的 name runtime traceId
-    for dataset in event["datasets"]:
+    # 获取所有的project items
+    all_dag_items = get_all_item_from_dag(event["projectId"])
+    # 判断脚本输入dataset的inputs
+    deleteItems = []
+    insertItems = []
+    # 处理旧的输入ds
+    old_input_ds_name = list(old_ds["name"] for old_ds in event["datasets"]["inputs"]["old"])
+    new_input_ds_name = list(new_ds["name"] for new_ds in event["datasets"]["inputs"]["new"])
+    
     return 1

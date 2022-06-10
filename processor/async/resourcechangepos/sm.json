@@ -6,7 +6,7 @@
          "Type": "Pass",
          "Result": {
             "oldDagItems": "",
-            "oldDagConfItem": ""
+            "oldScriptItem": ""
          },
          "ResultPath": "$.metadata",
          "Next": "ArgsValidation"
@@ -45,58 +45,91 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
-         "Next": "SSMRead"
+         "Next": "NewItemCreation"
       },
-      "ScenarioTriggerStepsIterator": {
-         "Type": "Pass",
-         "Result": {
-            "index": 0,
-            "currentStatus": "running"
+      "NewItemsCreation" : {
+         "Type" : "Parallel",
+         "InputPath" : "$",
+         "ResultSelector": {
+            "datasets.$": "$.[0].dagItems",
+            "script.$": "$.[1].scriptItem"
          },
-         "ResultPath": "$.iterator",
-         "Next": "ScenarioTriggerCalCount"
+         "ResultPath": "$",
+         "Next" : "UpdateNewItems",
+         "Branches" : [
+            {
+               "StartAt": "NewDagCreation",
+               "States": {
+                  "NewDagCreation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt" : "NewScriptCreation",
+               "States" : {
+                  "NewScriptCreation" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.scriptItem",
+                     "End": true
+                  }
+               }
+            } ],
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
       },
-      "ScenarioTriggerCalCount": {
+      "UpdateNewItems": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercalcount-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposexecutionupdate-dev",
          "Parameters": {
-            "projectId.$": "$.common.projectId",
-            "scenarioId.$": "$.scenario.scenarioId"
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "projectName.$" : "$.common.projectName",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "scriptItem.$" : "$.scriptItem",
+            "datasetItems.$" : "$.datasetItems"
          },
          "ResultPath": "$.metadata",
          "Next": "ScenarioTriggerGetDetail"
       },
-      "ScenarioTriggerGetDetail": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
-         "Parameters": {
-            "iterator.$": "$.iterator",
-            "scenarioItems.$": "$.metadata.scenarioItems"
-         },
-         "ResultPath": "$.currentScenarioStep",
-         "Next": "ScenarioTriggerArgsCreation"
-      },
-      "ScenarioTriggerArgsCreation": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargscreation-dev",
-         "Parameters": {
-            "projectId.$": "$.common.projectId",
-            "tenantId.$": "$.common.tenantId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "tenantInfo.$": "$.tenantInfo",
-            "scenarioStep.$": "$.currentScenarioStep"
-         },
-         "ResultPath": "$.currentTriggerStep",
-         "Next": "ExecutionTrigger"
-      },
-      "ExecutionTrigger": {
+      "ExecutionCodeGen": {
          "Type":"Task",
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen",
             "Name.$":"$.currentTriggerStep.common.runName"
          },
          "ResultPath": null,

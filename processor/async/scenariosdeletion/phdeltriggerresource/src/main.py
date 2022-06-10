@@ -51,8 +51,14 @@ class DelTriggerRule(object):
         return self.event['projectId']
 
     def get_stackName(self, scenarioId, triggerId):
+        '''
+        "_" 不满足stackName拼写规则
+        example:
+        1 validation error detected: Value 'scenario-ggjpDje0HUC2JW-cb6cb0afbf85c6e6_JCHeDjg-EB77EE5E' at 'stackName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z][-a-zA-Z0-9]*|arn:[-a-zA-Z0-9:/._+]*
+        An error occurred (ValidationError) when calling the DescribeStacks operation: 1 validation error detected: Value 'scenario-ggjpDje0HUC2JW-cb6cb0afbf85c6e6_JCHeDjg-EB77EE5E' at 'stackName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z][-a-zA-Z0-9]*|arn:[-a-zA-Z0-9:/._+]*
+        '''
 
-        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))
+        return str(reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))).replace("_","")
 
     def del_trigger_rule(self, stackName):
         print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
@@ -81,7 +87,7 @@ class DelTriggerRule(object):
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            scenarioId = triggerId["scenarioId"]
+            scenarioId = trigger["scenarioId"]
             eachStackName = self.get_stackName(scenarioId, triggerId)
             #------------ delete trigger resource ---------#
             EachDeleteResult = self.del_trigger_rule(eachStackName)

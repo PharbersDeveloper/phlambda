@@ -70,7 +70,7 @@ class DeltriggerIndex:
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            scenarioId = triggerId["scenarioId"]
+            scenarioId = trigger["scenarioId"]
             #--------each oldImageItem of trigger -----------#
             OldImageItem = self.query_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
             OldImage = self.get_OldImage(OldImageItem)

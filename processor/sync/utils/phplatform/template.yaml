@@ -9,7 +9,7 @@ Resources:
       Runtime: nodejs14.x
       AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phplatform-dev
+      FunctionName: lmd-phplatform-V2
       Description: "JSONAPI Lambda cloudformation"
       Timeout: 600
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
@@ -21,7 +21,7 @@ Resources:
       Environment:
         Variables:
           ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
-          EDITION: "DEV"
+          EDITION: "V2"
           ENTITY: "platform"
           DATABASE: "phplatform_dev"
           USER: "pharbers"

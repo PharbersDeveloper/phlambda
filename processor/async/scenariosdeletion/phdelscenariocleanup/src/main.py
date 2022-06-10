@@ -122,26 +122,26 @@ class DelRollBack:
 
     def get_triggerItem(self, OldImage):
         trigger_Item = {
-            'scenarioId': self.get_scenarioId(),
+            'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
             'active': OldImage['active'],
             'detail': OldImage['detail'],
             'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
-            'traceId': self.get_traceId()
+            'traceId': OldImage["traceId"]
         }
         return trigger_Item
 
     def get_stepItem(self, OldImage):
         step_Item = {
-            'scenarioId': self.get_scenarioId(),
+            'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
             'confData': OldImage['confData'],
             'detail': OldImage['detail'],
             'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
             'name': OldImage['name'],
-            'traceId': self.get_traceId()
+            'traceId': OldImage["traceId"]
         }
         return step_Item
 
@@ -219,6 +219,7 @@ class DelRollBack:
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
+            scenarioId = trigger["scenarioId"]
             #-------- rollback message --------------------#
             eachRollBackMessage = {}
             eachRollBackMessage["index"] = triggerCountNum + 1
@@ -228,7 +229,7 @@ class DelRollBack:
             #-------- rollback message --------------------#
 
             if RollBackMode == "RollBack":
-                self.RollBackProcess(trigger, "scenario_trigger", **{"scenarioId": self.get_scenarioId(), "id": triggerId})
+                self.RollBackProcess(trigger, "scenario_trigger", **{"scenarioId": scenarioId, "id": triggerId})
             else:
                 self.NotNeedRollBack()
             triggerRollBackResult.append(eachRollBackMessage)
@@ -242,6 +243,7 @@ class DelRollBack:
         for step in self.steps:
             eachRollBackMessage = {}
             stepId = step["id"]
+            scenarioId = step["scenarioId"]
             #-------- rollback message --------------------#
             eachRollBackMessage["index"] = stepCountNum + 1
             eachRollBackMessage["name"] = step["name"]
@@ -250,7 +252,7 @@ class DelRollBack:
             #-------- rollback message --------------------#
 
             if RollBackMode == "RollBack":
-                self.RollBackProcess(step, "scenario_step", **{"scenarioId": self.get_scenarioId(), "id": stepId})
+                self.RollBackProcess(step, "scenario_step", **{"scenarioId": scenarioId, "id": stepId})
             else:
                 self.NotNeedRollBack()
             StepRollBackResult.append(eachRollBackMessage)

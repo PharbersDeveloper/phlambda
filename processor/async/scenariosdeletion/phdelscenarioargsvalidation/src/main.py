@@ -187,13 +187,14 @@ class Check:
         event_data = CheckParameters(event)
         input_keys = event_data.get_prefix_key()
         #---------------------------------检查字段缺失---------------------------------------------------------#
-        _key_scenario_triggers = ['common', 'action', 'notification', 'scenario', 'triggers']
-        _key_steps = ['common', 'action', 'notification',  'steps']
+        _key_scenario = ['common', 'action', 'notification', 'scenario']
+        _key_triggers = ['common', 'action', 'notification', 'triggers']
+        _key_steps = ['common', 'action', 'notification', 'steps']
         _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
         IntersectionElement = set(input_keys) & set(_key_all)      #--交集
         print((IntersectionElement))
         print(IntersectionElement == set(_key_steps))
-        if any((IntersectionElement == set(_key_scenario_triggers), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_all))):
+        if any((IntersectionElement == set(_key_scenario), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_triggers), IntersectionElement == set(_key_all))):
             for key in input_keys:
                 if key in _key_all:
                     #----检查内层每个字段------#

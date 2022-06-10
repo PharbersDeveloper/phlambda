@@ -12,19 +12,29 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenarioargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Actions": {
          "Type": "Task",
@@ -41,6 +51,20 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
+         "Next": "FetchTriggersAndStepsItems"
+      },
+      "FetchTriggersAndStepsItems": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenariofetchitems-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.scenario"
+         },
+         "ResultPath": "$.metadata",
          "Next": "ScenarioDetailDeletion"
       },
       "ScenarioDeletion": {
@@ -54,19 +78,29 @@
             "showName.$": "$.common.showName",
             "scenario.$": "$.scenario"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ],
          "ResultPath": "$.scenario",
          "Next": "Success"
       },
@@ -85,7 +119,7 @@
                "States": {
                   "TriggersIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggersindex-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerindex-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -93,14 +127,14 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
+                        "triggers.$": "$.metadata.triggers"
                      },
                      "ResultPath": "$.triggers",
                      "End": true
                   },
                   "TriggersResources": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggersresource-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerresource-dev",
                      "Parameters": {
                         "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
@@ -109,7 +143,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
+                        "triggers.$": "$.metadata.triggers"
                      },
                      "ResultPath": null,
                      "Next": "TriggersIndex"
@@ -129,27 +163,37 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "steps.$": "$.steps"
+                        "steps.$": "$.metadata.steps"
                      },
                      "ResultPath": "$.steps",
                      "End": true
                   }
                }
-            },
+            }
          ],
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Success": {
          "Type": "Task",
@@ -174,13 +218,10 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.result.scenario",
-            "triggers.$": "$.result.triggers",
-            "steps.$": "$.steps",
+            "scenario.$": "$.scenario",
+            "triggers.$": "$.triggers",
+            "steps.$": "$.steps"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -200,7 +241,6 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
-
 }

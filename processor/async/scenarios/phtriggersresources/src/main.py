@@ -214,7 +214,7 @@ def lambda_handler(event, context):
         messageList = []
         for trigger in event["triggers"]:
             triggerId = trigger['id']
-            EachScenarioId = triggerId["scenarioId"]
+            EachScenarioId = trigger["scenarioId"]
             #------- 拼cron表达式------------------------------------#
             start_time = trigger['detail']['start']
             period = trigger['detail']['period']

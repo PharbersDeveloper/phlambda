@@ -56,7 +56,7 @@ class TriggersResources:
     def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
-        self.stackName = get_stackName("-".join(["scenario", projectId, scenarioId, triggerId]))
+        self.stackName = str(get_stackName("-".join(["scenario", projectId, scenarioId, triggerId]))).replace("_", "")
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
         self.result = {}
@@ -138,7 +138,7 @@ class TriggersResources:
 
     def update_trigger(self):
         print("*"*50 + "  Update  " + "*"*50)
-        changeSetName = get_stackName("-".join([self.stackName, self.current_time]))
+        changeSetName = str(get_stackName("-".join([self.stackName, self.current_time]))).replace("_", "")
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,

@@ -128,7 +128,7 @@ class CheckParameters:
 
     def get_stackName(self, scenarioId, triggerId):
 
-        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))
+        return str(reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))).replace("_", "")
 
 
     def checkStackExisted(self, stackName):

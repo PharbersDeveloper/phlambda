@@ -25,9 +25,6 @@ class DeltriggerIndex:
         self.event = event
         self.triggers = event['triggers']
 
-    def get_scenarioId(self):
-        return self.event['scenario']['id']
-
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
@@ -61,7 +58,8 @@ class DeltriggerIndex:
                 "detail": ItemDict['detail'],
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
-                "id": ItemDict['id']
+                "id": ItemDict['id'],
+                "scenarioId": ItemDict["scenarioId"]
             }
         else:
             OldImage = {}
@@ -72,15 +70,16 @@ class DeltriggerIndex:
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
+            scenarioId = triggerId["scenarioId"]
             #--------each oldImageItem of trigger -----------#
-            OldImageItem = self.query_table_item('scenario_trigger', scenarioId=self.get_scenarioId(), id=triggerId)
+            OldImageItem = self.query_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
             OldImage = self.get_OldImage(OldImageItem)
             #-------- item not exist ------------------------#
             if len(OldImage) == 0:
                 pass
             else:
                 #------delete trigger item ------------------#
-                self.del_table_item('scenario_trigger', scenarioId=self.get_scenarioId(), id=triggerId)
+                self.del_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
             trigger["OldImage"] = OldImage
 
         return self.triggers

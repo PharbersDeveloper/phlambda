@@ -50,13 +50,9 @@ class DelTriggerRule(object):
 
         return self.event['projectId']
 
-    def get_scenarioId(self):
+    def get_stackName(self, scenarioId, triggerId):
 
-        return self.event['scenario']['id']
-
-    def get_stackName(self, triggerId):
-
-        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), self.get_scenarioId(), str(triggerId)]))
+        return reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))
 
     def del_trigger_rule(self, stackName):
         print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
@@ -85,7 +81,8 @@ class DelTriggerRule(object):
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            eachStackName = self.get_stackName(triggerId)
+            scenarioId = triggerId["scenarioId"]
+            eachStackName = self.get_stackName(scenarioId, triggerId)
             #------------ delete trigger resource ---------#
             EachDeleteResult = self.del_trigger_rule(eachStackName)
             EachDeleteResult["index"] = triggerCountNum + 1

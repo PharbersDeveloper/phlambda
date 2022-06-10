@@ -25,9 +25,6 @@ class DelStepsIndex:
         self.event = event
         self.steps = event['steps']
 
-    def get_scenarioId(self):
-        return self.event['scenario']['id']
-
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
@@ -62,7 +59,8 @@ class DelStepsIndex:
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
                 "name": ItemDict['name'],
-                "id": ItemDict['id']
+                "id": ItemDict['id'],
+                "scenarioId": ItemDict["scenarioId"]
             }
         else:
             OldImage = {}
@@ -72,15 +70,16 @@ class DelStepsIndex:
 
         for step in self.steps:
             stepId = step["id"]
+            scenarioId = step["scenarioId"]
             #----------per oldImageItem of step -----------------#
-            OldImageItem = self.query_table_item('scenario_step', scenarioId=self.get_scenarioId(), id=stepId)
+            OldImageItem = self.query_table_item('scenario_step', scenarioId=scenarioId, id=stepId)
             OldImage = self.get_OldImage(OldImageItem)
             #---------- item not exist --------------------------#
             if len(OldImage) == 0:
                 pass
             else:
                 #--------delete step item ------------------------#
-                self.del_table_item('scenario_step', scenarioId=self.get_scenarioId(), id=stepId)
+                self.del_table_item('scenario_step', scenarioId=scenarioId, id=stepId)
             step['OldImage'] = OldImage
 
         return self.steps

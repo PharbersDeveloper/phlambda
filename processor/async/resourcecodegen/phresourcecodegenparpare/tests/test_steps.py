@@ -17,7 +17,7 @@ class TestSteps:
                 "id": "",
                 "jobName": "compute_十多个",
                 "jobPath": "",
-                "inputs": [],
+                "inputs": ["AA"],
                 "outputs": [],
                 "runtime": "prepare"
             },
@@ -38,6 +38,25 @@ class TestSteps:
                         "params": {
                             "columns": ["订单内件数"],
                             "value": "4"
+                        }
+                    }
+                },
+                {
+                    "id": "alextest_demo_demo_developer_compute_十多个",
+                    "stepId": "1",
+                    "index": "1",
+                    "runtime": "prepare",
+                    "stepName": "Initial Filter On Value",
+                    "ctype": "FillEmptyWithValue",
+                    "groupIndex": 0,
+                    "groupName": "",
+                    "expressionsValue": "JSON",
+                    "expressions": {
+                        "type": "FillEmptyWithValue",
+                        "code": "pyspark",
+                        "params": {
+                            "columns": ["订单内件数"],
+                            "value": "5"
                         }
                     }
                 },

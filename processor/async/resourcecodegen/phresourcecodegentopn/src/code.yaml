@@ -1,0 +1,98 @@
+version: 0.0.0
+framework: pyspark
+engine: spark
+language: python
+language_version: 3.8.9
+code:
+  phjob:
+    input: ~
+    topn_args: ~
+    code: |
+      from pyspark.sql.functions import *
+      from pyspark.sql import *
+
+      def pre_filter(df, args):
+          enabled = args["enabled"]
+          distinct = args["distinct"]
+          expression = args["expression"]
+          if enabled:
+              if distinct:
+                  df = df.distinct()
+              if expression != "":
+                  df = df.filter(expression)
+          return df
+
+      def computed_columns(df, args):
+        if len(args) > 0:
+            for item in args:
+                expr = f"{item['expr']} AS `{item['name']}`"
+                df = df.selectExpr('*', expr).withColumn(item["name"], col(item["name"]).cast(item["type"]))
+        return df
+
+      def window_df(df, keys, order_cols, expr):
+          return df.withColumn("__row_number", row_number().over(Window.partitionBy(keys).orderBy(order_cols))) \
+                .withColumn("__max", max("__row_number").over(Window.partitionBy(keys))) \
+                .withColumn("__duplicate_count", count(lit(1)).over(Window.partitionBy(keys))) \
+                .withColumn("__rank", rank().over(Window.partitionBy(keys).orderBy(order_cols))) \
+                .withColumn("__dense_rank", dense_rank().over(Window.partitionBy(keys).orderBy(order_cols))) \
+                .filter(expr)
+
+      def top_n(df, args):
+          first_rows = args["firstRows"]
+          last_rows = args["lastRows"]
+          orders = args["orders"]
+          keys = args["keys"]
+
+          _total_cols = list(map(lambda item: item[0], df.dtypes))
+
+          # order_cols = list(map(lambda item: item["column"], orders))
+          order_rule = list(map(lambda item: desc('`'+ item["column"] +'`') if item["desc"] else asc('`'+ item["column"] +'`'), orders))
+
+          if not keys:
+              keys = _total_cols
+
+          first_rows_df = window_df(df, keys, order_rule, f"__row_number > 0 and __row_number <= {first_rows}")
+
+          last_rows_df = window_df(df, keys, order_rule, f"__row_number > (__max - {last_rows})")
+
+          df = first_rows_df.union(last_rows_df).orderBy(order_rule)
+
+          return df
+
+      def retrieved_columns(df, args):
+          _total_cols = list(filter(lambda col:
+                                    col != "__max" and
+                                    col != "__row_number" and
+                                    col != "__duplicate_count" and
+                                    col != "__rank" and
+                                    col != "__dense_rank",
+                                    list(map(lambda item: item[0], df.dtypes))))
+          _row_number = args["rowNumber"]
+          _duplicate_count = args["duplicateCount"]
+          _rank = args["rank"]
+          _dense_rank = args["denseRank"]
+          select_cols = args["retrievedColumns"]
+
+          # if not select_cols:
+          #    select_cols = _total_cols
+
+          if _row_number:
+              select_cols.append("__row_number")
+          if _duplicate_count:
+              select_cols.append("__duplicate_count")
+          if _rank:
+              select_cols.append("__rank")
+          if _dense_rank:
+              select_cols.append("__dense_rank")
+
+          return df.select(select_cols)
+
+      def execute(**kwargs):
+          data_frame = kwargs["df_$input"]
+          args = $topn_args
+          data_frame = pre_filter(data_frame, args["preFilter"])
+          data_frame = computed_columns(data_frame, args["computedColumns"])
+          data_frame = retrieved_columns(top_n(data_frame, args), args)
+          return {"out_df": data_frame}
+
+

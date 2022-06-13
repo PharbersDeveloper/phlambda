@@ -43,9 +43,9 @@ template:
                 df = df.withColumn('rowNumber',func.row_number().over(Window.partitionBy().orderBy( orders_col_mode )))
 
             # computedColumns
-            for i_args in args_computedColumns:
-                print(i_args)
-                df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
-                        .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
+            if len(args_computedColumns) > 0:
+                for i_args in args_computedColumns:
+                    df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
+                            .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
 
             return {"out_df":df}

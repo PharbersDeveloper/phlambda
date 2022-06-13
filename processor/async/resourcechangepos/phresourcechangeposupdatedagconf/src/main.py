@@ -52,8 +52,40 @@ def get_dagconf_item(projectId, jobId):
 def lambda_handler(event, context):
     print(event)
     script = event["script"]
+    deleteItems = []
+    insertItems = []
     # 查询dag_conf item
-    # 修改jobName, actionName, inputs, jobDisplayName, jobPath, jobShowName, outputs, runtime, traceId
+    # 修改jobName, actionName, jobDisplayName, jobPath, jobShowName, output, inputs, traceId
     dagconfItem = get_dagconf_item(event["projectId"], event["script"]["old"]["id"])
+    deleteItems.append(dagconfItem)
+
     newJobName = dagconfItem.get("jobName").replace(script["old"]["name"], script["new"]["name"])
-    return 1
+    newActionName = dagconfItem.get("actionName").replace(script["old"]["name"], script["new"]["name"])
+    newJobDisplayName = dagconfItem.get("jobDisplayName").replace(script["old"]["name"], script["new"]["name"])
+    newJobPath = dagconfItem.get("jobPath").replace(script["old"]["name"], script["new"]["name"])
+    newJobShowName = dagconfItem.get("jobShowName").replace(script["old"]["name"], script["new"]["name"])
+
+    newTraceId = event["traceId"]
+    newOwnerd = event["owner"]
+    newShowName = event["showName"]
+    newOutput = script["new"]["output"]
+    newInputs = script["new"]["inputs"]
+
+    newDagconfItem = dagconfItem.copy()
+    newDagconfItem.update({
+        "jobName": newJobName,
+        "actionName": newActionName,
+        "jobDisplayName": newJobDisplayName,
+        "jobPath": newJobPath,
+        "jobShowName": newJobShowName,
+        "inputs": newInputs,
+        "outputs": newOutput,
+        "owner": newOwnerd,
+        "showName": newShowName,
+        "traceId": newTraceId
+    })
+    insertItems.append(newDagconfItem)
+    return {
+        "deleteItems": deleteItems,
+        "insertItems": insertItems
+    }

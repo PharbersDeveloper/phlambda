@@ -1,0 +1,214 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "Result": {
+            "oldDagItems": "",
+            "oldScriptItem": ""
+         },
+         "ResultPath": "$.metadata",
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "Actions",
+         "Catch": [ {
+             "ErrorEquals": [ "States.Runtime" ],
+             "ResultPath": "$.iterator.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.TaskFailed" ],
+             "ResultPath": "$.iterator.error",
+             "Next": "CleanUp"
+          }, {
+             "ErrorEquals": [ "States.ALL" ],
+             "ResultPath": "$.iterator.error",
+             "Next": "CleanUp"
+          } ]
+      },
+      "Actions": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "required.$": "$.action.required",
+            "message.$": "$.action.message"
+         },
+         "ResultPath": null,
+         "Next": "NewItemsIndex"
+      },
+      "NewItemsIndex" : {
+         "Type" : "Parallel",
+         "InputPath" : "$",
+         "ResultSelector": {
+            "datasets.$": "$.[0].dagItems",
+            "script.$": "$.[1].scriptItems"
+         },
+         "ResultPath": "$",
+         "Next" : "UpdateNewItems",
+         "Branches" : [
+            {
+               "StartAt": "NewDagIndex",
+               "States": {
+                  "NewDagIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt" : "NewScriptIndex",
+               "States" : {
+                  "NewScriptIndex" : {
+                     "Type" : "Task",
+                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
+                     "Parameters" : {
+                        "traceId.$" : "$.common.traceId",
+                        "projectId.$" : "$.common.projectId",
+                        "projectName.$" : "$.common.projectName",
+                        "owner.$" : "$.common.owner",
+                        "showName.$" : "$.common.showName",
+                        "script.$" : "$.script"
+                     },
+                     "ResultPath": "$.scriptItems",
+                     "End": true
+                  }
+               }
+            } ]
+      },
+      "UpdateNewItems": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposexecutionupdate-dev",
+         "Parameters": {
+            "traceId.$" : "$.common.traceId",
+            "projectId.$" : "$.common.projectId",
+            "projectName.$" : "$.common.projectName",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "scriptItem.$" : "$.scriptItem",
+            "datasetItems.$" : "$.datasetItems"
+         },
+         "ResultPath": "$.metadata",
+         "Next": "ExecutionCodeGen",
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         } ]
+      },
+      "ExecutionCodeGen": {
+         "Type":"Task",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters":{
+            "Input.$": "$.metadata.codeGenParameters",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
+         },
+         "ResultPath": null,
+         "Next": "SuccessMessage",
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
+      },
+      "SuccessMessage":{
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangepossuccessmsg-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments"
+         },
+         "ResultPath": "$.message",
+         "Next": "Success"
+      },
+      "Success": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.message",
+            "status": "success"
+         },
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposcleanup-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "errors.$" : "$.iterator.error",
+            "status": "failed"
+         },
+         "ResultPath": "$.message",
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.message",
+            "status": "failed"
+         },
+         "End": true
+      }
+   }
+
+}

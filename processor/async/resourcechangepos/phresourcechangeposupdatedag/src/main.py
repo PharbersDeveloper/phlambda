@@ -48,9 +48,7 @@ args:
                 "inputs": "[\"B\"]",
                 "output": "compute_B"
             }
-        }
-        
-        
+        }   
     },
 return:
     {
@@ -137,16 +135,24 @@ def lambda_handler(event, context):
             "targetId": job_id,
             "targetName": event["script"]["new"]["name"]
         }
-        create_link_item(event["projectId"], "developer_" + input_link_represent_id, "")
+        input_link = create_link_item(event["projectId"], "developer_" + input_link_represent_id, "", cmessage, "link", "developer",
+                         "", "empty", "", "", input_link_represent_id, "", event["traceId"])
+        insertLinkItems.append(input_link)
 
     # 创建job到output link
     new_output_ds_msg = list({"name": item["name"], "representId": item["representId"]} for item in all_dag_items if item["name"] == new_output_ds_name)
-    new_output_link_id = generate()
+    new_output_link_representId = generate()
     cmessage = {
         "sourceId": job_id,
         "sourceName": event["script"]["new"]["name"],
         "targetId": new_output_ds_msg["representId"],
         "targetName": new_output_ds_msg["name"]
     }
+    new_output_link = create_link_item(event["projectId"], "developer_" + new_output_link_representId, "", cmessage, "link", "developer",
+                                  "", "empty", "", "", new_output_link_representId, "", event["traceId"])
+    insertLinkItems.append(new_output_link)
 
-    return 1
+    return {
+        "deleteItems": deleteLinkItems,
+        "insertItems": insertLinkItems
+    }

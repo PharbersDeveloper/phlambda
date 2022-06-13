@@ -42,8 +42,6 @@ def lambda_handler(event, context):
             "cell_sql": all_cell_operation
         }, table_name)
 
-        print(sql)
-
         # check view is exist
         result = execute_sql(f"SELECT name FROM system.tables where engine='View' and name = '{view_name}' FORMAT JSON", tenant_id)["data"]
         if result:
@@ -53,13 +51,14 @@ def lambda_handler(event, context):
         # 不存在直接创建
         # if not is_exist:
         #     execute_sql(f"CREATE VIEW `{view_name}` AS {sql} FORMAT JSON", tenant_id)
-        
+
         # 覆盖
         # if overwrite:
         #     execute_sql(f"DROP VIEW `{view_name}` FORMAT JSON", tenant_id)
         #     execute_sql(f"CREATE VIEW `{view_name}` AS {sql} FORMAT JSON", tenant_id)
-        
-        
+
+        print(f"CREATE VIEW `{view_name}` AS {sql}")
+
         execute_sql(f"CREATE VIEW `{view_name}` AS {sql} FORMAT JSON", tenant_id)
 
         response["status"] = "succeed"

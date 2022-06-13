@@ -2,8 +2,7 @@ import json
 import math
 import random
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
-from decimal import Decimal
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
 '''
@@ -46,7 +45,7 @@ args:
                 "name": "compute_B",
                 "runtime": "python",
                 "inputs": "[\"B\"]",
-                "output": "compute_B"
+                "output": "B_out"
             }
         }   
     },
@@ -112,6 +111,7 @@ def lambda_handler(event, context):
     # 判断脚本输入dataset的inputs
     deleteLinkItems = []
     insertLinkItems = []
+
     # 处理旧的输入ds
     old_input_ds_names = list(old_ds["name"] for old_ds in event["datasets"]["inputs"]["old"])
     # 处理新的输入ds
@@ -120,6 +120,7 @@ def lambda_handler(event, context):
     old_output_ds_name = event["datasets"]["output"]["old"]["name"]
     # 处理新的输出ds
     new_output_ds_name = event["datasets"]["output"]["new"]["name"]
+
     # 获取好name后处理link
     # 所有cmessage含有script id的需要删除
     job_id = event["script"]["old"]["id"]
@@ -140,17 +141,28 @@ def lambda_handler(event, context):
         insertLinkItems.append(input_link)
 
     # 创建job到output link
-    new_output_ds_msg = list({"name": item["name"], "representId": item["representId"]} for item in all_dag_items if item["name"] == new_output_ds_name)
+    new_output_ds_msg = list({"name": item["name"], "representId": item["representId"]} for item in all_dag_items if item["name"] == new_output_ds_name)[0]
     new_output_link_representId = generate()
     cmessage = {
         "sourceId": job_id,
         "sourceName": event["script"]["new"]["name"],
-        "targetId": new_output_ds_msg[0]["representId"],
-        "targetName": new_output_ds_msg[0]["name"]
+        "targetId": new_output_ds_msg["representId"],
+        "targetName": new_output_ds_msg["name"]
     }
     new_output_link = create_link_item(event["projectId"], "developer_" + new_output_link_representId, "", json.dumps(cmessage, ensure_ascii=False), "link", "developer",
                                   "", "empty", "", "", new_output_link_representId, "", event["traceId"])
     insertLinkItems.append(new_output_link)
+
+    # dag表中script的处理
+    del_script_item = [item for item in all_dag_items if item["representId"] == event["script"]["old"]["id"]][0]
+    deleteLinkItems.append(del_script_item)
+    insert_script_item = del_script_item
+    insert_script_item.update({
+        "cmessage": event["script"]["new"]["name"],
+        "name": event["script"]["new"]["name"],
+        "traceId": event["traceId"]
+    })
+    insertLinkItems.append(insert_script_item)
 
     return {
         "deleteItems": deleteLinkItems,

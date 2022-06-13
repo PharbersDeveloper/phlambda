@@ -135,7 +135,7 @@ def lambda_handler(event, context):
             "targetId": job_id,
             "targetName": event["script"]["new"]["name"]
         }
-        input_link = create_link_item(event["projectId"], "developer_" + input_link_represent_id, "", cmessage, "link", "developer",
+        input_link = create_link_item(event["projectId"], "developer_" + input_link_represent_id, "", json.dumps(cmessage, ensure_ascii=False), "link", "developer",
                          "", "empty", "", "", input_link_represent_id, "", event["traceId"])
         insertLinkItems.append(input_link)
 
@@ -145,10 +145,10 @@ def lambda_handler(event, context):
     cmessage = {
         "sourceId": job_id,
         "sourceName": event["script"]["new"]["name"],
-        "targetId": new_output_ds_msg["representId"],
-        "targetName": new_output_ds_msg["name"]
+        "targetId": new_output_ds_msg[0]["representId"],
+        "targetName": new_output_ds_msg[0]["name"]
     }
-    new_output_link = create_link_item(event["projectId"], "developer_" + new_output_link_representId, "", cmessage, "link", "developer",
+    new_output_link = create_link_item(event["projectId"], "developer_" + new_output_link_representId, "", json.dumps(cmessage, ensure_ascii=False), "link", "developer",
                                   "", "empty", "", "", new_output_link_representId, "", event["traceId"])
     insertLinkItems.append(new_output_link)
 

@@ -184,6 +184,15 @@ class CheckParameters:
         except Exception as e:
             raise e
 
+def GetArgsOfTriggersAndSteps(InputArgsOfTriggersOrSteps):
+
+    try:
+        data = InputArgsOfTriggersOrSteps
+    except:
+        data = []
+    return data
+
+
 class Check:
 
     def check_parameter(self, event):
@@ -205,7 +214,12 @@ class Check:
                     event_data.check_key(key)
         else:
             event_data.RaiseErrorMessage(IntersectionElement)
-        return True
+
+        return {
+            "triggers": GetArgsOfTriggersAndSteps(event["triggers"]),
+            "steps": GetArgsOfTriggersAndSteps(event["steps"])
+        }
+        #return True
 
 
 def lambda_handler(event, context):

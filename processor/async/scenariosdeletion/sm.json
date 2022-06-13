@@ -4,7 +4,11 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "ResultPath": null,
+         "Result": {
+            "triggers": [],
+            "steps": []
+         },
+         "ResultPath": "$.result",
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {
@@ -64,7 +68,7 @@
             "showName.$": "$.common.showName",
             "scenario.$": "$.scenario"
          },
-         "ResultPath": "$.metadata",
+         "ResultPath": "$.result",
          "Next": "ScenarioDetailDeletion"
       },
       "ScenarioDeletion": {
@@ -127,7 +131,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.metadata.triggers"
+                        "triggers.$": "$.result.triggers"
                      },
                      "ResultPath": "$.triggers",
                      "End": true
@@ -143,7 +147,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.metadata.triggers"
+                        "triggers.$": "$.result.triggers"
                      },
                      "ResultPath": null,
                      "Next": "TriggersIndex"
@@ -163,7 +167,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "steps.$": "$.metadata.steps"
+                        "steps.$": "$.result.steps"
                      },
                      "ResultPath": "$.steps",
                      "End": true
@@ -206,7 +210,18 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {
+                     "scenario": "$.scenario",
+                     "triggers": "$result.triggers",
+                     "steps": "$result.steps"
+                  },
+                  "error": {}
+               }
+            },
             "status": "success"
          },
          "End": true
@@ -220,8 +235,8 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "scenario.$": "$.scenario",
-            "triggers.$": "$.triggers",
-            "steps.$": "$.steps"
+            "triggers.$": "$.result.triggers",
+            "steps.$": "$.result.steps"
          },
          "ResultPath": null,
          "Next": "Failed"

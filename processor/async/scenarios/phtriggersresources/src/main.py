@@ -133,6 +133,10 @@ class TriggersResources:
                 "ParameterKey": "ProjectId",
                 "ParameterValue": self.projectId
             },
+            {
+                "ParameterKey": "TargetArn",
+                "ParameterValue": self.targetArn
+            },
         ]
         return Parameters
 

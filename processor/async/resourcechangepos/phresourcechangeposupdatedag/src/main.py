@@ -5,7 +5,6 @@ from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 '''
-将错误提取出来写入到notification中
 args:
     event = {
         "traceId": "traceId",
@@ -63,10 +62,16 @@ def lambda_handler(event, context):
     # 获取所有的project items
     all_dag_items = get_all_item_from_dag(event["projectId"])
     # 判断脚本输入dataset的inputs
-    deleteItems = []
-    insertItems = []
+    deleteLinkItems = []
+    insertLinkItems = []
     # 处理旧的输入ds
-    old_input_ds_name = list(old_ds["name"] for old_ds in event["datasets"]["inputs"]["old"])
-    new_input_ds_name = list(new_ds["name"] for new_ds in event["datasets"]["inputs"]["new"])
+    old_input_ds_names = list(old_ds["name"] for old_ds in event["datasets"]["inputs"]["old"])
+    # 处理新的输入ds
+    new_input_ds_names = list(new_ds["name"] for new_ds in event["datasets"]["inputs"]["new"])
+    # 处理旧的输出ds
+    old_output_ds_name = event["datasets"]["output"]["old"]["name"]
+    # 处理新的输出ds
+    new_output_ds_name = event["datasets"]["output"]["new"]["name"]
+    # 获取好name后处理link
     
     return 1

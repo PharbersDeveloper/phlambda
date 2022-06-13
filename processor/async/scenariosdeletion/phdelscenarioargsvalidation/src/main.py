@@ -215,15 +215,18 @@ class Check:
         else:
             event_data.RaiseErrorMessage(IntersectionElement)
 
+
+
+def lambda_handler(event, context):
+    try:
+        Check().check_parameter(event)
+    except Exception as e:
+        raise e
+    finally:
         return {
             "triggers": GetArgsOfTriggersAndSteps(event["triggers"]),
             "steps": GetArgsOfTriggersAndSteps(event["steps"])
         }
-        #return True
-
-
-def lambda_handler(event, context):
-    return Check().check_parameter(event)
     # 1. common 必须存在
     # 2. action 必须存在
     # 3. notification 必须存在

@@ -109,4 +109,13 @@ def lambda_handler(event, context):
 
     toS3(phjob_script, projectName, flowVersion, scripts_name, "phjob.py")
     
-    return args['script']
+    return {
+        "type": "notification",
+        "opname": event["owner"],
+        "cnotification": {
+            "data": {
+                "script": event["script"]["jobName"]
+            },
+            "error": {}
+        }
+    }

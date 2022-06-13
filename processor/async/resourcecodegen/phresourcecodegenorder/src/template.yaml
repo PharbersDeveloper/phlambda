@@ -4,7 +4,7 @@ template:
       - key: a
         Index: 0
     content: |-
-        from pyspark.sql.functions import col, concat
+        from pyspark.sql.functions import *
         from pyspark.sql import functions as func
         from pyspark.sql import Window        
            

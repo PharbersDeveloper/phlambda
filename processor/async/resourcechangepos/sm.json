@@ -52,7 +52,7 @@
          "InputPath" : "$",
          "ResultSelector": {
             "datasets.$": "$.[0].dagItems",
-            "script.$": "$.[1].scriptItem"
+            "script.$": "$.[1].scriptItems"
          },
          "ResultPath": "$",
          "Next" : "UpdateNewItems",
@@ -90,7 +90,7 @@
                         "showName.$" : "$.common.showName",
                         "script.$" : "$.script"
                      },
-                     "ResultPath": "$.scriptItem",
+                     "ResultPath": "$.scriptItems",
                      "End": true
                   }
                }

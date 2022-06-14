@@ -6,7 +6,7 @@ import boto3
 '''
 
 args:
-'''
+
 event = { 
     "traceId": "alfred-resource-creation-traceId",
     "projectId": "ggjpDje0HUC2JW",
@@ -85,7 +85,7 @@ event = {
     ]
 }
 
-
+'''
 
 def lambda_handler(event, context):
     g_flowVersion = event['flowVersion']
@@ -126,10 +126,7 @@ def lambda_handler(event, context):
             Bucket='ph-platform',
             Key=f"{getScriptPathKey(g_projectName, g_flowVersion, g_scripts_name)}/{filename}") 
 
-    #toS3(phjob_script, g_projectName, g_flowVersion, g_scripts_name, "phjob.py")
-    
-    with open("phjob_test.py", "w") as out:
-        out.write(phjob_script)
+    toS3(phjob_script, g_projectName, g_flowVersion, g_scripts_name, "phjob.py")
     
     return {
         "type": "notification",
@@ -141,4 +138,3 @@ def lambda_handler(event, context):
             "error": {}
         }
     }
-lambda_handler(event, context="tt")

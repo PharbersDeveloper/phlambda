@@ -123,6 +123,11 @@ def create_code_gen_args(event):
     return args
 
 
+def create_copy_script_file_args(event):
+    
+    return 1
+
+
 def lambda_handler(event, context):
     print(event)
     # 获取需要更新的dag Items
@@ -131,5 +136,7 @@ def lambda_handler(event, context):
     update_dagconf_item(event["scriptItems"])
     # 创建触发code gen参数
     code_gen_args = create_code_gen_args(event)
+    # 创建触发copy script file 参数
+    copy_script_file_args = create_copy_script_file_args(event)
 
     return code_gen_args

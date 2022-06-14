@@ -124,6 +124,66 @@
             "Next": "CleanUp"
          } ]
       },
+      "ScriptsFilesCreation": {
+         "Type": "Choice",
+         "InputPath": "$",
+         "Choices": [
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "pyspark",
+               "Next": "ExecutionCopyResource"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "python",
+               "Next": "ExecutionCopyResource"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "r",
+               "Next": "ExecutionCopyResource"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "sparkr",
+               "Next": "ExecutionCopyResource"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "sync",
+               "Next": "ExecutionCopyResource"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "prepare",
+               "Next": "ExecutionCodeGen"
+            }
+         ],
+         "Default": "ExecutionCopyResource"
+      },
+      "ExecutionCopyResource": {
+         "Type":"Task",
+         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters":{
+            "Input.$": "$.metadata.codeGenParameters",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:copy-script-resource"
+         },
+         "ResultPath": null,
+         "Next": "SuccessMessage",
+         "Catch" : [ {
+            "ErrorEquals" : [ "States.Runtime" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.TaskFailed" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         }, {
+            "ErrorEquals" : [ "States.ALL" ],
+            "ResultPath" : "$.error",
+            "Next" : "CleanUp"
+         } ]
+      },
       "ExecutionCodeGen": {
          "Type":"Task",
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",

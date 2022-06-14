@@ -6,7 +6,8 @@ template:
     content: |-
         from pyspark.sql.functions import *
         from pyspark.sql import functions as func
-        from pyspark.sql import Window        
+        from pyspark.sql import Window
+        from functools import reduce
 
         def getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=False, g_first=False):
             if g_last == True:

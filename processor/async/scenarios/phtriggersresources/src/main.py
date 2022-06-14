@@ -56,9 +56,9 @@ class TriggersResources:
     def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
-        self.stackName = self.GetStackName()
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
+        self.stackName = self.GetStackName()
         self.result = {}
         self.template_url = templateUrl
 

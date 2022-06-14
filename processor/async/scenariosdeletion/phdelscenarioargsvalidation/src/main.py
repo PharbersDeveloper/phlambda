@@ -1,7 +1,6 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Attr
-from reduceLengthOfstackName import reduce_length_of_stackName
 '''
 这个函数只做一件事情，检查参数是否合法
 args:
@@ -116,7 +115,7 @@ class CheckParameters:
             scenarioId = trigger["scenarioId"]
             self.check_DsData_Exists('scenario_trigger', **{"scenarioId": scenarioId, "id": triggerId})
             #--------- 检测stackName --------------------#
-            stackName = self.get_stackName(scenarioId, triggerId)
+            stackName = self.get_stackName(triggerId)
             self.checkStackExisted(stackName)
 
     def check_steps(self, key):
@@ -126,9 +125,9 @@ class CheckParameters:
             scenarioId = step["scenarioId"]
             self.check_DsData_Exists('scenario_step', **{"scenarioId": scenarioId, "id": stepId})
 
-    def get_stackName(self, scenarioId, triggerId):
+    def get_stackName(self, triggerId):
 
-        return str(reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))).replace("_", "")
+        return str("-".join(["scenario", self.get_projectId(), str(triggerId)])).replace("_", "")
 
 
     def checkStackExisted(self, stackName):

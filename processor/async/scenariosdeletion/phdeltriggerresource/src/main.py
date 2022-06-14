@@ -19,27 +19,6 @@ args:
 '''
 
 
-def reduce_length_of_stackName(stackName):
-    import re
-    #----------限制字符串长度---------------------#
-    if len(stackName) <= 62:
-        return stackName
-    else:
-        data = str(stackName).split('-')
-        scenario = data[0]
-        projectId = data[1]
-        #--------取奇数,反转，切片---------------#
-        scenarioId = ''.join(reversed(str(data[2])[::2]))
-        #--------取偶数-----------------#
-        triggerId = str(data[3])[1::2]
-        if len(data) > 4:
-            timeTag = re.sub(pattern='[-:\s+.]', repl='', string=''.join(data[4:]))
-            stackName = '-'.join([scenario, projectId, scenarioId, triggerId, timeTag])
-        else:
-            stackName = '-'.join([scenario, projectId, scenarioId, triggerId])
-        return reduce_length_of_stackName(stackName)
-
-
 class DelTriggerRule(object):
 
     def __init__(self, event):
@@ -50,7 +29,7 @@ class DelTriggerRule(object):
 
         return self.event['projectId']
 
-    def get_stackName(self, scenarioId, triggerId):
+    def get_stackName(self, triggerId):
         '''
         "_" 不满足stackName拼写规则
         example:
@@ -58,7 +37,7 @@ class DelTriggerRule(object):
         An error occurred (ValidationError) when calling the DescribeStacks operation: 1 validation error detected: Value 'scenario-ggjpDje0HUC2JW-cb6cb0afbf85c6e6_JCHeDjg-EB77EE5E' at 'stackName' failed to satisfy constraint: Member must satisfy regular expression pattern: [a-zA-Z][-a-zA-Z0-9]*|arn:[-a-zA-Z0-9:/._+]*
         '''
 
-        return str(reduce_length_of_stackName("-".join(["scenario", self.get_projectId(), str(scenarioId), str(triggerId)]))).replace("_","")
+        return str("-".join(["scenario", self.get_projectId(), str(triggerId)])).replace("_", "")
 
     def del_trigger_rule(self, stackName):
         print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
@@ -87,8 +66,8 @@ class DelTriggerRule(object):
 
         for trigger in self.triggers:
             triggerId = trigger["id"]
-            scenarioId = trigger["scenarioId"]
-            eachStackName = self.get_stackName(scenarioId, triggerId)
+            #scenarioId = trigger["scenarioId"]
+            eachStackName = self.get_stackName(triggerId)
             #------------ delete trigger resource ---------#
             EachDeleteResult = self.del_trigger_rule(eachStackName)
             EachDeleteResult["index"] = triggerCountNum + 1

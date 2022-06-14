@@ -26,6 +26,7 @@ return:
 }
 '''
 
+
 def get_dagconf_item(projectId, jobId):
     dagconf_table = dynamodb.Table('dagconf')
     res = dagconf_table.query(
@@ -34,7 +35,7 @@ def get_dagconf_item(projectId, jobId):
                                & Key("id").eq(jobId)
     )
 
-    return res.get("Items")
+    return res.get("Items")[0]
 
 
 def copy_s3_file(source_file_path, target_file_path):

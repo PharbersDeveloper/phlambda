@@ -9,7 +9,7 @@ args:
         "common": {
             "traceId": "hbzhao-resource-change-position-traceId",
             "projectId": "Dp10sMiAYXWxRZj",
-            "projectName": "demo",
+            "projectName": "code",
             "owner": "hbzhao-resource-change-position-owner",
             "showName": "hbzhao-resource-change-position-showName"
         },

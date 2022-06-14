@@ -16,6 +16,6 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-          TARGETARN: "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotimertrigger-dev"
+          TARGETARN: "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotimertrigger-dev:Current"
           TEMPLATEURL: "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml"
 

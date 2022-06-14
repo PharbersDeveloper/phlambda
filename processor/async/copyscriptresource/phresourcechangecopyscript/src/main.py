@@ -53,12 +53,13 @@ def copy_s3_file(source_file_path, target_file_path):
 def lambda_handler(event, context):
     print(event)
     script = event["script"]
-    # 查询dag_conf item
-    # 修改jobPath
-    dagconfItem = get_dagconf_item(event["projectId"], event["script"]["old"]["id"])
-    # 此时jobPath已经被修改 所以需要获取jobPath 把new name 替换成 old name
-    newJobPath = dagconfItem.get("jobPath")
-    oldJobPath = dagconfItem.get("jobPath").replace(script["new"]["name"], script["old"]["name"])
-    # 需要将oldJobPath copy 至 newJobPath
-    copy_s3_file(oldJobPath, newJobPath)
+    if script["new"]["name"] != script["old"]["name"]:
+        # 查询dag_conf item
+        # 修改jobPath
+        dagconfItem = get_dagconf_item(event["projectId"], event["script"]["old"]["id"])
+        # 此时jobPath已经被修改 所以需要获取jobPath 把new name 替换成 old name
+        newJobPath = dagconfItem.get("jobPath")
+        oldJobPath = dagconfItem.get("jobPath").replace(script["new"]["name"], script["old"]["name"])
+        # 需要将oldJobPath copy 至 newJobPath
+        copy_s3_file(oldJobPath, newJobPath)
     return 1

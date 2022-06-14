@@ -204,7 +204,8 @@
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
             "Input.$": "$.scriptChangeArgs",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen",
+
          },
          "ResultPath": null,
          "Next": "SuccessMessage",

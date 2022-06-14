@@ -2,7 +2,7 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
-
+dynamodb = boto3.resource('dynamodb')
 '''
 将错误提取出来写入到notification中
 args:
@@ -31,7 +31,7 @@ def get_dagconf_item(projectId, jobId):
     res = dagconf_table.query(
         IndexName='dagconf-projectId-id-indexd',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("jobId").eq(jobId)
+                               & Key("id").eq(jobId)
     )
 
     return res.get("Items")
@@ -39,13 +39,14 @@ def get_dagconf_item(projectId, jobId):
 
 def copy_s3_file(source_file_path, target_file_path):
 
+    s3_resource = boto3.resource("s3", region_name='cn-northwest-1')
     source_bucket = "ph-platform"
     target_bucket = "ph-platform"
     copy_source = {
         'Bucket': source_bucket,
         'Key': source_file_path
     }
-    self.s3_resource.meta.client.copy(copy_source, target_bucket, target_file_path)
+    s3_resource.meta.client.copy(copy_source, target_bucket, target_file_path)
 
 
 def lambda_handler(event, context):

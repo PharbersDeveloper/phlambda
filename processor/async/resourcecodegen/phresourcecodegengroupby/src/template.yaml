@@ -74,7 +74,7 @@ template:
             
         def execute(**kwargs):
             spark = kwargs['spark']
-            df = kwargs['df_$input$']
+            df = kwargs['df_$g_input$']
             
             g_preFilter = $g_preFilter$
             g_computedColumns = $g_computedColumns$

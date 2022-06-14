@@ -8,11 +8,10 @@ args:
     event = {
         "common": {
             "traceId": "hbzhao-resource-change-position-traceId",
-            "projectId": "ggjpDje0HUC2JW",
-            "tenantId": "zudIcG_17yj8CEUoCTHg",
+            "projectId": "Dp10sMiAYXWxRZj",
             "projectName": "demo",
-            "owner": "alfred",
-            "showName": "alfred"
+            "owner": "hbzhao-resource-change-position-owner",
+            "showName": "hbzhao-resource-change-position-showName"
         },
         "action": {
             "cat": "changeResourcePosition",
@@ -24,18 +23,18 @@ args:
         "notification": {
             "required": true      
         },
-        "datasets": [
-            {
-                "old": {
+        "datasets": {
+            "inputs": {
+                "old": [{
                     "name": "A",
                     "cat": "uploaded"
-                },
-                "new": {
+                }],
+                "new": [{
                     "name": "B",
                     "cat": "uploaded"
-                }
+                }]
             },
-            {
+            "output": {
                 "old": {
                     "name": "A_out",
                     "cat": "intermediate"
@@ -45,17 +44,17 @@ args:
                     "cat": "intermediate"
                 }
             }
-        ],
-        script: {
+        },
+        "script": {
             "old": {
-                "name": compute_A,
+                "name": "compute_A_out",
                 "id": "22jpN8YtMIhGTnW"
             },
             "new": {
-                "name": "compute_B",
+                "name": "compute_B_out",
                 "runtime": "python",
                 "inputs": "[\"B\"]",
-                "output": "compute_B"
+                "output": "B_out"
             }
         }
     }
@@ -96,15 +95,24 @@ def check_parameter(event):
 
     # 3. datasets 中的 old["name"] 必须在dag中查询到
     # 3. datasets 中的 new["name"] 必须在dag中查询到
-    for dataset in event["datasets"]:
-        old_dag_name = dataset["old"]["name"]
+    for old_dag in event["datasets"]["inputs"]["old"]:
+        old_dag_name = old_dag["name"]
         old_dag_item = get_item_from_dag(old_dag_name, event["common"]["projectId"])
         if len(old_dag_item) == 0:
             raise Exception(f'{old_dag_name} item must exist')
-        new_dag_name = dataset["old"]["name"]
+    for old_dag in event["datasets"]["inputs"]["new"]:
+        new_dag_name = old_dag["name"]
         new_dag_item = get_item_from_dag(new_dag_name, event["common"]["projectId"])
         if len(new_dag_item) == 0:
             raise Exception(f'{new_dag_name} item must exist')
+    old_output_dag_name = event["datasets"]["output"]["old"]["name"]
+    old_output_dag_item = get_item_from_dag(old_output_dag_name, event["common"]["projectId"])
+    if len(old_output_dag_item) == 0:
+        raise Exception(f'{old_output_dag_name} item must exist')
+    new_output_dag_name = event["datasets"]["output"]["new"]["name"]
+    new_output_dag_item = get_item_from_dag(new_output_dag_name, event["common"]["projectId"])
+    if len(new_output_dag_item) == 0:
+        raise Exception(f'{new_output_dag_name} item must exist')
 
     # 4. script中的 old id必须在dagconf表查询到
     dagconf_item = get_dag_conf_item_from_dynamodb(event["script"]["old"]["id"], event["common"]["projectId"])

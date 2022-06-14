@@ -123,9 +123,9 @@
             "projectName.$" : "$.common.projectName",
             "owner.$" : "$.common.owner",
             "showName.$" : "$.common.showName",
-            "script.$" : "$.script"
+            "script.$" : "$.changeScriptMsg"
          },
-         "ResultPath": "$.scriptItems",
+         "ResultPath": null,
          "End": true
       }
    }

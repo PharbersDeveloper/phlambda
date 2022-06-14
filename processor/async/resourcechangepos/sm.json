@@ -5,8 +5,8 @@
       "StartState": {
          "Type": "Pass",
          "Result": {
-            "oldDagItems": "",
-            "oldScriptItem": ""
+            "dagItems": "",
+            "scriptItems": ""
          },
          "ResultPath": "$.metadata",
          "Next": "ArgsValidation"
@@ -18,15 +18,15 @@
          "Next": "Actions",
          "Catch": [ {
              "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.iterator.error",
+             "ResultPath": "$.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.iterator.error",
+             "ResultPath": "$.error",
              "Next": "CleanUp"
           }, {
              "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.iterator.error",
+             "ResultPath": "$.error",
              "Next": "CleanUp"
           } ]
       },
@@ -51,10 +51,10 @@
          "Type" : "Parallel",
          "InputPath" : "$",
          "ResultSelector": {
-            "datasets.$": "$.[0].dagItems",
-            "script.$": "$.[1].scriptItems"
+            "dagItems.$": "$.[0].dagItems",
+            "scriptItems.$": "$.[1].scriptItems"
          },
-         "ResultPath": "$",
+         "ResultPath": "$.metadata",
          "Next" : "UpdateNewItems",
          "Branches" : [
             {
@@ -69,7 +69,8 @@
                         "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets"
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
                      },
                      "ResultPath": "$.dagItems",
                      "End": true
@@ -94,7 +95,20 @@
                      "End": true
                   }
                }
-            } ]
+            } ],
+         "Catch": [ {
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error",
+            "Next": "CleanUp"
+         } ]
       },
       "UpdateNewItems": {
          "Type": "Task",
@@ -105,56 +119,57 @@
             "projectName.$" : "$.common.projectName",
             "owner.$" : "$.common.owner",
             "showName.$" : "$.common.showName",
-            "scriptItem.$" : "$.scriptItem",
-            "datasetItems.$" : "$.datasetItems"
+            "scriptItems.$" : "$.metadata.scriptItems",
+            "dagItems.$" : "$.metadata.dagItems",
+            "script.$": "$.script"
          },
-         "ResultPath": "$.metadata",
-         "Next": "ExecutionCodeGen",
+         "ResultPath": "$.scriptChangeArgs",
+         "Next": "ScriptChangeChoice",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.iterator.error",
+            "ResultPath": "$.error",
             "Next": "CleanUp"
          }, {
             "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.iterator.error",
+            "ResultPath": "$.error",
             "Next": "CleanUp"
          }, {
             "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.iterator.error",
+            "ResultPath": "$.error",
             "Next": "CleanUp"
          } ]
       },
-      "ScriptsFilesCreation": {
+      "ScriptChangeChoice": {
          "Type": "Choice",
          "InputPath": "$",
          "Choices": [
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "pyspark",
                "Next": "ExecutionCopyResource"
             },
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "python",
                "Next": "ExecutionCopyResource"
             },
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "r",
                "Next": "ExecutionCopyResource"
             },
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "sparkr",
                "Next": "ExecutionCopyResource"
             },
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "sync",
                "Next": "ExecutionCopyResource"
             },
             {
-               "Variable": "$.script.runtime",
+               "Variable": "$.script.new.runtime",
                "StringEquals": "prepare",
                "Next": "ExecutionCodeGen"
             }
@@ -165,7 +180,7 @@
          "Type":"Task",
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
-            "Input.$": "$.metadata.codeGenParameters",
+            "Input.$": "$.scriptChangeArgs",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:copy-script-resource"
          },
          "ResultPath": null,
@@ -188,7 +203,7 @@
          "Type":"Task",
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
-            "Input.$": "$.metadata.codeGenParameters",
+            "Input.$": "$.scriptChangeArgs",
             "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
          },
          "ResultPath": null,
@@ -247,7 +262,9 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.iterator.error",
+            "scriptItems.$" : "$.metadata.scriptItems",
+            "dagItems.$" : "$.metadata.dagItems",
+            "errors.$" : "$.error",
             "status": "failed"
          },
          "ResultPath": "$.message",

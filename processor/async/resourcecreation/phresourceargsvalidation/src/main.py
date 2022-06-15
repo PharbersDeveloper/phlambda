@@ -94,16 +94,22 @@ class Check:
         script_value = ["name", "flowVersion", "inputs", "output"]
         projectId = data.get("common").get("projectId")
         datasets = data.get("datasets", [])
-        scripts = data.get("scripts", {})
+        scripts = data.get("script", {})
         if not isinstance(datasets, list):
             raise Exception('datasets type error')
-        dataset = datasets[-1]
-        ds_name = dataset.get("name")
-        if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
-            raise Exception('datasets name already exits')
-        self.checkdata(dataset, ds_value)
+        if datasets:
+            dataset = datasets[-1]
+            ds_name = dataset.get("name")
+            if query_item("dataset", projectId, "dataset-projectId-name-index", "name", ds_name):
+                raise Exception('datasets name already exits')
+            self.checkdata(dataset, ds_value)
         if scripts:
             script_name = scripts.get("name")
+            runtime = scripts.get("runtime", "")
+            if runtime == "dataset":
+                self.ds_sc = True
+                return
+
             if [i for i in query_item("dagconf", projectId) if i.get("actionName") == script_name]:
                 raise Exception('dagconf actionName already exits')
             self.checkdata(scripts, script_value)
@@ -141,4 +147,5 @@ def lambda_handler(event, context):
     # 4. datasets 和 scripts 必须存在一个
     #   4.1 如果dataset存在，name, cat, format 都必须存在，并判断类型
     #   4.2 如果scripts存在，name, flowVersion, input, output 都必须存在，并判断类型
+    #   4.3 如果scripts存在 且存在runtime字段值为 dataset 跳过scripts判断
     # return true

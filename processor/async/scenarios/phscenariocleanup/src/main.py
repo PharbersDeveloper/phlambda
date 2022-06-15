@@ -70,7 +70,7 @@ class RollBack:
 
     def get_triggerItem(self, OldImage):
         trigger_Item = {
-            'scenarioId': self.get_scenarioId(),
+            'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
             'active': OldImage['active'],
             'detail': OldImage['detail'],
@@ -82,7 +82,7 @@ class RollBack:
 
     def get_stepItem(self, OldImage):
         step_Item = {
-            'scenarioId': self.get_scenarioId(),
+            'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
             'confData': OldImage['confData'],
             'detail': OldImage['detail'],
@@ -126,26 +126,32 @@ class RollBack:
         self.put_item(tableName, Item)
 
     def scenarioRollBack(self):
-        RollBackMode = self.check_OldImage(self.scenario)
-        print(f"Mode: {RollBackMode}")
-        self.errorMessage['scenario'] = f"error handle mode: {RollBackMode}"
-        if RollBackMode == "Delete":
-            return self.map_handle_mode(RollBackMode)("scenario", "projectId", "id", self.get_scenarioId(), self.get_scenarioId())
-        elif RollBackMode == "RollBack":
-            return self.map_handle_mode(RollBackMode)(self.scenario, "scenario")
+
+        if len(self.scenario) == 0:
+            self.NotNeedRollBack()
+            pass
         else:
-            return self.map_handle_mode(RollBackMode)()
+            RollBackMode = self.check_OldImage(self.scenario)
+            print(f"Mode: {RollBackMode}")
+            self.errorMessage['scenario'] = f"error handle mode: {RollBackMode}"
+            if RollBackMode == "Delete":
+                return self.map_handle_mode(RollBackMode)("scenario", "projectId", "id", self.get_projectId(), self.get_scenarioId())
+            elif RollBackMode == "RollBack":
+                return self.map_handle_mode(RollBackMode)(self.scenario, "scenario")
+            else:
+                return self.map_handle_mode(RollBackMode)()
 
 
     def triggerRollBack(self):
         countNum = 0
         for trigger in self.trigger:
             triggerId = trigger["id"]
+            EachTriggerScenarioId = trigger["scenarioId"]
             RollBackMode = self.check_OldImage(trigger)
             print(f"Mode: {RollBackMode}")
             self.errorMessage['scenario_trigger_' + f"{countNum + 1}"] = f"error handle mode: {RollBackMode}"
             if RollBackMode == "Delete":
-                return self.map_handle_mode(RollBackMode)("scenario_trigger", "scenarioId", "id", self.get_scenarioId(), triggerId)
+                return self.map_handle_mode(RollBackMode)("scenario_trigger", "scenarioId", "id", EachTriggerScenarioId, triggerId)
             elif RollBackMode == "RollBack":
                 return self.map_handle_mode(RollBackMode)(trigger, "scenario_trigger")
             else:
@@ -155,11 +161,12 @@ class RollBack:
         countNum = 0
         for step in self.step:
             stepId = step["id"]
+            EachStepscenarioId = step["scenarioId"]
             RollBackMode = self.check_OldImage(self.step)
             print(f"Mode: {RollBackMode}")
             self.errorMessage['scenario_step_' + f"{str(countNum+1)}"] = f"error handle mode: {RollBackMode}"
             if RollBackMode == "Delete":
-                return self.map_handle_mode(RollBackMode)("scenario_step", "scenarioId", "id", self.get_scenarioId(), stepId)
+                return self.map_handle_mode(RollBackMode)("scenario_step", "scenarioId", "id", EachStepscenarioId, stepId)
             elif RollBackMode == "RollBack":
                 return self.map_handle_mode(RollBackMode)(step, "scenario_step")
             else:

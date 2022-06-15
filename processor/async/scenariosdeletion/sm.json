@@ -4,7 +4,11 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "ResultPath": null,
+         "Result": {
+            "triggers": [],
+            "steps": []
+         },
+         "ResultPath": "$.result",
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {
@@ -12,19 +16,29 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenarioargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Actions": {
          "Type": "Task",
@@ -41,6 +55,20 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
+         "Next": "FetchTriggersAndStepsItems"
+      },
+      "FetchTriggersAndStepsItems": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenariofetchitems-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.scenario"
+         },
+         "ResultPath": "$.result",
          "Next": "ScenarioDetailDeletion"
       },
       "ScenarioDeletion": {
@@ -54,19 +82,29 @@
             "showName.$": "$.common.showName",
             "scenario.$": "$.scenario"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ],
          "ResultPath": "$.scenario",
          "Next": "Success"
       },
@@ -85,7 +123,7 @@
                "States": {
                   "TriggersIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggersindex-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerindex-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -93,14 +131,14 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
+                        "triggers.$": "$.result.triggers"
                      },
                      "ResultPath": "$.triggers",
                      "End": true
                   },
                   "TriggersResources": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggersresource-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerresource-dev",
                      "Parameters": {
                         "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
@@ -109,7 +147,7 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
+                        "triggers.$": "$.result.triggers"
                      },
                      "ResultPath": null,
                      "Next": "TriggersIndex"
@@ -129,27 +167,37 @@
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
                         "scenario.$": "$.scenario",
-                        "steps.$": "$.steps"
+                        "steps.$": "$.result.steps"
                      },
                      "ResultPath": "$.steps",
                      "End": true
                   }
                }
-            },
+            }
          ],
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Success": {
          "Type": "Task",
@@ -162,7 +210,18 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.result",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {
+                     "scenario": "$.scenario",
+                     "triggers": "$result.triggers",
+                     "steps": "$result.steps"
+                  },
+                  "error": {}
+               }
+            },
             "status": "success"
          },
          "End": true
@@ -174,13 +233,10 @@
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scenario.$": "$.result.scenario",
+            "scenario.$": "$.scenario",
             "triggers.$": "$.result.triggers",
-            "steps.$": "$.steps",
+            "steps.$": "$.result.steps"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -200,7 +256,6 @@
             "status": "failed"
          },
          "End": true
-      },
+      }
    }
-
 }

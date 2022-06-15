@@ -1,0 +1,40 @@
+template:
+  phjob.py:
+    args:
+      - key: a
+        Index: 0
+    content: |-
+        from pyspark.sql.functions import col
+        from pyspark.sql.types import StructType, StringType
+        from pyspark.sql import functions as func
+        from pyspark.sql import Window
+           
+    
+        def execute(**kwargs):
+            spark = kwargs['spark']
+            df = kwargs['df_$input$']
+            
+            args_preFilter = $args_preFilter$
+            args_postFilter = $args_postFilter$
+            distinct_key = $distinct_key$
+            globalCount = $globalCount$
+
+            if args_preFilter['enabled'] == True:
+                df = df.where(args_preFilter['expression'])
+                
+            if globalCount == True:
+                if len(distinct_key) > 0:
+                    cols_globalCount = distinct_key
+                else:
+                    cols_globalCount = df.columns
+                df = df.withColumn('globalCount', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
+                
+            if len(distinct_key) > 0:
+                df = df.dropDuplicates(distinct_key)
+            else:
+                df = df.distinct()
+
+            if args_postFilter['enabled'] == True:
+                df = df.where(args_postFilter['expression'])
+
+            return {"out_df":df}

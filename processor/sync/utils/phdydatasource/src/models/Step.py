@@ -7,6 +7,7 @@ class Step(Model):
     attributes = {
         "pjName": fields.Str(required=True),
         "stepId": fields.Str(required=True),
+        "id": fields.Str(required=True),
         "index": fields.Str(dump_default="unknown"),
         "ctype": fields.Str(dump_default="unknown"),
         "expressions": fields.Str(dump_default="unknown"),

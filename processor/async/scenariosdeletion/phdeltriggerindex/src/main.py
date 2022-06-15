@@ -23,13 +23,7 @@ class DeltriggerIndex:
 
     def __init__(self, event):
         self.event = event
-        self.triggers = event['triggers'][0]
-
-    def get_scenarioId(self):
-        return self.event['scenario']['id']
-
-    def get_triggerId(self):
-        return self.triggers['id']
+        self.triggers = event['triggers']
 
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
@@ -64,32 +58,38 @@ class DeltriggerIndex:
                 "detail": ItemDict['detail'],
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
-                "id": ItemDict['id']
+                "id": ItemDict['id'],
+                "scenarioId": ItemDict["scenarioId"]
             }
         else:
             OldImage = {}
         self.OldImage = OldImage
         return OldImage
 
-    def fetch_result(self):
-        self.triggers['OldImage'] = self.OldImage
+    def DeltriggerItemFromDyDB(self):
+
+        for trigger in self.triggers:
+            triggerId = trigger["id"]
+            scenarioId = trigger["scenarioId"]
+            #--------each oldImageItem of trigger -----------#
+            OldImageItem = self.query_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
+            OldImage = self.get_OldImage(OldImageItem)
+            #-------- item not exist ------------------------#
+            if len(OldImage) == 0:
+                pass
+            else:
+                #------delete trigger item ------------------#
+                self.del_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
+            trigger["OldImage"] = OldImage
+
         return self.triggers
 
 
 def lambda_handler(event, context):
 
-    #------ triggers 输入为空 ----------#
-    if len(event['triggers']) == 0:
-        return event['triggers']
-    else:
-        DelClient = DeltriggerIndex(event)
-        #--------------------------get OldImage-------------------------------------------------------#
-        OldImageItem = DelClient.query_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
-        OldImage = DelClient.get_OldImage(OldImageItem)
-        if len(OldImage) == 0:
-            print(f"triggersId :{DelClient.get_triggerId()} not exits, please check data")
-        else:
-            #-------------------------delete trigger----------------------------------------------------------#
-            DelClient.del_table_item('scenario_trigger', scenarioId=DelClient.get_scenarioId(), id=DelClient.get_triggerId())
+       DelClient = DeltriggerIndex(event)
 
-        return DelClient.fetch_result()
+       #-------------- delete each trigger in array of triggers ------------#
+       result = DelClient.DeltriggerItemFromDyDB()
+
+       return result

@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      AutoPublishAlias: Current
+      CodeUri: ./src
+      FunctionName: lmd-phresourcecodegentopn-dev
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
+      MemorySize: 1024
+      Description: "Top N 覆盖更新step 脚本"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Environment:
+        Variables:
+          EDITION: "DEV"
+          BUCKET: ph-platform
+          CLI_VERSION: 2020-11-11
+          JOB_PATH_PREFIX: /tmp/phjobs/
+          DAG_S3_JOBS_PATH: /jobs/python/phcli/
+      Tags:
+        edition: dev
+        owner: pqian
+        version: Beta
+        api: v2
+      Timeout: 600

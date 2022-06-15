@@ -1,5 +1,5 @@
 import os
-
+import yaml
 from util.AWS.ph_s3 import PhS3
 from upload2s3 import *
 from phjob import *
@@ -71,14 +71,17 @@ def lambda_handler(event, context):
         "flowVersion": event["flowVersion"],
         "jobFullName": job_full_name,
         "name": name,
-        "jobPath": f"""{os.environ["JOB_PATH_PREFIX"]}{name}/{job_full_name}"""
+        "jobPath": f"""{os.environ["JOB_PATH_PREFIX"]}{name}/{job_full_name}""",
+        "input": event["script"]["inputs"][0]
     }
 
-    # 生成低代码phjob核心逻辑
-    create_ph_job_file(conf)
+    with open('./code.yaml', encoding='utf-8') as file:
+        conf["code_yaml"] = yaml.safe_load(file)
+        # 生成低代码phjob核心逻辑
+        create_ph_job_file(conf)
 
-    # 将脚本上传到对应位置
-    upload_file(conf)
+        # 将脚本上传到对应位置
+        upload_file(conf)
 
     return {
         "type": "notification",

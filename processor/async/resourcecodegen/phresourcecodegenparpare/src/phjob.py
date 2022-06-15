@@ -7,5 +7,5 @@ def create_ph_job_file(conf):
 
     with open(f"{conf.get('jobPath')}/phjob.py", "w") as file:
         steps = list(map(lambda item: item["expressions"], conf["steps"]))
-        operator_code = GenerateInvoker().execute(steps)
+        operator_code = GenerateInvoker().execute(steps, conf["code_yaml"], conf["input"])
         file.write(operator_code)

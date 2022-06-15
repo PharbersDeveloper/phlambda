@@ -19,11 +19,20 @@ class PTP(Strategy):
         dynamodb = DynamoDB()
 
         table_name = data["target"]
-        if data["target"] == "notification":
-            conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
+        # if data["target"] == "notification":
+        #     if data["projectId"] == "projectid":
+        #         conditions = {"id": ["=", data["id"]]}
+        #     else:
+        #         conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
+        # else:
+        #     date = data["runnerId"].split("_")[-1]
+        #     conditions = {"id": ["=", f"""{data["id"]}"""], "date": ["=", date]}
+
+        if data["projectId"] == "projectid":
+            conditions = {"id": ["=", data["id"]]}
         else:
-            date = data["runnerId"].split("_")[-1]
-            conditions = {"id": ["=", f"""{data["id"]}"""], "date": ["=", date]}
+            conditions = {"id": ["=", data["id"]], "projectId": ["begins_with", data["projectId"]]}
+
 
         expr = Expression().join_expr(conditions)
         payload = dynamodb.queryTable({

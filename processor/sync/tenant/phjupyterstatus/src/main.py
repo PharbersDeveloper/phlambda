@@ -87,13 +87,13 @@ def ssmCheck(ssmNameList):
     return result
 
 
-def ssmQueryTraceId(tenantId):
+def ssmQueryTraceId(ssm_name):
     '''
     @return: traceId
     '''
-    name = tenantId.replace("=", "-")    
+    print(ssm_name)
     response = ssm.get_parameter(
-        Name=tenantId
+        Name=ssm_name
     )
     print(response)
     value = json.loads(response["Parameter"]["Value"])
@@ -118,7 +118,7 @@ def list_cloudformation_ssm_name(resource, resourceId):
         stackName = "-".join([resource["role"], prop["type"], resource["tenantId"], resource["ownership"],
                               resource["owner"]]).replace("_", "-").replace(":", "-").replace("+", "-")
 
-        ssmName = '-'.join([prop['type'], resource['owner'], resourceId])
+        ssmName = '-'.join([prop['type'], resource['owner'], resourceId]).replace("=", "-")
         stackNameList.append(stackName)
         ssmNameList.append(ssmName)
     return stackNameList, ssmNameList

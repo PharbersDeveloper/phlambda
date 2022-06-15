@@ -39,9 +39,6 @@ class TriggersIndex:
         self.event = event
         self.triggers = event['triggers']
 
-    def get_scenarioId(self):
-        return self.event['scenario']['id']
-
     def get_traceId(self):
         return self.event['traceId']
 
@@ -61,11 +58,11 @@ class TriggersIndex:
         )
         return response
 
-    def query_table_item(self, tableName, partitionKey, sortKey, TriggerId):
+    def query_table_item(self, tableName, partitionKey, sortKey, scenarioId, TriggerId):
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
         res = ds_table.query(
-            KeyConditionExpression=Key(partitionKey).eq(self.get_scenarioId())
+            KeyConditionExpression=Key(partitionKey).eq(scenarioId)
                                    & Key(sortKey).eq(TriggerId)
         )
         return res["Items"]
@@ -80,8 +77,8 @@ class TriggersIndex:
         return int(data) if isinstance(data, Decimal) else data
 
 
-    def get_OldImage(self, TriggerId):
-        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id', TriggerId)
+    def get_OldImage(self, scenarioId, TriggerId):
+        Items= self.query_table_item('scenario_trigger', 'scenarioId', 'id', scenarioId, TriggerId)
         print("*"*50+"trigger content " + "*"*50)
         print(Items)
         if len(Items) != 0:
@@ -91,7 +88,8 @@ class TriggersIndex:
                 "detail": ItemDict['detail'],
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
-                "id": ItemDict['id']
+                "id": ItemDict['id'],
+                "scenarioId": ItemDict["scenarioId"]
             }
         else:
             OldImage = {}
@@ -101,15 +99,16 @@ class TriggersIndex:
     def putTriggersItemIntoDyDB(self):
         for trigger in self.triggers:
             triggerId = trigger["id"]
+            scenarioId = trigger["scenarioId"]
             detail = trigger["detail"]
             active = trigger["active"]
             index = trigger["index"]
             mode = trigger["mode"]
             #-------- get oldImage -------------------------#
-            oldImage = self.get_OldImage(triggerId)
+            oldImage = self.get_OldImage(scenarioId, triggerId)
             trigger["OldImage"] = oldImage
             #-------- put Trigger item int dyDB-----------------#
-            self.put_item(self.get_scenarioId(), triggerId, active, detail, index, mode, self.get_traceId())
+            self.put_item(scenarioId, triggerId, active, detail, index, mode, self.get_traceId())
         return self.triggers
 
 def lambda_handler(event, context):

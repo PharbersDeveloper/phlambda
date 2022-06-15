@@ -387,7 +387,7 @@
             "Type": "Pass",
             "Parameters": {
                 "type": "notification",
-                "opname": "$.common.owner",
+                "opname.$": "$.common.owner",
                 "cnotification": {
                     "data": {
                         "script": "$.script.jobName"

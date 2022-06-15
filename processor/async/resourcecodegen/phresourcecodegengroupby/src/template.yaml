@@ -1,0 +1,116 @@
+template:
+  phjob.py:
+    args:
+      - key: a
+        Index: 0
+    content: |-
+        from pyspark.sql.functions import *
+        from pyspark.sql import functions as func
+        from pyspark.sql import Window
+        from functools import reduce
+
+        def getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=False, g_first=False):
+            if g_last == True:
+                str_orderby = f"col('{g_orderColumn}').desc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').desc()"  
+                colname_type="last"
+            if g_first == True:
+                str_orderby = f"col('{g_orderColumn}').asc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').asc()"  
+                colname_type="first"   
+            # 用默认的升序排列：first为最小值-升序第一个， last则为最大值-降序第一个
+            df_out = df.withColumn("row_number", func.row_number().over(Window.partitionBy(g_l_keys).orderBy( eval(str_orderby) ))) \
+                        .where(col('row_number') == 1) \
+                        .select(*g_l_keys, g_column) \
+                        .withColumnRenamed(g_column, f"{g_column}_{colname_type}")
+            return df_out
+
+
+        def getConcat(df, g_l_keys, g_column, g_concatDistinct, g_concatSeparator):
+            str_concat = f"collect_set('{g_column}')" if g_concatDistinct == True else f"collect_list({g_column})"
+            df_concat = df.groupby(g_l_keys).agg( eval(str_concat).alias(f"concat")) \
+                        .withColumn(f"{g_column}_concat", func.concat_ws(g_concatSeparator, func.col('concat'))) \
+                        .drop("concat")  
+            return df_concat
+
+        def dealNormalAgg(df, g_l_keys, i_g_values):
+            g_column = i_g_values['column']
+            g_orderColumn = i_g_values['orderColumn']
+            g_first = i_g_values['first']
+            g_last = i_g_values['last']
+            g_firstLastNotNull = i_g_values['firstLastNotNull']
+            g_concat = i_g_values['concat']
+            g_concatSeparator = i_g_values['concatSeparator']
+            g_concatDistinct = i_g_values['concatDistinct']    
+
+            dict_df_n = {}
+
+            # 简单函数处理 :"countDistinct", "min", "avg", "max", "count", "sum", "stddev"
+            single_func = list(i for i in ["countDistinct", "min", "avg", "max", "count", "sum", "stddev"]  if i_g_values[i] == True)
+            if len(single_func) > 0:
+                df_single_func = df.groupby(g_l_keys).agg( *[eval(f"{y}") for y in list(map(lambda i:f"{i}('{g_column}').alias('{g_column}_{i}')" , single_func)) ] ) 
+                dict_df_n['df_single_func'] = df_single_func
+
+            # last: 
+            if g_last == True:
+                dict_df_n['df_last'] = getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=True, g_first=False)
+
+            # first: 
+            if g_first == True:
+                dict_df_n['df_first'] = getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=False, g_first=True)
+
+            # concat: 
+            if g_concat == True:
+                dict_df_n['df_concat'] = getConcat(df, g_l_keys, g_column, g_concatDistinct, g_concatSeparator)
+
+            return dict_df_n
+
+
+        def dealCustomAgg(df, g_l_keys, i_g_values):
+            g_customName = i_g_values['customName']
+            g_customExpr = i_g_values['customExpr']
+            g_type = i_g_values['type']
+            df_custom = df.groupby(g_l_keys).agg( eval(g_customExpr).alias(g_customName) ) \
+                            .withColumn(g_customName, col(g_customName).cast(g_type))
+            return {"df_custom":df_custom}
+            
+            
+        def execute(**kwargs):
+            spark = kwargs['spark']
+            df = kwargs['df_$g_input$']
+            
+            g_preFilter = $g_preFilter$
+            g_computedColumns = $g_computedColumns$
+            g_postFilter = $g_postFilter$
+            g_values = $g_values$
+            g_l_keys = $g_keys$
+
+            # ===============  执行  =================
+            # preFilter
+            if g_preFilter['enabled'] == True:
+                df = df.where(g_preFilter['expr'])
+                if g_preFilter['distinct'] == True:
+                    df = df.distinct()
+
+            # computedColumns
+            if len(g_computedColumns) > 0:
+                for i_args in g_computedColumns:
+                    df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
+                            .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
+                            
+            # groupby
+            dict_df_all = {}
+            for i_g_values in g_values:
+                if "customName" in i_g_values.keys():
+                    dict_df_custom = dealCustomAgg(df, g_l_keys, i_g_values)
+                    dict_df_all.update(dict_df_custom)
+                else:
+                    dict_df_normal = dealNormalAgg(df, g_l_keys, i_g_values)
+                    dict_df_all.update(dict_df_normal)      
+            df = reduce(lambda x, y: x.join(y, on=g_l_keys, how='left'), dict_df_all.values())
+            
+            # postFilter
+            if g_postFilter['enabled'] == True:
+                df = df.where(g_postFilter['expr'])
+                if g_preFilter['distinct'] == True:
+                    df = df.distinct()
+
+            return {"out_df":df}

@@ -56,9 +56,9 @@ class TriggersResources:
     def __init__(self, tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression, templateUrl):
         self.cf = boto3.client('cloudformation')
         self.current_time = (datetime.now()).strftime('%Y-%m-%d-%H-%M-%S')
-        self.stackName = str(get_stackName("-".join(["scenario", projectId, scenarioId, triggerId]))).replace("_", "")
         self.tenantId, self.targetArn, self.projectId, self.scenarioId, self.triggerId, self.cronExpression = \
             tenantId, targetArn, projectId, scenarioId, triggerId, cronExpression
+        self.stackName = self.GetStackName()
         self.result = {}
         self.template_url = templateUrl
 
@@ -140,9 +140,15 @@ class TriggersResources:
         ]
         return Parameters
 
+    def GetStackName(self):
+        return str("-".join(["scenario", self.projectId, self.triggerId])).replace("_", "")
+
+    def GetChangeSetName(self, StackName, NowTime):
+        return str("-".join([StackName, NowTime])).replace("_", "")
+
     def update_trigger(self):
         print("*"*50 + "  Update  " + "*"*50)
-        changeSetName = str(get_stackName("-".join([self.stackName, self.current_time]))).replace("_", "")
+        changeSetName = self.GetChangeSetName(self.stackName, self.current_time)
         response = self.cf.create_change_set(
             StackName=self.stackName,
             ChangeSetName=changeSetName,
@@ -176,26 +182,6 @@ class TriggersResources:
 
         self.result['status'] = 'ok'
         self.result['message'] = f'create resource {self.stackName} '
-
-def get_stackName(stackName):
-    import re
-    #----------限制字符串长度---------------------#
-    if len(stackName) <= 62:
-        return stackName
-    else:
-        data = str(stackName).split('-')
-        scenario = data[0]
-        projectId = data[1]
-        #--------取奇数,反转，切片---------------#
-        scenarioId = ''.join(reversed(str(data[2])[::2]))
-        #--------取偶数-----------------#
-        triggerId = str(data[3])[1::2]
-        if len(data) > 4:
-            timeTag = re.sub(pattern='[-:\s+.]', repl='', string=''.join(data[4:]))
-            stackName = '-'.join([scenario, projectId, scenarioId, triggerId, timeTag])
-        else:
-            stackName = '-'.join([scenario, projectId, scenarioId, triggerId])
-        return get_stackName(stackName)
 
 
 def lambda_handler(event, context):

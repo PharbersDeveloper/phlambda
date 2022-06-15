@@ -20,7 +20,7 @@ args:
                     "deleteItems": deleteItems,
                     "insertItems": insertItems
                 },
-                script: {
+                "script": {
                     "old": {
                         "name": compute_A,
                         "id": "22jpN8YtMIhGTnW"
@@ -69,7 +69,7 @@ def update_dagconf_item(scriptItems):
         dagconf_table.delete_item(
             Key={
                 "projectId": delete_item["projectId"],
-                "sortVersion": delete_item["jobName"]
+                "jobName": delete_item["jobName"]
             }
         )
 
@@ -123,13 +123,48 @@ def create_code_gen_args(event):
     return args
 
 
+def create_copy_script_file_args(event):
+
+    args = {
+        "common": {
+            "traceId": event["traceId"],
+            "projectId": event["projectId"],
+            "projectName": event["projectName"],
+            "flowVersion": "developer",
+            "dagName": event["projectName"],
+            "owner": event["owner"],
+            "showName": event["showName"]
+        },
+        "script": {
+            "name": event["script"]["new"]["name"],
+            "flowVersion": "developer",
+            "runtime": event["script"]["new"]["runtime"],
+            "inputs": event["script"]["new"]["inputs"],
+            "output": event["script"]["new"]["output"],
+            "version": [],
+            "id": event["script"]["old"]["id"]
+        },
+        "changeScriptMsg": event["script"],
+        "notification": {
+            "required": True
+        },
+        "result": {}
+    }
+
+    return args
+
+
 def lambda_handler(event, context):
     print(event)
     # 获取需要更新的dag Items
     update_dag_item(event["dagItems"])
     # 获取需要更新的dag conf Items
     update_dagconf_item(event["scriptItems"])
-    # 创建触发code gen参数
-    code_gen_args = create_code_gen_args(event)
+    if event["script"]["new"]["runtime"] == "prepare":
+        # 创建触发code gen参数
+        args = create_code_gen_args(event)
+    else:
+        # 创建触发copy script file 参数
+        args = create_copy_script_file_args(event)
 
-    return code_gen_args
+    return args

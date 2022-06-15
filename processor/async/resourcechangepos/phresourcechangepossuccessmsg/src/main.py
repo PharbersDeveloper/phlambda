@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         "opname": opname,
         "cnotification": {
             "data": "{}",
-            "error": json.dumps(event["errors"])
+            "error": "{}"
         }
     }
     return message

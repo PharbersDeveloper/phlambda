@@ -41,10 +41,10 @@ def get_dagconf_item(projectId, jobId):
     res = dagconf_table.query(
         IndexName='dagconf-projectId-id-indexd',
         KeyConditionExpression=Key("projectId").eq(projectId)
-                               & Key("jobId").eq(jobId)
+                               & Key("id").eq(jobId)
     )
 
-    return res.get("Items")
+    return res.get("Items")[0]
 
 
 def lambda_handler(event, context):
@@ -54,14 +54,14 @@ def lambda_handler(event, context):
     insertItems = []
     # 查询dag_conf item
     # 修改jobName, actionName, jobDisplayName, jobPath, jobShowName, output, inputs, traceId
-    dagconfItem = get_dagconf_item(event["projectId"], event["script"]["old"]["id"])
-    deleteItems.append(dagconfItem)
+    delDagconfItem = get_dagconf_item(event["projectId"], event["script"]["old"]["id"])
+    deleteItems.append(delDagconfItem)
 
-    newJobName = dagconfItem.get("jobName").replace(script["old"]["name"], script["new"]["name"])
-    newActionName = dagconfItem.get("actionName").replace(script["old"]["name"], script["new"]["name"])
-    newJobDisplayName = dagconfItem.get("jobDisplayName").replace(script["old"]["name"], script["new"]["name"])
-    newJobPath = dagconfItem.get("jobPath").replace(script["old"]["name"], script["new"]["name"])
-    newJobShowName = dagconfItem.get("jobShowName").replace(script["old"]["name"], script["new"]["name"])
+    newJobName = delDagconfItem.get("jobName").replace(script["old"]["name"], script["new"]["name"])
+    newActionName = delDagconfItem.get("actionName").replace(script["old"]["name"], script["new"]["name"])
+    newJobDisplayName = delDagconfItem.get("jobDisplayName").replace(script["old"]["name"], script["new"]["name"])
+    newJobPath = delDagconfItem.get("jobPath").replace(script["old"]["name"], script["new"]["name"])
+    newJobShowName = delDagconfItem.get("jobShowName").replace(script["old"]["name"], script["new"]["name"])
 
     newTraceId = event["traceId"]
     newOwnerd = event["owner"]
@@ -69,7 +69,7 @@ def lambda_handler(event, context):
     newOutput = script["new"]["output"]
     newInputs = script["new"]["inputs"]
 
-    newDagconfItem = dagconfItem.copy()
+    newDagconfItem = delDagconfItem.copy()
     newDagconfItem.update({
         "jobName": newJobName,
         "actionName": newActionName,

@@ -125,6 +125,7 @@ def create_code_gen_args(event):
 
 def create_copy_script_file_args(event):
 
+    changeScriptMsg = event["script"]
     args = {
         "common": {
             "traceId": event["traceId"],
@@ -135,6 +136,13 @@ def create_copy_script_file_args(event):
             "owner": event["owner"],
             "showName": event["showName"]
         },
+        "action": {
+            "cat": "renameScript",
+            "desc": "renameScript",
+            "comments": "something need to say",
+            "message": json.dumps("renameScript", ensure_ascii=False),
+            "required": True
+        },
         "script": {
             "name": event["script"]["new"]["name"],
             "flowVersion": "developer",
@@ -142,9 +150,10 @@ def create_copy_script_file_args(event):
             "inputs": event["script"]["new"]["inputs"],
             "output": event["script"]["new"]["output"],
             "version": [],
-            "id": event["script"]["old"]["id"]
+            "id": event["script"]["old"]["id"],
+            "isCreation": False
         },
-        "changeScriptMsg": event["script"],
+        "changeScriptMsg": changeScriptMsg,
         "notification": {
             "required": True
         },

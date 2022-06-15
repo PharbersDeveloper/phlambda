@@ -52,7 +52,7 @@
             "script.$": "$.script"
          },
          "ResultPath": "$.script",
-         "Next": "CopyScriptFile"
+         "End": true
       },
       "PythonFiles": {
          "Type": "Task",
@@ -67,7 +67,7 @@
             "script.$": "$.script"
          },
          "ResultPath": "$.script",
-         "Next": "CopyScriptFile"
+         "End": true
       },
       "RFiles": {
          "Type": "Task",
@@ -82,7 +82,7 @@
             "script.$": "$.script"
          },
          "ResultPath": "$.script",
-         "Next": "CopyScriptFile"
+         "End": true
       },
       "SparkrFiles": {
          "Type": "Task",
@@ -97,7 +97,7 @@
             "script.$": "$.script"
          },
          "ResultPath": "$.script",
-         "Next": "CopyScriptFile"
+         "End": true
       },
       "PysparkFiles": {
          "Type": "Task",
@@ -112,20 +112,6 @@
             "script.$": "$.script"
          },
          "ResultPath": "$.script",
-         "Next": "CopyScriptFile"
-      },
-      "CopyScriptFile" : {
-         "Type" : "Task",
-         "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangecopyscript-dev",
-         "Parameters" : {
-            "traceId.$" : "$.common.traceId",
-            "projectId.$" : "$.common.projectId",
-            "projectName.$" : "$.common.projectName",
-            "owner.$" : "$.common.owner",
-            "showName.$" : "$.common.showName",
-            "script.$" : "$.changeScriptMsg"
-         },
-         "ResultPath": null,
          "End": true
       }
    }

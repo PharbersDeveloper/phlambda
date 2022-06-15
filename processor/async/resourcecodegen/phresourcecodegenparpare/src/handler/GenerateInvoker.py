@@ -1,50 +1,28 @@
-import json
-from handler.Command import Command
-from handler.Receiver import Receiver
-from handler.BaseCodeCommand import BaseCodeCommand
-from handler.SelectCommand import SelectCommand
-from handler.ScriptCommand import ScriptCommand
-from handler.FilterOnValueCommand import FilterOnValueCommand
-from handler.FilterOnNumericalRangeCommand import FilterOnNumericalRangeCommand
-from handler.FillEmptyWithValueCommand import FillEmptyWithValueCommand
-from handler.RemoveRowsOnEmptyCommand import RemoveRowsOnEmptyCommand
-from handler.ColumnReplaceCommand import ColumnReplaceCommand
-from handler.ValueReplaceCommand import ValueReplaceCommand
+from string import Template
+from util.AWS.ph_s3 import PhS3
 
 
 class GenerateInvoker:
-    commands = {
-        "filteronvalue": FilterOnValueCommand,
-        "filteronnumericalrange": FilterOnNumericalRangeCommand,
-        "fillemptywithvalue": FillEmptyWithValueCommand,
-        "removerowsonempty": RemoveRowsOnEmptyCommand,
-        "columnreplace": ColumnReplaceCommand,
-        "valuereplace": ValueReplaceCommand,
-        "select": SelectCommand,
-        "script": ScriptCommand
-    }
+    def __init__(self):
+        self.phs3 = PhS3()
 
-    def __execute(self, commands: [Command]):
-        def write_prepare():
-            codes = BaseCodeCommand(Receiver()).execute()
-            codes += """\ndef execute(**kwargs):\n"""
-            codes += """    data_frame = kwargs.get("input_df")\n\n"""
-            return_df = ""
-            for code in list(commands):
-                content = code.execute()
-                codes += content["code"] + "\n\n"
-                return_df = content["return_data"]
-            codes += "    return {'out_df': " + return_df + "}\n\n"
-            codes = "\n".join(list(map(lambda line: line, codes.split("\n"))))
-            return codes
+    def __little_camel(self, item):
+        return item[0].lower() + item[1:]
 
-        return write_prepare()
+    def execute(self, steps, code_yaml, ds):
+        def gen_code(item):
+            key = self.__little_camel(item["type"])
+            code = code_yaml["code"][key]["code"]
+            return "\n".join(list(map(lambda x: f"    {x}", Template(code).substitute({"args": item}).split("\n"))))
 
-    def execute(self, steps):
-        cmd_instance = list(map(lambda item: self.commands[item["type"].lower()](Receiver(), json.dumps(item)),
-                                steps))
+        base_funcs = code_yaml["code"]["baseFuncs"]["code"]
 
-        if len(cmd_instance) == 0:
-            return ""
+        phjob = code_yaml["code"]["phjob"]["code"]
 
-        return self.__execute(cmd_instance)
+        codes = Template(phjob).substitute({
+            "input": ds,
+            "base_func": base_funcs,
+            "code_fragments": "\n".join(list(map(gen_code, steps)))
+        })
+
+        return codes

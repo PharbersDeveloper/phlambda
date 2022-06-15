@@ -233,7 +233,7 @@ def build_sql(data, table):
         row_cond = " AND ".join(list(map(lambda item: item["expr"], filter_row)))
         temp_sql_str = f"""select * from (select *, {row_cond} AS __match from ({temp_sql_str}))"""
 
-    return temp_sql_str
+    return f"select * from ({temp_sql_str})"
 
 
 command = {

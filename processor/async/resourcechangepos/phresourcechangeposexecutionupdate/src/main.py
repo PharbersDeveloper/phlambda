@@ -79,6 +79,46 @@ def update_dagconf_item(scriptItems):
         )
 
 
+def create_script_file_args(event):
+
+    code_gen_args = create_code_gen_args(event)
+    args = {
+        "common": {
+            "traceId": event["traceId"],
+            "projectId": event["projectId"],
+            "projectName": event["projectName"],
+            "flowVersion": "developer",
+            "dagName": event["projectName"],
+            "owner": event["owner"],
+            "showName": event["showName"]
+        },
+        "action": {
+            "cat": "renameScript",
+            "desc": "renameScript",
+            "comments": "something need to say",
+            "message": json.dumps("renameScript", ensure_ascii=False),
+            "required": True
+        },
+        "script": {
+            "name": event["script"]["new"]["name"],
+            "flowVersion": "developer",
+            "runtime": event["script"]["new"]["runtime"],
+            "inputs": event["script"]["new"]["inputs"],
+            "output": event["script"]["new"]["output"],
+            "version": [],
+            "id": event["script"]["old"]["id"],
+            "isCreation": False
+        },
+        "codeGenArgs": code_gen_args,
+        "notification": {
+            "required": True
+        },
+        "result": {}
+    }
+
+    return args
+
+
 def create_code_gen_args(event):
     message = {
         "optionName": "sync_edit",
@@ -171,7 +211,7 @@ def lambda_handler(event, context):
     update_dagconf_item(event["scriptItems"])
     if event["script"]["new"]["runtime"] == "prepare":
         # 创建触发code gen参数
-        args = create_code_gen_args(event)
+        args = create_script_file_args(event)
     else:
         # 创建触发copy script file 参数
         args = create_copy_script_file_args(event)

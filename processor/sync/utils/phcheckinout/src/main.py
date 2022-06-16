@@ -22,19 +22,20 @@ def query_dag(projectId, name=None, **kwargs):
 class Check:
 
     def check_parameter(self ,projectId, name):
+        status = "True"
         item = query_dag(projectId, name)[0]
         representId = item["representId"]
         print(representId)
         if item["runtime"] != "intermediate":
-            return "False"
+            status = "False"
         link_items = [link_item for link_item in query_dag(projectId) if link_item.get("ctype") == "link"]
         for link in link_items:
             cmessage = json.loads(link.get("cmessage"))
             targetId = cmessage.get("targetId")
             print(targetId)
             if targetId == representId:
-                return "False"
-        return "True"
+                status = "False"
+        return status
 
 
 def lambda_handler(event, context):

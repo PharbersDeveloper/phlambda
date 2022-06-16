@@ -51,21 +51,21 @@ event = {
             }
     ]
 }
-'''
 
+'''
 def lambda_handler(event, context):
     args = event
     flowVersion = args['flowVersion']
     projectName = args['projectName']
     output = args['script']['outputs']
-    input = args['script']['inputs'][0]
+    g_input = args['script']['inputs'][0]
     scripts_name = args['script']['jobName']
     
     distinct_args = args["steps"][0]["expressions"]["params"]
-    args_preFilter = distinct_args['preFilter']
-    args_postFilter = distinct_args['postFilter']
-    distinct_key = distinct_args['keys']
-    globalCount = distinct_args['globalCount']
+    g_preFilter = distinct_args['preFilter']
+    g_postFilter = distinct_args['postFilter']
+    g_distinct_key = distinct_args['keys']
+    g_globalCount = distinct_args['globalCount']
 
     # 读取yaml文件
     template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
@@ -73,11 +73,11 @@ def lambda_handler(event, context):
 
     # 获取phjob.py 模板
     phjob_script = template_yaml['template']['phjob.py']['content'] \
-                        .replace("$args_preFilter$", str(args_preFilter)) \
-                        .replace("$args_postFilter$", str(args_postFilter)) \
-                        .replace("$distinct_key$", str(distinct_key)) \
-                        .replace("$globalCount$", str(globalCount)) \
-                        .replace("$input$", str(input))
+                        .replace("$g_preFilter$", str(g_preFilter)) \
+                        .replace("$g_postFilter$", str(g_postFilter)) \
+                        .replace("$g_distinct_key$", str(g_distinct_key)) \
+                        .replace("$g_globalCount$", str(g_globalCount)) \
+                        .replace("$g_input$", str(g_input))
     
     # 写出到s3
     def getScriptPathKey(projectName, flowVersion, output):
@@ -103,3 +103,4 @@ def lambda_handler(event, context):
             "error": {}
         }
     }
+

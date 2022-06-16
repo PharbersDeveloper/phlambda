@@ -123,7 +123,7 @@ def create_code_gen_args(event):
     message = {
         "optionName": "sync_edit",
         "cat": "intermediate",
-        "runtime": "sync",
+        "runtime": event["script"]["new"]["runtime"],
         "actionName": event["script"]["new"]["name"]
     }
     args = {
@@ -137,7 +137,7 @@ def create_code_gen_args(event):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "editSync",
+            "cat": "changeResourcePosition",
             "desc": "edit sync steps",
             "comments": "something need to say",
             "message": json.dumps(message, ensure_ascii=False),

@@ -30,7 +30,7 @@ template:
                 df = df.withColumn('globalCount', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
                 
             if len(distinct_key) > 0:
-                df = df.dropDuplicates(distinct_key)
+                df = df.select(distinct_key).distinct()
             else:
                 df = df.distinct()
 

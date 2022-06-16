@@ -209,11 +209,12 @@ def lambda_handler(event, context):
     update_dag_item(event["dagItems"])
     # 获取需要更新的dag conf Items
     update_dagconf_item(event["scriptItems"])
-    if event["script"]["new"]["runtime"] == "prepare":
-        # 创建触发code gen参数
-        args = create_script_file_args(event)
-    else:
+    runtime = ["pyspark", "sparkr", "python", "r"]
+    if event["script"]["new"]["runtime"] in runtime:
         # 创建触发copy script file 参数
         args = create_copy_script_file_args(event)
+    else:
+        # 创建触发code gen参数
+        args = create_script_file_args(event)
 
     return args

@@ -38,8 +38,8 @@ class Check:
 
 
 def lambda_handler(event, context):
-    print(event)
-    args = json.loads(event["body"])
+    body = eval(event["body"])
+    print(body)
     return {
         "statusCode": 200,
         "headers": {
@@ -47,5 +47,5 @@ def lambda_handler(event, context):
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
         },
-        "body": json.dumps(Check().check_parameter(**args))
+        "body": json.dumps(Check().check_parameter(**body))
     }

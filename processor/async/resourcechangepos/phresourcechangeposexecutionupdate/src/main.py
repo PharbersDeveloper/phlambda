@@ -111,7 +111,7 @@ def create_code_gen_args(event):
             "outputs": [
                 event["script"]["new"]["output"]
             ],
-            "runtime": "sync"
+            "runtime": event["script"]["new"]["runtime"]
         },
         "steps": [],
         "notification": {

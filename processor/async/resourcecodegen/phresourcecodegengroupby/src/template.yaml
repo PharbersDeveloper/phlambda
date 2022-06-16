@@ -110,7 +110,7 @@ template:
             # postFilter
             if g_postFilter['enabled'] == True:
                 df = df.where(g_postFilter['expr'])
-                if g_preFilter['distinct'] == True:
+                if g_postFilter['distinct'] == True:
                     df = df.distinct()
 
             return {"out_df":df}

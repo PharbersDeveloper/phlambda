@@ -23,7 +23,7 @@ args = {
     },
 }
 
-'''
+
 
 event = {
     "traceId": "automax_automax_developer_2022-05-24T02%3A01%3A19+00%3A00_袁毓蔚",
@@ -43,7 +43,7 @@ event = {
         "version": "[]",
     },
 }
-
+'''
 
 def lambda_handler(event, context):
     args = event

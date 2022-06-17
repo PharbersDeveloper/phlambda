@@ -302,7 +302,7 @@ template:
                     else:
                         coltype = f"Nullable({i[1].capitalize()})"
                     sql_scheme += f"`{i[0]}` {coltype},"
-                sql_scheme = re.sub(r",$rep", "", sql_scheme)
+                sql_scheme = re.sub(r",$", "", sql_scheme)
                 return sql_scheme
             return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
 

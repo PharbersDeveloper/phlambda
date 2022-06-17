@@ -17,7 +17,7 @@ template:
         from pyspark.sql.functions import col
         from pyspark.sql.types import StructType, StringType
 
-        def choiceVersion(version_col, version, df):
+        def choiceVersion(version, df):
             if len(version) > 0:
                 df = df.where(col("version").isin(version))
             return df
@@ -25,7 +25,7 @@ template:
         def execute(**kwargs):
             spark = kwargs['spark']
             df = kwargs['df_$inputs$']
-            df = choiceVersion(version_col, $version$, df)
+            df = choiceVersion($version$, df)
             return {"out_df":df}
             
   phmain.py:

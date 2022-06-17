@@ -23,7 +23,7 @@ args = {
     },
 }
 
-
+'''
 
 event = {
     "traceId": "automax_automax_developer_2022-05-24T02%3A01%3A19+00%3A00_袁毓蔚",
@@ -35,7 +35,7 @@ event = {
     "projectName": "demo",
     "script": {
         "id": "String",
-        "runtime": "sync",
+        "runtime": "syncfiles",
         "name": "compute_yyw",
         "flowVersion": "developer",
         "inputs": "[\"A\"]",
@@ -44,7 +44,7 @@ event = {
     },
 }
 
-'''
+
 def lambda_handler(event, context):
     args = event
     projectId = args['projectId']
@@ -73,7 +73,7 @@ def lambda_handler(event, context):
     phmain_script = template_yaml['template']['phmain.py']['content'] \
                         .replace("$dag_name", dagName) \
                         .replace("$project_id", projectId) \
-                        .replace("$project_name", project_name) \
+                        .replace("$project_name", projectName) \
                         .replace("$script_name", scripts_name) \
                         .replace("$runtime", runtime) \
                         .replace("$output", output) \

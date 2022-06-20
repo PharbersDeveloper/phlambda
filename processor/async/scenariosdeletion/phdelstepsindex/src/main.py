@@ -95,11 +95,11 @@ class DelStepsIndex:
 
         del_steps_list = []
         if len(self.scenario) == 0:
-            del_steps_list = self.DelStepItemFromDyDB("scenario_steps", self.steps)
+            del_steps_list = self.DelStepItemFromDyDB("scenario_step", self.steps)
         else:
             for each_scenario in self.scenario:
-                each_array_step = each_scenario["stpes"]
-                each_del_list = self.DelStepItemFromDyDB("scenario_triggers", each_array_step)
+                each_array_step = each_scenario["steps"]
+                each_del_list = self.DelStepItemFromDyDB("scenario_step", each_array_step)
                 del_steps_list.append(each_del_list)
             del_steps_list = self.Flatten_Data_Of_List(del_steps_list)
         return del_steps_list

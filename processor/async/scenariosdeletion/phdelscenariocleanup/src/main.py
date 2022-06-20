@@ -264,7 +264,7 @@ class DelRollBack:
             StepRollBackResult.append(eachRollBackMessage)
         return StepRollBackResult
 
-    def fetch_result(self,scenarioRollBackResult, triggerRollBackResult, StepRollBackResult):
+    def fetch_result(self, scenarioRollBackResult, triggerRollBackResult, StepRollBackResult):
         errorMessage = {
             "scenario": scenarioRollBackResult,
             "triggers": triggerRollBackResult,

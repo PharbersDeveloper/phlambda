@@ -93,11 +93,11 @@ class DeltriggerIndex:
 
         del_triggers_list = []
         if len(self.scenario) == 0:
-            del_triggers_list = self.DeltriggerItemFromDyDB("scenario_triggers", self.triggers)
+            del_triggers_list = self.DeltriggerItemFromDyDB("scenario_trigger", self.triggers)
         else:
             for each_scenario in self.scenario:
                 each_array_trigger = each_scenario["triggers"]
-                each_del_list = self.DeltriggerItemFromDyDB("scenario_triggers", each_array_trigger)
+                each_del_list = self.DeltriggerItemFromDyDB("scenario_trigger", each_array_trigger)
                 del_triggers_list.append(each_del_list)
             del_triggers_list = self.Flatten_Data_Of_List(del_triggers_list)
         return del_triggers_list

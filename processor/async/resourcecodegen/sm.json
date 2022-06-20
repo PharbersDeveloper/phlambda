@@ -137,6 +137,11 @@
                 },
                 {
                     "Variable": "$.script.runtime",
+                    "StringEquals": "stack",
+                    "Next": "StackCodeGen"
+                },
+                {
+                    "Variable": "$.script.runtime",
                     "StringEquals": "sync",
                     "Next": "SyncFilesCodeGen"
                 }
@@ -185,7 +190,7 @@
         },
         "PrepareCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenparpare-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenprepare-dev",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -398,6 +403,46 @@
             "ResultPath": "$.message",
             "Next": "Success"
         },
+        "StackCodeGen": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenstack-dev",
+            "Parameters": {
+                "traceId.$": "$.common.traceId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "flowVersion.$": "$.common.flowVersion",
+                "dagName.$": "$.common.dagName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "script.$": "$.script",
+                "steps.$": "$.steps"
+            },
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Runtime"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                }
+            ],
+            "ResultPath": "$.message",
+            "Next": "Success"
+        },
         "Success": {
             "Type": "Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
@@ -422,7 +467,16 @@
         "CleanUp": {
             "Type": "Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegencleanup-dev",
-            "InputPath": "$",
+            "Parameters": {
+                "traceId.$": "$.common.traceId",
+                "projectId.$": "$.common.projectId",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "projectName.$": "$.common.projectName",
+                "steps.$": "$.steps",
+                "oldImage.$": "$.oldImage",
+                "errors.$": "$.error"
+            },
             "ResultPath": "$.message",
             "Next": "Failed"
         },

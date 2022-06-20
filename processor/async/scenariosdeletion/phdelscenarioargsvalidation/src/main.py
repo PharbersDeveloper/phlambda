@@ -96,9 +96,10 @@ class CheckParameters:
     def check_common(self, key):
         self.check_type(key, dict)
         common_data = self.event["common"]
-        common_list = ["traceId", "projectId", "projectName", "flowVersion", "owner", "showName", "tenantId"]
-        for elem in list(common_data.keys()):
-            if elem not in common_list or str(common_data[elem]) == 0:
+        common_check_list = ["traceId", "projectId", "projectName", "flowVersion", "owner", "showName", "tenantId"]
+        common_dict_keys = list(common_data.keys())
+        for elem in common_check_list:
+            if elem not in common_dict_keys or str(common_data[elem]) == 0:
                 raise Exception(f"{elem} not exist or  empty.")
 
     def check_action(self, key):

@@ -92,8 +92,17 @@ class CheckParameters:
             print("*" * 50 + "error" + "*" * 50 + "\n", str(e))
             raise e
 
+    def make_sure_data_exits(self, input_data):
+        if len(str(input_data)) == 0:
+            raise ("not exist")
+
     def check_common(self, key):
         self.check_type(key, dict)
+        common_data = self.event["common"]
+        for elm in list(common_data.keys()):
+            if str(common_data[elm]) == 0:
+                raise (f"common :{ elm } can't be empty.")
+
 
     def check_action(self, key):
         self.check_type(key, dict)

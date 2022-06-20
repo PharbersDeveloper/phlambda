@@ -23,6 +23,7 @@ class DeltriggerIndex:
 
     def __init__(self, event):
         self.event = event
+        self.scenario = event["scenario"]
         self.triggers = event['triggers']
 
     def query_table_item(self, tableName, **kwargs):
@@ -63,33 +64,49 @@ class DeltriggerIndex:
             }
         else:
             OldImage = {}
-        self.OldImage = OldImage
         return OldImage
 
-    def DeltriggerItemFromDyDB(self):
+    def DeltriggerItemFromDyDB(self, tableName, triggersItems):
 
-        for trigger in self.triggers:
+        for trigger in triggersItems:
             triggerId = trigger["id"]
             scenarioId = trigger["scenarioId"]
             #--------each oldImageItem of trigger -----------#
-            OldImageItem = self.query_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
+            OldImageItem = self.query_table_item(tableName, scenarioId=scenarioId, id=triggerId)
             OldImage = self.get_OldImage(OldImageItem)
             #-------- item not exist ------------------------#
             if len(OldImage) == 0:
                 pass
             else:
                 #------delete trigger item ------------------#
-                self.del_table_item('scenario_trigger', scenarioId=scenarioId, id=triggerId)
+                self.del_table_item(tableName, scenarioId=scenarioId, id=triggerId)
             trigger["OldImage"] = OldImage
 
-        return self.triggers
+        return triggersItems
 
+    #--将嵌套的list结构摊平---#
+    def Flatten_Data_Of_List(self, Structure_list):
+        from itertools import chain
+        return list(chain(* Structure_list))
+
+    def DelAllScenarioTriggesOrSingleScenarioTrigger(self):
+
+        del_triggers_list = []
+        if len(self.scenario) == 0:
+            del_triggers_list = self.DeltriggerItemFromDyDB("scenario_triggers", self.triggers)
+        else:
+            for each_scenario in self.scenario:
+                each_array_trigger = each_scenario["triggers"]
+                each_del_list = self.DeltriggerItemFromDyDB("scenario_triggers", each_array_trigger)
+                del_triggers_list.append(each_del_list)
+            del_triggers_list = self.Flatten_Data_Of_List(del_triggers_list)
+        return del_triggers_list
 
 def lambda_handler(event, context):
 
        DelClient = DeltriggerIndex(event)
 
        #-------------- delete each trigger in array of triggers ------------#
-       result = DelClient.DeltriggerItemFromDyDB()
+       del_triggers_list = DelClient.DelAllScenarioTriggesOrSingleScenarioTrigger()
 
-       return result
+       return del_triggers_list

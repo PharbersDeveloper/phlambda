@@ -80,9 +80,6 @@ class DelRollBack:
     def get_projectId(self):
         return self.event['common']['projectId']
 
-    def get_scenarioId(self):
-        return self.scenario['id']
-
     def get_traceId(self):
         return self.event['common']['traceId']
 
@@ -201,16 +198,25 @@ class DelRollBack:
         return modeType['OldImage']
 
     def scenarioRollBack(self):
-        scenarioRollBackMessage = {}
-        RollBackMode = self.check_OldImage(self.scenario)
+        SceanrioNum = 0
+        ScenarioRollBackResult = []
 
-        if RollBackMode == "RollBack":
-            self.RollBackProcess(self.scenario, "scenario", **{"projectId": self.get_projectId(), "id": self.get_scenarioId()})
-        else:
-            self.NotNeedRollBack()
-        scenarioRollBackMessage["name"] = self.get_scenarioName()
-        scenarioRollBackMessage["mode"] = f"error handle mode: {RollBackMode}"
-        return scenarioRollBackMessage
+        for scenario in self.scenario:
+            ScenarioId = scenario["id"]
+
+            scenarioRollBackMessage = {}
+            scenarioRollBackMessage["index"] = SceanrioNum + 1
+            RollBackMode = self.check_OldImage(self.scenario)
+
+            if RollBackMode == "RollBack":
+                self.RollBackProcess(self.scenario, "scenario", **{"projectId": self.get_projectId(), "id": ScenarioId})
+            else:
+                self.NotNeedRollBack()
+            scenarioRollBackMessage["name"] = self.get_scenarioName()
+            scenarioRollBackMessage["mode"] = f"error handle mode: {RollBackMode}"
+
+            ScenarioRollBackResult.append(scenarioRollBackMessage)
+        return ScenarioRollBackResult
 
 
     def triggerRollBack(self):

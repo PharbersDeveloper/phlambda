@@ -23,6 +23,7 @@ class DelStepsIndex:
 
     def __init__(self, event):
         self.event = event
+        self.scenario = event["scenario"]
         self.steps = event['steps']
 
     def query_table_item(self, tableName, **kwargs):
@@ -66,23 +67,42 @@ class DelStepsIndex:
             OldImage = {}
         return OldImage
 
-    def DelStepItemFromDyDB(self):
+    def DelStepItemFromDyDB(self, tableName, stepsItems):
 
-        for step in self.steps:
+        for step in stepsItems:
             stepId = step["id"]
             scenarioId = step["scenarioId"]
             #----------per oldImageItem of step -----------------#
-            OldImageItem = self.query_table_item('scenario_step', scenarioId=scenarioId, id=stepId)
+            OldImageItem = self.query_table_item(tableName, scenarioId=scenarioId, id=stepId)
             OldImage = self.get_OldImage(OldImageItem)
             #---------- item not exist --------------------------#
             if len(OldImage) == 0:
                 pass
             else:
                 #--------delete step item ------------------------#
-                self.del_table_item('scenario_step', scenarioId=scenarioId, id=stepId)
+                self.del_table_item(tableName, scenarioId=scenarioId, id=stepId)
             step['OldImage'] = OldImage
 
-        return self.steps
+        return stepsItems
+
+
+        #--将嵌套的list结构摊平---#
+    def Flatten_Data_Of_List(self, Structure_list):
+        from itertools import chain
+        return list(chain(* Structure_list))
+
+    def DelAllScenarioTriggesOrSingleScenarioTrigger(self):
+
+        del_steps_list = []
+        if len(self.scenario) == 0:
+            del_steps_list = self.DelStepItemFromDyDB("scenario_steps", self.steps)
+        else:
+            for each_scenario in self.scenario:
+                each_array_step = each_scenario["stpes"]
+                each_del_list = self.DelStepItemFromDyDB("scenario_triggers", each_array_step)
+                del_steps_list.append(each_del_list)
+            del_steps_list = self.Flatten_Data_Of_List(del_steps_list)
+        return del_steps_list
 
 
 def lambda_handler(event, context):
@@ -90,6 +110,6 @@ def lambda_handler(event, context):
         DelClient = DelStepsIndex(event)
 
         #----- delete each step in array of steps -----------#
-        result = DelClient.DelStepItemFromDyDB()
+        result = DelClient.DelAllScenarioTriggesOrSingleScenarioTrigger()
 
         return result

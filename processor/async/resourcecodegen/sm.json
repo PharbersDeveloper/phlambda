@@ -127,12 +127,12 @@
                 },
                 {
                     "Variable": "$.script.runtime",
-                    "StringEquals": "orderby",
+                    "StringEquals": "sort",
                     "Next": "OrderByCodeGen"
                 },
                 {
                     "Variable": "$.script.runtime",
-                    "StringEquals": "groupby",
+                    "StringEquals": "group",
                     "Next": "GroupByCodeGen"
                 },
                 {

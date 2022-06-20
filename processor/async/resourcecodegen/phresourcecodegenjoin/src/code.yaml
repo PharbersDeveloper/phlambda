@@ -86,7 +86,9 @@ code:
 
       def joins(select_cols ,args):
           on_func = {
-              "=": "=="
+              "=": "==",
+              "AND": "&",
+              "OR": "|"
           }
           def col_rename_handle(ds_name):
               return list(map(lambda col: col["value"], list(filter(lambda item: item["ds"] == ds_name, select_cols))[0]["columns"]))
@@ -101,19 +103,20 @@ code:
           def concat_on_cond(on_cond):
               def concat_exec(item):
                   return f"""get_df("{item["ds"]}")["df"]["{col_on_handle(item["ds"], item["column"])}"]"""
-              return f" {on_func[on_cond['type']]} ".join(list(map(concat_exec, on_cond["conditions"])))
+              cond = f" {on_func[on_cond['type']]} ".join(list(map(concat_exec, on_cond["conditions"])))
+              return f"({cond})"
 
           ds_is_used = set()
 
           if args:
               first_join = args.pop(0) # args[0]
-              join_str = f"""{concat_select_df(first_join["datasets"][0]["name"])}.join({concat_select_df(first_join["datasets"][1]["name"])}, [{",".join(list(map(concat_on_cond, first_join["on"])))}], "{first_join["type"]}")"""
+              join_str = f"""{concat_select_df(first_join["datasets"][0]["name"])}.join({concat_select_df(first_join["datasets"][1]["name"])}, [{f"{on_func[first_join.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, first_join["on"])))}], "{first_join["type"]}")"""
               ds_is_used.add(first_join["datasets"][0]["name"])
               ds_is_used.add(first_join["datasets"][1]["name"])
               for item in args:
                   ds_name = list(set(map(lambda ds: ds["name"], item["datasets"])) - ds_is_used)
-                  for ds in ds_name:
-                      join_str += f""".join({concat_select_df(ds)}, [{",".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
+              for ds in ds_name:
+                  join_str += f""".join({concat_select_df(ds)}, [{f"{on_func[item.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
               return eval(join_str)
           else:
               return None

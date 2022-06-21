@@ -21,8 +21,7 @@ Parameters:
     Description: somebody submit the job
 
 Resources:
-
-  phtestcodebuild:
+  Lmdphtestcodebuild:
     Type: AWS::Serverless::Function
     Properties:
       Handler: main.lambda_handler
@@ -37,7 +36,7 @@ Resources:
     Metadata:
       SamResourceId: ATTFFunction
 
-  PhStateMachine:
+  PhtestcodebuildStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
       DefinitionS3Location:
@@ -57,7 +56,7 @@ Resources:
 Outputs:
   StateMachineARN:
     Description: State Machine Arn
-    Value: !Ref PhStateMachine
+    Value: !Ref PhtestcodebuildStateMachine
   StateMachineName:
     Description: State Machine Name
-    Value: !Ref StateMachineName
+    Value: !Ref PhtestcodebuildStateMachine

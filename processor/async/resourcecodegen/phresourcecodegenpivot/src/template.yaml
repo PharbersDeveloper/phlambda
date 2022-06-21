@@ -110,6 +110,9 @@ template:
                 df_out = df_out_pivot.join(df_otherColumns, on=g_groupByOn_final, how='left')
             else:
                 df_out = df_out_pivot
+                
+            df_out = df_out.orderBy(g_groupByOn_final)
+            
             return df_out
 
 

@@ -185,7 +185,7 @@
                     "Next": "CleanUp"
                 }
             ],
-            "ResultPath": null,
+            "ResultPath": "$.message",
             "Next": "Success"
         },
         "PrepareCodeGen": {

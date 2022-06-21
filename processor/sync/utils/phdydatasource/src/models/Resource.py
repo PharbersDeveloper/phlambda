@@ -13,5 +13,8 @@ class Resource(Model):
         "properties": fields.Str(required=False),
         "resultPath": fields.Str(required=False),
         "role": fields.Str(required=False),
-        "ctype": fields.Str(required=False)
+        "ctype": fields.Str(required=False),
+        "label": fields.Str(required=False),
+        "name": fields.Str(required=False),
+        "priority": fields.Int(dump_default=0)
     }

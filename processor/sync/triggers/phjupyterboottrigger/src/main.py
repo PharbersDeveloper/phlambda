@@ -40,7 +40,7 @@ class SolveStackName:
         #1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
         for stackName in stackNameList:
             print(stackName)
-            self.getStackExisted(stackName)
+            self.getStackExisted((stackName).replace("_", "-").replace(":", "-").replace("+", "-"))
 
     def getStackExisted(self, stackName):
         cf = boto3.client('cloudformation')

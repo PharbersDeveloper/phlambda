@@ -39,7 +39,7 @@ Parameters:
     Description: "FunctionPath"
   GitUrl:
     Type: String
-    Default: https://hbzhao:123456@bitbucket.pharbers.com/scm/lgc/phlambda.git
+    Default: http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git
     Description: "GitUrl"
   BranchName:
     Type: String
@@ -49,6 +49,10 @@ Parameters:
     Type: String
     Default: phlambda
     Description: "RepoName"
+  Alias:
+    Type: String
+    Default: dev
+    Description: "Alias"
 
 
 Resources:
@@ -93,6 +97,10 @@ Resources:
           - Name: REPO_NAME
             Type: PLAINTEXT
             Value: !Ref RepoName
+          - Name: ALIAS
+            Type: PLAINTEXT
+            Value: !Ref Alias
+
       FileSystemLocations:
         - Identifier: EFS
           Location: fs-1dbf2af8.efs.cn-northwest-1.amazonaws.com.cn:/code

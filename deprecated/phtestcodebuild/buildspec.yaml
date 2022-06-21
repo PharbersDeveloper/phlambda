@@ -10,7 +10,7 @@ phases:
   build:
     commands:
       - cd $FUNCTION_PATH
-      - sam package --template-file template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALISE
+      - sam package --template-file template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALIAS
       - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
 artifacts:
   files:

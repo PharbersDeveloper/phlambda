@@ -9,19 +9,5 @@ phases:
       - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
   build:
     commands:
-      - cd $FUNCTION_PATH
-      - sam package --template-file template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALISE
+      - sam package --template-file $FUNCTION_PATH/template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALIAS
       - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
-artifacts:
-  files:
-    - src/**/**
-  type: zip
-  name: $FUNCTION_PATH-$(date +%Y-%m-%d)
-  s3-prefix: 2020-11-11/cicd/$FUNCTION_PATH/artifacts
-
-reports:
-  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
-    files:
-      - $FUNCTION_NAME-report-file.xml
-    base-directory: $FUNCTION_NAME-report-directory
-    file-format: JUNITXML

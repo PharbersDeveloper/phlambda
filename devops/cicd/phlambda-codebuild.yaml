@@ -92,7 +92,7 @@ Resources:
             Value: !Ref BranchName
           - Name: REPO_NAME
             Type: PLAINTEXT
-            Value: !Ref BranchName
+            Value: !Ref RepoName
       FileSystemLocations:
         - Identifier: EFS
           Location: fs-1dbf2af8.efs.cn-northwest-1.amazonaws.com.cn:/code
@@ -109,7 +109,7 @@ Resources:
       ServiceRole: arn:aws-cn:iam::444603803904:role/Pharbers-CICD-Maintainer
       # SourceVersion: 0.0.1 Might be useful late on
       Source:
-        BuildSpec: frontendbuildspec.yaml
+        BuildSpec: buildspec.yaml
         Location: !Sub ph-platform/2020-11-11/cicd/${FunctionPath}/source/code.zip
         Type: S3
       Artifacts:

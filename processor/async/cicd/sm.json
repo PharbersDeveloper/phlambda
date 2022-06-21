@@ -55,22 +55,35 @@
             "message.$": "$.action.message"
          },
          "ResultPath": null,
-         "Next": "NewItemsIndex"
+         "Next": "TriggerAndAsync"
       },
-      "NewItemsIndex": {
+      "TriggerAndAsync": {
          "Type": "Parallel",
          "InputPath": "$",
-         "ResultSelector": {
-            "dagItems.$": "$.[0].dagItems",
-            "scriptItems.$": "$.[1].scriptItems"
-         },
          "ResultPath": "$.metadata",
-         "Next": "UpdateNewItems",
+         "Next": "SuccessMessage",
          "Branches": [
             {
-               "StartAt": "NewDagIndex",
+               "StartAt": "CreateTriggerChoice",
                "States": {
-                  "NewDagIndex": {
+                  "CreateTriggerChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.trigger.required",
+                           "BooleanEquals": true,
+                           "Next": "GetLmdAndApiDetail"
+                        },
+                        {
+                           "Variable": "$.trigger.required",
+                           "BooleanEquals": false,
+                           "Next": "BranchEnd"
+                        }
+                     ],
+                     "Default": "GetLmdAndApiDetail"
+                  },
+                  "GetLmdAndApiDetail": {
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
                      "Parameters": {
@@ -83,25 +96,208 @@
                         "script.$": "$.script"
                      },
                      "ResultPath": "$.dagItems",
-                     "End": true
-                  }
-               }
-            },
-            {
-               "StartAt": "NewScriptIndex",
-               "States": {
-                  "NewScriptIndex": {
+                     "Next": "CreateCodeBuildCfn"
+                  },
+                  "CreateCodeBuildCfn": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
                         "projectName.$": "$.common.projectName",
                         "owner.$": "$.common.owner",
                         "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
                         "script.$": "$.script"
                      },
-                     "ResultPath": "$.scriptItems",
+                     "ResultPath": "$.dagItems",
+                     "Next": "RunCodebuild"
+                  },
+                  "RunCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "DeleteCodeBuildCfn"
+                  },
+                  "DeleteCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "UpdateTriggerManageYaml"
+                  },
+                  "UpdateTriggerManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "BranchEnd"
+                  },
+                  "BranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "CreateAsyncChoice",
+               "States": {
+                  "CreateAsyncChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.async.required",
+                           "BooleanEquals": true,
+                           "Next": "GetLmdAndSfnDetail"
+                        },
+                        {
+                           "Variable": "$.async.required",
+                           "BooleanEquals": false,
+                           "Next": "AsyncBranchEnd"
+                        }
+                     ],
+                     "Default": "AsyncBranchEnd"
+                  },
+                  "GetLmdAndSfnDetail": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "CreateCurrentLmdArgs"
+                  },
+                  "CreateCurrentLmdArgs": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "CreateAsyncCodeBuildCfn"
+                  },
+                  "CreateAsyncCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "RunAsyncCodebuild"
+                  },
+                  "RunAsyncCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "DeleteAsyncCodeBuildCfn"
+                  },
+                  "DeleteAsyncCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "AsyncLmdCountReached"
+                  },
+                  "AsyncLmdCountReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericEqualsPath": "$.metadata.count"
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "succeed"
+                              }
+                           ],
+                           "Next": "UpdateAsyncManageYaml"
+                        }
+                     ],
+                     "Default": "CreateCurrentLmdArgs"
+                  },
+                  "UpdateAsyncManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script"
+                     },
+                     "ResultPath": "$.dagItems",
+                     "Next": "AsyncBranchEnd"
+                  },
+                  "AsyncBranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
                      "End": true
                   }
                }
@@ -130,82 +326,6 @@
                "Next": "CleanUp"
             }
          ]
-      },
-      "UpdateNewItems": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposexecutionupdate-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scriptItems.$": "$.metadata.scriptItems",
-            "dagItems.$": "$.metadata.dagItems",
-            "script.$": "$.script"
-         },
-         "ResultPath": "$.scriptChangeArgs",
-         "Next": "ScriptChangeChoice",
-         "Catch": [
-            {
-               "ErrorEquals": [
-                  "States.Runtime"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.TaskFailed"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.ALL"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            }
-         ]
-      },
-      "ScriptChangeChoice": {
-         "Type": "Choice",
-         "InputPath": "$",
-         "Choices": [
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "pyspark",
-               "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "python",
-               "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "r",
-               "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "sparkr",
-               "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "sync",
-               "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "prepare",
-               "Next": "ExecutionCodeGen"
-            }
-         ],
-         "Default": "ExecutionCopyResource"
       },
       "SuccessMessage": {
          "Type": "Task",

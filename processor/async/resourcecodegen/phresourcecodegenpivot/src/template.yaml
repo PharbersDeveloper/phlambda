@@ -71,7 +71,7 @@ template:
             df_custom = df.groupby(g_l_keys).agg( eval(g_customExpr).alias(g_customName) ) \
                             .withColumn(g_customName, col(g_customName).cast(g_type))
             return {"df_custom":df_custom}
-            
+
         def groupbyFunc(df, g_l_keys, g_values):
             # groupby
             dict_df_all = {}
@@ -84,6 +84,35 @@ template:
                     dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_normal.items()})  
             df_out = reduce(lambda x, y: x.join(y, on=g_l_keys, how='left'), dict_df_all.values())
             return df_out
+
+
+        def pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount):
+            # 如果g_otherColumns的column 在 g_identifiers 中，则g_identifiers减去该column 作为 g_groupByOn_final
+            if len([i for i in g_identifiers if i in [ i['column'] for i in g_otherColumns]]) > 0:
+                g_groupByOn_final = [i for i in g_identifiers if i not in [ i['column'] for i in g_otherColumns]]
+            else:
+                g_groupByOn_final = g_identifiers
+
+            # pivot
+            df_for_pivot = groupbyFunc(df, (g_groupByOn_final + g_pivot_keyColumns), g_pivot_valueColumns)
+            df_for_pivot = df_for_pivot.withColumn('col_pivot', func.concat_ws("_", *g_pivot_keyColumns))
+            l_pivot_cols = list(set(df_for_pivot.columns) -set(['col_pivot'])- set(g_groupByOn_final + g_pivot_keyColumns))
+            df_out_pivot = df_for_pivot.groupby(g_groupByOn_final).pivot("col_pivot").agg(*[func.first(i).alias(i) for i in l_pivot_cols])
+
+            if g_pivot_globalCount == True:
+                df_globalCount = df.groupby(g_groupByOn_final).count() \
+                                    .withColumnRenamed('count', 'globalCount')
+                df_out_pivot = df_out_pivot.join(df_globalCount, on=g_groupByOn_final, how='left')
+
+            # otherColumns 合并 df_out_pivot
+            if len(g_otherColumns) > 0:
+                df_otherColumns = groupbyFunc(df, g_groupByOn_final, g_otherColumns)
+                df_out = df_out_pivot.join(df_otherColumns, on=g_groupByOn_final, how='left')
+            else:
+                df_out = df_out_pivot
+            return df_out
+
+
                         
         def execute(**kwargs):
             spark = kwargs['spark']
@@ -91,9 +120,13 @@ template:
             
             g_preFilter = $g_preFilter$
             g_computedColumns = $g_computedColumns$
-            g_postFilter = $g_postFilter$
-            g_values = $g_values$
-            g_l_keys = $g_keys$
+            g_identifiers = $g_identifiers$
+            g_pivot = $g_pivot$
+            g_otherColumns = $g_otherColumns$
+            
+            g_pivot_globalCount = g_pivot['globalCount']
+            g_pivot_keyColumns = g_pivot['keyColumns']
+            g_pivot_valueColumns = g_pivot['valueColumns']
 
             # ===============  执行  =================
             # preFilter
@@ -107,14 +140,8 @@ template:
                 for i_args in g_computedColumns:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
-                            
-            # groupby  
-            df = groupbyFunc(df, g_l_keys, g_values)
-            
-            # postFilter
-            if g_postFilter['enabled'] == True:
-                df = df.where(g_postFilter['expr'])
-                if g_postFilter['distinct'] == True:
-                    df = df.distinct()
+
+            # pivots  
+            df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount)
 
             return {"out_df":df}

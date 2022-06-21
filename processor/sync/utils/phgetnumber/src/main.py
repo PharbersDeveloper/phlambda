@@ -7,7 +7,10 @@ def lambda_handler(event, context):
         table = ["dagconf", "dataset", "dashboard"]
         body = eval(event["body"])
         dynamodb = DynamoDB()
-        result = [dynamodb.getTableCount(i, body["projectId"]) for i in table]
+        numbers = [dynamodb.getTableCount(i, body["projectId"]) for i in table]
+        result = dict(zip(table, numbers))
+        result["jupyter"] = dynamodb.jupyterResourceCount()
+
     except Exception as e:
         return {
             "statusCode": 503,
@@ -22,5 +25,5 @@ def lambda_handler(event, context):
             'headers': {
                 'Access-Control-Allow-Origin': '*'
             },
-            "body": json.dumps(dict(zip(table, result)))
+            "body": json.dumps(result)
         }

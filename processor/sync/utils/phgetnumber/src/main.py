@@ -4,7 +4,7 @@ from util.AWS.DynamoDB import DynamoDB
 
 def lambda_handler(event, context):
     try:
-        table = ["dagconf", "dataset", "dashboard"]
+        table = ["dagconf", "dataset", "dashboard", "resouce"]
         body = eval(event["body"])
         dynamodb = DynamoDB()
         result = [dynamodb.getTableCount(i, body["projectId"]) for i in table]

@@ -193,5 +193,5 @@ def lambda_handler(event, context):
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
         },
-        "body": json.dumps(result)
+        "body": json.dumps({"status": "ok", "error": "null", "data": result})
 }

@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Submit Steps 20220614
-Transform: AWS::Serverless-2016-10-31
+Description: Cloudformation template to create API gateway related resource
 Parameters:
   StateMachineName:
     Type: String
@@ -22,12 +21,12 @@ Parameters:
 
   RestApiId:
     Type: String
-    Default: ksakt69kwb
-    Description: "RestApiId"
+    Default: r8cfw4b09l
+    Description : "RestApiId"
 
   ParentId:
     Type: String
-    Default: iiqaf4p618
+    Default: ksakt69kwb
     Description: "RestApiId"
 
   contentHandling:
@@ -48,21 +47,6 @@ Parameters:
 
 
 Resources:
-  Lmdphtestcodebuild:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: main.lambda_handler
-      Runtime: python3.8
-      AutoPublishAlias: Current
-      CodeUri: s3://ph-platform/2020-11-11/cicd/deprecated/phtestcodebuild/samtem/dev/d9e5cfef801b4feb6fd643af1c494d33
-      FunctionName: lmd-phtestcodebuild-dev
-      Description: phtestcodebuild
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
-      MemorySize: 1024
-      Timeout: 600
-    Metadata:
-      SamResourceId: ATTFFunction
-
   projectResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -132,4 +116,3 @@ Resources:
             "method.response.header.Access-Control-Allow-Origin": Fasle
           ResponseModels:
             "application/json": "Empty"
-

@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phconvertscenariosmessage-dev
-      Description: 转换success所需要的参数返回给Notification使用
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      FunctionName: lmd-phconvertdatatypeofcache-dev
+      Description: 转换数据缓存中的数据类型
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

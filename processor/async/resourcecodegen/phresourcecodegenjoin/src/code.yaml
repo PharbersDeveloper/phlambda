@@ -51,9 +51,10 @@ code:
           prefix = args["prefix"]
           df_map = get_df(ds_name)
           df_cols = list(map(lambda item: item[0], df_map["df"].dtypes))
-
+          
+          # 变换Col为不重复的列名 为后续select做准备
           def prefix_append(cols, falg):
-              return list(map(lambda item: {"key": f"`{item}`", "value": f"`{item}` AS `{prefix}_{item}`", "selected": falg} if len(prefix) > 0 and prefix != " " else {"key": f"`{item}`", "value": f"`{item}`", "selected": falg}, cols))
+              return list(map(lambda item: {"key": f"`{item}`", "value": f"`{item}` AS `{prefix}_{ds_name}_{item}`", "selected": falg, "prefix": prefix, "ds": ds_name}, cols))
 
           if args["type"] == "select":
               columns = args["columns"]
@@ -115,8 +116,8 @@ code:
               ds_is_used.add(first_join["datasets"][1]["name"])
               for item in args:
                   ds_name = list(set(map(lambda ds: ds["name"], item["datasets"])) - ds_is_used)
-              for ds in ds_name:
-                  join_str += f""".join({concat_select_df(ds)}, [{f"{on_func[item.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
+                  for ds in ds_name:
+                      join_str += f""".join({concat_select_df(ds)}, [{f"{on_func[item.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
               return eval(join_str)
           else:
               return None
@@ -130,13 +131,12 @@ code:
 
           join_args = $join_args
 
-          params = join_args["steps"][0]["expressions"]["params"]
-          preFilters = params["preFilters"]
-          preJoinComputedColumns = params["preJoinComputedColumns"]
-          joinArgs = params["joins"]
-          selectedColumns = params["selectedColumns"]
-          postJoinComputedColumns = params["postJoinComputedColumns"]
-          postFilter = params["postFilter"]
+          preFilters = join_args["preFilters"]
+          preJoinComputedColumns = join_args["preJoinComputedColumns"]
+          joinArgs = join_args["joins"]
+          selectedColumns = join_args["selectedColumns"]
+          postJoinComputedColumns = join_args["postJoinComputedColumns"]
+          postFilter = join_args["postFilter"]
 
           for item in preFilters:
               pre_filter(item)
@@ -150,14 +150,24 @@ code:
               rename_df_cols(item)
 
           df = joins(select_column_results, joinArgs)
+          
+          # 将重名的col 再次转为原有值（有前缀的添加前缀）
+          selected_cols = []
+          def rollback_col(item):
+              current_col_name = item["value"].split(" ")[-1]
+              current_prefix = f"""{item["prefix"]}_{item["ds"]}_"""
+              original_col_name = item["value"].split(" ")[-1][len("`"+current_prefix):]
+              if len(item["prefix"]) > 0 and item["prefix"] != " ":
+                 return f"""{current_col_name} AS `{item["prefix"]}_{original_col_name}"""
+              else:
+                 return f"""{current_col_name} AS `{original_col_name}"""
+    
+          for item in select_column_results:
+              selected_cols += list(map(rollback_col, list(filter(lambda col: col["selected"] == True, item["columns"]))))
+          
+          df = df.selectExpr(selected_cols)
 
           df = post_filter(post_join_computed_columns(df, postJoinComputedColumns), postFilter)
-
-          selected_cols = []
-          for item in select_column_results:
-              selected_cols += list(map(lambda val: val["value"].split(" ")[-1], list(filter(lambda col: col["selected"] == True, item["columns"]))))
-
-          df = df.selectExpr(selected_cols)
 
           return {"out_df": df}
 

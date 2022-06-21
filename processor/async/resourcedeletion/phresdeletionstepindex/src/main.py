@@ -67,8 +67,10 @@ def get_steps(pk):
 
 
 def lambda_handler(event, context):
+    runtimes = ["python3", "python", "pyspark", "r", "sparkr"]
+    hit_scripts = list(filter(lambda item: item["runtime"].lower() not in runtimes, event["scripts"]))
     deletion_scripts = list(set(list(map(lambda item: f"""{item["projectId"]}_{item["projectName"]}_{item["dagName"]}_{item["jobVersion"]}_{item["jobShowName"]}""",
-                                         event["scripts"]))))
+                                         hit_scripts))))
 
     if deletion_scripts:
         deletion_steps = list(map(lambda item: {

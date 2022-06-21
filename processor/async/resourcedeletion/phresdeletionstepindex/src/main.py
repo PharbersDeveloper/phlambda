@@ -85,10 +85,11 @@ def lambda_handler(event, context):
                 }
             }
         }, reduce(lambda pre, next: pre + next, list(map(get_steps, deletion_scripts)))))
-        dynamodb.batch_write_item(
-            RequestItems={
-                "step": deletion_steps
-            }
-        )
+        if deletion_steps:
+            dynamodb.batch_write_item(
+                RequestItems={
+                    "step": deletion_steps
+                }
+            )
 
     return True

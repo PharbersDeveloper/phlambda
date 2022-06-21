@@ -1,0 +1,24 @@
+{
+    "common": {
+        "traceId": "alfred-resource-creation-traceId",
+        "tenantId": "pharbers",
+        "projectId": "ggjpDje0HUC2JW",
+        "projectName": "demo",
+        "owner": "alfred",
+        "showName": "alfred"
+    },
+    "action": {
+        "cat": "ScenarioTrigger",
+        "desc": "ScenarioTrigger",
+        "comments": "something need to say",
+        "message": "something need to say",
+        "required": true
+    },
+    "notification": {
+        "required": true      
+    },
+    "scenario": {
+        "scenarioId": "scenario id",
+    },
+    "result": {}
+}

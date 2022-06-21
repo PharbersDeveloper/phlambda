@@ -1,0 +1,28 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  pre_build:
+    commands:
+      - cd /code/phlambda
+      - git pull $GIT_URL $BRANCH_NAME:feature/$BRANCH_NAME
+
+  build:
+    commands:
+      - cd $FUNCTION_PATH
+      - sam package --template-file template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_NAME/samtem/$ALISE
+      - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
+artifacts:
+  files:
+    - src/**/**
+  type: zip
+  name: $PROJECT_NAME-$(date +%Y-%m-%d)
+  s3-prefix: 2020-11-11/cicd/$PROJECT_NAME/artifacts
+
+reports:
+  arn:aws-cn:codebuild:cn-northwest-1:444603803904:report-group/phlambda-project-phlambda-report-group:
+    files:
+      - $PROJECT_NAME-report-file.xml
+    base-directory: $PROJECT_NAME-report-directory
+    file-format: JUNITXML

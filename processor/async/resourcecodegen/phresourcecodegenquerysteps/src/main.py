@@ -58,5 +58,8 @@ def query_steps(projectId, projectName, flowVersion, jobName, **kwargs):
 
 def lambda_handler(event, context):
     print(event)
-    steps = query_steps(**event)
-    return steps
+    result = []
+    for step in query_steps(**event):
+        step["expressions"] = json.loads(step["expressions"])
+        result.append(step)
+    return result

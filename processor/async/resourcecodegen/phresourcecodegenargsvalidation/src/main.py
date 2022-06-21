@@ -89,7 +89,7 @@ class Check:
         if not isinstance(steps, list):
             raise Exception('setps error')
 
-        return True
+        return len(data.get("steps"))
 
 
 def lambda_handler(event, context):

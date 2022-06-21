@@ -66,14 +66,14 @@ class CleanUp:
             }
         )
 
-    def run(self, steps, oldImage, **kwargs):
-        for step in steps:
-            pjName = step.get("pjName")
-            stepId = step.get("stepId")
-            self.del_item(pjName, stepId)
-
-        for step in oldImage:
-            self.put_item(step)
+    def run(self, steps, oldImage, ifsteps, **kwargs):
+        if ifsteps:
+            for step in steps:
+                pjName = step.get("pjName")
+                stepId = step.get("stepId")
+                self.del_item(pjName, stepId)
+            for step in oldImage:
+                self.put_item(step)
 
 
 def lambda_handler(event, context):

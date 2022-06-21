@@ -12,29 +12,33 @@ template:
     
         def execute(**kwargs):
             spark = kwargs['spark']
-            df = kwargs['df_$input$']
+            df = kwargs['df_$g_input$']
             
-            args_preFilter = $args_preFilter$
-            args_postFilter = $args_postFilter$
-            distinct_key = $distinct_key$
-            globalCount = $globalCount$
-
-            if args_preFilter['enabled'] == True:
-                df = df.where(args_preFilter['expression'])
-                
-            if globalCount == True:
-                if len(distinct_key) > 0:
-                    cols_globalCount = distinct_key
-                else:
-                    cols_globalCount = df.columns
+            g_preFilter = $g_preFilter$
+            g_postFilter = $g_postFilter$
+            g_distinct_key = $g_distinct_key$
+            g_globalCount = $g_globalCount$
+            
+            # args_preFilter 处理
+            if g_preFilter['enabled'] == True:
+                df = df.where(g_preFilter['expression'])
+            
+            # globalCount 计算
+            if g_globalCount == True:
+                cols_globalCount = (g_distinct_key if len(g_distinct_key) > 0 else df.columns)
                 df = df.withColumn('globalCount', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
-                
-            if len(distinct_key) > 0:
-                df = df.dropDuplicates(distinct_key)
+            
+            # distinct 处理
+            if len(g_distinct_key) > 0:
+                if g_globalCount == True:
+                    df = df.select(g_distinct_key + ['globalCount']).distinct()
+                else:
+                    df = df.select(g_distinct_key).distinct()
             else:
                 df = df.distinct()
-
-            if args_postFilter['enabled'] == True:
-                df = df.where(args_postFilter['expression'])
+            
+            # args_postFilter 处理
+            if g_postFilter['enabled'] == True:
+                df = df.where(g_postFilter['expression'])
 
             return {"out_df":df}

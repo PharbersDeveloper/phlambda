@@ -101,13 +101,12 @@ def ssmQueryTraceId(ssm_name):
     
 
 def errorMessage(e):
-    code = 503
     message = {
         "status": -99,
         "message": json.dumps(str(e)),
         "traceId": ""
     }
-    return code, message
+    return message
 
 
 def list_cloudformation_ssm_name(resource, resourceId):
@@ -124,62 +123,75 @@ def list_cloudformation_ssm_name(resource, resourceId):
     return stackNameList, ssmNameList
 
 
+def query_status(tenantId, resourceId):
+    result = {
+        "status": -99,
+        "message": "",
+        "traceId": "",
+        "id": resourceId
+    }
+    table = dynamodb.Table('resource')
+    res = table.query(
+        KeyConditionExpression=Key("tenantId").eq(tenantId),
+        FilterExpression=Attr("ownership").eq("personal")
+    )
+    resources = res["Items"]
+    print(resources)
+
+    statusCode = 0
+    for item in resources:
+        stackNameList, ssmNameList = list_cloudformation_ssm_name(item, resourceId)
+        statusCode |= resourceCheck(stackNameList)
+        statusCode |= ssmCheck(ssmNameList)
+
+    print(statusCode)
+    if (statusCode & 4) != 0:
+        result["status"] = 4
+        result["message"] = "stoping"
+        result["traceId"] = ssmQueryTraceId(ssmNameList[0])
+    elif (statusCode & 1) != 0:
+        result["status"] = 1
+        result["message"] = "starting"
+        result["traceId"] = ssmQueryTraceId(ssmNameList[0])
+    elif (statusCode & 2) != 0:
+        result["status"] = 2
+        result["message"] = "started"
+        result["traceId"] = ssmQueryTraceId(ssmNameList[0])
+    elif statusCode == 0:
+        result["status"] = 0
+        result["message"] = "stoped"
+        result["traceId"] = ""
+    else:
+        raise Exception("unknown error")
+    return result
+
+
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
     code = 200
     status = 0
-    result = {
-        "status": -99,
-        "message": "",
-        "traceId": ""
-    }
-    try:
+    result = []
+    resourceIds = event["resourceIds"]
+    tenantId = event["tenantId"]
 
-        table = dynamodb.Table('resource')
-        res = table.query(
-            KeyConditionExpression=Key("tenantId").eq(event["tenantId"]),
-            FilterExpression=Attr("ownership").eq("personal")
-        )
-        resources = res["Items"]
-        print(resources)
+    for resourceId in resourceIds:
+        try:
+            resource_status = query_status(tenantId, resourceId)
 
-        statusCode = 0
-        for item in resources:
-            stackNameList, ssmNameList = list_cloudformation_ssm_name(item, event["resourceId"])
-            statusCode |= resourceCheck(stackNameList)
-            statusCode |= ssmCheck(ssmNameList)
+        except Exception as e:
+            # printing stack trace
+            traceback.print_exc()
+            resource_status = errorMessage(e)
+            resource_status["id"] = resourceId
+        result.append(resource_status)
 
-        print(statusCode)
-        if (statusCode & 4) != 0:
-            result["status"] = 4
-            result["message"] = "stoping"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif (statusCode & 1) != 0:
-            result["status"] = 1
-            result["message"] = "starting"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif (statusCode & 2) != 0:
-            result["status"] = 2
-            result["message"] = "started"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif statusCode == 0:
-            result["status"] = 0
-            result["message"] = "stoped"
-            result["traceId"] = ""
-        else:
-            raise Exception("unknown error")
-    except Exception as e:
-        # printing stack trace
-        traceback.print_exc()
-        code, result = errorMessage(e)
-    finally:
-        return {
-            "statusCode": code,
-            "headers": {
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-            },
-            "body": json.dumps(result)
-    }
+    return {
+        "statusCode": code,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        },
+        "body": json.dumps({"status": "ok", "error": "null", "data": result})
+}

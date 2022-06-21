@@ -23,6 +23,7 @@ class DelTriggerRule(object):
 
     def __init__(self, event):
         self.event = event
+        self.scenario = event["scenario"]
         self.triggers = event["triggers"]
 
     def get_projectId(self):
@@ -59,12 +60,27 @@ class DelTriggerRule(object):
             processMessage['message'] = str(e)
         return processMessage
 
+
+    #--将嵌套的list结构摊平---#
+    def Flatten_Data_Of_List(self, Structure_list):
+        from itertools import chain
+        return list(chain(* Structure_list))
+
+    def GetAllTriggersItems(self):
+        if len(self.scenario) == 0:
+            all_triggers = self.triggers
+        else:
+            all_triggers = self.Flatten_Data_Of_List(list(map(lambda x: x["triggers"], self.scenario)))
+        return all_triggers
+
+
     def DeleteEachTriggerResource(self):
 
+        all_triggers = self.GetAllTriggersItems()
         triggerCountNum = 0
         DeleteTriggersResultList = []
 
-        for trigger in self.triggers:
+        for trigger in all_triggers:
             triggerId = trigger["id"]
             #scenarioId = trigger["scenarioId"]
             eachStackName = self.get_stackName(triggerId)

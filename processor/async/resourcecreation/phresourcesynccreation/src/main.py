@@ -25,22 +25,22 @@ args = {
 
 
 
-args = {
+event = {
     "traceId": "automax_automax_developer_2022-05-24T02%3A01%3A19+00%3A00_袁毓蔚",
-    "projectId": "s7nBDbpqfUShq1w",
+    "projectId": "ggjpDje0HUC2JW",
     "owner": "String",
     "showName": "String",
-    "dagName": "String",
+    "dagName": "demo",
     "owner": "String",
-    "projectName": "automax",
+    "projectName": "demo",
     "script": {
         "id": "String",
-        "runtime": "pyspark",
-        "name": "compute_test_sync_hospital_mapping_out",
+        "runtime": "syncfiles",
+        "name": "compute_yyw",
         "flowVersion": "developer",
-        "inputs": "hospital_mapping_out",
-        "output": "test_sync_hospital_mapping_out",
-        "version": "['automax_automax_developer_2022-05-26T01:45:57+00:00_袁毓蔚']",
+        "inputs": "[\"A\"]",
+        "output": "yyw",
+        "version": "[]",
     },
 }
 '''
@@ -48,6 +48,7 @@ args = {
 def lambda_handler(event, context):
     args = event
     projectId = args['projectId']
+    projectName = args['projectName']
     dagName = args['dagName']
     scripts_name = args['script']['name']
     output = args['script']['output']
@@ -65,18 +66,18 @@ def lambda_handler(event, context):
 
     # 获取phjob.py 模板
     phjob_script = template_yaml['template']['phjob.py']['content'] \
-                        .replace("$projectId$", f"'{projectId}'") \
-                        .replace("$inputs$", f"'{inputs}'") \
-                        .replace("$output$", f"'{output}'") \
-                        .replace("$version$", str(version)) \
-                        .replace("$lack_path$", f"'s3://ph-platform/2020-11-11/lake/pharbers'")
+                        .replace("$inputs$", str(inputs)) \
+                        .replace("$version$", str(version))
+
     # 获取phmain.py 模板
     phmain_script = template_yaml['template']['phmain.py']['content'] \
-                        .replace("$projectId$", f"'{projectId}'") \
-                        .replace("$runtime$", f"'{runtime}'") \
-                        .replace("$output$", f"'{output}'") \
-                        .replace("$input$", f"'{inputs}'") \
-                        .replace("$args_scripts$", str(args_scripts))
+                        .replace("$dag_name", dagName) \
+                        .replace("$project_id", projectId) \
+                        .replace("$project_name", projectName) \
+                        .replace("$script_name", scripts_name) \
+                        .replace("$runtime", runtime) \
+                        .replace("$output", output) \
+                        .replace("$inputs", str(args['script']['inputs']))
 
 
     # 写出到s3
@@ -95,3 +96,4 @@ def lambda_handler(event, context):
     toS3(phmain_script, projectName, flowVersion, scripts_name, "phmain.py")
     
     return args['script']
+

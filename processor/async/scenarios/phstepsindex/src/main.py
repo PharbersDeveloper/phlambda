@@ -129,7 +129,45 @@ class StepsIndex:
         return OldImage
 
 
+
+    def QueryAllItemsOfScenario(self, tableName, partitionKey, ValueOfpartitionKey):
+
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(ValueOfpartitionKey)
+        )
+
+        return res["Items"]
+
+    def GetNeedDeleteItems(self, scenarioId):
+
+        AllScenarioItems = self.QueryAllItemsOfScenario("scenario_step", "scenarioId", scenarioId)
+        AllScenarioKey = list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, AllScenarioItems))
+        CurrentSteps= list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, self.steps))
+        NeedDeleteKey = [x for x in AllScenarioKey if x not in CurrentSteps]
+        return NeedDeleteKey
+
+    def DeleteNotNeedItems(self):
+        NeedDeleteKey = self.GetNeedDeleteItems(self.event["scenario"]["id"])
+        for item in NeedDeleteKey:
+            self.del_table_item("scenario_step", "scenarioId", "id", item["scenarioId"], item["id"])
+
+    def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        table.delete_item(
+            Key={
+                partitionKey: partitionValue,
+                sortKey: sortValue
+            },
+        )
+
+
     def putStepItemIntoDyDB(self):
+        #-------更新当前item--------------------#
+        self.DeleteNotNeedItems()
+
         for step in self.steps:
             stepID = step["id"]
             scenarioId = step["scenarioId"]

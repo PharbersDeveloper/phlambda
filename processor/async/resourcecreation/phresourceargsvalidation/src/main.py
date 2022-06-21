@@ -85,8 +85,7 @@ class Check:
     def checktype(self, data):
         if data:
             inputs = json.loads(data.get('inputs'))
-            output = json.loads(data.get('output'))
-            if not isinstance(inputs, list) or not isinstance(output, dict):
+            if not isinstance(inputs, list):
                 raise Exception('scripts type error')
 
     def check_datasets_scripts(self, data):

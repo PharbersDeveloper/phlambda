@@ -72,7 +72,19 @@ template:
                             .withColumn(g_customName, col(g_customName).cast(g_type))
             return {"df_custom":df_custom}
             
-            
+        def groupbyFunc(df, g_l_keys, g_values):
+            # groupby
+            dict_df_all = {}
+            for i, i_g_values in enumerate(g_values):
+                if "customName" in i_g_values.keys():
+                    dict_df_custom = dealCustomAgg(df, g_l_keys, i_g_values)
+                    dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_custom.items()})
+                else:
+                    dict_df_normal = dealNormalAgg(df, g_l_keys, i_g_values)
+                    dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_normal.items()})  
+            df_out = reduce(lambda x, y: x.join(y, on=g_l_keys, how='left'), dict_df_all.values())
+            return df_out
+                        
         def execute(**kwargs):
             spark = kwargs['spark']
             df = kwargs['df_$g_input$']
@@ -96,21 +108,13 @@ template:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
                             
-            # groupby
-            dict_df_all = {}
-            for i_g_values in g_values:
-                if "customName" in i_g_values.keys():
-                    dict_df_custom = dealCustomAgg(df, g_l_keys, i_g_values)
-                    dict_df_all.update(dict_df_custom)
-                else:
-                    dict_df_normal = dealNormalAgg(df, g_l_keys, i_g_values)
-                    dict_df_all.update(dict_df_normal)      
-            df = reduce(lambda x, y: x.join(y, on=g_l_keys, how='left'), dict_df_all.values())
+            # groupby  
+            df = groupbyFunc(df, g_l_keys, g_values)
             
             # postFilter
             if g_postFilter['enabled'] == True:
                 df = df.where(g_postFilter['expr'])
-                if g_preFilter['distinct'] == True:
+                if g_postFilter['distinct'] == True:
                     df = df.distinct()
 
             return {"out_df":df}

@@ -13,10 +13,10 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       MemorySize: 1024
-      Description: "phresourcecodegenjoin"
+      Description: "phresourcecodegengroupby"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "V2"
+          EDITION: "DEV"
 
 

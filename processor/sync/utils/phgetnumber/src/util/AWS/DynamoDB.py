@@ -26,3 +26,11 @@ class DynamoDB:
             FilterExpression=Attr("projectId").eq(projectId)
         )
         return result.get("Count", 0)
+
+    def jupyterResourceCount(self):
+        result = self.dynamodb_resource.Table("resource")
+        result = result.scan(
+            Select='COUNT',
+            FilterExpression=Attr("ctype").eq("jupyter") | Attr("ctype").eq("jupyter")
+        )
+        return result.get("Count", 0)

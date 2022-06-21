@@ -4,26 +4,51 @@ from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 dynamodb = boto3.resource('dynamodb')
 '''
-将错误提取出来写入到notification中
+处理lmd和sfn的相关信息
 args:
     event = {
-                "projectId": "ggjpDje0HUC2JW",
-                "traceId": "",
-                "projectName": "demo",
-                "owner": "alfred",
-                "showName": "alfred",
-                "errors": {
+        "common": {
+            "version": "version",
+            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+            "publisher": "赵浩博",
+            "alias": "hbzhao-resource-change-position-owner",
+            "runtime": "dev/v2/prod"
+        },
+        "processor": {
+            "repo": "phlambda",
+            "branch": "",
+            "prefix": "processor/async/createscriptrefile",
+            "stateMachineName": "createscriptrefile",
+            "sm": "processor/async/createscriptrefile/sm.json",
+            "functions": [
+                {   
+                    "name": "phresourcepycodegen"
+                },
+                {
+                    "name": "phresourcercodegen"
                 }
-            },
+            ]
+            "required": true
+        }
 return:
     {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
+        "lambda": [
+            {
+                "functionPath": "",
+                "functionName": "",
+                "branchName"："",
+                "repoName": "",
+                "alias": ""
+            }, {...}
+        ],
+        "sfn": {
+            "stateMachineName": "",
+            "submitOwner": "",
+            "s3Bucket": "",
+            "s3TemplateKey": ""
+        }
     }
-}
+
 '''
 
 

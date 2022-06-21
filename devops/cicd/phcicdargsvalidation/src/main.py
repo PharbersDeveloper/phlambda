@@ -7,55 +7,40 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "common": {
-            "traceId": "hbzhao-resource-change-position-traceId",
-            "projectId": "Dp10sMiAYXWxRZj",
-            "projectName": "code",
-            "owner": "hbzhao-resource-change-position-owner",
-            "showName": "hbzhao-resource-change-position-showName"
+            "version": "version",
+            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+            "publisher": "赵浩博",
+            "alias": "hbzhao-resource-change-position-owner",
+            "runtime": "dev/v2/prod"
         },
-        "action": {
-            "cat": "changeResourcePosition",
-            "desc": "change resource position",
-            "comments": "something need to say",
-            "message": "something need to say",
+        "processor": {
+            "repo": "phlambda",
+            "branch": "",
+            "prefix": "processor/async/createscriptrefile",
+            "stateMachineName": "createscriptrefile",
+            "sm": "processor/async/createscriptrefile/sm.json",
+            "functions": [
+                {   
+                    "name": "phresourcepycodegen"
+                },
+                {
+                    "name": "phresourcercodegen"
+                }
+            ]
             "required": true
         },
-        "notification": {
+        "trigger": {
+            "repo": "phlambda",
+            "branch": "",
+            "prefix": "processor/sync/utils/phemail",
+            "stateMachineName": "createscriptrefile",
+            "name": "phemail"
+            "entry": {
+                "type": "ApiGateway",
+                "resource": "",
+                "method": ""
+            }
             "required": true      
-        },
-        "datasets": {
-            "inputs": {
-                "old": [{
-                    "name": "A",
-                    "cat": "uploaded"
-                }],
-                "new": [{
-                    "name": "B",
-                    "cat": "uploaded"
-                }]
-            },
-            "output": {
-                "old": {
-                    "name": "A_out",
-                    "cat": "intermediate"
-                },
-                "new": {
-                    "name": "B_out",
-                    "cat": "intermediate"
-                }
-            }
-        },
-        "script": {
-            "old": {
-                "name": "compute_A_out",
-                "id": "22jpN8YtMIhGTnW"
-            },
-            "new": {
-                "name": "compute_B_out",
-                "runtime": "python",
-                "inputs": "[\"B\"]",
-                "output": "B_out"
-            }
         }
     }
 '''

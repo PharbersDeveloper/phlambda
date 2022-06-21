@@ -7,23 +7,45 @@ dynamodb = boto3.resource('dynamodb')
 将错误提取出来写入到notification中
 args:
     event = {
-                "projectId": "ggjpDje0HUC2JW",
-                "traceId": "",
-                "projectName": "demo",
-                "owner": "alfred",
-                "showName": "alfred",
-                "errors": {
-                }
-            },
+        "common": {
+            "version": "version",
+            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+            "publisher": "赵浩博",
+            "alias": "hbzhao-resource-change-position-owner",
+            "runtime": "dev/v2/prod"
+        }
+        "trigger": {
+            "repo": "phlambda",
+            "branch": "",
+            "prefix": "processor/sync/utils/phemail",
+            "stateMachineName": "createscriptrefile",
+            "name": "phemail"
+            "entry": {
+                "type": "ApiGateway",
+                "resource": "",
+                "method": ""
+            }
+            "required": true      
+        }
+    }
 return:
     {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
+        "lambda":{
+                "functionPath": "",
+                "functionName": "",
+                "branchName"："",
+                "repoName": "",
+                "alias": ""
+            },
+        "api": {
+            "RestApiId": "",
+            "ParentId": "",
+            "lmdName": "",
+            "PathPart": "",
+            "AuthorizerId"： "",
+            "method": ""
+        }
     }
-}
 '''
 
 

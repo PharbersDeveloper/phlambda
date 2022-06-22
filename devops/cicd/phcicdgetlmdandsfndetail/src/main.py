@@ -34,7 +34,7 @@ args:
                 {
                     "name": "phsamplehook"
                 }
-            ]
+            ],
             "required": true
         }
 return:
@@ -70,7 +70,7 @@ return:
 '''
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml"
 git_url = "http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git"
-buildSpec = "lmdAndSfnBuildspec.yaml"
+buildSpec = "lmdAndSfnBuildspec"
 
 
 def create_lambda_args(event):
@@ -81,7 +81,7 @@ def create_lambda_args(event):
             "stackName": func["name"] + "codebuild",
             "functionPath": processor["prefix"] + "/" + func["name"],
             "functionPrefixPath": processor["prefix"],
-            "buildSpec": processor["prefix"] + "/" + func["name"],
+            "buildSpec": buildSpec,
             "codebuildCfn": codebuild_cfn_path,
             "functionName": func["name"],
             "branchName": processor["branch"],

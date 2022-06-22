@@ -135,7 +135,7 @@ Resources:
       ServiceRole: arn:aws-cn:iam::444603803904:role/Pharbers-CICD-Maintainer
       # SourceVersion: 0.0.1 Might be useful late on
       Source:
-        BuildSpec: ${BuildSpec}.yaml
+        BuildSpec: !Sub ${BuildSpec}.yaml
         Location: !Sub ph-platform/2020-11-11/cicd/${BuildSpec}/code.zip
         Type: S3
       Artifacts:

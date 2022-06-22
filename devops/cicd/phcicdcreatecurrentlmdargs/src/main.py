@@ -49,6 +49,7 @@ return:
 
 
 def lambda_handler(event, context):
+    print(event)
     lmdIndex = event["iterator"]["index"]
     currentlambdaMsg = event["lambdaArgs"][lmdIndex]
     currentLmdArgs = {

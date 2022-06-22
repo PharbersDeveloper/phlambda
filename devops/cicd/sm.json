@@ -156,12 +156,12 @@
                      "InputPath": "$",
                      "Choices": [
                         {
-                           "Variable": "$.async.required",
+                           "Variable": "$.processor.required",
                            "BooleanEquals": true,
                            "Next": "GetLmdAndSfnDetail"
                         },
                         {
-                           "Variable": "$.async.required",
+                           "Variable": "$.processor.required",
                            "BooleanEquals": false,
                            "Next": "AsyncBranchEnd"
                         }
@@ -186,7 +186,7 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecurrentlmdargs-dev",
                      "Parameters": {
-                        "lmd.$": "$.metadata.lambda",
+                        "lambdaArgs.$": "$.metadata.lambdaArgs",
                         "iterator.$": "$.metadata.iterator"
                      },
                      "ResultPath": "$.currentLmdArgs",
@@ -213,27 +213,19 @@
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
-                        "current.$": "$.iterator.index",
-                        "name.$": "$.currentLmdArgs.stackName",
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.currentLmdArgs.name",
                         "expect": "CREATE_COMPLETE"
                      },
-                     "ResultPath": "$.iterator",
+                     "ResultPath": "$.metadata.iterator",
                      "Next": "AsyncStepsCountReached"
                   },
                   "AsyncStepsCountReached": {
                      "Type": "Choice",
                      "Choices": [
                         {
-                           "And": [
-                              {
-                                 "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.lmdCounts"
-                              },
-                              {
-                                 "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "success"
-                              }
-                           ],
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
                            "Next": "RunAsyncCodebuild"
                         }
                      ],
@@ -263,7 +255,7 @@
                      "InputPath": "$",
                      "Choices": [
                         {
-                           "Variable": "$.iterator.index",
+                           "Variable": "$.metadata.iterator.index",
                            "NumericEqualsPath": "$.metadata.lmdCounts",
                            "Next": "UpdateAsyncManageYaml"
                         }

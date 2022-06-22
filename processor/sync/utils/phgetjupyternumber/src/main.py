@@ -30,13 +30,15 @@ def lambda_handler(event, context):
     print(tenantId)
     try:
         if jupyterResourceCount(tenantId) <= 100:
-            priority = max([resource_item.get('priority', 0) for resource_item in query_resource(tenantId)])
+            numbers = [i+1 for i in range(100)]
+            prioritys = [int(resource_item.get('priority', 0)) for resource_item in query_resource(tenantId)]
+            priority = min(list(set(numbers) - set(prioritys))) if prioritys else 0
             print(priority)
-            result = {"status": 1, "priority": int(priority)}
+            result = {"code": 0, "message": "", "priority": priority}
         else:
             raise Exception('jupyter count greater than 100')
     except Exception as e:
-        result = {"status": 0, "priority": str(e)}
+        result = {"code": 1, "message": str(e), "priority": ""}
     finally:
         return {
             "statusCode": 200,

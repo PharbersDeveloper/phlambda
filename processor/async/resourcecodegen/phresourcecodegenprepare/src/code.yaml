@@ -131,7 +131,7 @@ code:
       data_frame = data_frame.replace("", value, cols)
       #  Fill Empty With Value End
 
-  valueReplace:
+  columnReplace:
     args: ~
     code: |
       # Column Replace Start
@@ -140,8 +140,8 @@ code:
       output = column_replace_parameter["params"]["output"]
       data_frame = data_frame.withColumn(output, F.col(col))
       # Column Replace End
-
-  columnReplace:
+  
+  valueReplace:
     args: ~
     code: |
       # Value Replace Start

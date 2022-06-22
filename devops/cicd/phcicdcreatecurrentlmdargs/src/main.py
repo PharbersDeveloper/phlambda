@@ -7,14 +7,28 @@ dynamodb = boto3.resource('dynamodb')
 将错误提取出来写入到notification中
 args:
     event = {
-                "projectId": "ggjpDje0HUC2JW",
-                "traceId": "",
-                "projectName": "demo",
-                "owner": "alfred",
-                "showName": "alfred",
-                "errors": {
+        "lambda": [
+            {   
+                "action": "creation",
+                "name": "functionName + codebuild"
+                "functionPath": "",
+                "cfn": "codebuildS3Path",
+                "parameters": {
+                    "functionName": "",
+                    "branchName"："",
+                    "repoName": "",
+                    "alias": "",
+                    "gitUrl": ""
                 }
-            },
+            }, {...}
+        ],
+        "sfn": {
+            "stateMachineName": "",
+            "submitOwner": "",
+            "s3Bucket": "",
+            "s3TemplateKey": ""
+        }
+    }
 return:
     {
         "type": "notification",

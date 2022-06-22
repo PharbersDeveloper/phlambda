@@ -33,12 +33,18 @@ args:
 return:
     {
         "lambda": [
-            {
+            {   
+                "action": "creation",
+                "name": "functionName + codebuild"
                 "functionPath": "",
-                "functionName": "",
-                "branchName"："",
-                "repoName": "",
-                "alias": ""
+                "cfn": "codebuildS3Path",
+                "parameters": {
+                    "functionName": "",
+                    "branchName"："",
+                    "repoName": "",
+                    "alias": "",
+                    "gitUrl": ""
+                }
             }, {...}
         ],
         "sfn": {

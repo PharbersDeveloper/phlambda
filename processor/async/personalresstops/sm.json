@@ -12,19 +12,29 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-personalresstopargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "SSMRead": {
          "Type": "Task",
@@ -50,19 +60,29 @@
          },
          "ResultPath": "$.iterator",
          "Next": "WaitCodeeditorDeletion",
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "WaitCodeeditorDeletion": {
          "Type": "Wait",
@@ -87,7 +107,7 @@
                "Next": "WaitCodeeditorDeletion"
             }
          ],
-         "Default": "SSMDeletion"
+         "Default": "SSMDelete"
       },
       "Actions": {
          "Type": "Task",
@@ -106,17 +126,6 @@
          "ResultPath": null,
          "Next": "SSMRead"
       },
-      "SSMDeletion": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
-         "Parameters": {
-            "action": "deletion",
-            "key.$": "States.Format('{}-{}-{}', $.currentStep.type, $.common.owner, $.resourceId)",
-            "value": {}
-         },
-         "ResultPath": null,
-         "Next": "Success"
-      },
       "Success": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
@@ -128,19 +137,35 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.action.message",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {"personalResStops":"success"},
+                  "error": {}
+               }
+            },
             "status": "stopped"
          },
          "End": true
+
+      },
+      "SSMDelete": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+         "Parameters": {
+            "action": "delete",
+            "key.$": "$.common.tenantId",
+            "value": {}
+         },
+         "ResultPath": "$.resources",
+         "Next": "Success"
+
       },
       "CleanUp": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresstopcleanup-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -165,7 +190,6 @@
             "status": "stopfailed"
          },
          "End": true
-      },
+      }
    }
-
 }

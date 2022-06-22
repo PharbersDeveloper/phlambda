@@ -27,7 +27,7 @@ template:
             g_preFilter = [i for i in g_preFilter if i['preFilter']['enabled']==True]
             if len(g_preFilter) > 0 :
                 # 处理'expr'和'distinct'
-                dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['expr'])) , g_preFilter))
+                dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr'])) , g_preFilter))
                 # 更新到 dict_df
                 dict_df.update(dict_df_preFilter)
 

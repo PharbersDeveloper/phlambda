@@ -7,19 +7,21 @@ dynamodb = boto3.resource('dynamodb')
 将错误提取出来写入到notification中
 args:
     event = {
+        "iterator": {
+            "count": 1,
+            "index": 0
+        }
         "lambda": [
             {   
                 "action": "creation",
                 "name": "functionName + codebuild"
                 "functionPath": "",
                 "cfn": "codebuildS3Path",
-                "parameters": {
-                    "functionName": "",
-                    "branchName"："",
-                    "repoName": "",
-                    "alias": "",
-                    "gitUrl": ""
-                }
+                "functionName": "",
+                "branchName"："",
+                "repoName": "",
+                "alias": "",
+                "gitUrl": ""
             }, {...}
         ],
         "sfn": {
@@ -31,13 +33,26 @@ args:
     }
 return:
     {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
+        "iterator": {
+            "count": 1,
+            "index": 1
+        },
+        "currentStep": {
+            {
+                "name": "functionName + codebuild"
+                "cfn": "codebuildS3Path",
+                "parameters": {
+                    "functionPath": "",
+                    "functionName": "",
+                    "branchName"："",
+                    "repoName": "",
+                    "alias": "",
+                    "gitUrl": ""
+                }
+            }
+        }
     }
-}
+
 '''
 
 

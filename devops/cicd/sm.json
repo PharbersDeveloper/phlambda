@@ -13,9 +13,9 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdargsvalidation-dev",
          "ResultPath": null,
-         "Next": "Actions",
+         "Next": "TriggerAndAsync",
          "Catch": [
             {
                "ErrorEquals": [
@@ -39,23 +39,6 @@
                "Next": "CleanUp"
             }
          ]
-      },
-      "Actions": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            "message.$": "$.action.message"
-         },
-         "ResultPath": null,
-         "Next": "TriggerAndAsync"
       },
       "TriggerAndAsync": {
          "Type": "Parallel",
@@ -187,17 +170,16 @@
                   },
                   "GetLmdAndSfnDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandsfndetail-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "version.$": "$.common.version",
+                        "commit.$": "$.common.commit",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "processor.$": "$.processor"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": "$.metadata",
                      "Next": "CreateCurrentLmdArgs"
                   },
                   "CreateCurrentLmdArgs": {
@@ -228,7 +210,42 @@
                         "script.$": "$.script"
                      },
                      "ResultPath": "$.dagItems",
-                     "Next": "RunAsyncCodebuild"
+                     "Next": "CodebuildWait"
+                  },
+                  "CodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CodebuildCheck"
+                  },
+                  "CodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.iterator.index",
+                        "name.$": "$.currentStep.stackName",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.iterator",
+                     "Next": "OlapStepsCountReached"
+                  },
+                  "OlapStepsCountReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "And": [
+                              {
+                                 "Variable": "$.iterator.index",
+                                 "NumericEqualsPath": "$.metadata.engine.counts"
+                              },
+                              {
+                                 "Variable": "$.iterator.currentStatus",
+                                 "StringEquals": "success"
+                              }
+                           ],
+                           "Next": "RunAsyncCodebuild"
+                        }
+                     ],
+                     "Default": "CodebuildWait"
                   },
                   "RunAsyncCodebuild": {
                      "Type": "Task",

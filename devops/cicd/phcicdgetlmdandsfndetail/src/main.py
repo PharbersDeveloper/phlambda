@@ -38,13 +38,11 @@ return:
                 "name": "functionName + codebuild"
                 "functionPath": "",
                 "cfn": "codebuildS3Path",
-                "parameters": {
-                    "functionName": "",
-                    "branchName"："",
-                    "repoName": "",
-                    "alias": "",
-                    "gitUrl": ""
-                }
+                "functionName": "",
+                "branchName"："",
+                "repoName": "",
+                "alias": "",
+                "gitUrl": ""
             }, {...}
         ],
         "sfn": {

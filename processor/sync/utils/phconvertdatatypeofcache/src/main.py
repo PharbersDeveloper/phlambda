@@ -9,7 +9,7 @@ args = {
         "projectId": "ZyQpzttbwmvQcCf",
         "projectName": "pchc_mapping",
         "tenantId": "zudIcG_17yj8CEUoCTHg",
-        "datasetId": "I6FDBI62N9VLus4"
+        "datasetName": "I6FDBI62N9VLus4"
     },
     "Mappings": [
         {
@@ -28,7 +28,7 @@ class ConvertDataTypesOfCache:
         self.Mappings = event["Mappings"]
 
     def get_tableName(self):
-        return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetId"]
+        return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetName"]
 
     def Get_Ip_of_loap(self, tenantId):
         resource = self.get_dict_ssm_parameter(tenantId)

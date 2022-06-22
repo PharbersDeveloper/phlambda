@@ -1,4 +1,5 @@
 import json
+import os
 import boto3
 from clickhouse_driver import Client
 
@@ -31,7 +32,7 @@ class ConvertDataTypesOfCache:
 
     def Get_Ip_of_loap(self, tenantId):
         resource = self.get_dict_ssm_parameter(tenantId)
-        PublicDns = resource["olap"]["PublicDns"]
+        PublicDns = resource["olap"]["PrivateIp"]
         return PublicDns
 
     def MakeSingleColConvertSqlExpress(self, tableName, colName, dataType):
@@ -39,8 +40,8 @@ class ConvertDataTypesOfCache:
         SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN {colName} {dataType};"
         return SingleSqlExpress
 
-    def GetClickHouseClient(self, *args):
-        ckClient = Client(*args)
+    def GetClickHouseClient(self, *args, **kwargs):
+        ckClient = Client(*args, **kwargs)
         return ckClient
 
     def get_dict_ssm_parameter(self, parameter_name):
@@ -55,8 +56,8 @@ class ConvertDataTypesOfCache:
 
     def ConvertColumnsDataType(self):
         ip = self.Get_Ip_of_loap(self.event["common"]["tenantId"])
-        ckClient = self.GetClickHouseClient(ip)
-        database = "default"
+        ckClient = self.GetClickHouseClient(host=ip, port=os.environ["CLICKHOUSE_PORT"])
+        database = os.environ["CLICKHOUSE_DB"]
         ckClient.execute(f"use {database}; ")
         for colItem in self.Mappings:
             colName = colItem["column"]

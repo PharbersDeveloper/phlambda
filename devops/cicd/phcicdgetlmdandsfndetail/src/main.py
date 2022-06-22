@@ -100,7 +100,7 @@ def create_step_function_args(event):
     stepfuntionArgs = {
         "stateMachineName": event["processor"]["stateMachineName"],
         "submitOwner": event["publisher"],
-        "s3Bucket": "phplatform",
+        "s3Bucket": "ph-platform",
         "s3TemplateKey": "2020-11-11/cicd/" + event["processor"]["prefix"] + "/sm.json"
     }
 

@@ -9,7 +9,7 @@ args = {
         "projectId": "ZyQpzttbwmvQcCf",
         "projectName": "pchc_mapping",
         "tenantId": "zudIcG_17yj8CEUoCTHg",
-        "datasetId": "I6FDBI62N9VLus4"
+        "datasetName": "I6FDBI62N9VLus4"
     },
     "Mappings": [
         {
@@ -28,7 +28,7 @@ class ConvertDataTypesOfCache:
         self.Mappings = event["Mappings"]
 
     def get_tableName(self):
-        return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetId"]
+        return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetName"]
 
     def Get_Ip_of_loap(self, tenantId):
         resource = self.get_dict_ssm_parameter(tenantId)
@@ -37,7 +37,7 @@ class ConvertDataTypesOfCache:
 
     def MakeSingleColConvertSqlExpress(self, tableName, colName, dataType):
 
-        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN {colName} {dataType};"
+        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN `{colName}` {dataType};"
         return SingleSqlExpress
 
     def GetClickHouseClient(self, *args, **kwargs):
@@ -54,10 +54,19 @@ class ConvertDataTypesOfCache:
 
         return value
 
+    #--------------检查表名是否存在-------------------#
+    def CheckTableExist(self, client, dataBase, tableName):
+        allTableNames = client.execute(f"SELECT DISTINCT table FROM system.columns WHERE database='{dataBase}';")
+        allTableNames = list(map(lambda x: x[0], allTableNames))
+        if tableName not in allTableNames:
+            raise Exception(f"{tableName} not in exist in database of {dataBase}.")
+
     def ConvertColumnsDataType(self):
         ip = self.Get_Ip_of_loap(self.event["common"]["tenantId"])
         ckClient = self.GetClickHouseClient(host=ip, port=os.environ["CLICKHOUSE_PORT"])
         database = os.environ["CLICKHOUSE_DB"]
+        #----- check table exist ------------------------------------#
+        self.CheckTableExist(ckClient, database, self.get_tableName())
         ckClient.execute(f"use {database}; ")
         for colItem in self.Mappings:
             colName = colItem["column"]
@@ -76,6 +85,7 @@ def lambda_handler(event, context):
         result["status"] = "success"
         result["message"] = "col convert success"
     except Exception as e:
+        print("*"*50 + " ERROR " + "*"*50 + "\n" + str(e))
         statusCode = 500
         result["status"] = "failed"
         result["message"] = str(e)

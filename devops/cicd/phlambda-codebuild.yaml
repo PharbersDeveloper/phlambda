@@ -25,6 +25,10 @@ Parameters:
     Type: Number
     Default: 480
     Description : "TimeoutInMinutes"
+  BuildSpec:
+    Type: String
+    Default: lmdAndSfnBuildspec
+    Description: "BuildSpec"
   FunctionName:
     Type: String
     Default: phtestcodebuild
@@ -37,6 +41,14 @@ Parameters:
     Type: String
     Default: deprecated/phtestcodebuild
     Description: "FunctionPath"
+  FunctionPathPrefix:
+    Type: String
+    Default: deprecated
+    Description: "FunctionPath"
+  GitCommit:
+    Type: String
+    Default: 82f6ead16fabfa421803ae8634a37cd1a1fd10fe
+    Description: "GitCommit"
   GitUrl:
     Type: String
     Default: http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git
@@ -76,6 +88,9 @@ Resources:
         Type: LINUX_CONTAINER
         PrivilegedMode: true
         EnvironmentVariables:
+          - Name: FUNCTION_PATH_PREFIX
+            Type: PLAINTEXT
+            Value: !Ref FunctionPathPrefix
           - Name: FUNCTION_PATH
             Type: PLAINTEXT
             Value: !Ref FunctionPath
@@ -100,6 +115,9 @@ Resources:
           - Name: ALIAS
             Type: PLAINTEXT
             Value: !Ref Alias
+          - Name: GIT_COMMIT
+            Type: PLAINTEXT
+            Value: !Ref GitCommit
 
       FileSystemLocations:
         - Identifier: EFS
@@ -117,8 +135,8 @@ Resources:
       ServiceRole: arn:aws-cn:iam::444603803904:role/Pharbers-CICD-Maintainer
       # SourceVersion: 0.0.1 Might be useful late on
       Source:
-        BuildSpec: buildspec.yaml
-        Location: !Sub ph-platform/2020-11-11/cicd/${FunctionPath}/source/code.zip
+        BuildSpec: ${BuildSpec}.yaml
+        Location: !Sub ph-platform/2020-11-11/cicd/${BuildSpec}/code.zip
         Type: S3
       Artifacts:
         ArtifactIdentifier: String

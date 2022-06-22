@@ -9,10 +9,10 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcechangeposcleanup-dev
+      FunctionName: lmd-phcicdgetlmdandsfndetail-dev
       MemorySize: 1024
-      Description: "phresourcechangeposcleanup"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Description: "phcicdgetlmdandsfndetail"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
           EDITION: "DEV"

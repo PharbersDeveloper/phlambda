@@ -44,19 +44,22 @@ return:
             "index"：0,
             "currentStatus": running
         },
-        "lambda": [
+        "lambdaArgs": [
             {   
-                "name": "functionName"
+                "stackName": "functionName"
                 "functionPath": "",
-                "cfn": "codebuildS3Path",
+                "functionPrefixPath": "",
+                "buildSpec": "",
+                "codebuildCfn": "",
                 "functionName": "",
-                "branchName"："",
+                "branchName": "",
                 "repoName": "",
                 "alias": "",
+                "gitCommit": "",
                 "gitUrl": ""
             }, {...}
         ],
-        "sfn": {
+        "stepFunctionArgs": {
             "stateMachineName": "functionName + codebuild",
             "submitOwner": "",
             "s3Bucket": "",
@@ -67,6 +70,7 @@ return:
 '''
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml"
 git_url = "http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git"
+buildSpec = "lmdAndSfnBuildspec.yaml"
 
 
 def create_lambda_args(event):
@@ -76,11 +80,14 @@ def create_lambda_args(event):
         func_args = {
             "stackName": func["name"] + "codebuild",
             "functionPath": processor["prefix"] + "/" + func["name"],
+            "functionPrefixPath": processor["prefix"],
+            "buildSpec": processor["prefix"] + "/" + func["name"],
             "codebuildCfn": codebuild_cfn_path,
             "functionName": func["name"],
             "branchName": processor["branch"],
             "repoName": processor["repo"],
             "alias": event["alias"],
+            "gitCommit": event["commit"],
             "gitUrl": git_url
         }
         lambda_args.append(func_args)
@@ -114,4 +121,9 @@ def lambda_handler(event, context):
     # 处理step function相关信息
     stepfuntionArgs = create_step_function_args(event)
 
-    return 1
+    return {
+        "lmdCounts": lmdCounts,
+        "iterator": iterator,
+        "lambdaArgs": lambdaArgs,
+        "stepFunctionArgs": stepfuntionArgs
+    }

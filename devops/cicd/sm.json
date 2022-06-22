@@ -184,32 +184,24 @@
                   },
                   "CreateCurrentLmdArgs": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecurrentlmdargs-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "lmd.$": "$.metadata.lambda",
+                        "iterator.$": "$.metadata.iterator"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": "$.currentLmdArgs",
                      "Next": "CreateAsyncCodeBuildCfn"
                   },
                   "CreateAsyncCodeBuildCfn": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "action": "creation",
+                        "name.$": "$.currentLmdArgs.name",
+                        "parameters.$": "$.currentLmdArgs.parameters",
+                        "cfn.$": "$.currentLmdArgs.cfn"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "CodebuildWait"
                   },
                   "CodebuildWait": {
@@ -222,20 +214,20 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
                         "current.$": "$.iterator.index",
-                        "name.$": "$.currentStep.stackName",
+                        "name.$": "$.currentLmdArgs.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
                      "ResultPath": "$.iterator",
-                     "Next": "OlapStepsCountReached"
+                     "Next": "AsyncStepsCountReached"
                   },
-                  "OlapStepsCountReached": {
+                  "AsyncStepsCountReached": {
                      "Type": "Choice",
                      "Choices": [
                         {
                            "And": [
                               {
                                  "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.engine.counts"
+                                 "NumericEqualsPath": "$.metadata.lmdCounts"
                               },
                               {
                                  "Variable": "$.iterator.currentStatus",
@@ -249,32 +241,21 @@
                   },
                   "RunAsyncCodebuild": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "ProjectName.$": "$.currentLmdArgs.name"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "DeleteAsyncCodeBuildCfn"
                   },
                   "DeleteAsyncCodeBuildCfn": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "action": "deletion",
+                        "name.$": "$.currentLmdArgs.name"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "AsyncLmdCountReached"
                   },
                   "AsyncLmdCountReached": {
@@ -282,16 +263,8 @@
                      "InputPath": "$",
                      "Choices": [
                         {
-                           "And": [
-                              {
-                                 "Variable": "$.iterator.index",
-                                 "NumericEqualsPath": "$.metadata.count"
-                              },
-                              {
-                                 "Variable": "$.iterator.currentStatus",
-                                 "StringEquals": "succeed"
-                              }
-                           ],
+                           "Variable": "$.iterator.index",
+                           "NumericEqualsPath": "$.metadata.lmdCounts",
                            "Next": "UpdateAsyncManageYaml"
                         }
                      ],
@@ -299,15 +272,14 @@
                   },
                   "UpdateAsyncManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdateasyncmanageyaml-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "version.$": "$.common.version",
+                        "commit.$": "$.common.commit",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "processor.$": "$.processor"
                      },
                      "ResultPath": "$.dagItems",
                      "Next": "AsyncBranchEnd"

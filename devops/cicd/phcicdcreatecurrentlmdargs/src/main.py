@@ -8,8 +8,8 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "iterator": {
-            "count": 1,
-            "index": 0
+            "index": 1,
+            "currentStatus": running / success
         }
         "lambda": [
             {   
@@ -33,11 +33,7 @@ args:
     }
 return:
     {
-        "iterator": {
-            "count": 1,
-            "index": 1
-        },
-        "currentStep": {
+        "currentLmdArgs": {
             {
                 "name": "functionName + codebuild"
                 "cfn": "codebuildS3Path",

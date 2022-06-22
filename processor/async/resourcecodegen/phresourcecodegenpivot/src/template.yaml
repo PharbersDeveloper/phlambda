@@ -130,6 +130,7 @@ template:
             g_pivot_globalCount = g_pivot['globalCount']
             g_pivot_keyColumns = g_pivot['keyColumns']
             g_pivot_valueColumns = g_pivot['valueColumns']
+            g_pivotedColumnType = g_pivot['pivotedColumnType']
 
             # ===============  执行  =================
             # preFilter
@@ -145,6 +146,7 @@ template:
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
 
             # pivots  
-            df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount)
+            if g_pivotedColumnType == 'all':
+                df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount)
 
             return {"out_df":df}

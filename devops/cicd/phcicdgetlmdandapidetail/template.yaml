@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-V2
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -9,11 +9,11 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      FunctionName: lmd-phresourcechangeposcleanup-dev
+      MemorySize: 1024
+      Description: "phresourcechangeposcleanup"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phsamplefailedhook-dev
-      Description: "phsamplefailedhook"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      MemorySize: 1024
-      Timeout: 600
+

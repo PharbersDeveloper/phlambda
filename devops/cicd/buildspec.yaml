@@ -1,0 +1,15 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  pre_build:
+    commands:
+      - cd /code/$REPO_NAME
+      - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
+      - git checkout $GIT_COMMIT
+  build:
+    commands:
+      - sam package --template-file $FUNCTION_PATH/template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALIAS
+      - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
+      - aws s3 cp $FUNCTION_PREFIX_PATH/sm.json s3://ph-platform/2020-11-11/cicd/$FUNCTION_PREFIX_PATH/sm.json

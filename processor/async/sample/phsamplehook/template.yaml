@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phstatemachinehook-dev
-      Description: "phstatemachinehook"
+      FunctionName: lmd-phsamplegen-dev
+      Description: "phsamplegen"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

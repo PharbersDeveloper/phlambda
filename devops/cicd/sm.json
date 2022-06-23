@@ -271,9 +271,69 @@
                         "publisher.$": "$.common.publisher",
                         "alias.$": "$.common.alias",
                         "runtime.$": "$.common.runtime",
-                        "processor.$": "$.processor"
+                        "processor.$": "$.processor",
+                        "lambdaArgs.$": "$.lambdaArgs"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": "$.stackMessage",
+                     "Next": "CreateManageStack"
+                  },
+                  "CreateManageStack": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Parameters": {
+                        "stackName.$": "$.stackMessage.stackName",
+                        "manageUrl.$": "$.stackMessage.manageUrl"
+                     },
+                     "ResultPath": "$.changeSetMsg",
+                     "Next": "JudgeExecuteChangeSet"
+                  },
+                  "JudgeExecuteChangeSet": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetMsg.changeSetName",
+                           "IsNull": true,
+                           "Next": "AsyncBranchEnd"
+                        }
+                     ],
+                     "Default": "ChangeSetWait"
+                  },
+                  "ChangeSetWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CheckChangeSet"
+                  },
+                  "CheckChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "manageUrl.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": "$.changeSetStatus",
+                     "Next": "ChangeSetStatusReached"
+                  },
+                  "ChangeSetStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetStatus",
+                           "BooleanEquals": true,
+                           "Next": "ExecutionChangeSet"
+                        }
+                     ],
+                     "Default": "ChangeSetWait"
+                  },
+                  "ExecutionChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "manageUrl.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": null,
                      "Next": "AsyncBranchEnd"
                   },
                   "AsyncBranchEnd": {

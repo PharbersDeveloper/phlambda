@@ -9,6 +9,8 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       FunctionName: lmd-phcicdupdateasyncmanageyaml-dev
       MemorySize: 1024
       Description: "phcicdupdateasyncmanageyaml"

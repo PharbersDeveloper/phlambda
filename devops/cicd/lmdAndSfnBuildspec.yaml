@@ -10,7 +10,7 @@ phases:
       - git checkout $GIT_COMMIT
   build:
     commands:
-      - sed -i s#$VERSION#${Version}#  $FUNCTION_PATH/template.yaml
+      - sed -i s#ReplaceAlias#$VERSION#  $FUNCTION_PATH/template.yaml
       - sam package --template-file $FUNCTION_PATH/template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$VERSION
       - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
       - aws s3 cp $FUNCTION_PATH_PREFIX/sm.json s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH_PREFIX/sm.json

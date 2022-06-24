@@ -86,7 +86,7 @@ def create_lambda_args(event):
             "functionName": func["name"],
             "branchName": processor["branch"],
             "repoName": processor["repo"],
-            "alias": event["version"],
+            "version": event["version"],
             "gitCommit": event["commit"],
             "gitUrl": git_url
         }

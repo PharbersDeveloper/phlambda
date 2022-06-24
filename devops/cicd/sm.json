@@ -272,7 +272,7 @@
                         "alias.$": "$.common.alias",
                         "runtime.$": "$.common.runtime",
                         "processor.$": "$.processor",
-                        "lambdaArgs.$": "$.lambdaArgs"
+                        "lambdaArgs.$": "$.metadata.lambdaArgs"
                      },
                      "ResultPath": "$.stackMessage",
                      "Next": "CreateManageStack"

@@ -33,9 +33,8 @@ template:
 
             # columnsMatches
             for i_columnsMatch in g_columnsMatches:
-                nullCols = set(g_selectedColumns) - set(i_columnsMatch['columns'])
                 i_ds = i_columnsMatch['ds']
-                dict_df[i_ds] = dict_df[i_ds].select( [func.lit(None).cast("string").alias(i) if i in nullCols else col(i) for i in g_selectedColumns] )
+                dict_df[i_ds] = dict_df[i_ds].select( [func.lit(None).cast("string").alias(g_selectedColumns[i]) if i_colname == None else col(i_colname).alias(g_selectedColumns[i]) for i,i_colname in enumerate(i_columnsMatch['columns'])] )
 
             # selectedColumns
             dict_df = {k:v.select(g_selectedColumns) for k,v in dict_df.items()}

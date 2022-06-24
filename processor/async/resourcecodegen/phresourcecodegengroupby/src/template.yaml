@@ -94,6 +94,7 @@ template:
             g_postFilter = $g_postFilter$
             g_values = $g_values$
             g_l_keys = $g_keys$
+            g_globalCount = $g_globalCount$
 
             # ===============  执行  =================
             # preFilter
@@ -108,8 +109,17 @@ template:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
                             
-            # groupby  
-            df = groupbyFunc(df, g_l_keys, g_values)
+            # g_globalCount
+            if g_globalCount == True:
+                df_globalCount = df.groupby(g_l_keys).count()
+                            
+            # groupby
+            if len(g_values) > 0:
+                df = groupbyFunc(df, g_l_keys, g_values)
+                if g_globalCount == True:
+                    df = df.join(df_globalCount, on=g_l_keys, how='left')
+            else:
+                df = df_globalCount
             
             # postFilter
             if g_postFilter['enabled'] == True:

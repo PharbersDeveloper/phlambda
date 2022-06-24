@@ -36,6 +36,7 @@ event = {
             "expressionsValue": "JSON",
             "expressions":{
                            "params": {
+                                   "globalCount": True,
                                     "preFilter": {
                                         "distinct": True,
                                         "enabled": False,
@@ -45,6 +46,30 @@ event = {
                                     "keys": ["pha"],
                                     "values": [
                                         {"column": "sales",
+
+                                            "countDistinct": True,
+                                            "min": True,
+                                            "avg": True,
+                                            "max": True,
+                                            "count": True,
+                                            "sum": True,
+                                            "stddev": True,
+
+                                            "last": True,
+                                            "first": True,
+                                            "firstLastNotNull": True,
+                                            "orderColumn": "date",
+
+                                            "concat": True,
+                                            "concatSeparator": ",",
+                                            "concatDistinct": True,
+
+                                            "type": "string",
+                                            "index": 0,
+
+
+                                        },
+                                         {"column": "units",
 
                                             "countDistinct": True,
                                             "min": True,
@@ -85,8 +110,8 @@ event = {
     ]
 }
 
-'''
 
+'''
 def lambda_handler(event, context):
     g_flowVersion = event['flowVersion']
     g_projectName = event['projectName']
@@ -100,6 +125,7 @@ def lambda_handler(event, context):
     g_computedColumns = params['computedColumns']
     g_values = params['values']
     g_keys = params['keys']
+    g_globalCount = params['globalCount']
 
     # 读取yaml文件
     template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
@@ -112,7 +138,8 @@ def lambda_handler(event, context):
                         .replace("$g_postFilter$", str(g_postFilter)) \
                         .replace("$g_computedColumns$", str(g_computedColumns)) \
                         .replace("$g_values$", str(g_values)) \
-                        .replace("$g_keys$", str(g_keys))
+                        .replace("$g_keys$", str(g_keys)) \
+                        .replace("$g_globalCount$", str(g_globalCount))
 
     # 写出到s3
     def getScriptPathKey(g_projectName, g_flowVersion, g_output):

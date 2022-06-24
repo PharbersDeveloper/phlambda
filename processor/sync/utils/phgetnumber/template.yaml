@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phgetnumber-V2
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -17,6 +17,6 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "V2"
       Timeout: 30
 

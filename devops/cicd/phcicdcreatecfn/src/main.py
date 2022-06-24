@@ -108,5 +108,5 @@ def lambda_handler(event, context):
         create_stack(stackName, manageUrl, event["stepFunctionArgs"])
     return {
         "stackName": stackName,
-        "changeName": changeSetName
+        "changeSetName": changeSetName
     }

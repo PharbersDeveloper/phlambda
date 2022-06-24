@@ -44,7 +44,7 @@
          "Type": "Parallel",
          "InputPath": "$",
          "ResultPath": "$.metadata",
-         "Next": "SuccessMessage",
+         "Next": "Success",
          "Branches": [
             {
                "StartAt": "CreateTriggerChoice",
@@ -283,6 +283,7 @@
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
+                        "version.$": "$.common.version",
                         "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
                      },
                      "ResultPath": "$.changeSetMsg",
@@ -310,7 +311,7 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
-                        "manageUrl.$": "$.changeSetMsg.changeSetName"
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
                      },
                      "ResultPath": "$.changeSetStatus",
                      "Next": "ChangeSetStatusReached"
@@ -332,7 +333,7 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
-                        "manageUrl.$": "$.changeSetMsg.changeSetName"
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
                      },
                      "ResultPath": null,
                      "Next": "AsyncBranchEnd"
@@ -369,35 +370,8 @@
             }
          ]
       },
-      "SuccessMessage": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangepossuccessmsg-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments"
-         },
-         "ResultPath": "$.message",
-         "Next": "Success"
-      },
       "Success": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.message",
-            "status": "success"
-         },
+         "Type": "Pass",
          "End": true
       },
       "CleanUp": {

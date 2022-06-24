@@ -117,20 +117,22 @@ def s3_file_exist(s3_key, s3_path):
 
 
 def lambda_handler(event, context):
+    print(event)
     # 从s3下载sfn template文件
     download_s3_file(sfnTemplateS3Key, sfnTemplateS3Path, sfnLocalPath)
     # 判断manage.yaml文件是否存在 存在则下载 对此文件进行更改
-    if s3_file_exist("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "manage.yaml"):
-        download_s3_file("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "manage.yaml",
+    if s3_file_exist("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "/manage.yaml"):
+        download_s3_file("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "/manage.yaml",
                          mangeLocalPath)
+        manage_result = read_yaml_file(mangeLocalPath)
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
-    # 读取manage.yaml文件内容
-    manage_result = read_yaml_file(mangeLocalPath)
-    manage_result["Resources"] = {}
-    manage_result["Parameters"] = {}
-    manage_result["Outputs"] = {}
+        # 读取manage.yaml文件内容
+        manage_result = read_yaml_file(mangeLocalPath)
+        manage_result["Resources"] = {}
+        manage_result["Parameters"] = {}
+        manage_result["Outputs"] = {}
     print(manage_result)
     # 将sfnTemplate.yaml文件写入到 manage文件中
     sfnTemplateResult = read_yaml_file(sfnLocalPath)

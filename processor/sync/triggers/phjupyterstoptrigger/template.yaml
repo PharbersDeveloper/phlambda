@@ -11,8 +11,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phjupyterstoptrigger-dev
+          EDITION: "V2"
+      FunctionName: lmd-phjupyterstoptrigger-V2
       Description: "stop jupyter trigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

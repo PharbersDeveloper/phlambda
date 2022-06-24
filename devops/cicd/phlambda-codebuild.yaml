@@ -61,10 +61,10 @@ Parameters:
     Type: String
     Default: phlambda
     Description: "RepoName"
-  Alias:
+  Version:
     Type: String
     Default: dev
-    Description: "Alias"
+    Description: "Version"
 
 
 Resources:
@@ -112,9 +112,9 @@ Resources:
           - Name: REPO_NAME
             Type: PLAINTEXT
             Value: !Ref RepoName
-          - Name: ALIAS
+          - Name: VERSION
             Type: PLAINTEXT
-            Value: !Ref Alias
+            Value: !Ref Version
           - Name: GIT_COMMIT
             Type: PLAINTEXT
             Value: !Ref GitCommit

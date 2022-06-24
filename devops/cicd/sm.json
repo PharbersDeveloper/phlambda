@@ -61,7 +61,7 @@
                         {
                            "Variable": "$.trigger.required",
                            "BooleanEquals": false,
-                           "Next": "BranchEnd"
+                           "Next": "ApiBranchEnd"
                         }
                      ],
                      "Default": "GetLmdAndApiDetail"
@@ -94,9 +94,36 @@
                         "script.$": "$.script"
                      },
                      "ResultPath": "$.dagItems",
-                     "Next": "RunCodebuild"
+                     "Next": "ApiLmdCodebuildWait"
                   },
-                  "RunCodebuild": {
+                  "ApiLmdCodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiLmdCodebuildCheck"
+                  },
+                  "ApiLmdCodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.currentLmdArgs.name",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.metadata.iterator",
+                     "Next": "ApiLmdCodebuildReached"
+                  },
+                  "ApiLmdCodebuildReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
+                           "Next": "RunApiCodebuild"
+                        }
+                     ],
+                     "Default": "ApiLmdCodebuildWait"
+                  },
+                  "RunApiCodebuild": {
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
                      "Parameters": {
@@ -139,9 +166,70 @@
                         "script.$": "$.script"
                      },
                      "ResultPath": "$.dagItems",
-                     "Next": "BranchEnd"
+                     "Next": "ApiCreateManageStack"
                   },
-                  "BranchEnd": {
+                  "ApiCreateManageStack": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Parameters": {
+                        "stackName.$": "$.stackMessage.stackName",
+                        "manageUrl.$": "$.stackMessage.manageUrl",
+                        "version.$": "$.common.version",
+                        "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
+                     },
+                     "ResultPath": "$.changeSetMsg",
+                     "Next": "ApiJudgeExecuteChangeSet"
+                  },
+                  "ApiJudgeExecuteChangeSet": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetMsg.changeSetName",
+                           "IsNull": true,
+                           "Next": "ApiBranchEnd"
+                        }
+                     ],
+                     "Default": "ApiChangeSetWait"
+                  },
+                  "ApiChangeSetWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiCheckChangeSet"
+                  },
+                  "ApiCheckChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": "$.changeSetStatus",
+                     "Next": "ApiChangeSetStatusReached"
+                  },
+                  "ApiChangeSetStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetStatus",
+                           "BooleanEquals": true,
+                           "Next": "ApiExecutionChangeSet"
+                        }
+                     ],
+                     "Default": "ApiChangeSetWait"
+                  },
+                  "ApiExecutionChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": null,
+                     "Next": "ApiBranchEnd"
+                  },
+                  "ApiBranchEnd": {
                      "Type": "Pass",
                      "ResultPath": "$",
                      "End": true

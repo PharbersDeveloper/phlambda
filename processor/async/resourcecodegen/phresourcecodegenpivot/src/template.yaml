@@ -100,8 +100,7 @@ template:
             df_out_pivot = df_for_pivot.groupby(g_groupByOn_final).pivot("col_pivot").agg(*[func.first(i).alias(i) for i in l_pivot_cols])
 
             if g_pivot_globalCount == True:
-                df_globalCount = df.groupby(g_groupByOn_final).count() \
-                                    .withColumnRenamed('count', 'globalCount')
+                df_globalCount = df.groupby(g_groupByOn_final).count()
                 df_out_pivot = df_out_pivot.join(df_globalCount, on=g_groupByOn_final, how='left')
 
             # otherColumns 合并 df_out_pivot

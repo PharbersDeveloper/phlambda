@@ -111,7 +111,7 @@ template:
                             
             # g_globalCount
             if g_globalCount == True:
-                df_globalCount = df.groupby(g_l_keys).count().withColumnRenamed('count', 'globalCount')
+                df_globalCount = df.groupby(g_l_keys).count()
                             
             # groupby
             if len(g_values) > 0:

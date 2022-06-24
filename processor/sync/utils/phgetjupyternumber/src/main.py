@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     print(tenantId)
     try:
         if jupyterResourceCount(tenantId) <= 100:
-            numbers = [i+1 for i in range(100)]
+            numbers = [i+1 for i in range(20, 100)]
             prioritys = [int(resource_item.get('priority', 0)) for resource_item in query_resource(tenantId)]
             priority = min(list(set(numbers) - set(prioritys))) if prioritys else 0
             print(priority)

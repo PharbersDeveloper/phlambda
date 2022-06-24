@@ -360,7 +360,8 @@
                         "alias.$": "$.common.alias",
                         "runtime.$": "$.common.runtime",
                         "processor.$": "$.processor",
-                        "lambdaArgs.$": "$.metadata.lambdaArgs"
+                        "lambdaArgs.$": "$.metadata.lambdaArgs",
+                        "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
                      },
                      "ResultPath": "$.stackMessage",
                      "Next": "CreateManageStack"
@@ -372,7 +373,7 @@
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
                         "version.$": "$.common.version",
-                        "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
+                        "stackParameters.$": "$.stackMessage.stackParameters"
                      },
                      "ResultPath": "$.changeSetMsg",
                      "Next": "JudgeExecuteChangeSet"

@@ -2,7 +2,7 @@ import boto3
 
 
 def lambda_handler(event, context):
-    # cicd 1317
+    # cicd 1503
     print(event)    
     
     # 1. delete cloudformation with arn

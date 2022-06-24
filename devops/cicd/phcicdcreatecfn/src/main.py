@@ -62,12 +62,12 @@ def check_stack(stackName):
     return result
 
 
-def create_stack(stackName, cfnPath, stepFunctionArgs):
+def create_stack(stackName, cfnPath, stackParameters):
     parameters = []
-    for item in stepFunctionArgs.keys():
+    for item in stackParameters.keys():
         tmp = {}
         tmp["ParameterKey"] = item
-        tmp["ParameterValue"] = stepFunctionArgs[item]
+        tmp["ParameterValue"] = stackParameters[item]
         parameters.append(tmp)
     response = cfn_client.create_stack(
         StackName=stackName,
@@ -77,12 +77,12 @@ def create_stack(stackName, cfnPath, stepFunctionArgs):
     )
 
 
-def create_stack_change_set(stackName, cfnPath, stepFunctionArgs, changeSetName):
+def create_stack_change_set(stackName, cfnPath, stackParameters, changeSetName):
     parameters = []
-    for item in stepFunctionArgs.keys():
+    for item in stackParameters.keys():
         tmp = {}
         tmp["ParameterKey"] = item
-        tmp["ParameterValue"] = stepFunctionArgs[item]
+        tmp["ParameterValue"] = stackParameters[item]
         parameters.append(tmp)
     response = cfn_client.create_change_set(
         StackName=stackName,
@@ -103,9 +103,9 @@ def lambda_handler(event, context):
     manageUrl = event["manageUrl"]
     if check_stack(stackName):
         changeSetName = stackName + "-" + event["version"]
-        create_stack_change_set(stackName, manageUrl, event["stepFunctionArgs"], changeSetName)
+        create_stack_change_set(stackName, manageUrl, event["stackParameters"], changeSetName)
     else:
-        create_stack(stackName, manageUrl, event["stepFunctionArgs"])
+        create_stack(stackName, manageUrl, event["stackParameters"])
     return {
         "stackName": stackName,
         "changeSetName": changeSetName

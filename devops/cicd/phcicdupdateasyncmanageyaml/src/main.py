@@ -38,11 +38,8 @@ args:
             },
 return:
     {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
+        "manageUrl": manageUrl,
+        "stackName": stackName
     }
 }
 '''
@@ -172,5 +169,6 @@ def lambda_handler(event, context):
 
     return {
         "manageUrl": manageUrl,
-        "stackName": stackName
+        "stackName": stackName,
+        "stackParameters": event["stepFunctionArgs"]
     }

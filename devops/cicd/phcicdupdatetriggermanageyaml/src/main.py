@@ -7,80 +7,59 @@ dynamodb = boto3.resource('dynamodb')
 将错误提取出来写入到notification中
 args:
     event = {
-                "projectId": "ggjpDje0HUC2JW",
-                "traceId": "",
-                "projectName": "demo",
-                "owner": "alfred",
-                "showName": "alfred",
-                "errors": {
+                "version": "V001",
+                "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+                "publisher": "赵浩博",
+                "alias": "V001",
+                "runtime": "dev",
+                "trigger": {
+                    "repo": "phlambda",
+                    "branch": "feature/PBDP-3043-async-cicd-state-machine",
+                    "prefix": "processor/sync/triggers/phsampletrigger",
+                    "lmdName": "lmd-phsampletrigger-dev",
+                    "sm": "processor/async/sample/sm.json",
+                    "entry": {
+                        "type": "Api GateWay",
+                        "resource": "phsampletrigger"
+                        "method": ["POST"]
+                    },
+                    "required": true
+                },
+                "apiGateWayArgs": {
+                    "method": ["POST"],
+                    "PathPart": "phsampletrigger",
+                    "LmdName": "lmd-phsampletrigger-dev",
+                    "RestApiId": "",
+                    "AuthorizerId": "",
+                    "ParentId": ""
                 }
             },
 return:
     {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
+        "manageUrl": manageUrl,
+        "stackName": stackName，
+        "stackParameters": stackParameters 
     }
 }
 '''
-
-
-def update_dag_item(dagItems):
-
-    dag_table = dynamodb.Table('dag')
-    for delete_item in dagItems["insertItems"]:
-        dag_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "sortVersion": delete_item["sortVersion"]
-            }
-        )
-
-    for insert_item in dagItems["deleteItems"]:
-        res = dag_table.put_item(
-            Item=insert_item
-        )
-
-
-def update_dagconf_item(scriptItems):
-
-    dagconf_table = dynamodb.Table('dagconf')
-    for delete_item in scriptItems["insertItems"]:
-        dagconf_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "jobName": delete_item["jobName"]
-            }
-        )
-
-    for insert_item in scriptItems["deleteItems"]:
-        res = dagconf_table.put_item(
-            Item=insert_item
-        )
+manageTemplateS3Key = "ph-platform"
+manageTemplateS3Path = "2020-11-11/cicd/template/manageTemplate.yaml"
+sfnTemplateS3Key = "ph-platform"
+sfnTemplateS3Path = "2020-11-11/cicd/template/sfnTemplate.yaml"
+resourcePathPrefix = "2020-11-11/cicd/"
+manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
+mangeLocalPath = "/tmp/manage.yaml"
+sfnLocalPath = "/tmp/sfnTemplate.yaml"
 
 
 def lambda_handler(event, context):
-    print(event)
-    # item处理
-    # 恢复dag表中已经删除的item
-    # 删除dag表中已经创建的item
-    if event.get("dagItems"):
-        update_dag_item(event["dagItems"])
-    # 恢复dagconf表中已经删除的item
-    # 删除dagconf表中已经删除的item
-    if event.get("scriptItems"):
-        update_dagconf_item(event["scriptItems"])
-    # 删除s3上脚本路径上的文件
 
-    # 创建失败的 notification message
-    message = {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": "{}",
-            "error": json.dumps(event["errors"])
-        }
-    }
-    return message
+    # 1 下载ApiResource文件、
+    #   POST, GET, OPTIONS, DELETE, PATCH 每个method使用一种模板
+    # 2 下载manage template文件
+    # 3 将 api 相关信息写入到 manage中
+    # 4 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"
+    # 5 将 function package文件内容写入 manage中
+    # 6 上传manage文件 manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
+
+    return 1

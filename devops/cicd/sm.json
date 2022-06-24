@@ -282,7 +282,8 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
-                        "manageUrl.$": "$.stackMessage.manageUrl"
+                        "manageUrl.$": "$.stackMessage.manageUrl",
+                        "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
                      },
                      "ResultPath": "$.changeSetMsg",
                      "Next": "JudgeExecuteChangeSet"

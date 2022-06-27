@@ -57,7 +57,7 @@ return = {
                 }
             }
         ]
-            
+
     }
 }
 '''
@@ -83,8 +83,10 @@ def lambda_handler(event, context):
         tmp = {}
         tmp = json.loads(tenant_item["properties"])
         for item in tmp:
-            item["stackName"] = "-".join([tenant_item["role"], item["type"], event["tenantId"], tenant_item["ownership"], tenant_item["owner"]])
-        
+            item["stackName"] = "-".join(
+                [tenant_item["role"], item["type"], event["resourceId"], tenant_item["ownership"],
+                 tenant_item["owner"]])
+
         metadata[tenant_item["role"]] = {
             "counts": len(tmp),
             "steps": tmp

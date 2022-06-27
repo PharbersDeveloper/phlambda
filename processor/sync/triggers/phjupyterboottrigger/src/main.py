@@ -31,8 +31,8 @@ class SolveStackName:
         for elem in ItemOfResource:
             properties = elem['properties']
             properties = (json.loads(properties) if isinstance(properties, str) else properties)[0]
-            # 1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>-<ownership>-<owner>
-            stackName = '-'.join([elem['role'], properties['type'], elem['tenantId'], elem['ownership'], elem['owner']])
+            # 1.3 stackname 的名字规则为  <role>-<property.type>-<id>-<ownership>-<owner>---->> 此处id 为resourceId
+            stackName = '-'.join([elem['role'], properties['type'], elem['id'], elem['ownership'], elem['owner']])
             stackNameList.append(stackName)
         return stackNameList
 

@@ -27,7 +27,7 @@ def lambda_handler(event, context):
     resources = table.query(
         KeyConditionExpression=Key("tenantId").eq(event["tenantId"]) & Key("id").eq(event["resourceId"])
     )["Items"]
-    
+
     print(resources)
 
     stackNames = []
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     for tenant_item in resources:
         tmp = json.loads(tenant_item["properties"])
         for item in tmp:
-            stackNames.append("-".join([tenant_item["role"], item["type"], event["tenantId"], tenant_item["ownership"], tenant_item["owner"]]))
+            stackNames.append("-".join([tenant_item["role"], item["type"], event["resourceId"], tenant_item["ownership"], tenant_item["owner"]]))
 
 
     stackNames = list(map(lambda x: x.replace("_", "-").replace(":", "-").replace("+", "-"), stackNames))

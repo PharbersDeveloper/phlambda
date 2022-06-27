@@ -34,12 +34,24 @@ def executeSql(sql, method, tenantId):
     return res.read().decode("utf-8")
 
 
+def IsDBException(SqlExecuteResponse):
+    import re
+    error_pattern = "DB::Exception"
+    match_result = re.findall(pattern=error_pattern, string=str(SqlExecuteResponse))
+    if len(match_result) > 0:
+        return True
+    else:
+        return False
+
 
 def get_result_of_executeSql(args):
 
     try:
         res = executeSql(args["query"], "GET", args["tenantId"])
         print("*"*50 + " rows " + "*"*50 + "\n", res)
+        Signal = IsDBException(res)
+        if Signal is True:
+            raise Exception(str(res))
 
         rows = filter(lambda x: x != '', res.split("\n"))
 

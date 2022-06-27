@@ -68,32 +68,27 @@
                   },
                   "GetLmdAndApiDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandapidetail-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "trigger.$": "$.trigger"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": "$.metadata",
                      "Next": "CreateCodeBuildCfn"
                   },
                   "CreateCodeBuildCfn": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "action": "creation",
+                        "name.$": "$.metadata.lambdaArgs.name",
+                        "parameters.$": "$.metadata.lambdaArgs.parameters",
+                        "cfn.$": "$.metadata.lambdaArgs.cfn"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "ApiLmdCodebuildWait"
                   },
                   "ApiLmdCodebuildWait": {
@@ -106,7 +101,7 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
                         "current.$": "$.metadata.iterator.index",
-                        "name.$": "$.currentLmdArgs.name",
+                        "name.$": "$.metadata.lambdaArgs.name",
                         "expect": "CREATE_COMPLETE"
                      },
                      "ResultPath": "$.metadata.iterator",
@@ -125,37 +120,26 @@
                   },
                   "RunApiCodebuild": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "ProjectName.$": "$.metadata.lambdaArgs.name"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "DeleteCodeBuildCfn"
                   },
                   "DeleteCodeBuildCfn": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "datasets.$": "$.datasets",
-                        "script.$": "$.script"
+                        "action": "deletion",
+                        "name.$": "$.metadata.lambdaArgs.name"
                      },
-                     "ResultPath": "$.dagItems",
+                     "ResultPath": null,
                      "Next": "UpdateTriggerManageYaml"
                   },
                   "UpdateTriggerManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdatetriggermanageyaml-dev",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",

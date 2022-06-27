@@ -114,7 +114,7 @@ def list_cloudformation_ssm_name(resource, resourceId):
     ssmNameList = []
     properties = json.loads(resource["properties"])
     for prop in properties:
-        stackName = "-".join([resource["role"], prop["type"], resource["tenantId"], resource["ownership"],
+        stackName = "-".join([resource["role"], prop["type"], resourceId, resource["ownership"],
                               resource["owner"]]).replace("_", "-").replace(":", "-").replace("+", "-")
 
         ssmName = '-'.join([prop['type'], resource['owner'], resourceId]).replace("=", "-")

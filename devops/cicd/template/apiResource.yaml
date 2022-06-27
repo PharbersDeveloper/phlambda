@@ -41,7 +41,7 @@ Resources:
     Properties:
       ApiKeyRequired: false
       RestApiId: !Ref RestApiId
-      ResourceId: !Ref projectResource
+      ResourceId: !Ref triggerResource
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
@@ -66,12 +66,12 @@ Resources:
           ResponseModels:
             "application/json": "Empty"
 
-  GetMethod:
+  GETMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
       RestApiId: !Ref RestApiId
-      ResourceId: !Ref typeResource
+      ResourceId: !Ref triggerResource
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
@@ -96,12 +96,12 @@ Resources:
           ResponseModels:
             "application/json": "Empty"
 
-  DeleteMethod:
+  DELETEMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
       RestApiId: !Ref RestApiId
-      ResourceId: !Ref idResource
+      ResourceId: !Ref triggerResource
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
@@ -126,12 +126,12 @@ Resources:
           ResponseModels:
             "application/json": "Empty"
 
-  PatchMethod:
+  PATCHMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
       RestApiId: !Ref RestApiId
-      ResourceId: !Ref idResource
+      ResourceId: !Ref triggerResource
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
@@ -161,7 +161,7 @@ Resources:
     Properties:
       ApiKeyRequired: false
       RestApiId: !Ref RestApiId
-      ResourceId: !Ref projectResource
+      ResourceId: !Ref triggerResource
       HttpMethod: OPTIONS
       AuthorizationType: NONE
       Integration:

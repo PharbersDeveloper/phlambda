@@ -9,15 +9,15 @@ cfn_client = boto3.client('cloudformation')
 args:
     event = {
                 "version": "V001",
-                "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
                 "publisher": "赵浩博",
                 "alias": "V001",
                 "runtime": "dev",
                 "trigger": {
                     "repo": "phlambda",
+                    "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
                     "branch": "feature/PBDP-3043-async-cicd-state-machine",
-                    "prefix": "processor/sync/triggers/phsampletrigger",
-                    "lmdName": "lmd-phsampletrigger-dev",
+                    "prefix": "processor/sync/triggers",
+                    "functionName": "phsampletrigger",
                     "sm": "processor/async/sample/sm.json",
                     "entry": {
                         "type": "Api GateWay",
@@ -131,10 +131,13 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def insert_api_resource(methods, apiResourceResult):
+def insert_api_resource(pathPart, methods, apiResourceResult):
+    currentAPiResult = {}
+    currentAPiResult[pathPart + "Resource"] = apiResourceResult["Resources"]["Resource"]
     for method in methods:
+        currentAPiResult[pathPart + method.upper() + "method"] = apiResourceResult["Resources"][method.upper() + "method"]
 
-    return 1
+    return currentAPiResult
 
 
 def lambda_handler(event, context):
@@ -158,9 +161,8 @@ def lambda_handler(event, context):
     print(manage_result)
 
     # 3 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"
-    lambdaArg = event["lambdaArgs"]
-    functionPath = lambdaArg["parameters"]["FunctionPath"]
-    functionName = lambdaArg["parameters"]["FunctionName"]
+    functionName = event["trigger"]["functionName"]
+    functionPath = event["trigger"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
     package_local_path = "/tmp/" + functionName + "/package.yaml"
@@ -180,8 +182,22 @@ def lambda_handler(event, context):
     manage_result["Outputs"].update(apiResourceResult.get("Outputs", {}))
     apiGateWayArgs = event["apiGateWayArgs"]
     methods = apiGateWayArgs["methods"]
-    currentAPiResult = insert_api_resource(methods, apiResourceResult)
+    currentAPiResult = insert_api_resource(apiGateWayArgs["PathPart"], methods, apiResourceResult)
     manage_result["Resources"].update(currentAPiResult)
+    write_yaml_file(manage_result, mangeLocalPath)
     # 6 上传manage文件 manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
+    upload_s3_file(
+        bucket_name=manageTemplateS3Key,
+        object_name=resourcePathPrefix + event["trigger"]["prefix"] + "/manage.yaml",
+        file=mangeLocalPath
+    )
+    manageUrl = manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
+    print(manageUrl)
+    # 创建resource cfn
+    stackName = functionName + "-apiresource"
 
-    return 1
+    return {
+        "manageUrl": manageUrl,
+        "stackName": stackName,
+        "stackParameters": event["stepFunctionArgs"]
+    }

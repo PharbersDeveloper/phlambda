@@ -34,29 +34,47 @@ def executeSql(sql, method, tenantId):
     return res.read().decode("utf-8")
 
 
+
+def get_result_of_executeSql(args):
+
+    result = {}
+    final_res = []
+    try:
+        res = executeSql(args["query"], "GET", args["tenantId"])
+
+        rows = filter(lambda x: x != '', res.split("\n"))
+        print("*"*50 + " rows " + "*"*50 + "\n" + rows)
+
+        # 这里没有任何的错误处理
+        columns = args["schema"]
+
+        for row in rows:
+            cells = row.split("\t")
+
+            tmp = {}
+            for index in range(len(cells)):
+                tmp[columns[index]] = cells[index]
+
+            final_res.append(tmp)
+        result["status"] = "ok"
+        result["message"] = "query is successful."
+        result["response"] = final_res
+    except Exception as e:
+        result["status"] = "failed"
+        result["message"] = f"query failed, error: {str(e)}"
+        result["response"] = final_res
+    finally:
+
+        return {
+            "statusCode": 200,
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "body": json.dumps(result, ensure_ascii=False)
+        }
+
+
 def lambda_handler(event, context):
     # 直接转proxy转发
     args = eval(event["body"])
     # res = executeSql(args["query"], "GET", args["projectId"])
-    res = executeSql(args["query"], "GET", args["tenantId"])
-
-    rows = filter(lambda x: x != '', res.split("\n"))
-
-    # 这里没有任何的错误处理
-    columns = args["schema"]
-
-    final_res = []
-    for row in rows:
-        cells = row.split("\t")
-
-        tmp = {}
-        for index in range(len(cells)):
-            tmp[columns[index]] = cells[index]
-
-        final_res.append(tmp)
-
-    return {
-        "statusCode": 200,
-        "headers": {"Access-Control-Allow-Origin": "*"},
-        "body": json.dumps(final_res, ensure_ascii=False)
-    }
+    result = get_result_of_executeSql(args)
+    return result

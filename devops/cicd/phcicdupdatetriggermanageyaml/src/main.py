@@ -14,14 +14,14 @@ args:
                 "runtime": "dev",
                 "trigger": {
                     "repo": "phlambda",
-                    "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
                     "branch": "feature/PBDP-3043-async-cicd-state-machine",
                     "prefix": "processor/sync/triggers",
+                    "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
                     "functionName": "phsampletrigger",
                     "sm": "processor/async/sample/sm.json",
                     "entry": {
                         "type": "Api GateWay",
-                        "resource": "phsampletrigger"
+                        "resource": "phsampletrigger",
                         "method": ["POST"]
                     },
                     "required": true
@@ -30,11 +30,11 @@ args:
                     "methods": ["POST"],
                     "PathPart": "phsampletrigger",
                     "LmdName": "lmd-phsampletrigger-dev",
-                    "RestApiId": "",
-                    "AuthorizerId": "",
-                    "ParentId": ""
+                    "RestApiId": "ksakt69kwb",
+                    "AuthorizerId": "4xyac0",
+                    "ParentId": "iiqaf4p618"
                 }
-            },
+            }
 return:
     {
         "manageUrl": manageUrl,
@@ -44,13 +44,13 @@ return:
 }
 '''
 manageTemplateS3Key = "ph-platform"
-manageTemplateS3Path = "2020-11-11/cicd/template/manageTemplate.yaml"
+manageTemplateS3Path = "2020-11-11/cicd/template/manageApiTemplate.yaml"
 apiTemplateS3Key = "ph-platform"
-apiTemplateS3Path = "2020-11-11/cicd/template/apiINITResource.yaml"
+apiTemplateS3PathPrefix = "2020-11-11/cicd/template/"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
 mangeLocalPath = "/tmp/manage.yaml"
-apiResourceLocalPath = "/tmp/apiINITResource.yaml"
+apiResourceLocalPathPrefix = "/tmp/cicd/apiTmp/"
 
 
 class Ref(object):
@@ -117,74 +117,65 @@ def read_yaml_file(file_path):
 def write_yaml_file(result, file_path):
 
     f = open(file_path, "w")
+    # print(yaml.dump(result))
     for line in yaml.dump(result):
         f.write(line.replace("'", ""))
     f.close()
 
 
-def s3_file_exist(s3_key, s3_path):
-    result = False
-    bucket = s3_resource.Bucket(s3_key)
-    for obj in bucket.objects.filter(Prefix=s3_path):
-        if obj.key == s3_path:
-            result = True
-    return result
+def write_api_resource(apiGateWayArgs, version):
+    methods = apiGateWayArgs["methods"]
+    print(type(methods))
+    methods.insert(0, "Init")
 
-
-def insert_api_resource(pathPart, methods, apiResourceResult):
-    currentAPiResult = {}
-    currentAPiResult[pathPart + "Resource"] = apiResourceResult["Resources"]["Resource"]
+    f2 = open(mangeLocalPath, "a+")
     for method in methods:
-        currentAPiResult[pathPart + method.upper() + "method"] = apiResourceResult["Resources"][method.upper() + "method"]
-
-    return currentAPiResult
+        download_s3_file(
+            apiTemplateS3Key,
+            apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
+            apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml")
+        f1 = open(apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml", "r")
+        for line in f1.readlines():
+            f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
+                     .replace("${PathPart}", apiGateWayArgs["PathPart"])
+                     .replace("${ParentId}", apiGateWayArgs["ParentId"])
+                     .replace("${lmdName}", apiGateWayArgs["lmdName"] + ":" + version)
+                     .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
+                     )
+        f1.close()
+    f2.write("Transform: AWS::Serverless-2016-10-31")
+    f2.close()
 
 
 def lambda_handler(event, context):
 
-    # 1 下载ApiResource文件、
-    #   POST, GET, OPTIONS, DELETE, PATCH
-    download_s3_file(apiTemplateS3Key, apiTemplateS3Path, apiTemplateS3Path)
     # 2 下载manage template文件
-    if s3_file_exist("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/manage.yaml"):
-        download_s3_file("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/manage.yaml",
-                         mangeLocalPath)
-        manage_result = read_yaml_file(mangeLocalPath)
-    else:
-        # 如果不存在 从s3下载manage template文件
-        download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
-        # 读取manage.yaml文件内容
-        manage_result = read_yaml_file(mangeLocalPath)
-        manage_result["Resources"] = {}
-        manage_result["Parameters"] = {}
-        manage_result["Outputs"] = {}
-    print(manage_result)
+    download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
+    # 读取manage.yaml文件内容
+    manage_result = read_yaml_file(mangeLocalPath)
+    manage_result["Resources"] = {}
+    # print(manage_result)
 
     # 3 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"
     functionName = event["trigger"]["functionName"]
     functionPath = event["trigger"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
-    package_local_path = "/tmp/" + functionName + "/package.yaml"
+    package_local_path = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/" + functionName + "/package.yaml"
     # 从s3下载yaml文件
     download_s3_file(package_s3_key, package_s3_path, package_local_path)
 
     # 4 将 function package文件内容写入 manage中
     package_result = read_yaml_file(package_local_path)
     manage_result["Resources"][functionName] = package_result["Resources"]["ATTFFunction"]
-    del manage_result["Resources"][functionName]["Metadata"]
-    manage_result["Parameters"].update(package_result.get("Parameters", {}))
-    manage_result["Outputs"].update(package_result.get("Outputs", {}))
+    if manage_result["Resources"][functionName].get("Metadata"):
+        del manage_result["Resources"][functionName]["Metadata"]
+    print(manage_result)
 
     # 5 将 api 相关信息写入到 manage中
-    apiResourceResult = read_yaml_file(apiResourceLocalPath)
-    manage_result["Parameters"].update(apiResourceResult.get("Parameters", {}))
-    manage_result["Outputs"].update(apiResourceResult.get("Outputs", {}))
     apiGateWayArgs = event["apiGateWayArgs"]
-    methods = apiGateWayArgs["methods"]
-    currentAPiResult = insert_api_resource(apiGateWayArgs["PathPart"], methods, apiResourceResult)
-    manage_result["Resources"].update(currentAPiResult)
     write_yaml_file(manage_result, mangeLocalPath)
+    write_api_resource(apiGateWayArgs, event["version"])
     # 6 上传manage文件 manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
     upload_s3_file(
         bucket_name=manageTemplateS3Key,
@@ -195,9 +186,10 @@ def lambda_handler(event, context):
     print(manageUrl)
     # 创建resource cfn
     stackName = functionName + "-apiresource"
-
+    stackParameters = {}
+    print(stackName)
     return {
         "manageUrl": manageUrl,
         "stackName": stackName,
-        "stackParameters": event["stepFunctionArgs"]
+        "stackParameters": stackParameters
     }

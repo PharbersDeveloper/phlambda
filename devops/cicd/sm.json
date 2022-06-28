@@ -144,7 +144,7 @@
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
                         "runtime.$": "$.common.runtime",
-                        "trigger.$": "$.common.trigger",
+                        "trigger.$": "$.trigger",
                         "apiGateWayArgs.$": "$.metadata.apiGateWayArgs"
                      },
                      "ResultPath": "$.stackMessage",

@@ -139,7 +139,7 @@ def write_api_resource(apiGateWayArgs, version):
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", apiGateWayArgs["PathPart"])
                      .replace("${ParentId}", apiGateWayArgs["ParentId"])
-                     .replace("${lmdName}", apiGateWayArgs["LmdName"] + ":" + version)
+                     .replace("${lmdName}", apiGateWayArgs["LmdName"])
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
                      )
         f1.close()
@@ -161,7 +161,7 @@ def lambda_handler(event, context):
     functionPath = event["trigger"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
-    package_local_path = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/" + functionName + "/package.yaml"
+    package_local_path = "/tmp/cicd/tmp/" + functionName + "/package.yaml"
     # 从s3下载yaml文件
     download_s3_file(package_s3_key, package_s3_path, package_local_path)
 
@@ -185,6 +185,7 @@ def lambda_handler(event, context):
     manageUrl = manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
     print(manageUrl)
     # 创建resource cfn
+
     stackName = functionName + "-apiresource"
     stackParameters = {}
     print(stackName)

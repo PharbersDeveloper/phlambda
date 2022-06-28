@@ -7,13 +7,13 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
+      AutoPublishAlias: ReplaceAlias
       CodeUri: ./src
-      FunctionName: lmd-phcicdgetlmdandapidetail-dev
-      MemorySize: 1024
-      Description: "phcicdgetlmdandapidetail"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
-          EDITION: "DEV"
-
+          EDITION: "dev"
+      FunctionName: lmd-phnewsampletrigger-dev
+      Description: "phnewsampletrigger"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      MemorySize: 1024
+      Timeout: 600

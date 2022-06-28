@@ -1,108 +1,118 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
-from decimal import Decimal
-dynamodb = boto3.resource('dynamodb')
+ssm_client = boto3.client('ssm')
 '''
-将错误提取出来写入到notification中
+处理lmd和api相关信息
 args:
     event = {
-        "common": {
-            "version": "version",
-            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
-            "publisher": "赵浩博",
-            "alias": "hbzhao-resource-change-position-owner",
-            "runtime": "dev/v2/prod"
-        }
+        "version": "V001",
+        "publisher": "赵浩博",
+        "alias": "V001",
+        "runtime": "dev",
         "trigger": {
+            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
             "repo": "phlambda",
-            "branch": "",
-            "prefix": "processor/sync/utils/phemail",
-            "stateMachineName": "createscriptrefile",
-            "name": "phemail"
+            "branch": "feature/PBDP-3043-async-cicd-state-machine",
+            "prefix": "processor/sync/triggers",
+            "functionName": "phsampletrigger",                 
             "entry": {
-                "type": "ApiGateway",
-                "resource": "",
-                "method": ""
-            }
-            "required": true      
-        }
-    }
-return:
-    {
-        "lambda":{
-                "functionPath": "",
-                "functionName": "",
-                "branchName"："",
-                "repoName": "",
-                "alias": ""
+                "type": "Api GateWay",
+                "resource": "phsampletrigger"
+                "method": ["POST"]
             },
-        "api": {
+            "required": true
+        }
+return:
+    {   
+        "lambdaArgs": {
+            "name": "phsampletriggercodebuild",
+            "cfn": "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml",
+            "parameters": {
+              "FunctionName": "phsampletrigger",
+              "BuildSpec": "lmdAndApiBuildspec",
+              "FunctionPath": "processor/sync/triggers/phsampletrigger",
+              "FunctionPathPrefix": "processor/sync/triggers",
+              "GitCommit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+              "GitUrl": "http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git",
+              "BranchName": "feature/PBDP-3043-async-cicd-state-machine",
+              "RepoName": "phlambda",
+              "Version": "V001"
+            },
+        "apiGateWayArgs": {
+            "method": ["POST"],
+            "PathPart": "phsampletrigger",
+            "LmdName": "lmd-phsampletrigger-dev",
             "RestApiId": "",
-            "ParentId": "",
-            "lmdName": "",
-            "PathPart": "",
-            "AuthorizerId"： "",
-            "method": ""
+            "AuthorizerId": "",
+            "ParentId": ""
         }
     }
 '''
+codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml"
+git_url = "http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git"
+buildSpec = "lmdAndApiBuildspec"
 
 
-def update_dag_item(dagItems):
+def get_dict_ssm_parameter(parameter_name):
 
-    dag_table = dynamodb.Table('dag')
-    for delete_item in dagItems["insertItems"]:
-        dag_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "sortVersion": delete_item["sortVersion"]
-            }
-        )
+    response = ssm_client.get_parameter(
+        Name=parameter_name,
+    )
+    value = json.loads(response["Parameter"]["Value"])
 
-    for insert_item in dagItems["deleteItems"]:
-        res = dag_table.put_item(
-            Item=insert_item
-        )
+    return value
 
 
-def update_dagconf_item(scriptItems):
+def create_lmd_args(event):
+    lmd_args = {
+        "name": event["trigger"]["functionName"] + "codebuild",
+        "cfn": codebuild_cfn_path,
+        "parameters": {
+            "FunctionName": event["trigger"]["functionName"],
+            "BuildSpec": buildSpec,
+            "FunctionPath": event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"],
+            "FunctionPathPrefix": event["trigger"]["prefix"],
+            "GitCommit": event["trigger"]["commit"],
+            "GitUrl": git_url,
+            "BranchName": event["trigger"]["branch"],
+            "RepoName": event["trigger"]["repo"],
+            "Version": event["version"]
+        }
+    }
+    return lmd_args
 
-    dagconf_table = dynamodb.Table('dagconf')
-    for delete_item in scriptItems["insertItems"]:
-        dagconf_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "jobName": delete_item["jobName"]
-            }
-        )
 
-    for insert_item in scriptItems["deleteItems"]:
-        res = dagconf_table.put_item(
-            Item=insert_item
-        )
+def create_api_args(event):
+
+    apigateway_resource = get_dict_ssm_parameter("apigateway_resource")
+    runtime = event["runtime"]
+    api_args = {
+        "methods": event["trigger"]["entry"]["method"],
+        "PathPart": event["trigger"]["functionName"],
+        "LmdName": event["trigger"]["functionName"] + ":" + event["version"],
+        "RestApiId": apigateway_resource[runtime]["RestApiId"],
+        "AuthorizerId": apigateway_resource[runtime]["AuthorizerId"],
+        "ParentId": apigateway_resource[runtime]["ParentId"]
+    }
+    return api_args
 
 
 def lambda_handler(event, context):
     print(event)
-    # item处理
-    # 恢复dag表中已经删除的item
-    # 删除dag表中已经创建的item
-    if event.get("dagItems"):
-        update_dag_item(event["dagItems"])
-    # 恢复dagconf表中已经删除的item
-    # 删除dagconf表中已经删除的item
-    if event.get("scriptItems"):
-        update_dagconf_item(event["scriptItems"])
-    # 删除s3上脚本路径上的文件
-
-    # 创建失败的 notification message
-    message = {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": "{}",
-            "error": json.dumps(event["errors"])
-        }
+    # 1 处理lmd相关信息 返回lambdaArgs 参数用于运行codebuild
+    lmd_args = create_lmd_args(event)
+    # 2 处理apiGateway相关信息 返回apiGateWayArgs
+    # RestApiId AuthorizerId ParentId 根据runtime进行获取
+    api_args = create_api_args(event)
+    iterator = {
+        "index": 0,
+        "currentStatus": "running"
     }
-    return message
+    lmdCounts = 1
+
+    return {
+        "lmdCounts": lmdCounts,
+        "iterator": iterator,
+        "lambdaArgs": lmd_args,
+        "apiGateWayArgs": api_args
+    }

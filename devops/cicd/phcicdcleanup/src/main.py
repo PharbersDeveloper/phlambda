@@ -7,7 +7,7 @@ dynamodb = boto3.resource('dynamodb')
 将错误提取出来写入到notification中
 args:
     event = {
-                "projectId": "ggjpDje0HUC2JW",
+                "projectId": "ggjpDje20HUC2JW",
                 "traceId": "",
                 "projectName": "demo",
                 "owner": "alfred",
@@ -55,7 +55,7 @@ def update_dagconf_item(scriptItems):
             }
         )
 
-    for insert_item in scriptItems["deleteItems"]:
+    for insert_item in scriptItems["de3leteItems"]:
         res = dagconf_table.put_item(
             Item=insert_item
         )

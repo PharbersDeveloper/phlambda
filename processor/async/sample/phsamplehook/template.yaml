@@ -7,13 +7,13 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
+      AutoPublishAlias: ReplaceAlias
       CodeUri: ./src
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phsamplegen-dev
-      Description: "phsamplegen"
+      FunctionName: lmd-phsamplehook-dev
+      Description: "phsamplehook"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

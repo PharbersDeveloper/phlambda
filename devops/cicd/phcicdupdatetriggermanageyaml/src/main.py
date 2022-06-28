@@ -127,6 +127,7 @@ def write_api_resource(apiGateWayArgs, version):
     methods = apiGateWayArgs["methods"]
     print(type(methods))
     methods.insert(0, "Init")
+    methods.insert.append("deploy")
 
     f2 = open(mangeLocalPath, "a+")
     for method in methods:

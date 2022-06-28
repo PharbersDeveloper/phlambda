@@ -139,7 +139,7 @@ def write_api_resource(apiGateWayArgs, version):
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", apiGateWayArgs["PathPart"])
                      .replace("${ParentId}", apiGateWayArgs["ParentId"])
-                     .replace("${lmdName}", apiGateWayArgs["lmdName"] + ":" + version)
+                     .replace("${lmdName}", apiGateWayArgs["LmdName"] + ":" + version)
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
                      )
         f1.close()

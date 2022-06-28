@@ -127,7 +127,7 @@ def write_api_resource(apiGateWayArgs, version):
     methods = apiGateWayArgs["methods"]
     print(type(methods))
     methods.insert(0, "Init")
-    methods.insert.append("deploy")
+    methods.append("deploy")
 
     f2 = open(mangeLocalPath, "a+")
     for method in methods:
@@ -140,7 +140,7 @@ def write_api_resource(apiGateWayArgs, version):
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", apiGateWayArgs["PathPart"])
                      .replace("${ParentId}", apiGateWayArgs["ParentId"])
-                     .replace("${lmdName}", apiGateWayArgs["LmdName"])
+                     .replace("${LmdName}", apiGateWayArgs["LmdName"])
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
                      )
         f1.close()

@@ -46,11 +46,11 @@ return:
 manageTemplateS3Key = "ph-platform"
 manageTemplateS3Path = "2020-11-11/cicd/template/manageTemplate.yaml"
 apiTemplateS3Key = "ph-platform"
-apiTemplateS3Path = "2020-11-11/cicd/template/apiResource.yaml"
+apiTemplateS3Path = "2020-11-11/cicd/template/apiINITResource.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
 mangeLocalPath = "/tmp/manage.yaml"
-apiResourceLocalPath = "/tmp/apiResource.yaml"
+apiResourceLocalPath = "/tmp/apiINITResource.yaml"
 
 
 class Ref(object):

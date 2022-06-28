@@ -37,9 +37,9 @@ def lambda_handler(event, context):
             priority = min(list(set(numbers) - set(prioritys))) if prioritys else 0
             print(priority)
             if owners:
-                result = {"code": 0, "message": "", "priority": priority, "exist": "true"}
+                result = {"code": 0, "message": "", "priority": priority, "exist": True}
             else:
-                result = {"code": 0, "message": "", "priority": priority, "exist": "false"}
+                result = {"code": 0, "message": "", "priority": priority, "exist": False}
         else:
             raise Exception('jupyter count greater than 100')
 

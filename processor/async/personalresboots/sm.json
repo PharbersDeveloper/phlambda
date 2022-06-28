@@ -84,12 +84,16 @@
         "steps.$": "$.metadata.codeeditor.steps"
       },
       "ResultPath": "$.currentStep",
-      "Next": "ArgAdd"
+      "Next": "AddArgs"
     },
-    "ArgAdd": {
-      "Type": "Pass",
-      "Result": "$.tenantInfo.engine.ClusterID",
-      "ResultPath": "$.ClusterID",
+    "AddArgs": {
+      "Type": "Task",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootaddargs-dev",
+      "Parameters": {
+        "parameters.$": "$.currentStep.parameters",
+        "ClusterID.$": "$.tenantInfo.engine.ClusterID"
+      },
+      "ResultPath": "$.currentStep.parameters",
       "Next": "SSMTrace"
     },
     "CodeeditorCreation": {

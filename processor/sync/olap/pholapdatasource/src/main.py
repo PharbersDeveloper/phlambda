@@ -34,20 +34,31 @@ def executeSql(sql, method, tenantId):
     return res.read().decode("utf-8")
 
 
+def IsDBException(SqlExecuteResponse):
+    import re
+    error_pattern = "DB::Exception"
+    match_result = re.findall(pattern=error_pattern, string=str(SqlExecuteResponse))
+    if len(match_result) > 0:
+        return True
+    else:
+        return False
+
 
 def get_result_of_executeSql(args):
 
-    result = {}
-    final_res = []
     try:
         res = executeSql(args["query"], "GET", args["tenantId"])
+        print("*"*50 + " rows " + "*"*50 + "\n", res)
+        Signal = IsDBException(res)
+        if Signal is True:
+            raise Exception(str(res))
 
         rows = filter(lambda x: x != '', res.split("\n"))
-        print("*"*50 + " rows " + "*"*50 + "\n" + rows)
 
         # 这里没有任何的错误处理
         columns = args["schema"]
 
+        final_res = []
         for row in rows:
             cells = row.split("\t")
 
@@ -56,19 +67,15 @@ def get_result_of_executeSql(args):
                 tmp[columns[index]] = cells[index]
 
             final_res.append(tmp)
-        result["status"] = "ok"
-        result["message"] = "query is successful."
-        result["response"] = final_res
     except Exception as e:
-        result["status"] = "failed"
-        result["message"] = f"query failed, error: {str(e)}"
-        result["response"] = final_res
+        final_res = {}
+        final_res["status"] = "failed"
+        final_res["message"] = f"query failed, error: {str(e)}"
     finally:
-
         return {
             "statusCode": 200,
             "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps(result, ensure_ascii=False)
+            "body": json.dumps(final_res, ensure_ascii=False)
         }
 
 

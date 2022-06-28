@@ -26,18 +26,25 @@ def query_resource(tenantId):
 def lambda_handler(event, context):
     body = eval(event["body"])
     tenantId = body.get("tenantId")
+    ownerId = body.get("ownerId")
     print(tenantId)
     try:
         if jupyterResourceCount(tenantId) <= 100:
             numbers = [i+1 for i in range(20, 100)]
-            prioritys = [int(resource_item.get('priority', 0)) for resource_item in query_resource(tenantId)]
+            resources = query_resource(tenantId)
+            owners = [resource_item for resource_item in resources if resource_item["owner"] == ownerId]
+            prioritys = [int(resource_item.get('priority', 0)) for resource_item in resources]
             priority = min(list(set(numbers) - set(prioritys))) if prioritys else 0
             print(priority)
-            result = {"code": 0, "message": "", "priority": priority}
+            if owners:
+                result = {"code": 0, "message": "", "priority": priority, "exist": "true"}
+            else:
+                result = {"code": 0, "message": "", "priority": priority, "exist": "false"}
         else:
             raise Exception('jupyter count greater than 100')
+
     except Exception as e:
-        result = {"code": 1, "message": str(e), "priority": ""}
+        result = {"code": 1, "message": str(e), "priority": "", "exist": ""}
     finally:
         return {
             "statusCode": 200,

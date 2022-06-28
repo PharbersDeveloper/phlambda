@@ -26,12 +26,12 @@ template:
             # globalCount 计算
             if g_globalCount == True:
                 cols_globalCount = (g_distinct_key if len(g_distinct_key) > 0 else df.columns)
-                df = df.withColumn('globalCount', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
+                df = df.withColumn('count', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
             
             # distinct 处理
             if len(g_distinct_key) > 0:
                 if g_globalCount == True:
-                    df = df.select(g_distinct_key + ['globalCount']).distinct()
+                    df = df.select(g_distinct_key + ['count']).distinct()
                 else:
                     df = df.select(g_distinct_key).distinct()
             else:

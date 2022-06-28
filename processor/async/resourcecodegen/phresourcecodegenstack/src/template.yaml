@@ -27,15 +27,14 @@ template:
             g_preFilter = [i for i in g_preFilter if i['preFilter']['enabled']==True]
             if len(g_preFilter) > 0 :
                 # 处理'expr'和'distinct'
-                dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['expr'])) , g_preFilter))
+                dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr'])) , g_preFilter))
                 # 更新到 dict_df
                 dict_df.update(dict_df_preFilter)
 
             # columnsMatches
             for i_columnsMatch in g_columnsMatches:
-                nullCols = set(g_selectedColumns) - set(i_columnsMatch['columns'])
                 i_ds = i_columnsMatch['ds']
-                dict_df[i_ds] = dict_df[i_ds].select( [func.lit(None).cast("string").alias(i) if i in nullCols else col(i) for i in g_selectedColumns] )
+                dict_df[i_ds] = dict_df[i_ds].select( [func.lit(None).cast("string").alias(g_selectedColumns[i]) if i_colname == None else col(i_colname).alias(g_selectedColumns[i]) for i,i_colname in enumerate(i_columnsMatch['columns'])] )
 
             # selectedColumns
             dict_df = {k:v.select(g_selectedColumns) for k,v in dict_df.items()}

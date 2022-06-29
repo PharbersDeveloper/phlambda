@@ -165,14 +165,9 @@ def lambda_handler(event, context):
 
 
     #---------------------- 埋点 -------------------------------------#
-    aws_cloudwatch_put_metric_data(name_space='pharbers-platform',
-                                   metric_name=tenantId,
-                                   project_id=args["common"]["projectId"],
-                                   project_name=args["common"]["projectName"],
-                                   current_user_id=args["common"]["owner"],
-                                   current_name=args["common"]["showName"],
-                                   action_mode=args["action"]["cat"],
-                                   action_detail=args["action"]["desc"])
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=args["common"]["tenantId"])
     #---------------------- 埋点 -------------------------------------#
 
 

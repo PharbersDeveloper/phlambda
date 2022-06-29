@@ -11,8 +11,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
-      FunctionName: lmd-phjupyterboottrigger-V2
+          EDITION: "DEV"
+      FunctionName: lmd-phjupyterboottrigger-dev
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phmetrixlayer:10
       Description: "启动集群"

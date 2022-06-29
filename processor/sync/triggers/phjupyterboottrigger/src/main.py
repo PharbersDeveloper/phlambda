@@ -3,6 +3,7 @@ import json
 import boto3
 import traceback
 from boto3.dynamodb.conditions import Key
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 # TODO: ... 在这里看是否能创建。这个地方也会是创建流程的唯一入口
 
@@ -161,6 +162,18 @@ def lambda_handler(event, context):
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
         result["resourceId"] = resourceId
+
+
+    #---------------------- 埋点 -------------------------------------#
+    aws_cloudwatch_put_metric_data(name_space='pharbers-platform',
+                                   metric_name=tenantId,
+                                   project_id=args["common"]["projectId"],
+                                   project_name=args["common"]["projectName"],
+                                   current_user_id=args["common"]["owner"],
+                                   current_name=args["common"]["showName"],
+                                   action_mode=args["action"]["cat"],
+                                   action_detail=args["action"]["desc"])
+    #---------------------- 埋点 -------------------------------------#
 
 
     return {

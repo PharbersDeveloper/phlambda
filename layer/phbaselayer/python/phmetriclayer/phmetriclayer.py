@@ -27,7 +27,7 @@ def aws_cloudwatch_put_metric_data(name_space, metric_name, project_id, project_
                 {
                     'MetricName': metric_name,
                     'Dimensions': dimensions,
-                    'TimeStamp': datetime.now().strftime(format="%Y-%m-%d %H:%M:%S"),
+                    'Timestamp': datetime.now().strftime(format="%Y-%m-%d %H:%M:%S"),
                     'Value': value if value else 1,
                     'Unit': unit if unit else 'Count',
                 }

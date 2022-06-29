@@ -14,7 +14,7 @@ Resources:
           EDITION: "V2"
       FunctionName: lmd-phjupyterboottrigger-V2
       Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phmetrixlayer:10
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phmetrixlayer:11
       Description: "启动集群"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

@@ -6,9 +6,9 @@ import traceback
 
 def lambda_handler(event, context):
     # 1503
-    print("phnewsampletrigger")
+    print("phnewsampletrigger v002")
     result = {}
-    result["message"] = "phnewsampletrigger success"
+    result["message"] = "phnewsampletrigger success v002"
     return {
         "statusCode": 200,
         "headers": {

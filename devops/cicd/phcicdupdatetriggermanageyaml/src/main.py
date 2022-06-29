@@ -173,6 +173,8 @@ def lambda_handler(event, context):
         del manage_result["Resources"][functionName]["Metadata"]
     print(manage_result)
 
+    # 根据version 创建lmd的version
+
     # 5 将 api 相关信息写入到 manage中
     apiGateWayArgs = event["apiGateWayArgs"]
     write_yaml_file(manage_result, mangeLocalPath)

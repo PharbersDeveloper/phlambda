@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     # 1503
     print("phnewsampletrigger")
     result = {}
-    result["message"] = "phnewsampletrigger success v002"
+    result["message"] = "phnewsampletrigger success 003"
     return {
         "statusCode": 200,
         "headers": {

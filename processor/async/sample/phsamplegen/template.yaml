@@ -7,7 +7,6 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: ReplaceAlias
       CodeUri: ./src
       Environment:
         Variables:
@@ -18,7 +17,7 @@ Resources:
           SPARK_EXECUTOR_CORES: "1"
           SPARK_EXECUTOR_MEMORY: "1g"
           SPARK_EXECUTOR_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
-      FunctionName: lmd-phsamplegen-dev
+      FunctionName: hsamplegen
       Description: "phsamplegen"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

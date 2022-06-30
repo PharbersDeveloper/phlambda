@@ -5,7 +5,7 @@ import traceback
 
 
 def lambda_handler(event, context):
-    # 06301700
+    # 06301730
     print("phnewsampletrigger")
     result = {}
     result["message"] = "phnewsampletrigger success 1700"

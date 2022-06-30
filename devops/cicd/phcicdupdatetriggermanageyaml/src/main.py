@@ -14,11 +14,11 @@ lmdVersionTemplateS3Path = "2020-11-11/cicd/template/lmdVersion.yaml"
 lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
-mangeLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/manage.yaml"
-dealMangeLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/deal_manage.yaml"
-apiResourceLocalPathPrefix = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/"
-lmdVersionLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/lmdVersion.yaml"
-lmdAliasLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/lmdAlias.yaml"
+mangeLocalPath = "/tmp/manage.yaml"
+dealMangeLocalPath = "/tmp/deal_manage.yaml"
+apiResourceLocalPathPrefix = "/tmp/"
+lmdVersionLocalPath = "/tmp/lmdVersion.yaml"
+lmdAliasLocalPath = "/tmp/lmdAlias.yaml"
 
 
 class Ref(object):
@@ -146,7 +146,7 @@ def lambda_handler(event, context):
     functionPath = event["trigger"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
-    package_local_path = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/" + functionName + "/package.yaml"
+    package_local_path = "/tmp/" + functionName + "/package.yaml"
     # 从s3下载yaml文件
     download_s3_file(package_s3_key, package_s3_path, package_local_path)
 
@@ -194,6 +194,7 @@ def lambda_handler(event, context):
 
     # 5 将 api 相关信息写入到 manage中
     write_api_resource(apiGateWayArgs, event["version"])
+    os.system("touch " + dealMangeLocalPath)
     m = open(mangeLocalPath, "a+")
     m.write("Transform: AWS::Serverless-2016-10-31")
     m.close()

@@ -9,13 +9,14 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
+      FunctionName: lmd-phsnsstopresource-dev
+      Description: "获取DS、Script、Model、IDE、Analysis等数量"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phjupyterboottrigger-dev
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
-      Description: "启动集群"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      MemorySize: 1024
-      Timeout: 600
+          EDITION: "dev"
+      Timeout: 30
+

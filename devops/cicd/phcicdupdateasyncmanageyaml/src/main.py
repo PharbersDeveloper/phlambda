@@ -1,6 +1,7 @@
 import yaml
 import os
 import boto3
+import time
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
@@ -222,5 +223,5 @@ def lambda_handler(event, context):
     return {
         "manageUrl": manageUrl,
         "stackName": stackName,
-        "stackParameters": event["stepFunctionArgs"]
+        "stackParameters": {}
     }

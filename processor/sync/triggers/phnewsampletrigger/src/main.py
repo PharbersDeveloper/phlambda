@@ -5,10 +5,10 @@ import traceback
 
 
 def lambda_handler(event, context):
-    # 06301730
+    # 06301737
     print("phnewsampletrigger")
     result = {}
-    result["message"] = "phnewsampletrigger success 1700"
+    result["message"] = "phnewsampletrigger success 1737"
     return {
         "statusCode": 200,
         "headers": {

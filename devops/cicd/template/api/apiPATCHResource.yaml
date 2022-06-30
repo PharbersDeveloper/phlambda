@@ -1,16 +1,15 @@
-  PATCHMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
-      RestApiId: !Ref RestApiId
-      ResourceId: !Ref triggerResource
+      RestApiId: ${RestApiId}
+      ResourceId: !Ref ${ReplaceResource}
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
         method.request.header.Content-Type: true
       HttpMethod: PATCH
       AuthorizationType: CUSTOM
-      AuthorizerId: !Ref AuthorizerId
+      AuthorizerId: ${AuthorizerId}
       Integration:
         Type: "AWS_PROXY"
         Uri: !Sub arn:aws-cn:apigateway:cn-northwest-1:lambda:path/2015-03-31/functions/arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${lmdName}:Current/invocations

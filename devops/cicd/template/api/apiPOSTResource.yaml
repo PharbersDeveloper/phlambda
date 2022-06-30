@@ -1,9 +1,8 @@
-  POSTMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
       RestApiId: ${RestApiId}
-      ResourceId: !Ref triggerResource
+      ResourceId: !Ref ${ReplaceResource}
       RequestParameters:
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true

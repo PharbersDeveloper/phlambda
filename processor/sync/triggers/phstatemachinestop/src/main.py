@@ -2,7 +2,6 @@ import boto3
 import json
 import time
 
-
 def put_action(event):
 
     dynamodb = boto3.resource('dynamodb')
@@ -83,6 +82,7 @@ def lambda_handler(event, context):
 
     if result_message["status"] == "error":
         result_code = 503
+
 
     return {
         "statusCode": result_code,

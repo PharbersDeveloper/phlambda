@@ -12,5 +12,5 @@ def lambda_handler(event, context):
         MessageAttributes = record.get("Sns", {}).get("MessageAttributes", {})
         tenantId = MessageAttributes.get("tenantId", {}).get("Value", "")
         ctype = MessageAttributes.get("ctype", {}).get("Value", "")
-        COMMANDS[ctype].run(tenantId, ctype)
+        COMMANDS[ctype]().run(tenantId, ctype)
     return True

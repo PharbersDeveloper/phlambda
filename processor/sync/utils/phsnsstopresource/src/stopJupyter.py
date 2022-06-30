@@ -1,6 +1,6 @@
 
 from stopResource import StopResource
-
+import time
 import os
 import json
 import boto3
@@ -74,9 +74,7 @@ def change_notification_status(traceId):
         table.put_item(Item=response)
 
 
-def run(event):
-    event = json.loads(event["body"])
-    print(event)
+def stop(event):
 
     #--------- input args ---------------#
     resourceId = event["resourceId"]
@@ -176,6 +174,7 @@ class StopJupyter(StopResource):
             event = {"tenantId": tenantId,
                      "traceId": self.get_uuid,
                      "owner": "5UBSLZvV0w9zh7-lZQap",
-                     "showName": "test",
+                     "showName": "鹏钱",
                      "resourceId": item["id"]}
-            run(event)
+            stop(event)
+            time.sleep(1)

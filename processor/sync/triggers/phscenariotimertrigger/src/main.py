@@ -1,7 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
-
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 def query_scenario(ProjectId, ScenarioId, **kwargs):
     print(ProjectId)
@@ -49,5 +49,12 @@ def lambda_handler(event, context):
                                  name=trace_id, input=json.dumps(args, ensure_ascii=False))
     run_arn = res["executionArn"]
     print("Started run %s. ARN is %s.", trace_id, run_arn)
+
+    #---------------------- 埋点 -------------------------------------#
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=args["common"]["tenantId"])
+    #---------------------- 埋点 -------------------------------------#
+
 
     return True

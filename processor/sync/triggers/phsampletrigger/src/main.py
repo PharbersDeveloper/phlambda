@@ -2,6 +2,7 @@ import os
 import json
 import boto3
 import traceback
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 
 def lambda_handler(event, context):
@@ -60,6 +61,13 @@ def lambda_handler(event, context):
         "status": "ok",
         "message": "start run " + run_name
     }
+
+    #---------------------- 埋点 -------------------------------------#
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=event["common"]["tenantId"])
+    #---------------------- 埋点 -------------------------------------#
+
     return {
             "statusCode": 200,
             "headers": {

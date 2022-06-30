@@ -14,8 +14,8 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen
-          EDITION: "V2"
-      FunctionName: lmd-phresourcecodegentrigger-V2
+          EDITION: "DEV"
+      FunctionName: lmd-phresourcecodegentrigger-dev
       Description: Http Post接口触发StepFunctions更新Prepare脚本与Step索引（ResuourceCodeGen）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

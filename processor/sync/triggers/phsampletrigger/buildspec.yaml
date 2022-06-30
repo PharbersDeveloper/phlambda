@@ -6,8 +6,8 @@ phases:
   build:
     commands:
       - python3 -m pytest --junitxml=$PROJECT_NAME-report-directory/$PROJECT_NAME-report-file.xml
-      - sam package --template-file template.yaml --output-template-file package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phsampletrigger/samtem/v2
-      - sam deploy --template-file package.yaml --stack-name lmd-phsampletrigger-deploy-v2 --capabilities CAPABILITY_IAM
+      - sam package --template-file template.yaml --output-template-file package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/phsampletrigger/samtem/dev
+      - sam deploy --template-file package.yaml --stack-name lmd-phsampletrigger-deploy-dev --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - src/**/**

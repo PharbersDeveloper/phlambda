@@ -3,7 +3,7 @@ import json
 import boto3
 import traceback
 from boto3.dynamodb.conditions import Key
-
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 '''
 args =
@@ -171,6 +171,13 @@ def lambda_handler(event, context):
         result["status"] = "failed"
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
+
+    #---------------------- 埋点 -------------------------------------#
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=args["common"]["tenantId"])
+    #---------------------- 埋点 -------------------------------------#
+
 
     return {
         "statusCode": 200,

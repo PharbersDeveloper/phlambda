@@ -46,7 +46,7 @@
       },
       "startExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinehook",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

@@ -62,7 +62,7 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
 
 
 def lambda_handler(event, context):
-    # cicd 0701 1028
+    # cicd 0701 1323
     print(event)
     dt = datetime.now()
     ts = datetime.timestamp(dt)

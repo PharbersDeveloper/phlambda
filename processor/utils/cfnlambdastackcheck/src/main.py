@@ -44,7 +44,7 @@ def lambda_handler(event, context):
             "currentStatus": "success"
         }
     elif len(response['Stacks']) > 0 and response['Stacks'][0]['StackStatus'] == "ROLLBACK_COMPLETE":
-        raise Exception('create ' + name + ' failed')
+        raise Exception('create ' + event["name"] + ' failed')
     else:
         return {
             "index": event["current"],

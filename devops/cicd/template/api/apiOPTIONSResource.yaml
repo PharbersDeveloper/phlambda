@@ -1,0 +1,29 @@
+  OPTIONSMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      ApiKeyRequired: false
+      RestApiId: ${RestApiId}
+      ResourceId: !Ref triggerResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        TimeoutInMillis: 29000
+        RequestTemplates:
+          "application/json": "{\n \"statusCode\": 200\n}"
+        IntegrationResponses:
+          - StatusCode: "200"
+            ResponseParameters:
+              "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS,POST'"
+              "method.response.header.Access-Control-Allow-Origin": "'*'"
+            ResponseTemplates:
+              "application/json": None
+      MethodResponses:
+        - StatusCode: "200"
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Headers": False
+            "method.response.header.Access-Control-Allow-Methods": Fasle
+            "method.response.header.Access-Control-Allow-Origin": Fasle
+          ResponseModels:
+            "application/json": "Empty"

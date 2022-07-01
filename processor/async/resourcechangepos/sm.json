@@ -16,19 +16,29 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposargsvalidation-dev",
          "ResultPath": null,
          "Next": "Actions",
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Actions": {
          "Type": "Task",
@@ -47,16 +57,16 @@
          "ResultPath": null,
          "Next": "NewItemsIndex"
       },
-      "NewItemsIndex" : {
-         "Type" : "Parallel",
-         "InputPath" : "$",
+      "NewItemsIndex": {
+         "Type": "Parallel",
+         "InputPath": "$",
          "ResultSelector": {
             "dagItems.$": "$.[0].dagItems",
             "scriptItems.$": "$.[1].scriptItems"
          },
          "ResultPath": "$.metadata",
-         "Next" : "UpdateNewItems",
-         "Branches" : [
+         "Next": "UpdateNewItems",
+         "Branches": [
             {
                "StartAt": "NewDagIndex",
                "States": {
@@ -78,66 +88,87 @@
                }
             },
             {
-               "StartAt" : "NewScriptIndex",
-               "States" : {
-                  "NewScriptIndex" : {
-                     "Type" : "Task",
-                     "Resource" : "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
-                     "Parameters" : {
-                        "traceId.$" : "$.common.traceId",
-                        "projectId.$" : "$.common.projectId",
-                        "projectName.$" : "$.common.projectName",
-                        "owner.$" : "$.common.owner",
-                        "showName.$" : "$.common.showName",
-                        "script.$" : "$.script"
+               "StartAt": "NewScriptIndex",
+               "States": {
+                  "NewScriptIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "script.$": "$.script"
                      },
                      "ResultPath": "$.scriptItems",
                      "End": true
                   }
                }
-            } ],
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         } ]
+            }
+         ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "UpdateNewItems": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposexecutionupdate-dev",
          "Parameters": {
-            "traceId.$" : "$.common.traceId",
-            "projectId.$" : "$.common.projectId",
-            "projectName.$" : "$.common.projectName",
-            "owner.$" : "$.common.owner",
-            "showName.$" : "$.common.showName",
-            "scriptItems.$" : "$.metadata.scriptItems",
-            "dagItems.$" : "$.metadata.dagItems",
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scriptItems.$": "$.metadata.scriptItems",
+            "dagItems.$": "$.metadata.dagItems",
             "script.$": "$.script"
          },
          "ResultPath": "$.scriptChangeArgs",
          "Next": "ScriptChangeChoice",
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.error",
-            "Next": "CleanUp"
-         } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "ScriptChangeChoice": {
          "Type": "Choice",
@@ -167,63 +198,147 @@
                "Variable": "$.script.new.runtime",
                "StringEquals": "sync",
                "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "prepare",
-               "Next": "ExecutionCodeGen"
             }
          ],
-         "Default": "ExecutionCopyResource"
+         "Default": "ExecutionCreateResource"
+      },
+      "ExecutionCreateResource": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.scriptChangeArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
+         },
+         "ResultPath": null,
+         "Next": "ExecutionCodeGen",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "ExecutionCopyResource": {
-         "Type":"Task",
-         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
-         "Parameters":{
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
             "Input.$": "$.scriptChangeArgs",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:copy-script-resource"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
          },
          "ResultPath": null,
-         "Next": "SuccessMessage",
-         "Catch" : [ {
-            "ErrorEquals" : [ "States.Runtime" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.TaskFailed" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.ALL" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         } ]
+         "Next": "CopyScriptFile",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "CopyScriptFile": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangecopyscript-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.scriptChangeArgs.changeScriptMsg"
+         },
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ],
+         "ResultPath": null,
+         "Next": "SuccessMessage"
       },
       "ExecutionCodeGen": {
-         "Type":"Task",
-         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
-         "Parameters":{
-            "Input.$": "$.scriptChangeArgs",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen",
-
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.scriptChangeArgs.codeGenArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
          },
          "ResultPath": null,
          "Next": "SuccessMessage",
-         "Catch" : [ {
-            "ErrorEquals" : [ "States.Runtime" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.TaskFailed" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         }, {
-            "ErrorEquals" : [ "States.ALL" ],
-            "ResultPath" : "$.error",
-            "Next" : "CleanUp"
-         } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
-      "SuccessMessage":{
+      "SuccessMessage": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangepossuccessmsg-dev",
          "Parameters": {
@@ -263,9 +378,9 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "scriptItems.$" : "$.metadata.scriptItems",
-            "dagItems.$" : "$.metadata.dagItems",
-            "errors.$" : "$.error",
+            "scriptItems.$": "$.metadata.scriptItems",
+            "dagItems.$": "$.metadata.dagItems",
+            "errors.$": "$.error",
             "status": "failed"
          },
          "ResultPath": "$.message",
@@ -288,5 +403,4 @@
          "End": true
       }
    }
-
 }

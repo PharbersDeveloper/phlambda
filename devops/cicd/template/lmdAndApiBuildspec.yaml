@@ -12,6 +12,8 @@ phases:
       - git checkout $GIT_COMMIT
   build:
     commands:
+      - echo `date +"%Y_%m_%d_%H_%M_%S"` >> $FUNCTION_PATH/src/README.md
+      - echo $GIT_COMMIT >> $FUNCTION_PATH/src/README.md
       - sam package --template-file $FUNCTION_PATH/template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALIAS
       - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
       - rm -rf /code/$FUNCTION_NAME/$REPO_NAME

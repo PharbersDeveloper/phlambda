@@ -53,6 +53,3 @@ def lambda_handler(event, context):
             },
             "body": json.dumps(result)
         }
-
-a = {"tenantId":"zudIcG_17yj8CEUoCTHg","traceId":"49dda159b7e746a7a42d429e74c6f6a7","owner":"5UBSLZvV0w9zh7-lZQap","showName":"鹏钱","resourceId":"148dfd42942c4ff7b8b7ebb41fd7b737"}
-b = {'tenantId': 'zudIcG_17yj8CEUoCTHg', 'traceId': 'd4a0759b9140472a841312cacf6f3d0c', 'owner': '5UBSLZvV0w9zh7-lZQap', 'showName': '鹏钱', 'resourceId': '148dfd42942c4ff7b8b7ebb41fd7b737'}

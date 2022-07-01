@@ -1,0 +1,482 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "Result": {
+            "dagItems": "",
+            "scriptItems": ""
+         },
+         "ResultPath": "$.metadata",
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdargsvalidation-dev",
+         "ResultPath": null,
+         "Next": "TriggerAndAsync",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "TriggerAndAsync": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "ResultPath": "$.metadata",
+         "Next": "Success",
+         "Branches": [
+            {
+               "StartAt": "CreateTriggerChoice",
+               "States": {
+                  "CreateTriggerChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.trigger.required",
+                           "BooleanEquals": true,
+                           "Next": "GetLmdAndApiDetail"
+                        },
+                        {
+                           "Variable": "$.trigger.required",
+                           "BooleanEquals": false,
+                           "Next": "ApiBranchEnd"
+                        }
+                     ],
+                     "Default": "GetLmdAndApiDetail"
+                  },
+                  "GetLmdAndApiDetail": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandapidetail-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "trigger.$": "$.trigger"
+                     },
+                     "ResultPath": "$.metadata",
+                     "Next": "CreateCodeBuildCfn"
+                  },
+                  "CreateCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.metadata.lambdaArgs.name",
+                        "parameters.$": "$.metadata.lambdaArgs.parameters",
+                        "cfn.$": "$.metadata.lambdaArgs.cfn"
+                     },
+                     "ResultPath": null,
+                     "Next": "ApiLmdCodebuildWait"
+                  },
+                  "ApiLmdCodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiLmdCodebuildCheck"
+                  },
+                  "ApiLmdCodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.metadata.lambdaArgs.name",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.metadata.iterator",
+                     "Next": "ApiLmdCodebuildReached"
+                  },
+                  "ApiLmdCodebuildReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
+                           "Next": "RunApiCodebuild"
+                        }
+                     ],
+                     "Default": "ApiLmdCodebuildWait"
+                  },
+                  "RunApiCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
+                     "Parameters": {
+                        "ProjectName.$": "$.metadata.lambdaArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "DeleteCodeBuildCfn"
+                  },
+                  "DeleteCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "deletion",
+                        "name.$": "$.metadata.lambdaArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "UpdateTriggerManageYaml"
+                  },
+                  "UpdateTriggerManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdatetriggermanageyaml-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "runtime.$": "$.common.runtime",
+                        "trigger.$": "$.trigger",
+                        "apiGateWayArgs.$": "$.metadata.apiGateWayArgs"
+                     },
+                     "ResultPath": "$.stackMessage",
+                     "Next": "ApiCreateManageStack"
+                  },
+                  "ApiCreateManageStack": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Parameters": {
+                        "stackName.$": "$.stackMessage.stackName",
+                        "manageUrl.$": "$.stackMessage.manageUrl",
+                        "version.$": "$.common.version",
+                        "stackParameters.$": "$.stackMessage.stackParameters"
+                     },
+                     "ResultPath": "$.changeSetMsg",
+                     "Next": "ApiJudgeExecuteChangeSet"
+                  },
+                  "ApiJudgeExecuteChangeSet": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetMsg.changeSetName",
+                           "IsNull": true,
+                           "Next": "ApiBranchEnd"
+                        }
+                     ],
+                     "Default": "ApiChangeSetWait"
+                  },
+                  "ApiChangeSetWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiCheckChangeSet"
+                  },
+                  "ApiCheckChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": "$.changeSetStatus",
+                     "Next": "ApiChangeSetStatusReached"
+                  },
+                  "ApiChangeSetStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetStatus",
+                           "BooleanEquals": true,
+                           "Next": "ApiExecutionChangeSet"
+                        }
+                     ],
+                     "Default": "ApiChangeSetWait"
+                  },
+                  "ApiExecutionChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": null,
+                     "Next": "ApiBranchEnd"
+                  },
+                  "ApiBranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "CreateAsyncChoice",
+               "States": {
+                  "CreateAsyncChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.processor.required",
+                           "BooleanEquals": true,
+                           "Next": "GetLmdAndSfnDetail"
+                        },
+                        {
+                           "Variable": "$.processor.required",
+                           "BooleanEquals": false,
+                           "Next": "AsyncBranchEnd"
+                        }
+                     ],
+                     "Default": "AsyncBranchEnd"
+                  },
+                  "GetLmdAndSfnDetail": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandsfndetail-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "commit.$": "$.common.commit",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "processor.$": "$.processor"
+                     },
+                     "ResultPath": "$.metadata",
+                     "Next": "CreateCurrentLmdArgs"
+                  },
+                  "CreateCurrentLmdArgs": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecurrentlmdargs-dev",
+                     "Parameters": {
+                        "lambdaArgs.$": "$.metadata.lambdaArgs",
+                        "iterator.$": "$.metadata.iterator"
+                     },
+                     "ResultPath": "$.currentLmdArgs",
+                     "Next": "CreateAsyncCodeBuildCfn"
+                  },
+                  "CreateAsyncCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.currentLmdArgs.name",
+                        "parameters.$": "$.currentLmdArgs.parameters",
+                        "cfn.$": "$.currentLmdArgs.cfn"
+                     },
+                     "ResultPath": null,
+                     "Next": "CodebuildWait"
+                  },
+                  "CodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CodebuildCheck"
+                  },
+                  "CodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.currentLmdArgs.name",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.metadata.iterator",
+                     "Next": "AsyncStepsCountReached"
+                  },
+                  "AsyncStepsCountReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
+                           "Next": "RunAsyncCodebuild"
+                        }
+                     ],
+                     "Default": "CodebuildWait"
+                  },
+                  "RunAsyncCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
+                     "Parameters": {
+                        "ProjectName.$": "$.currentLmdArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "DeleteAsyncCodeBuildCfn"
+                  },
+                  "DeleteAsyncCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "deletion",
+                        "name.$": "$.currentLmdArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "AsyncLmdCountReached"
+                  },
+                  "AsyncLmdCountReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.index",
+                           "NumericEqualsPath": "$.metadata.lmdCounts",
+                           "Next": "UpdateAsyncManageYaml"
+                        }
+                     ],
+                     "Default": "CreateCurrentLmdArgs"
+                  },
+                  "UpdateAsyncManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdateasyncmanageyaml-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "commit.$": "$.common.commit",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "processor.$": "$.processor",
+                        "lambdaArgs.$": "$.metadata.lambdaArgs",
+                        "stepFunctionArgs.$": "$.metadata.stepFunctionArgs"
+                     },
+                     "ResultPath": "$.stackMessage",
+                     "Next": "CreateManageStack"
+                  },
+                  "CreateManageStack": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Parameters": {
+                        "stackName.$": "$.stackMessage.stackName",
+                        "manageUrl.$": "$.stackMessage.manageUrl",
+                        "version.$": "$.common.version",
+                        "stackParameters.$": "$.stackMessage.stackParameters"
+                     },
+                     "ResultPath": "$.changeSetMsg",
+                     "Next": "JudgeExecuteChangeSet"
+                  },
+                  "JudgeExecuteChangeSet": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetMsg.changeSetName",
+                           "IsNull": true,
+                           "Next": "AsyncBranchEnd"
+                        }
+                     ],
+                     "Default": "ChangeSetWait"
+                  },
+                  "ChangeSetWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CheckChangeSet"
+                  },
+                  "CheckChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": "$.changeSetStatus",
+                     "Next": "ChangeSetStatusReached"
+                  },
+                  "ChangeSetStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetStatus",
+                           "BooleanEquals": true,
+                           "Next": "ExecutionChangeSet"
+                        }
+                     ],
+                     "Default": "ChangeSetWait"
+                  },
+                  "ExecutionChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": null,
+                     "Next": "AsyncBranchEnd"
+                  },
+                  "AsyncBranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
+                     "End": true
+                  }
+               }
+            }
+         ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "Success": {
+         "Type": "Pass",
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposcleanup-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scriptItems.$": "$.metadata.scriptItems",
+            "dagItems.$": "$.metadata.dagItems",
+            "errors.$": "$.error",
+            "status": "failed"
+         },
+         "ResultPath": "$.message",
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments",
+            "message.$": "$.message",
+            "status": "failed"
+         },
+         "End": true
+      }
+   }
+}

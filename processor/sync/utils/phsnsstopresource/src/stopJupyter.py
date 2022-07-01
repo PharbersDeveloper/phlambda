@@ -168,7 +168,7 @@ def stop(event):
 
 class StopJupyter(StopResource):
 
-    def run(self, tenantId, ctype):
+    def run(self, tenantId, ctype="jupyter"):
 
         for item in self.query_resource(tenantId, ctype):
             event = {"tenantId": tenantId,

@@ -126,7 +126,7 @@ def errorHandle(error, runnerId):
     raise Exception('unknown')
 
 def lambda_handler(event, context):
-    # cicd 1317
+    # cicd 0701 1028
     print(event)
     dt = datetime.now()
     ts = datetime.timestamp(dt) * 1000

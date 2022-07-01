@@ -7,11 +7,7 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: ReplaceAlias
       CodeUri: ./src
-      Environment:
-        Variables:
-          EDITION: "dev"
       FunctionName: phcicdasynctrigger
       Description: "phnewsampletrigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

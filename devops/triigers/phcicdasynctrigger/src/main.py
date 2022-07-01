@@ -8,10 +8,10 @@ event = {
     "publisher": "hbzhao",
     "runtime": "dev",
     "trigger": {
-        "commit": "",
+        "commit": "c8008002b1c34eb134b0bb893ab5fd7e43cc02da",
         "repo": "phlambda",
-        "branch": "",
-        "prefix": "",
+        "branch": "feature/PBDP-3043-async-cicd-state-machine",
+        "prefix": "processor/sync/triggers/phnewsampletrigger",
         "entry": {
             "type": "ApiGateWay",
             "resource": "",
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             "version": event["version"],
             "publisher": event["publisher"],
             "alias": event["version"],
-            "runtime": event["runtime"]
+            "runtime": "dev" if event["version"] == "MINOR" else "v2"
         },
         "processor": {
             "repo": event["processor"]["repo"],
@@ -55,7 +55,7 @@ def lambda_handler(event, context):
             "commit": event["processor"]["commit"],
             "prefix": event["processor"]["prefix"],
             "stateMachineName": event["processor"]["prefix"].split("/")[-1],
-            "sm": event["processor"]["prefix"] + "sm.json",
+            "sm": event["processor"]["prefix"] + "/sm.json",
             "functions": event["processor"]["functions"],
             "required": event["processor"]["required"]
         },
@@ -63,14 +63,14 @@ def lambda_handler(event, context):
             "commit": event["trigger"]["commit"],
             "repo": event["trigger"]["repo"],
             "branch": event["trigger"]["branch"],
-            "prefix": event["trigger"]["prefix"],
+            "prefix": "/".join(event["trigger"]["prefix"].split("/")[0:-1]),
             "functionName": event["trigger"]["prefix"].split("/")[-1],
             "entry": event["trigger"]["entry"],
             "required": event["trigger"]["required"]
         }
     }
 
-    state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:async-trigger-cicd"
+    state_machine_arn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:async-trigger-cicd"
     client = boto3.client('stepfunctions')
     res = client.start_execution(stateMachineArn=state_machine_arn, input=json.dumps(state_machine_event))
     run_arn = res['executionArn']

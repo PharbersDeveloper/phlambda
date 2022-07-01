@@ -7,8 +7,7 @@ phases:
     commands:
       - mkdir -p /code/$FUNCTION_NAME/$REPO_NAME
       - cd /code/$FUNCTION_NAME/$REPO_NAME
-      - rm -f .git/index.lock
-      - rm -f .git/index
+      - git init
       - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
       - git checkout $GIT_COMMIT
   build:

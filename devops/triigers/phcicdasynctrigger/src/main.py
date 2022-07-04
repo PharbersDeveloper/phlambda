@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             "version": event["version"],
             "publisher": event["publisher"],
             "alias": event["version"],
-            "runtime": "dev" if event["version"] == "MINOR" else "v2"
+            "runtime": event["runtime"]
         },
         "processor": {
             "repo": event["processor"]["repo"],

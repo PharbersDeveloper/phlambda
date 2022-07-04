@@ -173,7 +173,7 @@ class StopJupyter(StopResource):
         for item in self.query_resource(tenantId, ctype):
             event = {"tenantId": tenantId,
                      "traceId": self.get_uuid,
-                     "owner": "5UBSLZvV0w9zh7-lZQap",
+                     "owner": item["owner"],
                      "showName": "鹏钱",
                      "resourceId": item["id"]}
             stop(event)

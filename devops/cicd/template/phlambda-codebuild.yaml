@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: lambda codebuild cloudformation
+Parameters:
+  VPCIdentifier:
+    Type: String
+    Default: vpc-082167a9cbf8811e1
+    Description : "VPC ID"
+  PublicSubnetIdentifier:
+    Type: String
+    Default: subnet-0260eab5acd58bc53
+    Description : "public subnet one"
+  PrivateSubnetIdentifier:
+    Type: String
+    Default: subnet-0eb162dcc3b5a3a43
+    Description : "private subnet with nat gateway"
+  SecurityGroupIdentifier:
+    Type: String
+    Default: sg-09f5205a1194149ab
+    Description : "security group"
+  Concurrency:
+    Type: Number
+    Default: 1
+    Description : "Concurrent build limit"
+  TimeoutInMinutes:
+    Type: Number
+    Default: 480
+    Description : "TimeoutInMinutes"
+  BuildSpec:
+    Type: String
+    Default: lmdAndSfnBuildspec
+    Description: "BuildSpec"
+  FunctionName:
+    Type: String
+    Default: phtestcodebuild
+    Description : "FunctionName"
+  FunctionRuntime:
+    Type: String
+    Default: python3
+    Description: "FunctionRuntime"
+  FunctionPath:
+    Type: String
+    Default: deprecated/phtestcodebuild
+    Description: "FunctionPath"
+  FunctionPathPrefix:
+    Type: String
+    Default: deprecated
+    Description: "FunctionPath"
+  GitCommit:
+    Type: String
+    Default: 82f6ead16fabfa421803ae8634a37cd1a1fd10fe
+    Description: "GitCommit"
+  GitUrl:
+    Type: String
+    Default: http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git
+    Description: "GitUrl"
+  BranchName:
+    Type: String
+    Default: feature/PBDP-3043-async-cicd-state-machine
+    Description: "BranchName"
+  RepoName:
+    Type: String
+    Default: phlambda
+    Description: "RepoName"
+  Version:
+    Type: String
+    Default: dev
+    Description: "Version"
+
+
+Resources:
+  PharbersAutoBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref "AWS::StackName"
+      ConcurrentBuildLimit: !Ref Concurrency
+      Cache:
+        Location: NO_CACHE
+        Modes:
+          - LOCAL_SOURCE_CACHE
+          - LOCAL_DOCKER_LAYER_CACHE
+          - LOCAL_CUSTOM_CACHE
+        Type: NO_CACHE
+      Description: !Sub Build phlambda ${FunctionName}
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: !Sub 444603803904.dkr.ecr.cn-northwest-1.amazonaws.com.cn/cicd_${FunctionRuntime}:latest
+        ImagePullCredentialsType: SERVICE_ROLE
+        Type: LINUX_CONTAINER
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: FUNCTION_PATH_PREFIX
+            Type: PLAINTEXT
+            Value: !Ref FunctionPathPrefix
+          - Name: FUNCTION_PATH
+            Type: PLAINTEXT
+            Value: !Ref FunctionPath
+          - Name: AWS_ACCESS_KEY
+            Type: PLAINTEXT
+            Value: AKIAWPBDTVEAPOX3QT6U
+          - Name: AWS_SECRET_KEY
+            Type: PLAINTEXT
+            Value: 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
+          - Name: FUNCTION_NAME
+            Type: PLAINTEXT
+            Value: !Ref FunctionName
+          - Name: GIT_URL
+            Type: PLAINTEXT
+            Value: !Ref GitUrl
+          - Name: BRANCH_NAME
+            Type: PLAINTEXT
+            Value: !Ref BranchName
+          - Name: REPO_NAME
+            Type: PLAINTEXT
+            Value: !Ref RepoName
+          - Name: VERSION
+            Type: PLAINTEXT
+            Value: !Ref Version
+          - Name: GIT_COMMIT
+            Type: PLAINTEXT
+            Value: !Ref GitCommit
+
+      FileSystemLocations:
+        - Identifier: EFS
+          Location: fs-1dbf2af8.efs.cn-northwest-1.amazonaws.com.cn:/code
+          MountPoint: /code
+          Type: EFS
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+        S3Logs:
+          Status: ENABLED
+          EncryptionDisabled: true
+          Location: !Sub ph-platform/2020-11-11/cicd/${FunctionPath}/logs
+      QueuedTimeoutInMinutes: !Ref TimeoutInMinutes
+      ServiceRole: arn:aws-cn:iam::444603803904:role/Pharbers-CICD-Maintainer
+      # SourceVersion: 0.0.1 Might be useful late on
+      Source:
+        BuildSpec: !Sub ${BuildSpec}.yaml
+        Location: !Sub ph-platform/2020-11-11/cicd/${BuildSpec}/code.zip
+        Type: S3
+      Artifacts:
+        ArtifactIdentifier: String
+        EncryptionDisabled: true
+        Location: ph-platform # this is the name of the output bucket
+        NamespaceType: BUILD_ID
+        Packaging: ZIP
+        Path: !Sub 2020-11-11/cicd/${FunctionPath}/artifacts/
+        Type: S3
+        OverrideArtifactName: true
+      Tags:
+        - Key: Company
+          Value: Pharbers
+        - Key: Project
+          Value: !Ref FunctionName
+      TimeoutInMinutes: !Ref TimeoutInMinutes
+      # Triggers: Might be useful late on
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupIdentifier
+        Subnets:
+          - !Ref PublicSubnetIdentifier
+          - !Ref PrivateSubnetIdentifier
+        VpcId: !Ref VPCIdentifier
+

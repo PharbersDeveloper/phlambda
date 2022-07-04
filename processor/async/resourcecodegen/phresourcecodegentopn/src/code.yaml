@@ -90,9 +90,10 @@ code:
       def execute(**kwargs):
           data_frame = kwargs["df_$input"]
           args = $topn_args
-          data_frame = pre_filter(data_frame, args["preFilter"])
-          data_frame = computed_columns(data_frame, args["computedColumns"])
-          data_frame = retrieved_columns(top_n(data_frame, args), args)
+          if args:
+              data_frame = pre_filter(data_frame, args["preFilter"])
+              data_frame = computed_columns(data_frame, args["computedColumns"])
+              data_frame = retrieved_columns(top_n(data_frame, args), args)
           return {"out_df": data_frame}
 
 

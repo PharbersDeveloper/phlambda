@@ -53,6 +53,7 @@ def create_script(event):
     return {
         "jobName": job_name,
         "jobShowName": script["name"],
+        "jobId": script["id"],
         "runtime": script["runtime"]
     }
 

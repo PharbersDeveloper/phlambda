@@ -31,9 +31,11 @@ def lambda_handler(event, context):
         result["trace_id"] = "Couldn't start run " + trace_id
 
     #---------------------- 埋点 -------------------------------------#
+
     aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
                                    MetricName='platform-usage',
                                    tenantId=event["common"]["tenantId"])
+
     #---------------------- 埋点 -------------------------------------#
 
 

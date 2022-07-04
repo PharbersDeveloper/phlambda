@@ -81,7 +81,7 @@
              "Next": "failedExecutionHook"
           } ],
          "ResultPath": null,
-         "Next": "endExecutionHook",
+         "Next": "endExecutionHook"
       },
       "endExecutionHook": {
          "Type": "Task",
@@ -121,7 +121,7 @@
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
+            "showName.$": "$.common.showName"
          },
          "ResultPath": null,
          "End": true

@@ -1,0 +1,172 @@
+version: 0.0.0
+framework: pyspark
+engine: spark
+language: python
+language_version: 3.8.9
+code:
+  baseFuncs:
+    code: |
+      import itertools
+      from functools import reduce
+      import pyspark.sql.functions as F
+
+      # Filter Base Function Start
+      def filter_clear_cell(**kwargs):
+          exprs = kwargs["exprs"]
+          columns = kwargs["columns"]
+          mode = kwargs["mode"]
+          other_mode = "OR" if mode.lower() == "and" else "AND"
+          complete_df = kwargs["df"].filter(f" {mode} ".join(exprs))
+          other_df = kwargs["df"].filter(f" {other_mode} ".join(list(map(lambda expr: f"!{expr}", exprs))))
+          for item in columns:
+              complete_df = complete_df.withColumn(item, F.lit(""))
+          return complete_df.union(other_df)
+
+      def filter_dont_clear_cell(**kwargs):
+          exprs = kwargs["exprs"]
+          mode = kwargs["mode"]
+          columns = kwargs["columns"]
+          other_mode = "OR" if mode.lower() == "and" else "AND"
+          complete_df = kwargs["df"].filter(f" {mode} ".join(exprs))
+          other_df = kwargs["df"].filter(f" {other_mode} ".join(list(map(lambda expr: f"!{expr}", exprs))))
+          for item in columns:
+              other_df = other_df.withColumn(item, F.lit(""))
+          return complete_df.union(other_df)
+
+      def filter_keep_row(**kwargs):
+          exprs = kwargs["exprs"]
+          mode = kwargs["mode"]
+          return kwargs["df"].filter(f" {mode} ".join(exprs))
+
+      def filter_remove_row(**kwargs):
+          exprs = kwargs["exprs"]
+          mode = kwargs["mode"]
+          return kwargs["df"].filter(f" {mode} ".join(list(map(lambda expr: f"!{expr}", exprs))))
+
+      def filter_replenish_str(value):
+          if isinstance(value, str):
+              return f"'{value}'"
+          return value
+
+      def match_data_mode(mode, value):
+          match = {
+              "FULL_STRING": f" = {filter_replenish_str(value)}",
+              "SUBSTRING": f" like {filter_replenish_str(f'%{value}%')}",
+              "PATTERN": f" rlie {filter_replenish_str(value)} "
+          }
+          return match[mode]
+
+      filter_actions = {
+          "KEEP_ROW": filter_keep_row,
+          "REMOVE_ROW": filter_remove_row,
+          "CLEAR_CELL": filter_clear_cell,
+          "DONTCLEAR_CELL": filter_dont_clear_cell
+      }
+      # Filter Base Function End
+
+      # Value Replace Base Function Start
+      def value_replace_match_cell_mode(mode, value):
+          match = {
+              "FULL_STRING": f"^{value}$",
+              "SUBSTRING": f"{value}",
+              "PATTERN": value
+          }
+          return match[mode]
+      # Value Replace Base Function End
+
+  filterOnValue:
+    args: ~
+    code: |
+      #  Filter Start
+      filter_parameter = $args
+      mode = filter_parameter["params"]["booleanMode"]
+      matching_mode = filter_parameter["params"]["matchingMode"]
+      action = filter_parameter["params"]["action"]
+      values = filter_parameter["params"]["values"]
+      columns = filter_parameter["params"]["columns"]
+
+      expr_list = list(map(lambda item:
+                          f"""({
+                              " OR ".join(list(map(lambda value: f"`{item}`{match_data_mode(matching_mode, value)}", values)))
+                          })""", columns))
+
+      filter_action_function = filter_actions.get(action, None)
+
+      if filter_action_function is not None :
+          data_frame = filter_action_function(exprs=expr_list, mode=mode, columns = columns, df=data_frame)
+      #  Filter End
+
+  filterOnNumericalRange:
+    args: ~
+    code: |
+      #  Filter Numerical Range Start
+      filter_numerical_range_parameter = $args
+
+      mode = filter_numerical_range_parameter["params"]["booleanMode"]
+      action = filter_numerical_range_parameter["params"]["action"]
+      min = filter_numerical_range_parameter["params"]["min"]
+      max = filter_numerical_range_parameter["params"]["max"]
+      value = f"""{min} and {max}"""
+      columns = filter_numerical_range_parameter["params"]["columns"]
+
+      expr_list = list(map(lambda col: f"(`{col}` between {value})", columns))
+      filter_action_function = filter_actions.get(action, None)
+
+      if filter_action_function is not None :
+          data_frame = filter_action_function(exprs=expr_list, mode=mode, columns = columns, df=data_frame)
+
+      #  Filter Numerical Range End
+
+  fillEmptyWithValue:
+    args: ~
+    code: |
+      #  Fill Empty With Value Start
+      fill_empty_parameter = $args
+      cols = fill_empty_parameter["params"]["columns"]
+      value = fill_empty_parameter["params"]["value"]
+      if len(value) > 100:
+          raise Exception("length is greater than 100 `value`")
+      if len(value) == 0 or " " in value:
+          raise Exception("cannot be empty `value`")
+      data_frame = data_frame.replace("", value, cols)
+      #  Fill Empty With Value End
+
+  columnReplace:
+    args: ~
+    code: |
+      # Column Replace Start
+      column_replace_parameter = $args
+      col = column_replace_parameter["params"]["column"]
+      output = column_replace_parameter["params"]["output"]
+      data_frame = data_frame.withColumn(output, F.col(col))
+      # Column Replace End
+  
+  valueReplace:
+    args: ~
+    code: |
+      # Value Replace Start
+      value_replace_parameter = $args
+      matching_mode = value_replace_parameter["params"]["matchingMode"]
+      cols = value_replace_parameter["params"]["columns"]
+      mapping = list(map(lambda item: {"from": value_replace_match_cell_mode(matching_mode, item["from"]), "to": item["to"]}, value_replace_parameter["params"]["mapping"]))
+      cols_map = list(map(lambda col: {"col": col}, cols))
+      value_replace_mapping = list(map(lambda item: reduce(lambda x, y: dict(x, **y), item), itertools.product(mapping, cols_map)))
+      for item in value_replace_mapping:
+          data_frame = data_frame.withColumn(item["col"], F.regexp_replace(item["col"], item["from"], item["to"]))
+      # Value Replace End
+
+  phjob:
+    input: ~
+    base_func: ~
+    code_fragments: ~
+    code: |
+      $base_func
+
+      def execute(**kwargs):
+          data_frame = kwargs["df_$input"]
+
+          $code_fragments
+
+          return {"out_df": data_frame}
+
+

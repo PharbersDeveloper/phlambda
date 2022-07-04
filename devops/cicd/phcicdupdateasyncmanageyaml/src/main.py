@@ -134,6 +134,14 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
+def copy_manage_resource(bucket_name, prefix):
+    copy_source = {
+        'Bucket': bucket_name,
+        'Key': prefix + "/manage.yaml"
+    }
+    s3_resource.meta.client.copy(copy_source, bucket_name, prefix + "/manage_back.yaml")
+
+
 def lambda_handler(event, context):
     # 从s3下载sfn template文件
     download_s3_file(sfnTemplateS3Key, sfnTemplateS3Path, sfnLocalPath)
@@ -143,6 +151,7 @@ def lambda_handler(event, context):
     if s3_file_exist("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "/manage.yaml"):
         download_s3_file("ph-platform", resourcePathPrefix + event["processor"]["prefix"] + "/manage.yaml",
                          mangeLocalPath)
+        copy_manage_resource("ph-platform", resourcePathPrefix + event["processor"]["prefix"])
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)

@@ -43,7 +43,7 @@ def check_parameter(data, **kwargs):
 
 
 def lambda_handler(event, context):
-    return check_parameter(**event)
+    return check_parameter(event)
     # 1. clusterId 必须存在
     # 2. stepId 必须存在
     # 3. jobName 必须存在

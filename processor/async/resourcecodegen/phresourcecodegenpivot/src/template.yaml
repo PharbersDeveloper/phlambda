@@ -139,24 +139,14 @@ template:
                 for i_args in g_computedColumns:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
-
-            # 不同计算情况下的参数处理  
-            df = df.withColumn('temp_groupbykey', func.lit('temp_groupbykey'))
-            if len(g_identifiers) == 0:
-                # 在没有groupby-key参数时，用temp_groupbykey列
-                g_identifiers = ['temp_groupbykey']
-
+            
+            # globalCount对 keyColumns 进行统计
             if g_pivot['globalCount'] == True:
-                if len(g_pivot_valueColumns)==0:
-                    # 如果是只计算globalCount的，则添加到 g_pivot_valueColumns 中一并计算
-                    g_pivot_valueColumns.append({'avg': False, 'column': 'temp_groupbykey', 'concat': False, 'concatDistinct': False, 'concatSeparator': ',', 'count': True, 'countDistinct': False, 'first': False, 'firstLastNotNull': False, 'last': False, 'max': False, 'min': False, 'orderColumn': '11111', 'stddev': False, 'sum': False})
-                else:
-                    # 如果是正常情况下计算 globalCount，则添加到 g_otherColumns 中一并计算
-                    g_otherColumns.append({'avg': False, 'column': 'temp_groupbykey', 'concat': False, 'concatDistinct': False, 'concatSeparator': ',', 'count': True, 'countDistinct': False, 'first': False, 'firstLastNotNull': False, 'last': False, 'max': False, 'min': False, 'orderColumn': '11111', 'stddev': False, 'sum': False})  
+                df = df.withColumn('temp_groupbykey', func.lit('temp_groupbykey') )   
+                g_pivot_valueColumns.append({'avg': False, 'column': 'temp_groupbykey', 'concat': False, 'concatDistinct': False, 'concatSeparator': ',', 'count': True, 'countDistinct': False, 'first': False, 'firstLastNotNull': False, 'last': False, 'max': False, 'min': False, 'orderColumn': '11111', 'stddev': False, 'sum': False})
             # pivots 执行
             if g_pivotedColumnType == 'all':
-                df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount) \
-                            .drop('temp_groupbykey') \
-                            .withColumnRenamed('temp_groupbykey_count', 'count')
+                df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount)
+                df = df.toDF(*[c.replace('temp_groupbykey_', '') for c in df.columns])
 
             return {"out_df":df}

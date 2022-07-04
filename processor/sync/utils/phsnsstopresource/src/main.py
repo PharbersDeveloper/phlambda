@@ -1,5 +1,6 @@
 import boto3
 from stopJupyter import StopJupyter
+from stopTenant import StopTenant
 
 
 COMMANDS = {
@@ -23,4 +24,5 @@ def lambda_handler(event, context):
                 tenantId = dimen.get("Value")
     if tenantId:
         StopJupyter().run(tenantId)
+        StopTenant().run(tenantId)
     return True

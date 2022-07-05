@@ -8,11 +8,12 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "version": "20220622",
-        "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+        
         "publisher": "赵浩博",
         "alias": "Current",
         "runtime": "dev"
         "processor": {
+            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
             "repo": "phlambda",
             "branch": "feature/PBDP-3043-async-cicd-state-machine",
             "prefix": "processor/async/sample",
@@ -87,7 +88,7 @@ def create_lambda_args(event):
             "branchName": processor["branch"],
             "repoName": processor["repo"],
             "version": event["version"],
-            "gitCommit": event["commit"],
+            "gitCommit": event["processor"]["commit"],
             "gitUrl": git_url
         }
         lambda_args.append(func_args)

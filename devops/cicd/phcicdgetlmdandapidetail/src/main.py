@@ -89,7 +89,7 @@ def create_api_args(event):
     api_args = {
         "methods": event["trigger"]["entry"]["method"],
         "PathPart": event["trigger"]["functionName"],
-        "LmdName": event["trigger"]["functionName"] + ":" + event["version"],
+        "LmdName": event["trigger"]["functionName"],
         "RestApiId": apigateway_resource[runtime]["RestApiId"],
         "AuthorizerId": apigateway_resource[runtime]["AuthorizerId"],
         "ParentId": apigateway_resource[runtime]["ParentId"]

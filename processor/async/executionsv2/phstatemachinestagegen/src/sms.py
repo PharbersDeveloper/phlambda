@@ -18,7 +18,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 2. start hook
     sm['States'][curJ + "StartHook"] = {
         "Type": "Task",
-        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-{edition}:Current",
+        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -80,7 +80,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logs-collection"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection"
         },
         "ResultPath": None,
         "Next": curJ + "EndHook"
@@ -88,7 +88,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
 
     sm['States'][curJ + "FailedLogsParse"] = {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinefailedjobparse-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinefailedjobparse",
         "Parameters": {
             "error.$": "$.error"
         },
@@ -114,7 +114,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logs-collection"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection"
         },
         "ResultPath": None,
         "Next": curJ + "Failed"
@@ -128,7 +128,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
     # 3. end hook
     sm['States'][curJ + "EndHook"] = {
         "Type": "Task",
-        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-{edition}:Current",
+        "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

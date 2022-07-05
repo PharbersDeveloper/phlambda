@@ -13,5 +13,5 @@ import datetime
 
 def lambda_handler(event, context):
     print(event)
-    event["parameters"]["ClusterID"] = event["ClusterID"]
+    event["parameters"]["EngineClusterId"] = event["ClusterID"]
     return event["parameters"]

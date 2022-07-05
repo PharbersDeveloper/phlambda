@@ -50,6 +50,7 @@
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
+            "projectName.$": "$.common.projectName",
             "resources.$": "$.resources"
          },
          "ResultPath": null,

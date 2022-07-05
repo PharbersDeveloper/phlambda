@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcepycodegen-dev
+      FunctionName: phresourcepycodegen
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       MemorySize: 1024
@@ -17,7 +16,6 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
           BUCKET: ph-platform
           CLI_VERSION: 2020-11-11
           JOB_PATH_PREFIX: /tmp/phjobs/

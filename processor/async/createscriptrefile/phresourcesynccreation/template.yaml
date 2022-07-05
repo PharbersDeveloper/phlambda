@@ -7,11 +7,10 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
-      FunctionName: lmd-phresourcesynccreation-dev
+      FunctionName: phresourcesynccreation
       MemorySize: 1024
       Description: "创建pyspark脚本"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

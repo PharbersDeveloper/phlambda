@@ -41,7 +41,7 @@
       },
       "SyncFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcesynccreation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcesynccreation",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -56,7 +56,7 @@
       },
       "PythonFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepycodegen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcepycodegen",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -71,7 +71,7 @@
       },
       "RFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcercodegen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcercodegen",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -86,7 +86,7 @@
       },
       "SparkrFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcercodegen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcercodegen",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -101,7 +101,7 @@
       },
       "PysparkFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcepycodegen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcepycodegen",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

@@ -7,15 +7,14 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-creation
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcecreation
           EDITION: "DEV"
-      FunctionName: lmd-phresourcecreationtrigger-dev
+      FunctionName: phresourcecreationtrigger
       Description: Http Post接口触发StepFunctions创建资源（ResuourceCreation）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

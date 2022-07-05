@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceargsvalidation-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourceargsvalidation",
         "ResultPath": null,
         "Next": "Actions",
         "Catch": [
@@ -74,7 +74,7 @@
       },
       "ResourceLink": {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcelinkcreation-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcelinkcreation",
         "Parameters": {
           "traceId.$": "$.common.traceId",
           "projectId.$": "$.common.projectId",
@@ -126,7 +126,7 @@
             "States": {
               "DSCreation": {
                 "Type": "Task",
-                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcedatasetcreation-dev",
+                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcedatasetcreation",
                 "Parameters": {
                   "traceId.$": "$.common.traceId",
                   "projectId.$": "$.common.projectId",
@@ -140,7 +140,7 @@
               },
               "VersionCreation": {
                 "Type": "Task",
-                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourceversioncreation-dev",
+                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourceversioncreation",
                 "Parameters": {
                   "traceId.$": "$.common.traceId",
                   "projectId.$": "$.common.projectId",
@@ -160,7 +160,7 @@
             "States": {
               "ScriptsCreation": {
                 "Type": "Task",
-                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcescriptindexcreation-dev",
+                "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcescriptindexcreation",
                 "Parameters": {
                   "traceId.$": "$.common.traceId",
                   "projectId.$": "$.common.projectId",
@@ -204,7 +204,7 @@
         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
         "Parameters": {
           "Input.$": "$",
-          "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
+          "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:createscriptrefile"
         },
         "ResultPath": null,
         "Next": "ResourceLink",
@@ -253,7 +253,7 @@
       },
       "CleanUp": {
         "Type": "Task",
-        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcefiledcleanup-dev",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcefailedcleanup",
         "Parameters": {
           "traceId.$": "$.common.traceId",
           "projectId.$": "$.common.projectId",

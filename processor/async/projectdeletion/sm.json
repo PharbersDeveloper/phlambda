@@ -17,7 +17,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsactions-dev",
          "Parameters": {
-            "traceId.$": "$.resources.traceId",
+            "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
@@ -45,7 +45,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phprojectresourcedeletion",
          "Parameters": {
-            "traceId.$": "$.resources.traceId",
+            "traceId.$": "$.common.traceId",
             "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -59,7 +59,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phprojectindexdeletion",
          "Parameters": {
-            "traceId.$": "$.resources.traceId",
+            "traceId.$": "$.common.traceId",
             "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
@@ -72,7 +72,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {
-            "traceId.$": "$.resources.traceId",
+            "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",

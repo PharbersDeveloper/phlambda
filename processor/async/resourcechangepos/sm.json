@@ -198,14 +198,42 @@
                "Variable": "$.script.new.runtime",
                "StringEquals": "sync",
                "Next": "ExecutionCopyResource"
-            },
-            {
-               "Variable": "$.script.new.runtime",
-               "StringEquals": "prepare",
-               "Next": "ExecutionCodeGen"
             }
          ],
-         "Default": "ExecutionCopyResource"
+         "Default": "ExecutionCreateResource"
+      },
+      "ExecutionCreateResource": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.scriptChangeArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
+         },
+         "ResultPath": null,
+         "Next": "ExecutionCodeGen",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "ExecutionCopyResource": {
          "Type": "Task",
@@ -281,7 +309,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
-            "Input.$": "$.scriptChangeArgs",
+            "Input.$": "$.scriptChangeArgs.codeGenArgs",
             "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
          },
          "ResultPath": null,

@@ -1,0 +1,56 @@
+template:
+  phjob.py:
+    args:
+      - key: a
+        Index: 0
+    content: |-
+        from pyspark.sql.functions import *
+        from pyspark.sql import functions as func
+        from pyspark.sql import Window
+        from functools import reduce
+                        
+        def execute(**kwargs):
+            spark = kwargs['spark']
+             
+            g_preFilter = $g_preFilter$
+            g_selectedColumns = $g_selectedColumns$
+            g_columnsMatches = $g_columnsMatches$
+            g_originColumn = $g_originColumn$
+            g_postFilter = $g_postFilter$
+            g_inputs = $g_inputs$
+
+            # ===============  执行  =================
+            # 输入table
+            dict_df = {k.replace("df_", ""):v for k,v in kwargs.items() if k.replace("df_", "") in g_inputs}
+
+            # preFilters
+            g_preFilter = [i for i in g_preFilter if i['preFilter']['enabled']==True]
+            if len(g_preFilter) > 0 :
+                # 处理'expr'和'distinct'
+                dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr'])) , g_preFilter))
+                # 更新到 dict_df
+                dict_df.update(dict_df_preFilter)
+
+            # columnsMatches
+            for i_columnsMatch in g_columnsMatches:
+                i_ds = i_columnsMatch['ds']
+                dict_df[i_ds] = dict_df[i_ds].select( [func.lit(None).cast("string").alias(g_selectedColumns[i]) if i_colname == None else col(i_colname).alias(g_selectedColumns[i]) for i,i_colname in enumerate(i_columnsMatch['columns'])] )
+
+            # selectedColumns
+            dict_df = {k:v.select(g_selectedColumns) for k,v in dict_df.items()}
+
+            # originColumn
+            if g_originColumn["enabled"] == True:
+                for i_dict in g_originColumn["originDatasets"] :
+                    dict_df[i_dict["ds"]] = dict_df[i_dict["ds"]].withColumn(g_originColumn["columnName"], func.lit(i_dict["value"])) 
+
+            # union
+            df_union = reduce(lambda x,y:x.union(y), dict_df.values())
+
+            # postFilter
+            if g_postFilter['enabled'] == True:
+                df_union = df_union.where(g_postFilter['expr'])
+                if g_postFilter['distinct'] == True:
+                    df_union = df_union.distinct()
+                    
+            return {"out_df":df_union}

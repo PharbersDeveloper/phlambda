@@ -29,13 +29,12 @@ code:
                 df = df.selectExpr('*', expr).withColumn(item["name"], col(item["name"]).cast(item["type"]))
         return df
 
-      def window_df(df, keys, order_cols, expr):
+      def window_df(df, keys, order_cols):
           return df.withColumn("__row_number", row_number().over(Window.partitionBy(keys).orderBy(order_cols))) \
                 .withColumn("__max", max("__row_number").over(Window.partitionBy(keys))) \
                 .withColumn("__duplicate_count", count(lit(1)).over(Window.partitionBy(keys))) \
                 .withColumn("__rank", rank().over(Window.partitionBy(keys).orderBy(order_cols))) \
-                .withColumn("__dense_rank", dense_rank().over(Window.partitionBy(keys).orderBy(order_cols))) \
-                .filter(expr)
+                .withColumn("__dense_rank", dense_rank().over(Window.partitionBy(keys).orderBy(order_cols)))
 
       def top_n(df, args):
           first_rows = args["firstRows"]
@@ -43,17 +42,21 @@ code:
           orders = args["orders"]
           keys = args["keys"]
 
-          _total_cols = list(map(lambda item: item[0], df.dtypes))
+          # _total_cols = list(map(lambda item: item[0], df.dtypes))
 
           # order_cols = list(map(lambda item: item["column"], orders))
           order_rule = list(map(lambda item: desc('`'+ item["column"] +'`') if item["desc"] else asc('`'+ item["column"] +'`'), orders))
 
-          if not keys:
-              keys = _total_cols
+          order_rule = list(map(lambda item: asc('`'+ item +'`'), keys)) + order_rule 
+          
+          df = window_df(df, keys, order_rule)
+          max_number = df.select("__max").head()
+          if max_number[0] == 1:
+              return df.filter(f"__row_number > 0 and __row_number <= {first_rows + last_rows}")
+          
+          first_rows_df = df.filter(f"__row_number > 0 and __row_number <= {first_rows}")
 
-          first_rows_df = window_df(df, keys, order_rule, f"__row_number > 0 and __row_number <= {first_rows}")
-
-          last_rows_df = window_df(df, keys, order_rule, f"__row_number > (__max - {last_rows})")
+          last_rows_df = df.filter(f"__row_number > (__max - {last_rows})")
 
           df = first_rows_df.union(last_rows_df).orderBy(order_rule)
 
@@ -73,8 +76,8 @@ code:
           _dense_rank = args["denseRank"]
           select_cols = args["retrievedColumns"]
 
-          # if not select_cols:
-          #    select_cols = _total_cols
+          if not select_cols:
+              select_cols = _total_cols
 
           if _row_number:
               select_cols.append("__row_number")
@@ -90,9 +93,10 @@ code:
       def execute(**kwargs):
           data_frame = kwargs["df_$input"]
           args = $topn_args
-          data_frame = pre_filter(data_frame, args["preFilter"])
-          data_frame = computed_columns(data_frame, args["computedColumns"])
-          data_frame = retrieved_columns(top_n(data_frame, args), args)
+          if args:
+              data_frame = pre_filter(data_frame, args["preFilter"])
+              data_frame = computed_columns(data_frame, args["computedColumns"])
+              data_frame = retrieved_columns(top_n(data_frame, args), args)
           return {"out_df": data_frame}
 
 

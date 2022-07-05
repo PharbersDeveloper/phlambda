@@ -41,25 +41,24 @@ class DelScenarioIndex:
             Key=DelItem,
         )
 
-    def query_table_item(self, tableName, partitionKey, sortKey):
+    def query_table_item(self, tableName, **kwargs):
+        QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
         ds_table = dynamodb.Table(tableName)
-        res = ds_table.query(
-            KeyConditionExpression=Key(partitionKey).eq(self.get_projectId())
-                               & Key(sortKey).eq(self.get_scenarioId())
+        res = ds_table.get_item(
+            Key=QueryItem,
         )
-        return res["Items"]
-
+        try:
+            Item = res["Item"]
+        except:
+            Item = []
+        return Item
 
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
 
-    def get_OldImage(self):
-        Items= self.query_table_item('scenario', 'projectId', 'id')
-        print("*"*50+"OldImage contents"+"*"*50)
-        print(Items)
-        if len(Items) != 0:
-            ItemDict = Items[0]
+    def get_OldImage(self, ItemDict):
+        if len(ItemDict) != 0:
             OldImage = {
                 "id": ItemDict['id'],
                 "active": ItemDict['active'],
@@ -68,28 +67,29 @@ class DelScenarioIndex:
             }
         else:
             OldImage = {}
-        self.OldImage = OldImage
         return OldImage
 
-    def fetch_result(self):
-        self.scenario['OldImage'] = self.OldImage
+    def DelScenarioItemFromDyDB(self):
+
+        for scenario in self.scenario:
+            ScenarioId = scenario["id"]
+            OldImageItem = self.query_table_item("scenario", projectId=self.get_projectId(), id=ScenarioId)
+            OldImage = self.get_OldImage(OldImageItem)
+            if len(OldImage) == 0:
+                pass
+            else:
+                #--------deleter scenario items -----------#
+                self.del_table_item("scenario", projectId=self.get_projectId(), id=ScenarioId)
+            scenario["OldImage"] = OldImage
         return self.scenario
 
 
 def lambda_handler(event, context):
 
-    if len(event["scenario"]) == 0:
-        return event["scenario"]
-    else:
-        DelClient = DelScenarioIndex(event)
-        #-------------------delete ---------------------------------------------#
-        OldImage = DelClient.get_OldImage()
-        if len(OldImage) == 0:
-            print(f"{DelClient.get_scenarioId()} not exits, please check data")
-        else:
-            #-------------------delete scenario---------------------------------------------#
-            DelClient.del_table_item('scenario', projectId=DelClient.get_projectId(), id=DelClient.get_scenarioId())
+    DelClient = DelScenarioIndex(event)
+    #-------------------delete ---------------------------------------------#
+    result = DelClient.DelScenarioItemFromDyDB()
 
-        return DelClient.fetch_result()
+    return result
 
 

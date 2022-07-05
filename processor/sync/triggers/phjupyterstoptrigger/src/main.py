@@ -22,8 +22,8 @@ class SSMAndCloudFormationState:
         for elem in ItemOfResource:
             properties = elem['properties']
             properties = (json.loads(properties) if isinstance(properties, str) else properties)[0]
-            # 1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>-<ownership>-<owner>
-            stackName = '-'.join([elem['role'], properties['type'], elem['tenantId'], elem['ownership'], elem['owner']])
+            # 1.3 stackname 的名字规则为  <role>-<property.type>-<id>-<ownership>-<owner>
+            stackName = '-'.join([elem['role'], properties['type'], elem['id'], elem['ownership'], elem['owner']])
             ssmName = '-'.join([properties['type'], elem['owner'], resourceId])
             stackNameAndSSMNameList.append((stackName, ssmName))
         return stackNameAndSSMNameList

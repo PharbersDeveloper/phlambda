@@ -11,8 +11,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phjupyterboottrigger-dev
+          EDITION: "V2"
+      FunctionName: lmd-phjupyterboottrigger-V2
       Description: "启动集群"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

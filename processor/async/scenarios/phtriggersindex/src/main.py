@@ -96,7 +96,43 @@ class TriggersIndex:
         return OldImage
 
 
+    def QueryAllItemsOfScenario(self, tableName, partitionKey, ValueOfpartitionKey):
+
+        dynamodb = boto3.resource('dynamodb')
+        ds_table = dynamodb.Table(tableName)
+        res = ds_table.query(
+            KeyConditionExpression=Key(partitionKey).eq(ValueOfpartitionKey)
+        )
+
+        return res["Items"]
+
+    def GetNeedDeleteItems(self, scenarioId):
+
+        AllScenarioItems = self.QueryAllItemsOfScenario("scenario_trigger", "scenarioId", scenarioId)
+        AllScenarioKey = list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, AllScenarioItems))
+        CurrentTriggers= list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, self.triggers))
+        NeedDeleteKey = [x for x in AllScenarioKey if x not in CurrentTriggers]
+        return NeedDeleteKey
+
+    def DeleteNotNeedItems(self):
+        NeedDeleteKey = self.GetNeedDeleteItems(self.event["scenario"]["id"])
+        for item in NeedDeleteKey:
+            self.del_table_item("scenario_trigger", "scenarioId", "id", item["scenarioId"], item["id"])
+
+    def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        table.delete_item(
+            Key={
+                partitionKey: partitionValue,
+                sortKey: sortValue
+            },
+        )
+
     def putTriggersItemIntoDyDB(self):
+        #----更新items-----------------#
+        self.DeleteNotNeedItems()
+
         for trigger in self.triggers:
             triggerId = trigger["id"]
             scenarioId = trigger["scenarioId"]

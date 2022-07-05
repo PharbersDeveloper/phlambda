@@ -1,10 +1,10 @@
-
 import json
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
 
 def query_scenario(ProjectId, ScenarioId, **kwargs):
+    print(ProjectId)
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('scenario')
     res = table.query(
@@ -15,11 +15,11 @@ def query_scenario(ProjectId, ScenarioId, **kwargs):
 
 def lambda_handler(event, context):
     print(event)
-    scenario = query_scenario(**event)
+    scenario = query_scenario(**event)[0]
 
     args = {
         "common": {
-            "tenantId": event["TriggerId"],
+            "tenantId": event["TenantId"],
             "traceId": scenario["traceId"],
             "projectId": event["ProjectId"],
             "projectName": scenario["projectName"],

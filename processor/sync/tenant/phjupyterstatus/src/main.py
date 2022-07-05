@@ -13,7 +13,7 @@ ssm = boto3.client('ssm')
     1.2 对每一个值中的property 遍历，形成一个stackname 的数组
     1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>
     1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
-       
+
 2. ssm 是否存在，如果存在，报错，不能重复创建并提交管理员
 
 event = {
@@ -33,9 +33,9 @@ def resourceCheck(stackNameList):
     check resouce stack name
     & operator
     @param resouce: check item
-    @return: 
+    @return:
         0: stoped
-        1: starting 
+        1: starting
         2: started
         4: stoping
     '''
@@ -54,7 +54,7 @@ def resourceCheck(stackNameList):
                 result |= 0
             elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS"]:
                 print("{} is starting".format(stackName))
-                result |=1
+                result |= 1
             elif len(response) == 1 and response[0]["StackStatus"] in ["CREATE_COMPLETE", "UPDATE_COMPLETE"]:
                 print("{} is started".format(stackName))
                 result |= 2
@@ -69,7 +69,7 @@ def resourceCheck(stackNameList):
 
 def ssmCheck(ssmNameList):
     '''
-    @return: 
+    @return:
         0: stoped
         2: started
     '''
@@ -98,16 +98,15 @@ def ssmQueryTraceId(ssm_name):
     print(response)
     value = json.loads(response["Parameter"]["Value"])
     return value["traceId"]
-    
+
 
 def errorMessage(e):
-    code = 503
     message = {
         "status": -99,
         "message": json.dumps(str(e)),
         "traceId": ""
     }
-    return code, message
+    return message
 
 
 def list_cloudformation_ssm_name(resource, resourceId):
@@ -115,7 +114,7 @@ def list_cloudformation_ssm_name(resource, resourceId):
     ssmNameList = []
     properties = json.loads(resource["properties"])
     for prop in properties:
-        stackName = "-".join([resource["role"], prop["type"], resource["tenantId"], resource["ownership"],
+        stackName = "-".join([resource["role"], prop["type"], resourceId, resource["ownership"],
                               resource["owner"]]).replace("_", "-").replace(":", "-").replace("+", "-")
 
         ssmName = '-'.join([prop['type'], resource['owner'], resourceId]).replace("=", "-")
@@ -124,62 +123,77 @@ def list_cloudformation_ssm_name(resource, resourceId):
     return stackNameList, ssmNameList
 
 
+def query_status(tenantId, resourceId):
+    result = {
+        "status": -99,
+        "message": "",
+        "traceId": "",
+        "id": resourceId
+    }
+    table = dynamodb.Table('resource')
+    res = table.query(
+        KeyConditionExpression=Key("tenantId").eq(tenantId) & Key("id").eq(resourceId),
+        FilterExpression=Attr("ctype").eq("jupyter") | Attr("ctype").eq("jupyter")
+    )
+    resources = res["Items"]
+    ssm_list = []
+    print(resources)
+
+    statusCode = 0
+    for item in resources:
+        stackNameList, ssmNameList = list_cloudformation_ssm_name(item, resourceId)
+        ssm_list = ssm_list + ssmNameList
+        statusCode |= resourceCheck(stackNameList)
+        statusCode |= ssmCheck(ssmNameList)
+
+    print(statusCode)
+    if (statusCode & 4) != 0:
+        result["status"] = 4
+        result["message"] = "stoping"
+        result["traceId"] = ssmQueryTraceId(ssm_list[0])
+    elif (statusCode & 1) != 0:
+        result["status"] = 1
+        result["message"] = "starting"
+        result["traceId"] = ssmQueryTraceId(ssm_list[0])
+    elif (statusCode & 2) != 0:
+        result["status"] = 2
+        result["message"] = "started"
+        result["traceId"] = ssmQueryTraceId(ssm_list[0])
+    elif statusCode == 0:
+        result["status"] = 0
+        result["message"] = "stoped"
+        result["traceId"] = ""
+    else:
+        raise Exception("unknown error")
+    return result
+
+
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
     code = 200
     status = 0
-    result = {
-        "status": -99,
-        "message": "",
-        "traceId": ""
-    }
-    try:
+    result = []
+    resourceIds = event["resourceIds"]
+    tenantId = event["tenantId"]
 
-        table = dynamodb.Table('resource')
-        res = table.query(
-            KeyConditionExpression=Key("tenantId").eq(event["tenantId"]),
-            FilterExpression=Attr("ownership").eq("personal")
-        )
-        resources = res["Items"]
-        print(resources)
+    for resourceId in resourceIds:
+        try:
+            resource_status = query_status(tenantId, resourceId)
 
-        statusCode = 0
-        for item in resources:
-            stackNameList, ssmNameList = list_cloudformation_ssm_name(item, event["resourceId"])
-            statusCode |= resourceCheck(stackNameList)
-            statusCode |= ssmCheck(ssmNameList)
+        except Exception as e:
+            # printing stack trace
+            traceback.print_exc()
+            resource_status = errorMessage(e)
+            resource_status["id"] = resourceId
+        result.append(resource_status)
 
-        print(statusCode)
-        if (statusCode & 4) != 0:
-            result["status"] = 4
-            result["message"] = "stoping"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif (statusCode & 1) != 0:
-            result["status"] = 1
-            result["message"] = "starting"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif (statusCode & 2) != 0:
-            result["status"] = 2
-            result["message"] = "started"
-            result["traceId"] = ssmQueryTraceId(ssmNameList[0])
-        elif statusCode == 0:
-            result["status"] = 0
-            result["message"] = "stoped"
-            result["traceId"] = ""
-        else:
-            raise Exception("unknown error")
-    except Exception as e:
-        # printing stack trace
-        traceback.print_exc()
-        code, result = errorMessage(e)
-    finally:
-        return {
-            "statusCode": code,
-            "headers": {
-                "Access-Control-Allow-Headers": "Content-Type",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-            },
-            "body": json.dumps(result)
+    return {
+        "statusCode": code,
+        "headers": {
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+        },
+        "body": json.dumps({"status": "ok", "error": "null", "data": result})
     }

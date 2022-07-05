@@ -31,8 +31,8 @@ class SolveStackName:
         for elem in ItemOfResource:
             properties = elem['properties']
             properties = (json.loads(properties) if isinstance(properties, str) else properties)[0]
-            # 1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>-<ownership>-<owner>
-            stackName = '-'.join([elem['role'], properties['type'], elem['tenantId'], elem['ownership'], elem['owner']])
+            # 1.3 stackname 的名字规则为  <role>-<property.type>-<id>-<ownership>-<owner>---->> 此处id 为resourceId
+            stackName = '-'.join([elem['role'], properties['type'], elem['id'], elem['ownership'], elem['owner']])
             stackNameList.append(stackName)
         return stackNameList
 
@@ -40,7 +40,7 @@ class SolveStackName:
         #1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
         for stackName in stackNameList:
             print(stackName)
-            self.getStackExisted(stackName)
+            self.getStackExisted((stackName).replace("_", "-").replace(":", "-").replace("+", "-"))
 
     def getStackExisted(self, stackName):
         cf = boto3.client('cloudformation')

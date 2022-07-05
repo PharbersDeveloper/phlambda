@@ -92,8 +92,15 @@ class CheckParameters:
             print("*" * 50 + "error" + "*" * 50 + "\n", str(e))
             raise e
 
+
     def check_common(self, key):
         self.check_type(key, dict)
+        common_data = self.event["common"]
+        common_check_list = ["traceId", "projectId", "projectName", "flowVersion", "owner", "showName", "tenantId"]
+        common_dict_keys = list(common_data.keys())
+        for elem in common_check_list:
+            if elem not in common_dict_keys or str(common_data[elem]) == 0:
+                raise Exception(f"{elem} not exist or  empty.")
 
     def check_action(self, key):
         self.check_type(key, dict)
@@ -102,11 +109,13 @@ class CheckParameters:
         self.check_type(key, dict)
 
     def check_scenario(self, key):
-        self.check_type(key, dict)
+        self.check_type(key, list)
         if len(self.scenario) == 0:
             pass
         else:
-            self.check_DsData_Exists('scenario', **{"projectId": self.get_projectId(), "id": self.scenario["id"]})
+            for scenario in self.scenario:
+                scenarioId = scenario["id"]
+                self.check_DsData_Exists('scenario', **{"projectId": self.get_projectId(), "id": scenarioId})
 
     def check_triggers(self, key):
         self.check_type(key, list)

@@ -51,9 +51,9 @@ class FetchTriggersAndStepsFromScenarioId:
         }
         return StepItem
 
-    def GetTriggersItemsFromScenarioId(self):
+    def GetTriggersItemsFromScenarioId(self, ScenrioId):
 
-        ItemsOfQuery = self.query_table_item("scenario_trigger", "scenarioId", self.scenario["id"])
+        ItemsOfQuery = self.query_table_item("scenario_trigger", "scenarioId", ScenrioId)
         AllTriggersItems = []
         for Item in ItemsOfQuery:
             EachTrigggerItem = self.MakeEachTriggerItem(Item)
@@ -61,35 +61,38 @@ class FetchTriggersAndStepsFromScenarioId:
         return AllTriggersItems
 
 
-    def GetStepsItemsFromScenarioId(self):
-        ItemsOfQuery = self.query_table_item("scenario_step", "scenarioId", self.scenario["id"])
+    def GetStepsItemsFromScenarioId(self, ScenarioId):
+        ItemsOfQuery = self.query_table_item("scenario_step", "scenarioId", ScenarioId)
         AllStepsItems = []
         for Item in ItemsOfQuery:
             EachStepItem = self.MakeEachStepItem(Item)
             AllStepsItems.append(EachStepItem)
         return AllStepsItems
 
-
-    def FetchItemsFromScenarioId(self):
-
-        if len(self.scenario) == 0:
-            triggersItems = self.event["triggers"]
-            stepsItems = self.event["steps"]
-        else:
-            triggersItems = self.GetTriggersItemsFromScenarioId()
-            stepsItems = self.GetStepsItemsFromScenarioId()
-
-        return {
-            "triggers": triggersItems,
-            "steps": stepsItems
+    def MakeEachScenarioToDict(self, ScenarioId, Triggers, Steps):
+        EachScenario = {
+            "id": ScenarioId,
+            "triggers": Triggers,
+            "steps": Steps
         }
+        return EachScenario
+
+    def AcquireAllSonDataOfEachScenario(self):
+
+        for EachScenrio in self.scenario:
+            EachScenrioId = EachScenrio["id"]
+            EachScenrio["triggers"] = self.GetTriggersItemsFromScenarioId(EachScenrioId)
+            EachScenrio["steps"] = self.GetStepsItemsFromScenarioId(EachScenrioId)
+
+        return self.scenario
+
 
 def lambda_handler(event, context):
 
     FetchClient = FetchTriggersAndStepsFromScenarioId(event)
 
-    TriggersAndStepItems = FetchClient.FetchItemsFromScenarioId()
+    UpdateScenarioItems = FetchClient.AcquireAllSonDataOfEachScenario()
 
-    print(TriggersAndStepItems)
+    print(UpdateScenarioItems)
 
-    return TriggersAndStepItems
+    return UpdateScenarioItems

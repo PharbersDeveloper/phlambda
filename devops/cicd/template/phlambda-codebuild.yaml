@@ -65,7 +65,10 @@ Parameters:
     Type: String
     Default: dev
     Description: "Version"
-
+  SfnVersion:
+    Type: String
+    Default: 0-0-1
+    Description: "Version"
 
 Resources:
   PharbersAutoBuildProject:
@@ -115,6 +118,9 @@ Resources:
           - Name: VERSION
             Type: PLAINTEXT
             Value: !Ref Version
+          - Name: SFNVERSION
+            Type: PLAINTEXT
+            Value: !Ref SfnVersion
           - Name: GIT_COMMIT
             Type: PLAINTEXT
             Value: !Ref GitCommit

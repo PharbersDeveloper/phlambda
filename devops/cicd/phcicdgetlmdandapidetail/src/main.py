@@ -76,7 +76,8 @@ def create_lmd_args(event):
             "GitUrl": git_url,
             "BranchName": event["trigger"]["branch"],
             "RepoName": event["trigger"]["repo"],
-            "Version": event["version"]
+            "Version": event["version"],
+            "SfnVersion": event["sfnVersion"]
         }
     }
     return lmd_args

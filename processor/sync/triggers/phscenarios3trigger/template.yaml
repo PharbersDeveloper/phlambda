@@ -1,20 +1,21 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda
+Description: phscenarios3trigger
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
+      AutoPublishAlias: Current
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: phjupyterboottrigger
-      Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
-      Description: "启动集群"
+      FunctionName: lmd-phscenarios3trigger-dev
+      Description: "s3 sns触发 调用stepfunction scenario-trigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

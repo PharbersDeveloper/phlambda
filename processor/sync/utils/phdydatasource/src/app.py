@@ -1,6 +1,6 @@
 import json
 from delegate.AppLambdaDelegate import AppLambdaDelegate
-
+from phmetriclayer import aws_cloudwatch_put_metric_data
 # import requests
 
 
@@ -35,6 +35,15 @@ def lambda_handler(event, context):
 
     #     raise e
     app = AppLambdaDelegate(event=event, context=context)
+    #---------------------- 埋点 -------------------------------------#
+    '''
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=event["common"]["tenantId"])
+    '''
+    #---------------------- 埋点 -------------------------------------#
+
+
     return app.exec()
     # return {
     #     "statusCode": 200,

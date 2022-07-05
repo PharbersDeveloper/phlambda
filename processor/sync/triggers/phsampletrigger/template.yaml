@@ -8,6 +8,8 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       FunctionName: phsampletrigger
       Description: "触发脚本运行 Start Execution(Sample专用)"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

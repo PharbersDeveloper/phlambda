@@ -9,11 +9,13 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenario-process
-          EDITION: "V2"
-      FunctionName: lmd-phscenariostrigger-V2
+          EDITION: "DEV"
+      FunctionName: lmd-phscenariostrigger-dev
       Description: Http Post接口触发StepFunctions创建sceanrio（scenarios)
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

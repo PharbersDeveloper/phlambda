@@ -7,15 +7,14 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-deletion
-          EDITION: "V2"
-      FunctionName: lmd-phresdeletiontrigger-dev
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcedeletion
+          EDITION: "DEV"
+      FunctionName: phresdeletiontrigger
       Description: Http Post接口触发StepFunctions删除资源（ResuourceDeletetion）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

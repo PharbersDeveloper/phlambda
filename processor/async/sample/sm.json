@@ -4,7 +4,7 @@
    "States": {
       "genStartArgs": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplegen:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplegen",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -19,7 +19,7 @@
       },
       "genDag": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampledag:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampledag",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -46,7 +46,7 @@
       },
       "startExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -85,7 +85,7 @@
       },
       "endExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook",
          "Parameters": {
             "runnerId.$" : "$.common.runnerId",
            "projectId.$" : "$.common.projectId",
@@ -99,7 +99,7 @@
       },
       "failedExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplefailedhook:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplefailedhook",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -115,7 +115,7 @@
       },
       "clearDag": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampleclear:${replaceSfnVersion}",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampleclear",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

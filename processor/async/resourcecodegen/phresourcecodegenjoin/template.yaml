@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourcecodegenjoin-dev
+      FunctionName: phresourcecodegenjoin
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       MemorySize: 1024

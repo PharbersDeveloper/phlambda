@@ -9,7 +9,7 @@
         },
         "ArgsValidation": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenargsvalidation-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenargsvalidation",
             "ResultPath": "$.ifsteps",
             "Next": "Actions",
             "Catch": [
@@ -70,7 +70,7 @@
         },
         "StepsIndex": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenindexupdating-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenindexupdating",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -87,7 +87,7 @@
         },
         "QueryStep": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenquerysteps-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenquerysteps",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -155,7 +155,7 @@
         },
         "JoinCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenjoin-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenjoin",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -195,7 +195,7 @@
         },
         "PrepareCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenprepare-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenprepare",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -235,7 +235,7 @@
         },
         "TopNCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegentopn-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegentopn",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -275,7 +275,7 @@
         },
         "DistinctCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegendistinct-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegendistinct",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -315,7 +315,7 @@
         },
         "OrderByCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenorder-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenorder",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -355,7 +355,7 @@
         },
         "GroupByCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegengroupby-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegengroupby",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -410,7 +410,7 @@
         },
         "StackCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenstack-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenstack",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -450,7 +450,7 @@
         },
         "PivotCodeGen": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenpivot-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenpivot",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
@@ -511,7 +511,7 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegencleanup-dev",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegencleanup",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",

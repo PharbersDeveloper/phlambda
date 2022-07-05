@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:personalresstopargsvalidation",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresstopargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -155,7 +155,7 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "delete",
-            "key.$": "$.common.tenantId",
+            "key.$": "States.Format('jupyter-{}-{}', $.common.owner, $.resourceId)",
             "value": {}
          },
          "ResultPath": "$.resources",

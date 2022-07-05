@@ -15,7 +15,7 @@ Resources:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcedeletion
           EDITION: "DEV"
       FunctionName: phresdeletiontrigger
-      Description: Http Post接口触发StepFunctions删除资源（ResuourceDeletetion）
+      Description: Http Post接口触发StepFunctions删除资源ResuourceDeletetion
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

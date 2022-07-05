@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-personalresstopargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:personalresstopargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -49,7 +49,7 @@
       },
       "CodeeditorDeletion": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresstopsteps-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresstopsteps",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "tenantId.$": "$.common.tenantId",
@@ -164,7 +164,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresstopcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresstopcleanup",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

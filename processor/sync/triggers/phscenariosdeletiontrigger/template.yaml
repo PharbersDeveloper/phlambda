@@ -7,7 +7,6 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1

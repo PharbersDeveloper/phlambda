@@ -120,7 +120,7 @@
                   },
                   "TriggersResources": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtriggersresource",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtriggersresources",
                      "Parameters": {
                         "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",

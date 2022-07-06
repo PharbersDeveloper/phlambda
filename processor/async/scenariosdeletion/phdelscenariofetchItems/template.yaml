@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phdelscenariofetchitems-dev
+      FunctionName: phdelscenariofetchitems
       MemorySize: 1024
       Description: "phdelscenariofetchitems"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

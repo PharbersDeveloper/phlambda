@@ -13,9 +13,9 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenario-deletion
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariosdeletion
           EDITION: "DEV"
-      FunctionName: lmd-phscenariosdeletiontrigger-dev
+      FunctionName: phscenariosdeletiontrigger
       Description: Http Post接口触发StepFunctions 删除 sceanrio（scenarios)
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

@@ -8,7 +8,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenarioargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenarioargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -54,7 +54,7 @@
       },
       "FetchTriggersAndStepsItems": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenariofetchitems-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariofetchitems",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -68,7 +68,7 @@
       },
       "ScenarioDeletion": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenarioindex-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenarioindex",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -118,7 +118,7 @@
                "States": {
                   "TriggersIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerindex-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdeltriggerindex",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -133,7 +133,7 @@
                   },
                   "TriggersResources": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdeltriggerresource-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdeltriggerresource",
                      "Parameters": {
                         "tenantId.$": "$.common.tenantId",
                         "traceId.$": "$.common.traceId",
@@ -154,7 +154,7 @@
                "States": {
                   "StepsIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelstepsindex-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelstepsindex",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -221,7 +221,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdelscenariocleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariocleanup",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

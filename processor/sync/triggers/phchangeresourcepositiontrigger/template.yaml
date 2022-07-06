@@ -12,7 +12,7 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:changereosurceposition
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcechangepos
           EDITION: "dev"
       FunctionName: phchangeresourcepositiontrigger
       Description: "运行修改脚本信息的sfn"

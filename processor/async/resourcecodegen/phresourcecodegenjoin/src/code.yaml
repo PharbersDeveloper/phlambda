@@ -23,9 +23,9 @@ code:
           enabled = preFilter["enabled"]
           distinct = preFilter["distinct"]
           expression = preFilter["expr"]
+          if distinct:
+              df = df.distinct()
           if enabled:
-              if distinct:
-                  df = df.distinct()
               if expression != "":
                   df = df.filter(expression)
           df_map["df"] = df

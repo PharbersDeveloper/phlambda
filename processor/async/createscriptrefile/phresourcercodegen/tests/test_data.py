@@ -6,19 +6,20 @@ import src.main as app
 class TestGenerateCode:
     def test_generate(self):
         event = {
-            "traceId": "alex_test_traceId",
-            "projectId": "ggjpDje0HUC2JW",
-            "projectName": "demo",
+            "traceId": "50cc15f3b88f40c7bd43d2d10badc214",
+            "tenantId": "zudIcG_17yj8CEUoCTHg",
+            "projectId": "RL8iefdfGuRfbuN",
+            "projectName": "Alex",
             "flowVersion": "developer",
-            "dagName": "demo",
-            "owner": "001-02-04-8",
-            "showName": "Alex",
+            "dagName": "Alex",
+            "owner": "5UBSLZvV0w9zh7-lZQap",
+            "showName": "鹏钱",
             "script": {
-                "name": "compute_r",
+                "name": "compute_SparkRD",
                 "flowVersion": "developer",
-                "runtime": "r",
-                "inputs": "[\"Alex\", \"Alex2\"]",
-                "output": "r_output"
+                "runtime": "sparkr",
+                "inputs": "[\"PySparkC\"]",
+                "output": "SparkRD"
             }
         }
         app.lambda_handler(event, None)

@@ -1,0 +1,22 @@
+{
+  "common": {
+    "runnerId": "sample_sample_developer_2022-07-04T05:49:39+00:00",
+    "projectName": "sample",
+    "owner": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
+    "showName": "赵浩博",
+    "tenantId": "zudIcG_17yj8CEUoCTHg"
+  },
+  "share":[
+    {"company":"",
+      "projectId":"",
+      "datasetName":"",
+      "version":""}
+  ],
+  "engine": {
+    "type": "awsemr",
+    "id": "j-XVHN3AUBDOMH",
+    "dss": {
+      "ip": "192.168.16.93"
+    }
+  }
+}

@@ -50,6 +50,9 @@ def create_share_args(event, ts):
     ph_conf.update({"share": conf.get("share")})
     ph_conf.update({"company": "pharbers"})
     ph_conf.update({"tenantId": "share_test"})
+    ph_conf.update({"owner": event["owner"]})
+    ph_conf.update({"showName": event["showName"]})
+    ph_conf.update({"projectName": event.get("projectName")})
     #ph_conf.update({"tenantId": event.get("tenantId")})
 
 

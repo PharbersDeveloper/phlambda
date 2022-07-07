@@ -12,8 +12,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: lmd-phsampledag-dev
-      Description: "phsampledag"
+      FunctionName: lmd-phsharedag-dev
+      Description: "phsharedag"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

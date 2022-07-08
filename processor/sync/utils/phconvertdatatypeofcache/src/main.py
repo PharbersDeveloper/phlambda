@@ -79,9 +79,12 @@ class ConvertDataTypesOfCache:
 
         dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
         table = dynamodb_resource.Table(table_name)
-        table.put_item(
+        resp = table.put_item(
             Item=item
         )
+        print(" put  item to dataset" * 50)
+        print(item)
+        print(resp)
 
 
     def ConverSchemaOfDataType(self, dyName, dsName, projectId,colItem):

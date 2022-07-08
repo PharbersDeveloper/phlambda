@@ -4,7 +4,7 @@
    "States": {
       "genStartArgs": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinedaggen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinedaggen",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -26,7 +26,7 @@
       },
       "startExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinehook",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -70,7 +70,7 @@
       },
       "genStageDag": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinestagegen-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinestagegen",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -91,7 +91,7 @@
       },
       "createStageSm": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinecreatesm-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinecreatesm",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -142,7 +142,7 @@
       },
       "endExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinehook-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinehook",
          "Parameters": {
             "runnerId.$" : "$.common.runnerId",
            "projectId.$" : "$.common.projectId",
@@ -156,7 +156,7 @@
       },
       "failedExecutionHook": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinefailedhook-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinefailedhook",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -171,7 +171,7 @@
       },
       "clearDag": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinestageclear-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinestageclear",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

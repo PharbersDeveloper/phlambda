@@ -21,10 +21,12 @@ code:
       - key: script_name
         index: 6
     code: |
+      Sys.setlocale(category="LC_ALL",locale="zh_CN.UTF-8")
       library(SparkR)
       library(jsonlite)
       library(httr)
       library(paws)
+      library(stringr)
 
       cmd_args <- commandArgs(T)
 
@@ -65,7 +67,7 @@ code:
           sparkConfig = list(
               sparkJars = sparkJars,
               spark.sql.execution.arrow.sparkr.enabled = "true")
-          )
+      )
 
       print("Spark Init")
 
@@ -76,19 +78,118 @@ code:
           )
       )
 
+      # 解决在读取中间型DF Schema Type冲突后的选择
+      # 在同Schema Col类型冲突后优先选择非String类型的描述 list(filter(lambda item: item["type"] != "String", values))
+      # 这部分在后续扩展时不是很友好，原因是后续会扩展很多类型
+      conflict_schema_type_resolve <- function(df) {
+          select_df <- selectExpr(df, "traceId", "schema", "split(traceId, '\\\\+00:00')[0] as __run_id")
+          rows <- collect(distinct(select_df))
+          cols <- list()
+          union_cols <- list()
+          structured_union_cols = list()
+          for (row in split(rows, 1:nrow(rows))) {
+              content <- list()
+              for (item in fromJSON(row$schema, simplifyVector = FALSE)) {
+                  content <- append(content, paste(item$name, ":", item$type, sep=""))
+              }
+              cols <- append(cols, list(content))
+          }
+
+          for (item in cols) { union_cols <- union(union_cols, item) }
+
+          for (item in union_cols) {
+              src <- str_split(item, ":", simplify=TRUE)[1]
+              type <- str_split(item, ":", simplify=TRUE)[2]
+              structured_union_cols <- append(structured_union_cols, list(list(src=src, type=type)))
+          }
+
+          r_df <- as.data.frame(structured_union_cols[1])
+          for (item in structured_union_cols[2:length(structured_union_cols)]) {
+              r_df <- rbind(r_df, as.data.frame(item))
+          }
+
+          r_df <- collect(withColumnRenamed(agg(group_by(createDataFrame(r_df), "src"),  type = "collect_list"), "collect_list(type)", "type"))
+
+
+          schemas <- list()
+          total_schemas <- list()
+          for (item in split(r_df, 1:nrow(r_df))) {total_schemas <- append(total_schemas, list(as.list(item)))}
+
+
+          for (item in total_schemas) {
+              type <- item$type[[1]][[1]]
+              if (length(item$type[[1]]) > 1) {
+                  type <- item$type[[1]][!(item$type[[1]] %in% "string")][[1]]
+              }
+              schemas <- append(schemas, list(list(src=item[[1]][1], type=str_to_title(type))))
+          }
+          return(schemas)
+      }
+
+
+      # 根据Schema类型转换DF类型
+      transform_schema_type <- function(df, schemas) {
+          pattern <- "^-?[0-9]*.?[0-9]*$"
+          choose_schema_type <- list(
+              string="string",
+              double="double",
+              long="long"
+          )
+
+          transform_number <- function(col_name, default="double") {
+              append_col_name = paste("__", col_name, "_type", sep = "")
+              transform_df <- withColumn(df, append_col_name, otherwise(when( rlike(df[[col_name]], pattern) | isNull(df[[col_name]]), "true"), "false"))
+              if (count(filter(transform_df, paste("`", append_col_name , "` ", "=", "false", sep = ""))) == 0) {
+                  transform_df <- withColumn(transform_df, col_name, cast(df[[col_name]], choose_schema_type[[default]]))
+              } else {
+                  transform_df <- withColumn(transform_df, col_name, cast(df[[col_name]], "string"))
+              }
+              return(transform_df)
+          }
+
+          transform_string <- function(col_name, default="string") {
+              return(withColumn(df, col_name, cast(df[[col_name]], choose_schema_type[[default]])))
+          }
+
+          choose_schema_function <- list(
+              string = transform_string,
+              double = transform_number,
+              long = transform_number
+          )
+
+          types <- list()
+
+          for (item in schemas) {
+              types <- append(tolower(item$type), types)
+          }
+
+          types <- unique(types)
+
+          if (length(types) == 1 && types[1] == "string") {
+              return(df)
+          }
+
+          for (item in schemas) {
+              type_name <- tolower(item$type)
+              df <- drop(choose_schema_function[[type_name]](item$src, type_name), paste("__", item$src, "_type", sep = ""))
+          }
+          return(df)
+      }
+
       # 获取df schema 转成 json 字符串
       get_schema2str <- function(df) {
           schemas <- list()
-          for (item in schema(df)$fields()) {
-              if (item$name() != "traceId") {
-                  content <- list(name=item$name(), dataType=item$dataType.toString())
+          for (item in dtypes(df)) {
+              schema <- strsplit(item, " ")
+              if (schema[[1]] != "traceId") {
+                  content <- list(name=schema[[1]], type=schema[[2]])
                   schemas <- append(schemas, list(content))
               }
           }
           return(paste0(toJSON(schemas, auto_unbox = TRUE), sep=""))
       }
 
-      # 将DataFrame统一Schema一致性
+      # 将DF统一Schema一致性
       convert_consistency_schema <- function(df, schema) {
           cols <- list()
           for (item in fromJSON(schema, simplifyVector = FALSE)) {
@@ -99,7 +200,7 @@ code:
           return(select(withColumn(combine_df, "schema", schema), "traceId", "schema", "data"))
       }
 
-      # 对多TraceId取Schema的col的并集（暂时先不管类型）
+      # 对多TraceId取Schema的col的并集
       convert_union_schema <- function(df) {
           rows <- collect(distinct(select(df, "traceId", "schema")))
           cols <- list()
@@ -132,48 +233,48 @@ code:
 
       create_table_http_call <- function(sql) {
           url <- paste("http://", project_ip,
-              ":8123", "/?query=", URLencode(sql),
-              sep = ""
+                      ":8123", "/?query=", URLencode(sql),
+                      sep = ""
           )
           return(gsub("[\n]", "", POST(url)))
       }
 
       get_ds_item <- function(project_id, name) {
-        result <- db$query(
-          TableName = "dataset",
-          IndexName = "dataset-projectId-name-index",
-          ExpressionAttributeNames = list(
-            "#name" = "name"
-          ),
-          ExpressionAttributeValues = list(
-            `:projectId` = list( S = project_id ),
-            `:dsName` = list( S = name )
-          ),
-          KeyConditionExpression = "projectId = :projectId AND #name = :dsName",
-        )$Item
+          result <- db$query(
+              TableName = "dataset",
+              IndexName = "dataset-projectId-name-index",
+              ExpressionAttributeNames = list(
+                  "#name" = "name"
+              ),
+              ExpressionAttributeValues = list(
+                  `:projectId` = list( S = project_id ),
+                  `:dsName` = list( S = name )
+              ),
+              KeyConditionExpression = "projectId = :projectId AND #name = :dsName",
+          )$Item
 
-        result_item <- list()
+          result_item <- list()
 
-        for(item in result) {
-          for (key in names(item)) {
-            value <- item[[key]]$S
-            if (length(value) == 0) {
-              value <- item[[key]]$N
-            }
-            if (value == "") {
-              value <- " "
-            }
-            Encoding(value)
-            Encoding(value) <- "UTF-8"
+          for(item in result) {
+              for (key in names(item)) {
+                  value <- item[[key]]$S
+                  if (length(value) == 0) {
+                      value <- item[[key]]$N
+                  }
+                  if (value == "") {
+                      value <- " "
+                  }
+                  Encoding(value)
+                  Encoding(value) <- "UTF-8"
 
-            if (length(item[[key]]$S) == 0) {
-              result_item[[key]] <- list(N=value)
-            } else {
-              result_item[[key]] <- list(S=value)
-            }
+                  if (length(item[[key]]$S) == 0) {
+                      result_item[[key]] <- list(N=value)
+                  } else {
+                      result_item[[key]] <- list(S=value)
+                  }
+              }
           }
-        }
-        return(result_item)
+          return(result_item)
       }
 
       put_dy_item <- function(table, item) {
@@ -199,49 +300,54 @@ code:
       }
 
       handle_msg_to_version <- function(project_id, output_id, output_version, owner) {
-        item = list(
-            id = list(
-                S = paste(project_id, "_", output_id, sep = "")
-            ),
-            projectId = list(
-                S = project_id
-            ),
-            datasetId = list(
-                S = output_id
-            ),
-            name = list(
-                S = output_version
-            ),
-            date = list(
-                S = paste(round(as.numeric(Sys.time()), 0) * 1000, sep = "")
-            ),
-            owner = list(
-                S = owner
-            )
-        )
-        put_dy_item("version", item)
+          item = list(
+              id = list(
+                  S = paste(project_id, "_", output_id, sep = "")
+              ),
+              projectId = list(
+                  S = project_id
+              ),
+              datasetId = list(
+                  S = output_id
+              ),
+              name = list(
+                  S = output_version
+              ),
+              date = list(
+                  S = paste(round(as.numeric(Sys.time()), 0) * 1000, sep = "")
+              ),
+              owner = list(
+                  S = owner
+              )
+          )
+          put_dy_item("version", item)
       }
-
 
       create_table_sql <- function(df, table_name, database="default") {
           get_schema <- function(df) {
-              cols <- columns(df)
+              column_types <- dtypes(df)
               sql_schema <- ""
-              for (col in cols) {
-                  coltype <- "String"
-                  col_str <- paste("`", col, "` ", coltype, sep = "")
+              for (ct in column_types) {
+                  item <- strsplit(ct, " ")
+                  coltype <- str_to_title(item[[2]])
+                  col <- item[[1]]
+                  col_str <- ""
+                  if (col != "version") {
+                      col_str <- paste("`", col, "` ", "Nullable(",coltype, ")", sep = "")
+                  } else {
+                      col_str <- paste("`", col, "` ", coltype, sep = "")
+                  }
                   sql_schema <- paste(sql_schema, col_str, ",", sep = "")
               }
               sql_schema <- sub(",$", "", sql_schema)
               return(sql_schema)
           }
           return(paste("CREATE TABLE IF NOT EXISTS ", database, ".",
-              "`", table_name, "`", "(", get_schema(df), ") ",
-              "ENGINE = MergeTree() PRIMARY KEY version ORDER BY version;",
-              sep = ""
+                      "`", table_name, "`", "(", get_schema(df), ") ",
+                      "ENGINE = MergeTree() PRIMARY KEY version ORDER BY version;",
+                      sep = ""
           ))
       }
-
 
       s3_to_df <- function(path, version) {
           suffix_str <- strsplit(path, split = ".", fixed = TRUE)
@@ -252,14 +358,14 @@ code:
               return(read.df(path, "csv", header = TRUE))
           }
 
-          read_other <- function() {
+          read_parquet <- function() {
               return(read.df(path))
           }
 
-          read_s3_funcs <- list(csv = read_csv, other = read_other)
+          read_s3_funcs <- list(csv = read_csv, parquet = read_parquet)
 
           if (suffix != "csv") {
-              suffix <- "other"
+              suffix <- "parquet"
           }
 
           df <- read_s3_funcs[[suffix]]()
@@ -270,11 +376,9 @@ code:
           return(df)
       }
 
-
       catalog_to_df <- function(database, table) {
           return(sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
       }
-
 
       load_df <- function(input_ds, output_version, project_id, project_name, is_single_run) {
 
@@ -288,12 +392,29 @@ code:
           cat <- input_ds$cat
           version <- input_ds$version
           if (cat != "uploaded" && cat != "input_index" && cat != "catalog") {
-              cat <- "other"
+              cat <- "parquet"
               if (length(version) == 0 & !is_single_run) {
                   version <- append(version, output_version)
               }
           }
           name <- input_ds$name
+          schema_types <- list()
+          convert_schemas <- list()
+
+          result <- get_ds_item(project_id, name)
+          for (item in fromJSON(result$schema$S, simplifyVector = FALSE)) {
+              content <- paste("`", item$src, "` STRING", sep="")
+              schema_types <- append(schema_types, content)
+          }
+
+          for (item in fromJSON(result$schema$S, simplifyVector = FALSE)) {
+              content <- list(
+                  src=item$src,
+                  des=item$des,
+                  type=item$type
+              )
+              convert_schemas <- append(convert_schemas, list(content))
+          }
 
           load_s3_df <- function() {
               path <- paste(lake_prefix, project_id, "/", name, sep = "")
@@ -301,13 +422,11 @@ code:
           }
 
           uploaded_s3_df <- function() {
-              result <- get_ds_item(project_id, name)
-              schemas <- list()
-              for (item in fromJSON(result$schema$S, simplifyVector = FALSE)) {
-                  content <- paste("`", item$src, "` STRING", sep="")
-                  schemas <- append(schemas, content)
-              }
-              df <- read.df(paste(lake_prefix, project_id, "/", name, sep = ""), "csv", paste(schemas, collapse = ","))
+
+              df <- transform_schema_type(
+                  read.df(paste(lake_prefix, project_id, "/", name, sep = ""), "csv", paste(schema_types, collapse = ",")),
+                  convert_schemas
+              )
               if (length(version) != 0) {
                   df <- filter(df, df$version %in% version)
               }
@@ -318,32 +437,33 @@ code:
               prop <- input_ds$prop
               database <- prop$databaseName
               table <- prop$tableName
-              return(catalog_to_df(database, table))
+              return(transform_schema_type(catalog_to_df(database, table), convert_schemas))
           }
 
           load_input_index_df <- function() {
               prop <- input_ds$prop
               path <- prop$path
-              return(s3_to_df(path, list()))
+              return(transform_schema_type(s3_to_df(path, list()), convert_schemas))
           }
 
           cat_funcs <- list(
               uploaded = uploaded_s3_df,
               catalog = load_catalog_df,
               input_index = load_input_index_df,
-              other = load_s3_df
+              parquet = load_s3_df
           )
 
           df <- cat_funcs[[cat]]()
-          if (cat == "other") {
-              df <- drop(convert_normal_df(df, convert_union_schema(df)), "traceId")
+          if (cat == "parquet") {
+              parquet_df <- drop(convert_normal_df(df, convert_union_schema(df)), "traceId")
+              df <- transform_schema_type(parquet_df, conflict_schema_type_resolve(df))
               return(fillna(df, "None"))
           }
           # transform_lower_columns(df)
           return(fillna(df, "None"))
       }
 
-      # spark dataframe转换成R dataframe
+      # spark DF转换成R DF
       transform_spark_df2_other_df <- function(runtime, df_map) {
           keys <- names(df_map)
           transform_df_map <- list()
@@ -357,7 +477,7 @@ code:
           return(transform_df_map)
       }
 
-      # R dataframe转换成spark dataframe
+      # R DF转换成spark DF
       transform_other_df2_spark_df <- function(runtime, df) {
           if (runtime == "sparkr") {
               return(df)
@@ -407,9 +527,9 @@ code:
       }
 
       create_input_df <- function(
-          runtime, inputs,
-          args, project_id,
-          project_name, output_version) {
+              runtime, inputs,
+              args, project_id,
+              project_name, output_version) {
           Encoding(output_version)
           Encoding(output_version) <- "UTF-8"
           df_map <- read_df(inputs, args, project_id, project_name, output_version)
@@ -451,13 +571,13 @@ code:
           password <- ""
           driver <- "ru.yandex.clickhouse.ClickHouseDriver"
           write.jdbc(limit(df, 10000), host, table, "append",
-              user = user,
-              password = password, driver = driver,
-              batchsize = "10000", queryTimeout = "300000"
+                  user = user,
+                  password = password, driver = driver,
+                  batchsize = "10000", queryTimeout = "300000"
           )
       }
 
-      add_version <- function(df, version, version_colname="version") {
+      add_column <- function(df, version, version_colname="version") {
           return(withColumn(df, version_colname, version))
       }
 
@@ -471,7 +591,7 @@ code:
           Encoding(table_name)
           Encoding(table_name) <- "UTF-8"
 
-          normal_out_df <- add_version(out_df, output_version, "version")
+          normal_out_df <- add_column(out_df, output_version, "version")
           normal_out_df <- drop(normal_out_df, "traceId")
 
           ds_list <- args$ds_conf
@@ -498,7 +618,7 @@ code:
           }
 
           # 保持原有产品层级的version，新增traceId内容与version一致
-          add_traceId_df <- add_version(normal_out_df, output_version, "traceId")
+          add_traceId_df <- add_column(normal_out_df, output_version, "traceId")
 
           out_to_s3(
               add_traceId_df,
@@ -552,10 +672,11 @@ code:
 
   phjob:
     input_var_args: ~
-    code: >+
+    code: |
       exec <- function(cmd_args) {
-      	$$input_var_args
-      	return(list(out_df=data_frame))
+          $$input_var_args
+
+          return(list(out_df=data_frame))
       }
 
 

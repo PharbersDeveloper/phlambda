@@ -1,18 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda phphxlsxtockhouse-V2
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: ReplaceAlias
       CodeUri: ./src
-      Environment:
-        Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phsampleclear-dev
+      FunctionName: phsampleclear
       Description: "phsampleclear"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

@@ -1,8 +1,7 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
-from decimal import Decimal
-dynamodb = boto3.resource('dynamodb')
+s3_client = boto3.client('s3')
+s3_resource = boto3.resource('s3')
 '''
 将错误提取出来写入到notification中
 args:
@@ -27,60 +26,23 @@ return:
 '''
 
 
-def update_dag_item(dagItems):
-
-    dag_table = dynamodb.Table('dag')
-    for delete_item in dagItems["insertItems"]:
-        dag_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "sortVersion": delete_item["sortVersion"]
-            }
-        )
-
-    for insert_item in dagItems["deleteItems"]:
-        res = dag_table.put_item(
-            Item=insert_item
-        )
+def copy_manage_resource(bucket_name, prefix):
+    copy_source = {
+        'Bucket': bucket_name,
+        'Key': prefix + "/manage_back.yaml"
+    }
+    s3_resource.meta.client.copy(copy_source, bucket_name, prefix + "/manage.yaml")
 
 
-def update_dagconf_item(scriptItems):
-
-    dagconf_table = dynamodb.Table('dagconf')
-    for delete_item in scriptItems["insertItems"]:
-        dagconf_table.delete_item(
-            Key={
-                "projectId": delete_item["projectId"],
-                "jobName": delete_item["jobName"]
-            }
-        )
-
-    for insert_item in scriptItems["de3leteItems"]:
-        res = dagconf_table.put_item(
-            Item=insert_item
-        )
+def del_s3_resource(bucket, key):
+    response = s3_client.delete_object(
+        Bucket=bucket,
+        Key=key
+    )
 
 
 def lambda_handler(event, context):
     print(event)
-    # item处理
-    # 恢复dag表中已经删除的item
-    # 删除dag表中已经创建的item
-    if event.get("dagItems"):
-        update_dag_item(event["dagItems"])
-    # 恢复dagconf表中已经删除的item
-    # 删除dagconf表中已经删除的item
-    if event.get("scriptItems"):
-        update_dagconf_item(event["scriptItems"])
-    # 删除s3上脚本路径上的文件
-
-    # 创建失败的 notification message
-    message = {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": "{}",
-            "error": json.dumps(event["errors"])
-        }
-    }
-    return message
+    # 如果创建失败 则删除cloudformation 同时删除s3上cicd/prefix/manage.yaml
+    # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件1
+    return 1

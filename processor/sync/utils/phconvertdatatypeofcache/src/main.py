@@ -83,18 +83,24 @@ class ConvertDataTypesOfCache:
             Item=item
         )
 
-    def ConverSchemaOfDataType(self, dsName, projectId,colItem):
-        '''
-        [{"src": "province", "des": "province", "type": "String"}, {"src": "city", "des": "city", "type": "String"}, {"src": "district", "des": "district", "type": "String"}, {"src": "hospital", "des": "hospital", "type": "String"}, {"src": "pchc", "des": "pchc", "type": "String"}, {"src": "version", "des": "version", "type": "String"}]
-        '''
+    def ConverSchemaOfDataType(self, dyName, dsName, projectId,colItem):
+
         #---查表---#
-        ds_Item = self.get_ds_with_index(dsName=dsName,projectId=projectId)
-        Originalschema = ds_Item["schema"]
+        ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
+        Originalschema = json.loads(ds_Item["schema"]) if isinstance(ds_Item["schema"], str) else ds_Item["schema"]
         Changescheam = list(map(lambda x: x["type"] == colItem["to"] if x["src"] == colItem['column'] else x, Originalschema))
         ds_Item["schema"] = Changescheam
         #-- put item to ds --#
-        self.put_dynamodb_item(table_name=dsName, item=ds_Item)
+        self.put_dynamodb_item(table_name=dyName, item=ds_Item)
 
+    def IsDBException(self, stringOfError):
+        import re
+        error_pattern = "DB::Exception"
+        match_result = re.findall(pattern=error_pattern, string=str(stringOfError))
+        if len(match_result) > 0:
+            return True
+        else:
+            return False
 
     def ConvertColumnsDataType(self):
         ip = self.Get_Ip_of_loap(self.event["common"]["tenantId"])
@@ -110,12 +116,14 @@ class ConvertDataTypesOfCache:
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=ConvertType)
                 ckClient.execute(SingleExcuteSql)
                 #----- 修改dataset schema --------#
-                self.ConverSchemaOfDataType(dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"], colItem=colItem)
+                self.ConverSchemaOfDataType(dyName="dataset",dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"], colItem=colItem)
 
             except Exception as e:
                 #---- 回滚 ------------#
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=colItem["from"])
                 ckClient.execute(SingleExcuteSql)
+                if self.IsDBException(str(e)):
+                    raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
                 raise Exception(str(e))
 
 

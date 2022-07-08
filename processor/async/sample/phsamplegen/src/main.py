@@ -5,14 +5,11 @@ from datetime import datetime
 from collections import deque
 # from cal import calDatasetPath, calDatasetPathOne
 from sample import create_sample_args
-<<<<<<< HEAD
 from share import create_share_args
 from args import *
 from sms import *
-=======
 # from args import *
 # from sms import *
->>>>>>> origin/developer
 dynamodb = boto3.resource('dynamodb')
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,

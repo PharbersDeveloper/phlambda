@@ -7,13 +7,9 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phlogscollectioncheck-dev
+      FunctionName: phlogscollectioncheck
       MemorySize: 1024
-      Environment:
-        Variables:
-          EDITION: "DEV"
       Description: "phlogscollectioncheck"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
 

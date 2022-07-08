@@ -1,0 +1,4 @@
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}
+    DependsOn: ${ReplaceLmdName}

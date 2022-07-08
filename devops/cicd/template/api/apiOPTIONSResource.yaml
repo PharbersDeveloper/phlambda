@@ -1,9 +1,8 @@
-  OPTIONSMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       ApiKeyRequired: false
       RestApiId: ${RestApiId}
-      ResourceId: !Ref triggerResource
+      ResourceId: !Ref ${ReplaceResource}
       HttpMethod: OPTIONS
       AuthorizationType: NONE
       Integration:

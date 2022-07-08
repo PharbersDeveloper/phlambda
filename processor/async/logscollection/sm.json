@@ -9,7 +9,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectionargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phlogscollectionargsvalidation",
          "ResultPath": null,
          "Next": "waitLogsPath",
          "Catch": [ {
@@ -24,7 +24,7 @@
             "ErrorEquals": [ "States.ALL" ],
             "ResultPath": "$.error",
             "Next": "CleanUp"
-         } ],
+         } ]
       },
       "waitLogsPath": {
          "Type": "Wait",
@@ -33,7 +33,7 @@
       },
       "logsPathCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectioncheck-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phlogscollectioncheck",
          "Parameters": {
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
@@ -56,7 +56,7 @@
             "ErrorEquals": [ "States.ALL" ],
             "ResultPath": "$.error",
             "Next": "CleanUp"
-         } ],
+         } ]
       },
       "isLogsReady": {
          "Type": "Choice",
@@ -71,7 +71,7 @@
       },
       "writeLogsPath": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollection2db-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phlogscollection2db",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
@@ -83,23 +83,19 @@
             "result.$": "$.result"
          },
          "ResultPath": null,
-         "Next": "Success",
+         "Next": "Success"
       },
       "Success": {
          "Type": "Succeed"
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phlogscollectioncleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phlogscollectioncleanup",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
             "error.$": "$.error"
          },
          "ResultPath": null,
@@ -107,7 +103,7 @@
       },
       "Failed": {
          "Type": "Fail"
-      },
+      }
    }
 
 }

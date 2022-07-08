@@ -1,0 +1,6 @@
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}
+      FunctionVersion: !GetAtt ${ReplaceVersionResource}.Version
+      Name: ${ReplaceVersion}
+    DependsOn: ${ReplaceVersionResource}

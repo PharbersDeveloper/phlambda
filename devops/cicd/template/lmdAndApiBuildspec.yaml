@@ -5,11 +5,15 @@ phases:
       python: 3.8
   pre_build:
     commands:
-      - cd /code/$REPO_NAME
+      - mkdir -p /code/$FUNCTION_NAME/$REPO_NAME
+      - cd /code/$FUNCTION_NAME/$REPO_NAME
+      - git init
       - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
       - git checkout $GIT_COMMIT
   build:
     commands:
+      - echo `date +"%Y_%m_%d_%H_%M_%S"` >> $FUNCTION_PATH/src/README.md
+      - echo $GIT_COMMIT >> $FUNCTION_PATH/src/README.md
       - sam package --template-file $FUNCTION_PATH/template.yaml --output-template-file $FUNCTION_PATH/package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$ALIAS
-      - sed -i s#ReplaceAlias#$VERSION#  $FUNCTION_PATH/package.yaml
       - aws s3 cp $FUNCTION_PATH/package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
+      - rm -rf /code/$FUNCTION_NAME/$REPO_NAME

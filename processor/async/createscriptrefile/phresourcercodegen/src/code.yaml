@@ -82,8 +82,8 @@ code:
       # 在同Schema Col类型冲突后优先选择非String类型的描述 list(filter(lambda item: item["type"] != "String", values))
       # 这部分在后续扩展时不是很友好，原因是后续会扩展很多类型
       conflict_schema_type_resolve <- function(df) {
-          select_df <- selectExpr(df, "traceId", "schema", "split(traceId, '\\\\+00:00')[0] as __run_id")
-          rows <- collect(distinct(select_df))
+          select_df <- SparkR::selectExpr(df, "traceId", "schema", "split(traceId, '\\\\+00:00')[0] as __run_id")
+          rows <- SparkR::collect(SparkR::distinct(select_df))
           cols <- list()
           union_cols <- list()
           structured_union_cols = list()
@@ -108,7 +108,7 @@ code:
               r_df <- rbind(r_df, as.data.frame(item))
           }
 
-          r_df <- collect(withColumnRenamed(agg(group_by(createDataFrame(r_df), "src"),  type = "collect_list"), "collect_list(type)", "type"))
+          r_df <- SparkR::collect(SparkR::withColumnRenamed(SparkR::agg(SparkR::group_by(SparkR::createDataFrame(r_df), "src"),  type = "collect_list"), "collect_list(type)", "type"))
 
 
           schemas <- list()
@@ -138,17 +138,17 @@ code:
 
           transform_number <- function(col_name, default="double") {
               append_col_name = paste("__", col_name, "_type", sep = "")
-              transform_df <- withColumn(df, append_col_name, otherwise(when( rlike(df[[col_name]], pattern) | isNull(df[[col_name]]), "true"), "false"))
-              if (count(filter(transform_df, paste("`", append_col_name , "` ", "=", "false", sep = ""))) == 0) {
-                  transform_df <- withColumn(transform_df, col_name, cast(df[[col_name]], choose_schema_type[[default]]))
+              transform_df <- SparkR::withColumn(df, append_col_name, SparkR::otherwise(SparkR::when(SparkR::rlike(df[[col_name]], pattern) | SparkR::isNull(df[[col_name]]), "true"), "false"))
+              if (SparkR::count(SparkR::filter(transform_df, paste("`", append_col_name , "` ", "=", "false", sep = ""))) == 0) {
+                  transform_df <- SparkR::withColumn(transform_df, col_name, SparkR::cast(df[[col_name]], choose_schema_type[[default]]))
               } else {
-                  transform_df <- withColumn(transform_df, col_name, cast(df[[col_name]], "string"))
+                  transform_df <- SparkR::withColumn(transform_df, col_name, SparkR::cast(df[[col_name]], "string"))
               }
               return(transform_df)
           }
 
           transform_string <- function(col_name, default="string") {
-              return(withColumn(df, col_name, cast(df[[col_name]], choose_schema_type[[default]])))
+              return(SparkR::withColumn(df, col_name, SparkR::cast(df[[col_name]], choose_schema_type[[default]])))
           }
 
           choose_schema_function <- list(
@@ -171,7 +171,7 @@ code:
 
           for (item in schemas) {
               type_name <- tolower(item$type)
-              df <- drop(choose_schema_function[[type_name]](item$src, type_name), paste("__", item$src, "_type", sep = ""))
+              df <- SparkR::drop(choose_schema_function[[type_name]](item$src, type_name), paste("__", item$src, "_type", sep = ""))
           }
           return(df)
       }
@@ -196,13 +196,13 @@ code:
               content <- paste("`", item$name ,"`", sep="")
               cols <- append(cols, content)
           }
-          combine_df <- selectExpr(df, "*", paste("to_json(struct(", paste(cols, collapse = ','), ")) as data", sep=""))
-          return(select(withColumn(combine_df, "schema", schema), "traceId", "schema", "data"))
+          combine_df <- SparkR::selectExpr(df, "*", paste("to_json(struct(", paste(cols, collapse = ','), ")) as data", sep=""))
+          return(SparkR::select(SparkR::withColumn(combine_df, "schema", schema), "traceId", "schema", "data"))
       }
 
       # 对多TraceId取Schema的col的并集
       convert_union_schema <- function(df) {
-          rows <- collect(distinct(select(df, "traceId", "schema")))
+          rows <- SparkR::collect(SparkR::distinct(select(df, "traceId", "schema")))
           cols <- list()
           union_cols <- list()
           for (row in split(rows, 1:nrow(rows))) {
@@ -226,8 +226,8 @@ code:
               content <- paste("`", item, "` STRING", sep="")
               cols <- append(cols, content)
           }
-          result_df <- withColumn(df, "json", from_json(df$data, paste(cols, collapse = ",")))
-          return(select(result_df, "traceId", "json.*"))
+          result_df <- SparkR::withColumn(df, "json", from_json(df$data, paste(cols, collapse = ",")))
+          return(SparkR::select(result_df, "traceId", "json.*"))
       }
 
 
@@ -325,7 +325,7 @@ code:
 
       create_table_sql <- function(df, table_name, database="default") {
           get_schema <- function(df) {
-              column_types <- dtypes(df)
+              column_types <- SparkR::dtypes(df)
               sql_schema <- ""
               for (ct in column_types) {
                   item <- strsplit(ct, " ")
@@ -355,11 +355,11 @@ code:
           suffix <- tolower(suffix_str[[1]][num_suffix])
 
           read_csv <- function() {
-              return(read.df(path, "csv", header = TRUE))
+              return(SparkR::read.df(path, "csv", header = TRUE))
           }
 
           read_parquet <- function() {
-              return(read.df(path))
+              return(SparkR::read.df(path))
           }
 
           read_s3_funcs <- list(csv = read_csv, parquet = read_parquet)
@@ -371,23 +371,16 @@ code:
           df <- read_s3_funcs[[suffix]]()
 
           if (length(version) != 0) {
-              df <- filter(df, df$traceId %in% version)
+              df <- SparkR::filter(df, df$traceId %in% version)
           }
           return(df)
       }
 
       catalog_to_df <- function(database, table) {
-          return(sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
+          return(SparkR::sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
       }
 
       load_df <- function(input_ds, output_version, project_id, project_name, is_single_run) {
-
-          transform_lower_columns <- function(df) {
-              for (item in columns(df)) {
-                  df <- withColumnRenamed(df, item, tolower(item))
-              }
-              return(df)
-          }
 
           cat <- input_ds$cat
           version <- input_ds$version
@@ -422,13 +415,12 @@ code:
           }
 
           uploaded_s3_df <- function() {
-
               df <- transform_schema_type(
-                  read.df(paste(lake_prefix, project_id, "/", name, sep = ""), "csv", paste(schema_types, collapse = ",")),
+                  SparkR::read.df(paste(lake_prefix, project_id, "/", name, sep = ""), "csv", paste(schema_types, collapse = ",")),
                   convert_schemas
               )
               if (length(version) != 0) {
-                  df <- filter(df, df$version %in% version)
+                  df <- SparkR::filter(df, df$version %in% version)
               }
               return(df)
           }
@@ -455,12 +447,11 @@ code:
 
           df <- cat_funcs[[cat]]()
           if (cat == "parquet") {
-              parquet_df <- drop(convert_normal_df(df, convert_union_schema(df)), "traceId")
+              parquet_df <- SparkR::drop(convert_normal_df(df, convert_union_schema(df)), "traceId")
               df <- transform_schema_type(parquet_df, conflict_schema_type_resolve(df))
-              return(fillna(df, "None"))
+              return(SparkR::fillna(df, "None"))
           }
-          # transform_lower_columns(df)
-          return(fillna(df, "None"))
+          return(SparkR::fillna(df, "None"))
       }
 
       # spark DF转换成R DF
@@ -471,7 +462,7 @@ code:
               if (runtime == "sparkr") {
                   transform_df_map[[key]] <- df_map[[key]]
               } else {
-                  transform_df_map[[key]] <- collect(df_map[[key]])
+                  transform_df_map[[key]] <- SparkR::collect(df_map[[key]])
               }
           }
           return(transform_df_map)
@@ -482,23 +473,19 @@ code:
           if (runtime == "sparkr") {
               return(df)
           } else {
-              return(createDataFrame(df))
+              return(SparkR::createDataFrame(df))
           }
       }
 
       read_df <- function(inputs, kwargs, project_id, project_name, output_version) {
-
           df_map <- list()
           ds_list <- kwargs$ds_conf
-
           name_ds_map_dict <- list()
-
 
           for (ds in ds_list) {
               key <- ds$name
               name_ds_map_dict[[key]] <- ds
           }
-
 
           for (input_ds_name in inputs) {
               Encoding(input_ds_name)
@@ -545,7 +532,7 @@ code:
           consistency_df <- convert_consistency_schema(df, get_schema2str(df))
 
           to_parquet <- function() {
-              write.df(
+              SparkR::write.df(
                   repartition(consistency_df, partitions), path,
                   "parquet", "append",
                   partitionBy = "traceId"
@@ -553,7 +540,7 @@ code:
           }
 
           to_csv <- function() {
-              write.df(
+              SparkR::write.df(
                   repartition(consistency_df, partitions), path,
                   "csv", "overwrite",
                   header = TRUE
@@ -566,19 +553,17 @@ code:
       }
 
       out_click_house <- function(df, table) {
-          host <- paste("jdbc:clickhouse://", project_ip, ":8123", sep = "")
           user <- "default"
           password <- ""
-          driver <- "ru.yandex.clickhouse.ClickHouseDriver"
-          write.jdbc(limit(df, 10000), host, table, "append",
+          SparkR::write.jdbc(limit(df, 10000), click_house_jdbc_url, table, "append",
                   user = user,
-                  password = password, driver = driver,
+                  password = password, driver = click_house_jdbc_driver,
                   batchsize = "10000", queryTimeout = "300000"
           )
       }
 
       add_column <- function(df, version, version_colname="version") {
-          return(withColumn(df, version_colname, version))
+          return(SparkR::withColumn(df, version_colname, version))
       }
 
       create_outputs <- function(runtime, args, ph_conf, output, project_id, project_name, output_version) {
@@ -592,7 +577,7 @@ code:
           Encoding(table_name) <- "UTF-8"
 
           normal_out_df <- add_column(out_df, output_version, "version")
-          normal_out_df <- drop(normal_out_df, "traceId")
+          normal_out_df <- SparkR::drop(normal_out_df, "traceId")
 
           ds_list <- args$ds_conf
 

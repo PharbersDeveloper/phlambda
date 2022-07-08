@@ -5,6 +5,9 @@ from datetime import datetime
 from collections import deque
 # from cal import calDatasetPath, calDatasetPathOne
 from sample import create_sample_args
+from share import create_share_args
+from args import *
+from sms import *
 # from args import *
 # from sms import *
 dynamodb = boto3.resource('dynamodb')
@@ -109,16 +112,31 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
 #     }
 
 
+def map_calculate_mode(mode, event, ts):
+
+    map_dict = {
+        "sample": create_sample_args,
+        "share": create_share_args
+    }
+    try:
+        msg = map_dict[mode](event, ts)
+        return msg
+    except Exception as e:
+        print("*"*50 + " ERROR " + "*"*50 + "\n" + str(e))
+        raise Exception("Wrong trigger")
+
+
 def lambda_handler(event, context):
     # cicd 0701 1608
     print(event)
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 
-    if event["calculate"]["type"] != "sample":
-        raise Exception("Wrong trigger")
+    msg = map_calculate_mode(mode=event["calculate"]["type"], event=event, ts=ts)
 
-    msg = create_sample_args(event, ts)
+    #if event["calculate"]["type"] != "sample":
+    #    raise Exception("Wrong trigger")
+    #msg = create_sample_args(event, ts)
     
     # if event["calculate"].get("type") == "sample":
     #     msg = create_sample_args(event, ts)

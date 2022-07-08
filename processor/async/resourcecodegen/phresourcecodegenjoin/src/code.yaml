@@ -111,13 +111,20 @@ code:
 
           if args:
               first_join = args.pop(0) # args[0]
-              join_str = f"""{concat_select_df(first_join["datasets"][0]["name"])}.join({concat_select_df(first_join["datasets"][1]["name"])}, [{f"{on_func[first_join.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, first_join["on"])))}], "{first_join["type"]}")"""
+              join_str = ""
+              if first_join["type"].lower() == "cross":
+                  join_str = f"""{concat_select_df(first_join["datasets"][0]["name"])}.crossJoin({concat_select_df(first_join["datasets"][1]["name"])})"""
+              else:
+                  join_str = f"""{concat_select_df(first_join["datasets"][0]["name"])}.join({concat_select_df(first_join["datasets"][1]["name"])}, [{f"{on_func[first_join.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, first_join["on"])))}], "{first_join["type"]}")"""
               ds_is_used.add(first_join["datasets"][0]["name"])
               ds_is_used.add(first_join["datasets"][1]["name"])
               for item in args:
                   ds_name = list(set(map(lambda ds: ds["name"], item["datasets"])) - ds_is_used)
                   for ds in ds_name:
-                      join_str += f""".join({concat_select_df(ds)}, [{f"{on_func[item.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
+                      if item["type"].lower() == "cross":
+                          join_str += f""".crossJoin({concat_select_df(ds)})"""
+                      else:
+                          join_str += f""".join({concat_select_df(ds)}, [{f"{on_func[item.get('coditionsMode', 'AND')]}".join(list(map(concat_on_cond, item["on"])))}], "{item["type"]}")"""
               return eval(join_str)
           else:
               return None

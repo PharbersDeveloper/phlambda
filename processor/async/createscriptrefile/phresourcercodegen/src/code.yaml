@@ -133,7 +133,8 @@ code:
           choose_schema_type <- list(
               string="string",
               double="double",
-              long="long"
+              long="long",
+              bigint="long"
           )
 
           transform_number <- function(col_name, default="double") {
@@ -154,7 +155,8 @@ code:
           choose_schema_function <- list(
               string = transform_string,
               double = transform_number,
-              long = transform_number
+              long = transform_number,
+              bigint = transform_number
           )
 
           types <- list()

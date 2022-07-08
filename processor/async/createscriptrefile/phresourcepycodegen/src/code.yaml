@@ -91,7 +91,8 @@ code:
           choose_schema_type = {
               "string": StringType(),
               "double": DoubleType(),
-              "long": LongType()
+              "long": LongType(),
+              "bigint": LongType()
           }
 
           def transform_number(default="double"):

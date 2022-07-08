@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda
+Description: phsnsstopresource
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -10,12 +10,13 @@ Resources:
       AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
+      FunctionName: lmd-phsnsstopresource-dev
+      Description: "lmd-phsnsstopresource-dev"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-phtenantboottrigger-dev
-      Description: "启动集群"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      MemorySize: 1024
-      Timeout: 600
+          EDITION: "dev"
+      Timeout: 30
+

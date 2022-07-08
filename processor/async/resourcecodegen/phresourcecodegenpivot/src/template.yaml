@@ -99,10 +99,6 @@ template:
             l_pivot_cols = list(set(df_for_pivot.columns) -set(['col_pivot'])- set(g_groupByOn_final + g_pivot_keyColumns))
             df_out_pivot = df_for_pivot.groupby(g_groupByOn_final).pivot("col_pivot").agg(*[func.first(i).alias(i) for i in l_pivot_cols])
 
-            if g_pivot_globalCount == True:
-                df_globalCount = df.groupby(g_groupByOn_final).count()
-                df_out_pivot = df_out_pivot.join(df_globalCount, on=g_groupByOn_final, how='left')
-
             # otherColumns 合并 df_out_pivot
             if len(g_otherColumns) > 0:
                 df_otherColumns = groupbyFunc(df, g_groupByOn_final, g_otherColumns)
@@ -143,9 +139,14 @@ template:
                 for i_args in g_computedColumns:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
-
-            # pivots  
+            
+            # globalCount对 keyColumns 进行统计
+            if g_pivot['globalCount'] == True:
+                df = df.withColumn('temp_groupbykey', func.lit('temp_groupbykey') )   
+                g_pivot_valueColumns.append({'avg': False, 'column': 'temp_groupbykey', 'concat': False, 'concatDistinct': False, 'concatSeparator': ',', 'count': True, 'countDistinct': False, 'first': False, 'firstLastNotNull': False, 'last': False, 'max': False, 'min': False, 'orderColumn': '11111', 'stddev': False, 'sum': False})
+            # pivots 执行
             if g_pivotedColumnType == 'all':
                 df = pivotAndOtherColumns(df, g_identifiers, g_otherColumns, g_pivot_keyColumns, g_pivot_valueColumns, g_pivot_globalCount)
+                df = df.toDF(*[c.replace('temp_groupbykey_', '') for c in df.columns])
 
             return {"out_df":df}

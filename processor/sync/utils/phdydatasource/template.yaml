@@ -14,6 +14,7 @@ Resources:
           EDITION: "V2"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       FunctionName: lmd-phdydatasource-V2
       MemorySize: 1024
       Description: "DynamoDB数据查询"

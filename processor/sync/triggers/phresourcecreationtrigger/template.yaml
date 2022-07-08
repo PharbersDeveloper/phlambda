@@ -9,6 +9,8 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-creation

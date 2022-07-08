@@ -38,7 +38,7 @@ class ConvertDataTypesOfCache:
 
     def MakeSingleColConvertSqlExpress(self, tableName, colName, dataType):
 
-        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN `{colName}` {dataType};"
+        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN  `{colName}` Nullable({dataType});"
         return SingleSqlExpress
 
     def GetClickHouseClient(self, *args, **kwargs):

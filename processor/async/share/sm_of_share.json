@@ -19,8 +19,24 @@
                 "status": "running"
             },
             "ResultPath": null,
-            "Next": "compute_share"
+            "Next": "CheckSchema"
         },
+        "CheckSchema":{
+            "Type":"Task",
+            "Resource":"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckshema-dev:Current",
+            "Parameters":{
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "tenantId.$":"$.common.tenantId",
+                "shares.$":"$.shares"
+            },
+            "ResultPath": null,
+            "Next":"compute_share"
+        }
+    ,
         "compute_share": {
             "Type": "Task",
             "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
@@ -58,8 +74,8 @@
                 }
             ]
         },
-        "UpdateVersion": {
-            "Type": "Task",
+        "UpdateVersion":{
+            "Type":"Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phUpdateVersion-dev:Current",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
@@ -67,10 +83,8 @@
                 "projectName.$": "$.common.projectName",
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
-                "stepId.$": "$.emrRes.Step.Id",
-                "clusterId.$": "$.compute_share.clusterId",
-                "jobName": "compute_share",
-                "status": "success"
+                "tenantId.$":"$.common.tenantId",
+                "shares.$":"$.shares"
             },
             "ResultPath": null,
             "Next": "compute_shareEndHook"
@@ -94,15 +108,15 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariocleanup",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdscleanup",
             "Parameters": {
                 "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
-                "scenario.$": "$.scenario",
-                "triggers.$": "$.triggers",
-                "steps.$": "$.steps"
+                "tenantId.$":"$.common.tenantId",
+                "shares.$":"$.shares"
             },
             "ResultPath": null,
             "End": true

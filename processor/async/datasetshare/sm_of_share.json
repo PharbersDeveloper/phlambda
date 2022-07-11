@@ -108,15 +108,13 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdscleanup",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsharedscleanup-dev:Current",
             "Parameters": {
-                "traceId.$": "$.common.traceId",
                 "projectId.$": "$.common.projectId",
-                "projectName.$": "$.common.projectName",
                 "owner.$": "$.common.owner",
-                "showName.$": "$.common.showName",
                 "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.shares"
+                "shares.$":"$.shares",
+                "errors.$" : "$.error"
             },
             "ResultPath": null,
             "End": true

@@ -169,7 +169,7 @@
                         {
                            "Variable": "$.changeSetMsg.changeSetName",
                            "IsNull": true,
-                           "Next": "ApiBranchEnd"
+                           "Next": "ApiStackStatusCheckWait"
                         }
                      ],
                      "Default": "ApiChangeSetWait"
@@ -209,7 +209,33 @@
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
                      },
                      "ResultPath": null,
-                     "Next": "ApiBranchEnd"
+                     "Next": "ApiStackStatusCheckWait"
+                  },
+                  "ApiStackStatusCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiCreateOrUpdateCheck"
+                  },
+                  "ApiCreateOrUpdateCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName"
+                     },
+                     "ResultPath": "$.StackStatus",
+                     "Next": "ApiStackStatusReached"
+                  },
+                  "ApiStackStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.StackStatus",
+                           "BooleanEquals": true,
+                           "Next": "ApiBranchEnd"
+                        }
+                     ],
+                     "Default": "ApiStackStatusCheckWait"
                   },
                   "ApiBranchEnd": {
                      "Type": "Pass",
@@ -367,7 +393,7 @@
                         {
                            "Variable": "$.changeSetMsg.changeSetName",
                            "IsNull": true,
-                           "Next": "AsyncBranchEnd"
+                           "Next": "StackStatusCheckWait"
                         }
                      ],
                      "Default": "ChangeSetWait"
@@ -407,7 +433,33 @@
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
                      },
                      "ResultPath": null,
-                     "Next": "AsyncBranchEnd"
+                     "Next": "StackStatusCheckWait"
+                  },
+                  "StackStatusCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CreateOrUpdateCheck"
+                  },
+                  "CreateOrUpdateCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName"
+                     },
+                     "ResultPath": "$.StackStatus",
+                     "Next": "StackStatusReached"
+                  },
+                  "StackStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.StackStatus",
+                           "BooleanEquals": true,
+                           "Next": "AsyncBranchEnd"
+                        }
+                     ],
+                     "Default": "StackStatusCheckWait"
                   },
                   "AsyncBranchEnd": {
                      "Type": "Pass",

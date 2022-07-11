@@ -38,7 +38,7 @@ class ConvertDataTypesOfCache:
 
     def MakeSingleColConvertSqlExpress(self, tableName, colName, dataType):
 
-        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN  `{colName}` Nullable({dataType});"
+        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN  `{colName}` {dataType};"
         return SingleSqlExpress
 
     def GetClickHouseClient(self, *args, **kwargs):
@@ -79,25 +79,35 @@ class ConvertDataTypesOfCache:
 
         dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
         table = dynamodb_resource.Table(table_name)
-        table.put_item(
+        resp = table.put_item(
             Item=item
         )
+        print("*"*50+"put  item to dataset" + "*"*50)
+        print(item)
+        print(resp)
 
 
     def ConverSchemaOfDataType(self, dyName, dsName, projectId,colItem):
 
+        '''
         def converSchema(OriginalItem, colItem):
             try:
                 OriginalItem["type"] == colItem["to"] if OriginalItem["src"] == colItem['column'] else OriginalItem["type"]
             except:
                 OriginalItem = OriginalItem
             return OriginalItem
-
+        '''
         #---查表---#
         ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
         Originalschema = json.loads(ds_Item["schema"]) if isinstance(ds_Item["schema"], str) else ds_Item["schema"]
-        Changescheam = list(map(lambda x: converSchema(x, colItem), Originalschema))
-        ds_Item["schema"] = Changescheam if isinstance(Changescheam, str) else json.dumps(Changescheam)
+        print("*"*50+"original schema " + "*"*50)
+        for elem in Originalschema:
+            if elem["src"] == colItem["column"]:
+                elem["type"] = colItem["to"]
+
+        #Changescheam = list(map(lambda x: converSchema(x, colItem), Originalschema))
+        #ds_Item["schema"] = Changescheam if isinstance(Changescheam, str) else json.dumps(Changescheam)
+        ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema)
         #-- put item to ds --#
         self.put_dynamodb_item(table_name=dyName, item=ds_Item)
 

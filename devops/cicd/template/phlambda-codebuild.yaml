@@ -51,7 +51,7 @@ Parameters:
     Description: "GitCommit"
   GitUrl:
     Type: String
-    Default: http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git
+    Default: http://cicd:Abcde196125@192.168.53.179:7990/scm/lgc/phlambda.git
     Description: "GitUrl"
   BranchName:
     Type: String

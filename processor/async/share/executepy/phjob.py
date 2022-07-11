@@ -14,6 +14,41 @@ from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
 from boto3.dynamodb.conditions import Key
 
 
+'''
+args = {
+    "common": {
+        "tranceId": "",
+        "runnerId": "sample_sample_developer_2022-07-04T05:49:39+00:00",
+        "projectId": "Dp10sMiAYXWxRZj",
+        "projectName": "sample",
+        "owner": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
+        "showName": "赵浩博",
+        "tenantId": "zudIcG_17yj8CEUoCTHg"
+    },
+    "shares": [
+        {
+            "target": "ds name", // 共享时的目标DS 名称
+            "targetCat": "catalog | intermediate | uploaded", // 共享时的目标DS的类型  catalog是数据目录  intermediate是结果数据集  uploaded 是上传的数据 都需要分别处理
+            "targetPartitionKeys": [
+                {
+                    "name": "key1",
+                    "type": "string"
+                },
+                {
+                    "name": "key2",
+                    "type": "string"
+                }
+            ],
+            "sourceSelectVersions": ["version1", "version2", "version3"]
+            "source": "ds name", // 共享时的源DS 名称
+        }
+    ]
+}
+'''
+
+
+
+
 # --写入路径
 def write_to_path(share_num, mode, df, col_of_partitionBy, path_of_write):
     try:
@@ -27,32 +62,30 @@ def write_to_path(share_num, mode, df, col_of_partitionBy, path_of_write):
     return write_info
 
 
-
 def execute(**kwargs):
 
     logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
     spark = kwargs["spark"]()
     ph_share = json.loads(kwargs.get("ph_conf", {}))
-    share = ph_share.get("share")
-    shareProject = ph_share.get("tenantId")
-    #owner = ph_share.get("owner")
+    shares = ph_share.get("shares")
+    tenantId = ph_share.get("tenantId")
+    company = ph_share.get("company")
+    sourceProjectId = ph_share.get("projectId")
     #showName = ph_share.get("showName")
     #projectName = ph_share.get("projectName")
 
 
-    for item in share:
-        company = item["company"]
-        sourceProjectId = item["sourceProjectId"]
-        datasetName = item["datasetName"]
-        version = item["version"]
-        logger.debug(f"share item: {item}")
-        # 从s3 读取数据
-        path = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{datasetName}/version={version}"
-        df = spark.read.parquet(path)
-        # 公有数据域
-        #version_col = re.findall(pattern="version=(.*)", string=str(version))[0]
-        share_path = f"s3://ph-platform/2020-11-11/lake/{company}/{shareProject}/{datasetName}"
-        write_to_path(share_num=1, mode="overwrite", df=df, col_of_partitionBy=[str(version)], path_of_write=share_path)
+    for shareItem in shares:
+        sourcePath = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{shareItem['source']}"
+        #---- get df ------#
+        df = spark.read.parquet(sourcePath)
+        df = df.where(df["version"].isin(shareItem["sourceSelectVersions"]))
 
+        #---- target Path -----------#
+        if shareItem["targetCat"] == "catalog":
+            targetPath = f"s3://ph-platform/2020-11-11/lake/{company}/{tenantId}/{shareItem['target']}"
+            partitionByCols = [x["name"] for x in shareItem['targetPartitionKeys']]
+            write_to_path(share_num=1, mode="append", df=df, col_of_partitionBy=partitionByCols, path_of_write=targetPath)
+        #TODO intermediate ,uploaded 如果需要后续添加处理逻辑
 
     return {'out_df': {}}

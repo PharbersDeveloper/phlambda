@@ -43,7 +43,11 @@
       "TriggerAndAsync": {
          "Type": "Parallel",
          "InputPath": "$",
-         "ResultPath": "$.metadata",
+         "ResultPath": "$",
+         "ResultSelector": {
+            "triggerMetadata.$": "$.[0]",
+            "processorMetadata.$": "$.[1]"
+         },
          "Next": "Success",
          "Branches": [
             {
@@ -499,35 +503,17 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcleanup-dev",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scriptItems.$": "$.metadata.scriptItems",
-            "dagItems.$": "$.metadata.dagItems",
-            "errors.$": "$.error",
+            "processor.$": "$.processor",
+            "trigger.$": "$.trigger",
             "status": "failed"
          },
          "ResultPath": "$.message",
          "Next": "Failed"
       },
       "Failed": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.message",
-            "status": "failed"
-         },
+         "Type": "Pass",
          "End": true
       }
    }

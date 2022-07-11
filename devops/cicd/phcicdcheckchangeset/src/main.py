@@ -1,6 +1,6 @@
 import boto3
 import botocore
-
+s3_client = boto3.client('s3')
 cfn_client = boto3.client('cloudformation')
 '''
 这个函数只做一件事情，检查参数是否合法

@@ -1,0 +1,111 @@
+{
+    "Comment": "demo_demo_developer",
+    "StartAt": "StateMachineStartHook",
+    "States": {
+        "StateMachineStartHook": {
+            "Type": "Pass",
+            "Next": "compute_shareStartHook"
+        },
+        "compute_shareStartHook": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "jobName": "compute_share",
+                "status": "running"
+            },
+            "ResultPath": null,
+            "Next": "compute_share"
+        },
+        "compute_share": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
+            "Parameters": {
+                "ClusterId.$": "$.compute_share.clusterId",
+                "Step": {
+                    "Name": "compute_share",
+                    "ActionOnFailure": "CONTINUE",
+                    "HadoopJarStep.$": "$.compute_share.HadoopJarStep"
+                }
+            },
+            "ResultPath": "$.emrRes",
+            "Next": "UpdateVersion",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Runtime"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                }
+            ]
+        },
+        "UpdateVersion": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phUpdateVersion-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "stepId.$": "$.emrRes.Step.Id",
+                "clusterId.$": "$.compute_share.clusterId",
+                "jobName": "compute_share",
+                "status": "success"
+            },
+            "ResultPath": null,
+            "Next": "compute_shareEndHook"
+        },
+        "compute_shareEndHook": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "stepId.$": "$.emrRes.Step.Id",
+                "clusterId.$": "$.compute_share.clusterId",
+                "jobName": "compute_share",
+                "status": "success"
+            },
+            "ResultPath": null,
+            "End": true
+        },
+        "CleanUp": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariocleanup",
+            "Parameters": {
+                "traceId.$": "$.common.traceId",
+                "projectId.$": "$.common.projectId",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "scenario.$": "$.scenario",
+                "triggers.$": "$.triggers",
+                "steps.$": "$.steps"
+            },
+            "ResultPath": null,
+            "End": true
+        }
+    }
+}

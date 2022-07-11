@@ -16,5 +16,7 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
+          LAKEPATH: "s3://ph-platform/2020-11-11/lake/pharbers/"
+          BUCKET: "ph-platform"
 
 

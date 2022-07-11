@@ -60,18 +60,8 @@ def check_stack_status(stackName):
     return result
 
 
-def del_s3_resource(bucket, key):
-    response = s3_client.delete_object(
-        Bucket=bucket,
-        Key=key
-    )
-
-
 def lambda_handler(event, context):
     print(event)
     stackStatus = check_stack_status(event["stackName"])
-    if event["processor"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage_back.yaml")
-    if event["trigger"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage_back.yaml")
+
     return stackStatus

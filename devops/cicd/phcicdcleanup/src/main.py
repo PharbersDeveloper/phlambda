@@ -53,17 +53,42 @@ def del_s3_resource(bucket, key):
     )
 
 
+def judge_stack_exist(stackName):
+    stack_exist = False
+    try:
+        response = cfn_client.describe_stacks(
+            StackName=stackName
+        )
+        stack_exist = True
+        print(response)
+    except Exception as e:
+        print(e)
+    return stack_exist
+
+
+def delete_stack(stackName):
+    response = cfn_client.delete_stack(
+        StackName=stackName
+    )
+
+
 def lambda_handler(event, context):
     print(event)
     # 如果创建失败 则删除cloudformation 同时删除s3上cicd/prefix/manage.yaml
     # 判断processor 和trigger 里面的required是否为true
+    # 需要判断是codebuild 错误还是update yaml 错误
+    # 根据manage back yaml是否存在
     if event["processor"]["required"]:
         del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         if get_stack_status(event["processor"]["stateMachineName"] + "-resource"):
             # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件
             copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"])
-            del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage_back.yaml")
+            # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage_back.yaml")
+        for function in event["processor"]["functions"]:
+            if judge_stack_exist(function + "codebuild"):
+                delete_stack(function + "codebuild")
+
     if event["trigger"]["required"]:
         del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage.yaml")
         # 判断这次操作是不是update操作
@@ -71,9 +96,10 @@ def lambda_handler(event, context):
         if get_stack_status(functionName + "-apiresource"):
             # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件 删除manage_back文件
             copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"])
-            del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage_back.yaml")
+            # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage_back.yaml")
+        if judge_stack_exist(event["trigger"]["functionName"] + "codebuild"):
+            delete_stack(event["trigger"]["functionName"] + "codebuild")
 
-    # 需要删除codebuild function name
 
 
 

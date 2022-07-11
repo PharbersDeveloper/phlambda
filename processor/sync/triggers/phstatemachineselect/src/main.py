@@ -6,7 +6,6 @@ from collections import deque
 from cal import calDatasetPath
 from selectcal import *
 
-
 def messageAdapter(x):
     x['ll'] = json.loads(x['cmessage'])
     return x

@@ -91,7 +91,8 @@ code:
           choose_schema_type = {
               "string": StringType(),
               "double": DoubleType(),
-              "long": LongType()
+              "long": LongType(),
+              "bigint": LongType()
           }
 
           def transform_number(default="double"):
@@ -110,7 +111,8 @@ code:
           choose_schema_func = {
               "string": transform_string,
               "double": transform_number,
-              "long": transform_number
+              "long": transform_number,
+              "bigint": transform_number
           }
 
           types = list(set(map(lambda item: item["type"].lower(), schemas)))

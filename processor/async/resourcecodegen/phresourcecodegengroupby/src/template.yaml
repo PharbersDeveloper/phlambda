@@ -120,6 +120,8 @@ template:
                     df = df.join(df_globalCount, on=g_l_keys, how='left')
             else:
                 df = df_globalCount
+                
+            df = df.orderBy(g_l_keys)
             
             # postFilter
             if g_postFilter['enabled'] == True:

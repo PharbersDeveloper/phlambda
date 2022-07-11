@@ -1,43 +1,12 @@
 import os
 import json
+import time
 import boto3
 import traceback
 from boto3.dynamodb.conditions import Key
-from phmetriclayer import aws_cloudwatch_put_metric_data
+from stopResource import StopResource
 
-'''
-args =
-{
-    "common": {
-        "tenantId": "zudIcG_17yj8CEUoCTHg",
-        "traceId": "alfred-resource-creation-traceId",
-        "projectId": "ggjpDje0HUC2JW",
-        "projectName": "demo",
-        "owner": "alfred",
-        "showName": "alfred"
-    },
-    "action": {
-        "cat": "projectStart",
-        "desc": "reboot project",
-        "comments": "something need to say",
-        "message": "something need to say",
-        "required": true
-    },
-    "resources": [
-        "emr", "chlickhouse", "chproxy"
-    ],
-    "notification": {
-        "required": true
-    }
-}
 
-event = {
-    tenantId: "String",
-    traceId: "String",
-    owner: "String",
-    showName: "String"
-}
-'''
 ssm = boto3.client('ssm')
 cloudformation = boto3.client('cloudformation')
 dynamodb = boto3.resource("dynamodb")
@@ -82,19 +51,15 @@ def get_stack_name(tenantId):
     return res_list
 
 
-def lambda_handler(event, context):
-    event = json.loads(event["body"])
-    print(event)
+def stop(event):
     result = {
         "status": "",
         "message": "",
         "trace_id": ""
     }
-    # trace_id = ""
-    # edition = "" if os.getenv("EDITION") == "V2" else "-dev"
-    # traceId = event.get("common").get("traceId")
-
-    # TODO: 缺判断当前这个是否已经启动 @ylzhang
+    trace_id = ""
+    edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
+    # TODO: ... 缺判断当前这个是否已经启动 @ylzhang
 
     # 1. event to args
     args = {
@@ -107,7 +72,7 @@ def lambda_handler(event, context):
             "showName": event["showName"]
         },
         "action": {
-            "cat": "tenantStart",
+            "cat": "tenantStop",
             "desc": "reboot project",
             "comments": "",
             "message": "",
@@ -118,18 +83,9 @@ def lambda_handler(event, context):
         ],
         "notification": {
             "required": True
-        }   
+        }
     }
 
-    # TODO: ... 在这里看是否能创建。这个地方也会是创建流程的唯一入口
-
-    # 1. stack 是否存在，如果存在 报错，不能重复创建
-    #     1.1 stackname 的获取方法是 在dynamodb中找到resource 表中 tenantid 下的所有 ownership 为 shared 值的 
-    #     1.2 对每一个值中的property 遍历，形成一个stackname 的数组
-    #     1.3 stackname 的名字规则为  <role>-<property.type>-<tenantId>
-    #     1.4 所有的stak 在cloud formation 中都不存在 算过，要不然报错，说哪一个 stack 指向的role 以及type 存在
-    # 2. ssm 是否存在，如果存在，报错，不能重复创建并提交管理员
-    # @ylzhang
     ssm_message = []
     cloudformation_message = []
     tenantId = args.get("common").get("tenantId")
@@ -137,12 +93,12 @@ def lambda_handler(event, context):
     for stack_name in stack_list:
         if check_cloudformation_stack(stack_name):
             cloudformation_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
-        if check_ssm(stack_name):
+        if check_ssm(event["tenantId"]):
             ssm_message.append(f"tenantId: {tenantId} role: {stack_name.split('-')[0]} type: {stack_name.split('-')[1]}.")
 
-    if ssm_message or cloudformation_message:
+    if not ssm_message or not cloudformation_message:
         result["status"] = "failed"
-        result["message"] = json.dumps({"stackName already exits": {"ssm_exits": ssm_message, "cloudformation_exits": cloudformation_message}})
+        result["message"] = json.dumps({"stackName not exits": {"ssm": ssm_message, "cloudformation": cloudformation_message}})
         result["trace_id"] = args["common"]["traceId"]
         return {
             "statusCode": 200,
@@ -157,7 +113,7 @@ def lambda_handler(event, context):
     try:
         trace_id = args["common"]["traceId"]
         # state_machine_arn = os.environ["ARN"]
-        state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenant-boot"
+        state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenant-termination"
         client = boto3.client("stepfunctions")
         res = client.start_execution(stateMachineArn=state_machine_arn,
                                      name=trace_id, input=json.dumps(args, ensure_ascii=False))
@@ -172,19 +128,17 @@ def lambda_handler(event, context):
         result["message"] = "Couldn't start run " + trace_id
         result["trace_id"] = trace_id
 
-    #---------------------- 埋点 -------------------------------------#
-    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
-                                   MetricName='platform-usage',
-                                   tenantId=args["common"]["tenantId"])
-    #---------------------- 埋点 -------------------------------------#
+    return True
 
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-        },
-        "body": json.dumps(result)
-    }
+class StopTenant(StopResource):
+
+    def run(self, tenantId, ctype="jupyter"):
+
+        for item in self.query_resource(tenantId, ctype):
+            event = {"tenantId": tenantId,
+                     "traceId": self.get_uuid,
+                     "owner": item["owner"],
+                     "showName": "鹏钱"}
+            stop(event)
+            time.sleep(1)

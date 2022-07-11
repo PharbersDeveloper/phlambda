@@ -59,7 +59,7 @@ def put_to_version(id,name,datasetId,owner,projectId):
             'id': id,
             'name': name,
             'datasetId': datasetId,
-            'date': str(datetime.now().timestamp()),
+            'date': str(datetime.now().timestamp() * 1000),
             'owner': owner,
             'projectId': projectId,
         }

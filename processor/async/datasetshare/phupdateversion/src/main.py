@@ -55,7 +55,7 @@ def lambda_handler(event, context):
 
         versionId = event["projectId"] + "_" + datasetItem["id"]
         #----- update version -------------------#
-        for versionName in shareItem["version"]:
+        for versionName in shareItem["sourceSelectVersions"]:
             put_to_version(id=versionId, name=versionName, datasetId=datasetItem["id"], owner=event["owner"], projectId=event["projectId"])
 
     #----- update version -------------------#

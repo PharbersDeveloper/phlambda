@@ -504,7 +504,7 @@
                         "publisher.$": "$.common.publisher",
                         "alias.$": "$.common.alias",
                         "runtime.$": "$.common.runtime",
-                        "trigger.$": "$.trigger"
+                        "utils.$": "$.utils"
                      },
                      "ResultPath": "$.metadata",
                      "Next": "CreateUtilsCodeBuildCfn"
@@ -574,8 +574,7 @@
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
                         "runtime.$": "$.common.runtime",
-                        "trigger.$": "$.trigger",
-                        "apiGateWayArgs.$": "$.metadata.apiGateWayArgs"
+                        "utils.$": "$.utils"
                      },
                      "ResultPath": "$.stackMessage",
                      "Next": "UtilsCreateManageStack"
@@ -652,7 +651,7 @@
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "processor.$": "$.processor",
-                        "trigger.$": "$.trigger"
+                        "utils.$": "$.utils"
                      },
                      "ResultPath": "$.StackStatus",
                      "Next": "UtilsStackStatusReached"
@@ -711,6 +710,7 @@
          "Parameters": {
             "processor.$": "$.processor",
             "trigger.$": "$.trigger",
+            "utils": "utils",
             "status": "failed"
          },
          "ResultPath": "$.message",

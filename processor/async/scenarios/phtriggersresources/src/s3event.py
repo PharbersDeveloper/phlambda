@@ -42,7 +42,7 @@ def wirte_s3(tenantId, projectId, projectName, owner, showName, scenarioId, dsNa
         bucket.put_object(Body=s3_body, Key=f"2020-11-11/lake/pharbers/{projectId}/{dsName}/__resource.json")
 
 
-def dataset(trigger):
+def dataset(trigger, **kwargs):
     print(trigger)
     wirte_s3(**trigger)
     time.sleep(1)

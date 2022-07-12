@@ -60,7 +60,7 @@ def lambda_handler(event, context):
     for shareItem in event["shares"]:
         #---- query item of dataset -----------#
         targetItem = get_ds_with_index(dsName=shareItem["target"], projectId=event["projectId"])
-        print("*"*50 + "target " + "*"*50 + "\n" + targetItem)
+        print("*"*50 + "target " + "*"*50 + "\n",targetItem)
 
         versionId = event["projectId"] + "_" + targetItem["id"]
         #----- update version -------------------#
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
         targetSchema = json.loads(targetItem["schema"]) if isinstance(targetItem["schema"], str) else targetItem["schema"]
         if len(targetSchema) == 0:
             sourceDsItem = get_ds_with_index(dsName=shareItem["source"], projectId=event["projectId"])
-            print("*"*50 + "source " + "*"*50 + "\n" + sourceDsItem)
+            print("*"*50 + "source " + "*"*50 + "\n",sourceDsItem)
             targetItem["schema"] = sourceDsItem["schema"]
             put_dynamodb_item(table_name="dataset", item=targetItem)
         #updatedasetindex#

@@ -41,7 +41,8 @@ def lambda_handler(event, context):
         targetDsItem = get_ds_with_index(dsName=shareItem["target"], projectId=event["projectId"])
         targetSchema = json.loads(targetDsItem["schema"]) if isinstance(targetDsItem["schema"], str) else targetDsItem["schema"]
 
-        if sourceSchema != targetSchema:
+
+        if sourceSchema != targetSchema and len(targetSchema) != 0:
             raise Exception(f"The schema of  {shareItem['source']} and {shareItem['target']}  is not the same. "
                             f"detail: {shareItem['source']}: {sourceSchema}, {shareItem['target']}: {targetSchema}.")
 

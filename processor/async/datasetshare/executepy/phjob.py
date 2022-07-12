@@ -61,6 +61,17 @@ def write_to_path(share_num, mode, df, col_of_partitionBy, path_of_write):
     print(write_info)
     return write_info
 
+def get_ds_with_index(dsName, projectId):
+
+    dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+    ds_table = dynamodb_resource.Table('dataset')
+    res = ds_table.query(
+        IndexName='dataset-projectId-name-index',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("name").begins_with(dsName)
+    )
+    return res["Items"][0]
+
 
 def execute(**kwargs):
 
@@ -85,7 +96,16 @@ def execute(**kwargs):
         if shareItem["targetCat"] == "catalog":
             targetPath = f"s3://ph-platform/2020-11-11/lake/{company}/{tenantId}/{shareItem['target']}"
             partitionByCols = [x["name"] for x in shareItem['targetPartitionKeys']]
-            write_to_path(share_num=1, mode="append", df=df, col_of_partitionBy=partitionByCols, path_of_write=targetPath)
+
+            #---- get schema of target table --------------------#
+            targetDsItem = get_ds_with_index(dsName=shareItem["target"], projectId=sourceProjectId)
+            targetSchema = json.loads(targetDsItem["schema"]) if isinstance(targetDsItem["schema"], str) else targetDsItem["schema"]
+
+            if len(targetSchema) == 0:
+                write_to_path(share_num=1, mode="overwrite", df=df, col_of_partitionBy=partitionByCols, path_of_write=targetPath)
+            else:
+                write_to_path(share_num=1, mode="append", df=df, col_of_partitionBy=partitionByCols, path_of_write=targetPath)
+
         #TODO intermediate ,uploaded 如果需要后续添加处理逻辑
 
     return {'out_df': {}}

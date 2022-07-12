@@ -23,7 +23,7 @@
         },
         "CheckSchema":{
             "Type":"Task",
-            "Resource":"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckshema-dev:Current",
+            "Resource":"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckschema-dev:Current",
             "Parameters":{
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -76,7 +76,7 @@
         },
         "UpdateVersion":{
             "Type":"Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phUpdateVersion-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phupdateversion-dev:Current",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -108,7 +108,7 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsharedscleanup-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdscleanup-dev:Current",
             "Parameters": {
                 "projectId.$": "$.common.projectId",
                 "owner.$": "$.common.owner",

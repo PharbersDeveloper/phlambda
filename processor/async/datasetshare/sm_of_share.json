@@ -108,12 +108,12 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phdscleanup-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsharedscleanup-dev:Current",
             "Parameters": {
                 "projectId.$": "$.common.projectId",
                 "owner.$": "$.common.owner",
                 "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.calculate.shares",
+                "shares.$":"$.shares",
                 "errors.$" : "$.error"
             },
             "ResultPath": null,

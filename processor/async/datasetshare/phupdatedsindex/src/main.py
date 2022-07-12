@@ -28,6 +28,15 @@ def get_ds_with_index(dsName, projectId):
     )
     return res["Items"][0]
 
+
+def put_dynamodb_item(table_name, item):
+
+    dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+    table = dynamodb_resource.Table(table_name)
+    resp = table.put_item(
+        Item=item
+    )
+
 def put_to_version(id,name,datasetId,owner,projectId):
 
     dynamodb = boto3.resource('dynamodb')
@@ -51,15 +60,19 @@ def lambda_handler(event, context):
 
     for shareItem in event["shares"]:
         #---- query item of dataset -----------#
-        datasetItem = get_ds_with_index(dsName=shareItem["target"], projectId=event["projectId"])
+        targetItem = get_ds_with_index(dsName=shareItem["target"], projectId=event["projectId"])
 
-        versionId = event["projectId"] + "_" + datasetItem["id"]
+        versionId = event["projectId"] + "_" + targetItem["id"]
         #----- update version -------------------#
         for versionName in shareItem["sourceSelectVersions"]:
-            put_to_version(id=versionId, name=versionName, datasetId=datasetItem["id"], owner=event["owner"], projectId=event["projectId"])
+            put_to_version(id=versionId, name=versionName, datasetId=targetItem["id"], owner=event["owner"], projectId=event["projectId"])
 
-    #----- update version -------------------#
-
+        #----- update schema -------------------#
+        targetSchema = json.loads(targetItem["target"]) if isinstance(targetItem["schema"], str) else targetItem["schema"]
+        if len(targetSchema) == 0:
+            sourceDsItem = get_ds_with_index(dsName=shareItem["source"], projectId=event["projectId"])
+            targetItem["schema"] = sourceDsItem["schema"]
+            put_dynamodb_item(table_name=shareItem["target"], item=targetItem)
         #updatedasetindex#
 
     

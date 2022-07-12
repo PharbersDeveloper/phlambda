@@ -28,6 +28,14 @@ def get_ds_with_index(dsName, projectId):
     )
     return res["Items"][0]
 
+def IsTheSameScheam(source, target):
+
+    sourceCol = list(map(lambda x: x["src"], source))
+    targetCol = list(map(lambda x: x["src"], target))
+    if list(set(sourceCol) ^ set(targetCol)) == 0:
+        return True
+    else:
+        return False
 
 def lambda_handler(event, context):
     print(event)
@@ -42,7 +50,7 @@ def lambda_handler(event, context):
         targetSchema = json.loads(targetDsItem["schema"]) if isinstance(targetDsItem["schema"], str) else targetDsItem["schema"]
 
         if len(targetSchema) != 0:
-            if sourceSchema != targetSchema:
+            if IsTheSameScheam(sourceSchema, targetSchema) is False:
                 raise Exception(f"The schema of  {shareItem['source']} and {shareItem['target']}  is not the same. "
                                 f"detail: {shareItem['source']}: {sourceSchema}, {shareItem['target']}: {targetSchema}.")
 

@@ -48,7 +48,7 @@
                 }
             },
             "ResultPath": "$.emrRes",
-            "Next": "UpdateVersion",
+            "Next": "UpdateDataSetIndex",
             "Catch": [
                 {
                     "ErrorEquals": [

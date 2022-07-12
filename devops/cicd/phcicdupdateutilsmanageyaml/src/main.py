@@ -113,7 +113,7 @@ def lambda_handler(event, context):
         download_s3_file("ph-platform", resourcePathPrefix + event["utils"]["prefix"] + "/" +
                          event["utils"]["functionName"] + "/manage.yaml",
                          mangeLocalPath)
-        copy_manage_resource("ph-platform", resourcePathPrefix + event["utils"]["prefix"])
+        copy_manage_resource("ph-platform", resourcePathPrefix + event["utils"]["prefix"] + "/" + event["utils"]["functionName"])
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)

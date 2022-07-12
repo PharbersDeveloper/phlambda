@@ -7,11 +7,10 @@ Resources:
     Properties:
       Handler: main.lambdaHandler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
-      FunctionName: lmd-phresetpwd-V2
+      FunctionName: phresetpwd
       Description: "通过邮件地址修改密码"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

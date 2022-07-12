@@ -90,12 +90,23 @@ def lambda_handler(event, context):
                 delete_stack(function + "codebuild")
 
     if event["trigger"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage.yaml")
+        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + event["trigger"]["functionName"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         functionName = event["trigger"]["functionName"]
         if get_stack_status(functionName + "-apiresource"):
             # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件 删除manage_back文件
-            copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"])
+            copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + functionName )
+            # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage_back.yaml")
+        if judge_stack_exist(event["trigger"]["functionName"] + "codebuild"):
+            delete_stack(event["trigger"]["functionName"] + "codebuild")
+
+    if event["trigger"]["utils"]:
+        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["utils"]["prefix"] + event["utils"]["functionName"] + "/manage.yaml")
+        # 判断这次操作是不是update操作
+        functionName = event["utils"]["functionName"]
+        if get_stack_status(functionName + "-apiresource"):
+            # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件 删除manage_back文件
+            copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + functionName)
             # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + "/manage_back.yaml")
         if judge_stack_exist(event["trigger"]["functionName"] + "codebuild"):
             delete_stack(event["trigger"]["functionName"] + "codebuild")

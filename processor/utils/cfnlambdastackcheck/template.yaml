@@ -7,12 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      Environment:
-        Variables:
-          EDITION: "DEV"
-      FunctionName: lmd-utilscfnlambdastackcheck-dev
+      FunctionName: cfnlambdastackcheck
       Description: "phutilsssmps"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

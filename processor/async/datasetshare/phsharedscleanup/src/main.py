@@ -57,6 +57,7 @@ def lambda_handler(event, context):
         ds_id = query_dataset(project_id, item["target"])["id"]
         roll_back_version(f"{project_id}_{ds_id}", item["sourceSelectVersions"])
 
+    # raise Exception(errors)
     return {
         "type": "notification",
         "opname": event["owner"],

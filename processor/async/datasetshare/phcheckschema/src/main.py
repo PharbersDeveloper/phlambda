@@ -32,7 +32,7 @@ def IsTheSameScheam(source, target):
 
     sourceCol = list(map(lambda x: x["src"], source))
     targetCol = list(map(lambda x: x["src"], target))
-    if list(set(sourceCol) - set(targetCol)) == 0:
+    if set(sourceCol) == set(targetCol):
         return True
     else:
         return False

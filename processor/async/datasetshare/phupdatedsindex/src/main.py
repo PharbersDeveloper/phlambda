@@ -54,13 +54,13 @@ def put_to_version(id,name,datasetId,owner,projectId):
     )
     print(response)
 
-
 def lambda_handler(event, context):
     print(event)
 
     for shareItem in event["shares"]:
         #---- query item of dataset -----------#
         targetItem = get_ds_with_index(dsName=shareItem["target"], projectId=event["projectId"])
+        print("*"*50 + "target " + "*"*50 + "\n" + targetItem)
 
         versionId = event["projectId"] + "_" + targetItem["id"]
         #----- update version -------------------#
@@ -68,12 +68,11 @@ def lambda_handler(event, context):
             put_to_version(id=versionId, name=versionName, datasetId=targetItem["id"], owner=event["owner"], projectId=event["projectId"])
 
         #----- update schema -------------------#
-        targetSchema = json.loads(targetItem["target"]) if isinstance(targetItem["schema"], str) else targetItem["schema"]
+        targetSchema = json.loads(targetItem["schema"]) if isinstance(targetItem["schema"], str) else targetItem["schema"]
         if len(targetSchema) == 0:
             sourceDsItem = get_ds_with_index(dsName=shareItem["source"], projectId=event["projectId"])
+            print("*"*50 + "source " + "*"*50 + "\n" + sourceDsItem)
             targetItem["schema"] = sourceDsItem["schema"]
-            put_dynamodb_item(table_name=shareItem["target"], item=targetItem)
+            put_dynamodb_item(table_name="dataset", item=targetItem)
         #updatedasetindex#
 
-    
-    return {}

@@ -15,7 +15,6 @@ lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
 mangeLocalPath = "/tmp/manage.yaml"
-dealMangeLocalPath = "/tmp/deal_manage.yaml"
 apiResourceLocalPathPrefix = "/tmp/"
 lmdVersionLocalPath = "/tmp/lmdVersion.yaml"
 lmdAliasLocalPath = "/tmp/lmdAlias.yaml"
@@ -181,7 +180,7 @@ def lambda_handler(event, context):
         bucket_name=manageTemplateS3Key,
         object_name=resourcePathPrefix + event["utils"]["prefix"] + "/" +
                     event["utils"]["functionName"] + "/manage.yaml",
-        file=dealMangeLocalPath
+        file=mangeLocalPath
     )
     manageUrl = manageUrlPrefix + event["utils"]["prefix"] + "/" + event["utils"]["functionName"] + "/manage.yaml"
     print(manageUrl)

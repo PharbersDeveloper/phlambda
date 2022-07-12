@@ -12,6 +12,7 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "engine.$": "$.engine",
+            "tenantId.$": "$.common.tenantId",
             "calculate.$": "$.calculate"
          },
          "ResultPath": "$.executeArgs",
@@ -28,19 +29,29 @@
             "showName.$": "$.common.showName",
             "dag.$": "$.executeArgs.sm"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "failedExecutionHook"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error.genDagError",
+               "Next": "failedExecutionHook"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error.genDagError",
+               "Next": "failedExecutionHook"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error.genDagError",
+               "Next": "failedExecutionHook"
+            }
+         ],
          "ResultPath": "$.smarn",
          "Next": "startExecutionHook"
       },
@@ -62,24 +73,34 @@
       },
       "executeDag": {
          "Type": "Task",
-         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
             "Input.$": "$.executeArgs.args",
             "StateMachineArn.$": "$.smarn"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "failedExecutionHook"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error.executeError",
+               "Next": "failedExecutionHook"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error.executeError",
+               "Next": "failedExecutionHook"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error.executeError",
+               "Next": "failedExecutionHook"
+            }
+         ],
          "ResultPath": null,
          "Next": "endExecutionHook"
       },
@@ -87,12 +108,12 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplehook",
          "Parameters": {
-            "runnerId.$" : "$.common.runnerId",
-           "projectId.$" : "$.common.projectId",
-           "projectName.$" : "$.common.projectName",
-           "owner.$" : "$.common.owner",
-           "showName.$" : "$.common.showName",
-           "stage" : "end"
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "stage": "end"
          },
          "ResultPath": null,
          "Next": "clearDag"

@@ -4,9 +4,9 @@
     "States": {
         "StateMachineStartHook": {
             "Type": "Pass",
-            "Next": "compute_shareStartHook"
+            "Next": "ComputeShareStartHook"
         },
-        "compute_shareStartHook": {
+        "ComputeShareStartHook": {
             "Type": "Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
             "Parameters": {
@@ -21,23 +21,22 @@
             "ResultPath": null,
             "Next": "CheckSchema"
         },
-        "CheckSchema":{
-            "Type":"Task",
-            "Resource":"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckschema-dev:Current",
-            "Parameters":{
+        "CheckSchema": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckschema-dev:Current",
+            "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
                 "projectName.$": "$.common.projectName",
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
-                "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.shares"
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares"
             },
             "ResultPath": null,
-            "Next":"compute_share"
-        }
-    ,
-        "compute_share": {
+            "Next": "ComputeShare"
+        },
+        "ComputeShare": {
             "Type": "Task",
             "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
             "Parameters": {
@@ -74,22 +73,22 @@
                 }
             ]
         },
-        "UpdateVersion":{
-            "Type":"Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phupdateversion-dev:Current",
+        "UpdateDataSetIndex": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phupdatedsindex-dev:Current",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
                 "projectName.$": "$.common.projectName",
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
-                "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.shares"
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares"
             },
             "ResultPath": null,
-            "Next": "compute_shareEndHook"
+            "Next": "ComputeShareEndHook"
         },
-        "compute_shareEndHook": {
+        "ComputeShareEndHook": {
             "Type": "Task",
             "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
             "Parameters": {
@@ -112,9 +111,9 @@
             "Parameters": {
                 "projectId.$": "$.common.projectId",
                 "owner.$": "$.common.owner",
-                "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.shares",
-                "errors.$" : "$.error"
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares",
+                "errors.$": "$.error"
             },
             "ResultPath": null,
             "End": true

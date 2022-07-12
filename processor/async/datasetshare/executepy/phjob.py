@@ -6,50 +6,40 @@ This is job template for Pharbers Max Job
 
 import boto3
 import json
-import time
-import re
-from pyspark.sql.functions import lit
-from datetime import datetime
-from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+from functools import reduce
 from boto3.dynamodb.conditions import Key
+from pyspark.sql.functions import lit, col, struct, to_json, json_tuple
+from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+logger = phs3logger("share emr log", LOG_DEBUG_LEVEL)
+
+# 获取DataFrame Schema转JSON字符串
+def get_df_schema2json(df):
+    schema_list = list(filter(lambda item: item["name"] != "traceId",
+                              list(map(lambda item: {"name": item["name"], "type": item["type"]},
+                                       df.schema.jsonValue()["fields"]))))
+    return json.dumps(schema_list, ensure_ascii=False)
 
 
-'''
-args = {
-    "common": {
-        "tranceId": "",
-        "runnerId": "sample_sample_developer_2022-07-04T05:49:39+00:00",
-        "projectId": "Dp10sMiAYXWxRZj",
-        "projectName": "sample",
-        "owner": "16dc4eb5-5ed3-4952-aaed-17b3cc5f638b",
-        "showName": "赵浩博",
-        "tenantId": "zudIcG_17yj8CEUoCTHg"
-    },
-    "shares": [
-        {
-            "target": "ds name", // 共享时的目标DS 名称
-            "targetCat": "catalog | intermediate | uploaded", // 共享时的目标DS的类型  catalog是数据目录  intermediate是结果数据集  uploaded 是上传的数据 都需要分别处理
-            "targetPartitionKeys": [
-                {
-                    "name": "key1",
-                    "type": "string"
-                },
-                {
-                    "name": "key2",
-                    "type": "string"
-                }
-            ],
-            "sourceSelectVersions": ["version1", "version2", "version3"]
-            "source": "ds name", // 共享时的源DS 名称
-        }
-    ]
-}
-'''
+# 将DataFrame统一Schema一致性
+def convert_consistency_schema(df, schema):
+    return df.withColumn("data",
+                         to_json(struct(*[col(c) for c in list(map(lambda item: item["name"], json.loads(schema)))]))) \
+        .withColumn("schema", lit(schema)).select("traceId", "schema", "data")
 
 
+# 对多TraceId取Schema的col的并集
+def convert_union_schema(df):
+    rows = df.select("traceId", "schema").distinct().collect()
+    return list(reduce(lambda schema_pre, schema_next: set(schema_pre).union(set(schema_next)),
+                       list(map(lambda row: [schema["name"] for schema in json.loads(row["schema"])], rows))))
 
 
-# --写入路径
+# 将统一Schema的DF转成正常的DataFrame
+def convert_normal_df(df, cols):
+    return df.select(col("traceId"), json_tuple(col("data"), *cols)).toDF("traceId", *cols)
+
+
 def write_to_path(share_num, mode, df, col_of_partitionBy, path_of_write):
     try:
         df.repartition(share_num).write.format("parquet").mode(mode).partitionBy \
@@ -74,27 +64,26 @@ def get_ds_with_index(dsName, projectId):
 
 
 def execute(**kwargs):
-
-    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
-    spark = kwargs["spark"]()
+    spark = kwargs["spark"]
     ph_share = json.loads(kwargs.get("ph_conf", {}))
     shares = ph_share.get("shares")
     tenantId = ph_share.get("tenantId")
     company = ph_share.get("company")
     sourceProjectId = ph_share.get("projectId")
-    #showName = ph_share.get("showName")
-    #projectName = ph_share.get("projectName")
 
+    lake_path = "s3://ph-platform/2020-11-11/lake"
 
     for shareItem in shares:
-        sourcePath = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{shareItem['source']}"
+        sourcePath = f"{lake_path}/{company}/{sourceProjectId}/{shareItem['source']}"
         #---- get df ------#
         df = spark.read.parquet(sourcePath)
-        df = df.where(df["version"].isin(shareItem["sourceSelectVersions"]))
+        logger.info(shareItem["sourceSelectVersions"])
+        df = df.where(df["traceId"].isin(shareItem["sourceSelectVersions"]))
+        df = convert_normal_df(df, convert_union_schema(df)).drop("traceId")
 
         #---- target Path -----------#
         if shareItem["targetCat"] == "catalog":
-            targetPath = f"s3://ph-platform/2020-11-11/lake/{company}/{tenantId}/{shareItem['target']}"
+            targetPath = f"{lake_path}/{company}/{tenantId}/{shareItem['target']}"
             partitionByCols = [x["name"] for x in shareItem['targetPartitionKeys']]
 
             #---- get schema of target table --------------------#
@@ -106,6 +95,6 @@ def execute(**kwargs):
             else:
                 write_to_path(share_num=1, mode="append", df=df, col_of_partitionBy=partitionByCols, path_of_write=targetPath)
 
-        #TODO intermediate ,uploaded 如果需要后续添加处理逻辑
+        # TODO intermediate ,uploaded 如果需要后续添加处理逻辑
 
     return {'out_df': {}}

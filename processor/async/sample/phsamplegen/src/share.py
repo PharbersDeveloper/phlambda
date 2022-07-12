@@ -126,5 +126,5 @@ def create_share_args(event, ts):
 
     return {
         "args": args,
-        "sm": "s3://ph-platform/2020-11-11/jobs/python/phcli/shareDataSet_dev/share/sm_of_share.json"
+        "sm": "2020-11-11/jobs/python/phcli/shareDataSet_dev/share/sm_of_share.json"
     }

@@ -113,7 +113,7 @@
                 "projectId.$": "$.common.projectId",
                 "owner.$": "$.common.owner",
                 "tenantId.$":"$.common.tenantId",
-                "shares.$":"$.shares",
+                "shares.$":"$.calculate.shares",
                 "errors.$" : "$.error"
             },
             "ResultPath": null,

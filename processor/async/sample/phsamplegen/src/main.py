@@ -6,8 +6,8 @@ from collections import deque
 # from cal import calDatasetPath, calDatasetPathOne
 from sample import create_sample_args
 from share import create_share_args
-from args import *
-from sms import *
+#from args import *
+#from sms import *
 # from args import *
 # from sms import *
 dynamodb = boto3.resource('dynamodb')

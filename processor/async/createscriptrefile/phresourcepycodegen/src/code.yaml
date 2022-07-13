@@ -233,9 +233,14 @@ code:
               "csv": reader_csv,
               "parquet": reader_parquet
           }
+
           df = reader_funcs[suffix]()
+
           if len(versions) != 0:
-              df = df.where(df["traceId"].isin(versions))
+              if suffix == "csv":
+                  df = df.where(df["version"].isin(versions))
+              else:    
+                  df = df.where(df["traceId"].isin(versions))
           return df
 
 

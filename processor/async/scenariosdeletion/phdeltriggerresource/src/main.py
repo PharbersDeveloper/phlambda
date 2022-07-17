@@ -120,4 +120,3 @@ def lambda_handler(event, context):
 
     return {"type": "notification", "opname": event['owner'],
                         "cnotification": {"data": {"datasets": "", "error": result}}}
-

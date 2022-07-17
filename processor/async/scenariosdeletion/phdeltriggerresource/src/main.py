@@ -73,6 +73,21 @@ class DelTriggerRule(object):
             all_triggers = self.Flatten_Data_Of_List(list(map(lambda x: x["triggers"], self.scenario)))
         return all_triggers
 
+    def s3_bucket_notification(self, **kwargs):
+        projectId = kwargs.get("projectId")
+        dsNames = kwargs.get("dsNames")
+        keys = list(map(lambda ds_name: f'2020-11-11/lake/pharbers/{projectId}/{ds_name}/', dsNames))
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket('ph-platform')
+        bucket_notification = s3.BucketNotification('ph-platform')
+        response = bucket_notification.put(
+            NotificationConfiguration={
+                'TopicConfigurations': []
+            },
+            SkipDestinationValidation=True
+        )
+        for key in keys:
+            bucket.objects.filter(Preifx=key).delete()
 
     def DeleteEachTriggerResource(self):
 
@@ -82,6 +97,10 @@ class DelTriggerRule(object):
 
         for trigger in all_triggers:
             triggerId = trigger["id"]
+            mode = trigger.get("mode")
+            if mode == "s3event":
+                self.s3_bucket_notification(**trigger)
+                return
             #scenarioId = trigger["scenarioId"]
             eachStackName = self.get_stackName(triggerId)
             #------------ delete trigger resource ---------#
@@ -101,4 +120,3 @@ def lambda_handler(event, context):
 
     return {"type": "notification", "opname": event['owner'],
                         "cnotification": {"data": {"datasets": "", "error": result}}}
-

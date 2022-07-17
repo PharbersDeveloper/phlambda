@@ -178,7 +178,6 @@ def lambda_handler(event, context):
                                    tenantId=args["common"]["tenantId"])
     #---------------------- 埋点 -------------------------------------#
 
-
     return {
         "statusCode": 200,
         "headers": {

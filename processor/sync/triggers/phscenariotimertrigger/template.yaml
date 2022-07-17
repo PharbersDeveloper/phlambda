@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
-      FunctionName: phscenariotimertrigger
+      FunctionName: lmd-phscenariotimertrigger
       Description: "event bridge调用 触发stepfunction scenario-trigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

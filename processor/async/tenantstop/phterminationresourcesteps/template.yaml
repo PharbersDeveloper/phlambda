@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phterminationresourcesteps-V2
+      FunctionName: phterminationresourcesteps
       MemorySize: 1024
       Description: "phterminationresourcesteps"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

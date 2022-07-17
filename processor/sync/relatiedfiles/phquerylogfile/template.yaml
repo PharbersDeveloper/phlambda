@@ -7,16 +7,12 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phquerylogfile-V2
+      FunctionName: phquerylogfile
       Description: "phquerylogfile-V2 "
       MemorySize: 512
-      Environment:
-        Variables:
-          EDITION: "V2"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
 

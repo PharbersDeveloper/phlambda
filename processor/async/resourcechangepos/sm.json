@@ -13,7 +13,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -72,7 +72,7 @@
                "States": {
                   "NewDagIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedag-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposupdatedag",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -92,7 +92,7 @@
                "States": {
                   "NewScriptIndex": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposupdatedagconf-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposupdatedagconf",
                      "Parameters": {
                         "traceId.$": "$.common.traceId",
                         "projectId.$": "$.common.projectId",
@@ -133,7 +133,7 @@
       },
       "UpdateNewItems": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposexecutionupdate-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposexecutionupdate",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -207,7 +207,7 @@
          "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
             "Input.$": "$.scriptChangeArgs",
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:createscriptrefile"
          },
          "ResultPath": null,
          "Next": "ExecutionCodeGen",
@@ -240,7 +240,7 @@
          "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
             "Input.$": "$.scriptChangeArgs",
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:create-script-file"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:createscriptrefile"
          },
          "ResultPath": null,
          "Next": "CopyScriptFile",
@@ -270,7 +270,7 @@
       },
       "CopyScriptFile": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangecopyscript-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangecopyscript",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -310,7 +310,7 @@
          "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
             "Input.$": "$.scriptChangeArgs.codeGenArgs",
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resource-code-gen"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcecodegen"
          },
          "ResultPath": null,
          "Next": "SuccessMessage",
@@ -340,7 +340,7 @@
       },
       "SuccessMessage": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangepossuccessmsg-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangepossuccessmsg",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -371,7 +371,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcechangeposcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposcleanup",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

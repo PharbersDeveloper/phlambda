@@ -7,11 +7,10 @@ Resources:
     Properties:
       Handler: main.lambdaHandler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:redis:1
-      FunctionName: lmd-phusercodecheck-V2
+      FunctionName: phusercodecheck
       Description: "判断用户发送的验证码是否正确"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

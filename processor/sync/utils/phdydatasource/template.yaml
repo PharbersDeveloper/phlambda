@@ -7,15 +7,11 @@ Resources:
     Properties:
       Handler: app.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      Environment:
-        Variables:
-          EDITION: "V2"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
-      FunctionName: lmd-phdydatasource-V2
+      FunctionName: phdydatasource
       MemorySize: 1024
       Description: "DynamoDB数据查询"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

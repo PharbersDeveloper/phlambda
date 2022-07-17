@@ -9,7 +9,7 @@
     },
     "ArgsValidation": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootargsvalidation-dev",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresbootargsvalidation",
       "ResultPath": null,
       "Next": "Actions",
       "Catch": [
@@ -64,7 +64,7 @@
     },
     "CodeeditorMate": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootmate-dev",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresbootmate",
       "Parameters": {
         "tenantId.$": "$.common.tenantId",
         "traceId.$": "$.common.traceId",
@@ -88,7 +88,7 @@
     },
     "AddArgs": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootaddargs-dev",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresbootaddargs",
       "Parameters": {
         "parameters.$": "$.currentStep.parameters",
         "ClusterID.$": "$.tenantInfo.engine.ClusterID"
@@ -261,7 +261,7 @@
     },
     "CleanUp": {
       "Type": "Task",
-      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phpersonalresbootcleanup-dev",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phpersonalresbootcleanup",
       "Parameters": {
         "traceId.$": "$.common.traceId",
         "projectId.$": "$.common.projectId",

@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresdeletiondsresource-V2
+      FunctionName: phresdeletiondsresource
       MemorySize: 1024
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:clickhouse_driver:1

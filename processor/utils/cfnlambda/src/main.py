@@ -7,7 +7,7 @@ import datetime
 client = boto3.client('cloudformation')
 
 '''
-# cloud formation stack 创建与删除
+# cloud formation stack 创建与删除 002
 
 args:
     event = {

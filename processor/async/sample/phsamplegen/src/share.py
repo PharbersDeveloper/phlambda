@@ -1,6 +1,21 @@
 import boto3
 import json
 
+'''
+args = {
+        "runnerId.$": "$.common.runnerId",
+        "projectId.$": "$.common.projectId",
+        "projectName.$": "$.common.projectName",
+        "owner.$": "$.common.owner",
+        "showName.$": "$.common.showName",
+        "engine.$": "$.engine",
+        "calculate.$": "$.calculate",
+        "tenantId.$": "$.common.tenantId"
+      }
+'''
+
+
+
 dynamodb = boto3.resource('dynamodb')
 
 def put_notification(runnerId, projectId, category, code, comments, date, owner, showName,
@@ -47,13 +62,13 @@ def create_share_args(event, ts):
     tenantIp = event['engine']['dss']['ip']
     ph_conf = {}
 
-    ph_conf.update({"share": conf.get("share")})
+    ph_conf.update({"shares": conf.get("shares")})
     ph_conf.update({"company": "pharbers"})
-    ph_conf.update({"tenantId": "share_test"})
     ph_conf.update({"owner": event["owner"]})
     ph_conf.update({"showName": event["showName"]})
+    ph_conf.update({"projectId": event.get("projectId")})
+    ph_conf.update({"tenantId": event.get("tenantId")})
     ph_conf.update({"projectName": event.get("projectName")})
-    #ph_conf.update({"tenantId": event.get("tenantId")})
 
 
     args = {
@@ -62,8 +77,10 @@ def create_share_args(event, ts):
             "projectId": event["projectId"],
             "projectName": event["projectName"],
             "owner": event["owner"],
-            "showName": event["showName"]
+            "showName": event["showName"],
+            "tenantId": event["tenantId"]
         },
+        "shares": conf.get("shares"),
         "compute_share": {
             "name": "compute_share",
             "type": "spark-submit",
@@ -106,7 +123,8 @@ def create_share_args(event, ts):
         }
     }
 
+
     return {
         "args": args,
-        "sm": "s3://ph-platform/2020-11-11/jobs/python/phcli/shareDataSet_dev/share/sm_of_share.json"
+        "sm": "2020-11-11/jobs/python/phcli/shareDataSet_dev/share/sm_of_share.json"
     }

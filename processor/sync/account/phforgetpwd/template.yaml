@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambdaHandler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phforgetpwd-V2
+      FunctionName: phforgetpwd
       Description: "在未知密码情况下给用户发送邮件修改密码"
       MemorySize: 512
       Layers:

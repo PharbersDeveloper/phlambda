@@ -7,15 +7,14 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phtriggersresource-dev
+      FunctionName: phtriggersresources
       MemorySize: 1024
       Description: "phtriggersresources"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
           EDITION: "DEV"
-          TARGETARN: "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotimertrigger-dev:Current"
+          TARGETARN: "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotimertrigger"
           TEMPLATEURL: "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/jobs/statemachine/pharbers/template/scenario-timer-cfn.yaml"
 

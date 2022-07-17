@@ -49,7 +49,7 @@ return:
     }
 '''
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml"
-git_url = "http://hbzhao:123456@192.168.53.179:7990/scm/lgc/phlambda.git"
+git_url = "http://cicd:Abcde196125@192.168.53.179:7990/scm/lgc/phlambda.git"
 buildSpec = "lmdAndApiBuildspec"
 
 

@@ -7,14 +7,10 @@ Resources:
     Properties:
       Handler: app.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      Environment:
-        Variables:
-          EDITION: "DEV"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
-      FunctionName: lmd-phcomputedeletionimpact-V2
+      FunctionName: phcomputedeletionimpact
       MemorySize: 1024
       Description: "计算删除DS产生的影响"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

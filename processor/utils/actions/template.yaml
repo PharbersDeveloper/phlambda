@@ -13,7 +13,7 @@ Resources:
         Variables:
           EDITION: "V2"
       FunctionName: lmd-phutilsactions-V2
-      Description: "处理Action参数并写入DynamoDB，只做Action表的记录"
+      Description: "11111"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 600

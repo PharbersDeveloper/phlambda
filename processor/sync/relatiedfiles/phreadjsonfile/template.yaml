@@ -7,15 +7,11 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
 #      Layers:
 #        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:ph-schema-explorer:3
-      FunctionName: lmd-phreadjsonfile-dev
+      FunctionName: phreadjsonfile
       Description: "phreadjsonfile-dev "
       MemorySize: 512
-      Environment:
-        Variables:
-          EDITION: "DEV"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 30

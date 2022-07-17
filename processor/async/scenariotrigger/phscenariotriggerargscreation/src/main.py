@@ -161,7 +161,7 @@ def create_trigger_args(trigger_datasets, event):
     calculate["name"] = jobShowName
     calculate["conf"]["datasets"] = trigger_datasets
     calculate["conf"]["scripts"] = []
-    calculate["conf"]["userConf"] = event["scenarioStep"]["confData"]
+    calculate["conf"]["userConf"] = json.loads(event["scenarioStep"]["confData"])
     calculate["conf"]["ownerId"] = event["owner"]
     calculate["conf"]["showName"] = event["showName"]
     calculate["conf"]["jobDesc"] = "runDag" + str(int(round(time.time() * 1000)))

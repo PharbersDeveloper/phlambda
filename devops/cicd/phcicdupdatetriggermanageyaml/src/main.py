@@ -96,7 +96,7 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def write_api_resource(apiGateWayArgs, version):
+def write_api_resource(apiGateWayArgs, version, runtime):
     methods = apiGateWayArgs["methods"]
     methods.insert(0, "Init")
 
@@ -107,22 +107,31 @@ def write_api_resource(apiGateWayArgs, version):
             apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml", "r")
-        f2.write("  " + version.replace("-", "").upper() + method.upper() + "METHOD:\n")
+        f2.write("  " + runtime.upper() + version.replace("-", "").upper() + method.upper() + "METHOD:\n")
         for line in f1.readlines():
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", apiGateWayArgs["PathPart"])
                      .replace("${ParentId}", apiGateWayArgs["ParentId"])
                      .replace("${ReplaceLmdName}", apiGateWayArgs["LmdName"] + ":" + version)
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
-                     .replace("${ReplaceResource}", version.replace("-", "").upper() +"INITMETHOD")
+                     .replace("${ReplaceResource}", runtime.upper() + version.replace("-", "").upper() +"INITMETHOD")
                      )
         f1.close()
     f2.close()
 
 
+def copy_manage_resource(bucket_name, prefix):
+    copy_source = {
+        'Bucket': bucket_name,
+        'Key': prefix + "/manage.yaml"
+    }
+    s3_resource.meta.client.copy(copy_source, bucket_name, prefix + "/manage_back.yaml")
+
+
 def lambda_handler(event, context):
     print(event)
     apiGateWayArgs = event["apiGateWayArgs"]
+    runtime = event["runtime"]
     # 2 下载manage template文件
     download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
     # 判断manage.yaml文件是否存在 存在则下载 对此文件进行更改
@@ -131,6 +140,7 @@ def lambda_handler(event, context):
         download_s3_file("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" +
                          event["trigger"]["functionName"] + "/manage.yaml",
                          mangeLocalPath)
+        copy_manage_resource("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"])
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
@@ -193,7 +203,7 @@ def lambda_handler(event, context):
     f1.close()
 
     # 5 将 api 相关信息写入到 manage中
-    write_api_resource(apiGateWayArgs, event["version"])
+    write_api_resource(apiGateWayArgs, event["version"], runtime)
     os.system("touch " + dealMangeLocalPath)
     m = open(mangeLocalPath, "a+")
     m.write("Transform: AWS::Serverless-2016-10-31")

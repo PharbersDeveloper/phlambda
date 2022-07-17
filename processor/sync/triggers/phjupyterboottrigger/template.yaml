@@ -7,12 +7,11 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
-      FunctionName: lmd-phjupyterboottrigger-V2
+          EDITION: "DEV"
+      FunctionName: phjupyterboottrigger
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Description: "启动集群"

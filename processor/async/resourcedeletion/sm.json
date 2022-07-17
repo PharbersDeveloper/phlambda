@@ -9,7 +9,7 @@
        },
        "ArgsValidation": {
            "Type": "Task",
-           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionargsvalidation-dev",
+           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionargsvalidation",
            "ResultPath": null,
            "Next": "Actions",
            "Catch": [
@@ -84,7 +84,7 @@
        },
        "DeletionRelations": {
            "Type": "Task",
-           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionrelations-dev",
+           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionrelations",
            "Parameters": {
                "traceId.$": "$.common.traceId",
                "projectId.$": "$.common.projectId",
@@ -108,7 +108,7 @@
                    "States": {
                        "DSDeletion": {
                            "Type": "Task",
-                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletiondsindex-dev",
+                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletiondsindex",
                            "Parameters": {
                                "traceId.$": "$.common.traceId",
                                "projectId.$": "$.common.projectId",
@@ -123,7 +123,7 @@
                        },
                        "DSResourceDeletion": {
                            "Type": "Task",
-                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletiondsresource-dev",
+                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletiondsresource",
                            "Parameters": {
                                "traceId.$": "$.common.traceId",
                                "projectId.$": "$.common.projectId",
@@ -143,7 +143,7 @@
                    "States": {
                        "ScriptDeletion": {
                            "Type": "Task",
-                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionscriptindex-dev",
+                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionscriptindex",
                            "Parameters": {
                                "traceId.$": "$.common.traceId",
                                "projectId.$": "$.common.projectId",
@@ -158,7 +158,7 @@
                        },
                        "ScriptResourceDeletion": {
                            "Type": "Task",
-                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionscriptresource-dev",
+                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionscriptresource",
                            "Parameters": {
                                "traceId.$": "$.common.traceId",
                                "projectId.$": "$.common.projectId",
@@ -173,7 +173,7 @@
                        },
                        "StepsDeletion": {
                         "Type": "Task",
-                        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionstepindex-dev",
+                        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionstepindex",
                         "Parameters": {
                             "traceId.$": "$.common.traceId",
                             "projectId.$": "$.common.projectId",
@@ -193,7 +193,7 @@
                    "States": {
                        "LinksDeletion": {
                            "Type": "Task",
-                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionlinksindex-dev",
+                           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionlinksindex",
                            "Parameters": {
                                "traceId.$": "$.common.traceId",
                                "projectId.$": "$.common.projectId",
@@ -250,7 +250,7 @@
        },
        "CleanUp": {
            "Type": "Task",
-           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresdeletionfailedcleanup-dev",
+           "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresdeletionfailedcleanup",
            "Parameters": {
                "traceId.$": "$.common.traceId",
                "projectId.$": "$.common.projectId",

@@ -8,7 +8,7 @@
         },
         "ComputeShareStartHook": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -23,7 +23,7 @@
         },
         "CheckSchema": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckschema-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcheckschema",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -75,7 +75,7 @@
         },
         "UpdateDataSetIndex": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phupdatedsindex-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phupdatedsindex",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -90,7 +90,7 @@
         },
         "ComputeShareEndHook": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
             "Parameters": {
                 "runnerId.$": "$.common.runnerId",
                 "projectId.$": "$.common.projectId",
@@ -107,7 +107,7 @@
         },
         "CleanUp": {
             "Type": "Task",
-            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsharedscleanup-dev:Current",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsharedscleanup",
             "Parameters": {
                 "projectId.$": "$.common.projectId",
                 "owner.$": "$.common.owner",

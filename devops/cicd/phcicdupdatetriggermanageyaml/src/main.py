@@ -98,7 +98,7 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, lmdName):
+def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath):
     methods = apiGateWayArgs["methods"]
     methods.insert(0, "Init")
 

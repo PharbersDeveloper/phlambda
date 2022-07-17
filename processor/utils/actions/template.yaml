@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: cicd lambda utilsnotification-V2
+Description: cicd lambda
 Resources:
   ATTFFunction:
     Type: AWS::Serverless::Function
@@ -11,9 +11,14 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
-      FunctionName: lmd-phutilsactions-V2
-      Description: "11111"
+          EDITION: "release"
+      FunctionName: actions
+      Description: "对DynamoDB Action操作"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       MemorySize: 1024
       Timeout: 600
+      Tags:
+        edition: release
+        owner: pqian
+        version: release
+        api: v2

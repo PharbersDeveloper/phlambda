@@ -133,6 +133,7 @@ code:
           choose_schema_type <- list(
               string="string",
               double="double",
+              float="double",
               long="long",
               bigint="long"
           )
@@ -155,6 +156,7 @@ code:
           choose_schema_function <- list(
               string = transform_string,
               double = transform_number,
+              float = transform_number,
               long = transform_number,
               bigint = transform_number
           )

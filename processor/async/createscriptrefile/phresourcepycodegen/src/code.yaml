@@ -91,6 +91,7 @@ code:
           choose_schema_type = {
               "string": StringType(),
               "double": DoubleType(),
+              "float": DoubleType(),
               "long": LongType(),
               "bigint": LongType()
           }
@@ -111,6 +112,7 @@ code:
           choose_schema_func = {
               "string": transform_string,
               "double": transform_number,
+              "float": transform_number,
               "long": transform_number,
               "bigint": transform_number
           }

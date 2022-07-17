@@ -12,7 +12,7 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       FunctionName: phresourcesynccreation
       MemorySize: 1024
-      Description: "创建pyspark脚本"
+      Description: "创建PySpark Sync脚本"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:

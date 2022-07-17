@@ -13,9 +13,14 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcecreation
-          EDITION: "DEV"
+          EDITION: "release"
       FunctionName: phresourcecreationtrigger
       Description: Http Post接口触发StepFunctions创建资源（ResuourceCreation）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600
+      Tags:
+        edition: release
+        owner: pqian
+        version: release
+        api: v2

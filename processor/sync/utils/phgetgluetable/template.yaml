@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: phgetgluetable.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1
+      FunctionName: phgetgluetable
+      Description: "获取glue数据库table name"
+      MemorySize: 512
+      Environment:
+        Variables:
+          EDITION: "release"
+      Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles
+      Timeout: 120

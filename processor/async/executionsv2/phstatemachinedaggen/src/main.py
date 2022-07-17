@@ -44,6 +44,7 @@ def build_execution_process(event, ts, dynamodb):
 
 
 def lambda_handler(event, context):
+    # cicd 0717 1206
     print(event)
     dt = datetime.now()
     ts = datetime.timestamp(dt)

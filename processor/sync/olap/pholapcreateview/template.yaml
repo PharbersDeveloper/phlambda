@@ -13,6 +13,11 @@ Resources:
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 30
+      Tags:
+        edition: release
+        owner: pqian
+        version: Beta
+        api: v2
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

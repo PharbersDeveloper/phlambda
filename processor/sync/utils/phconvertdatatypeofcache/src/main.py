@@ -108,7 +108,7 @@ class ConvertDataTypesOfCache:
 
         #Changescheam = list(map(lambda x: converSchema(x, colItem), Originalschema))
         #ds_Item["schema"] = Changescheam if isinstance(Changescheam, str) else json.dumps(Changescheam)
-        ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema)
+        ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema, ensure_ascii=False)
         print("*"*50+"now schema " + "*"*50)
         print(ds_Item)
         #-- put item to ds --#

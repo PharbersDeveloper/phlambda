@@ -1,0 +1,122 @@
+{
+    "Comment": "demo_demo_developer",
+    "StartAt": "StateMachineStartHook",
+    "States": {
+        "StateMachineStartHook": {
+            "Type": "Pass",
+            "Next": "ComputeShareStartHook"
+        },
+        "ComputeShareStartHook": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "jobName": "compute_share",
+                "status": "running"
+            },
+            "ResultPath": null,
+            "Next": "CheckSchema"
+        },
+        "CheckSchema": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcheckschema-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares"
+            },
+            "ResultPath": null,
+            "Next": "ComputeShare"
+        },
+        "ComputeShare": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:states:::elasticmapreduce:addStep.sync",
+            "Parameters": {
+                "ClusterId.$": "$.compute_share.clusterId",
+                "Step": {
+                    "Name": "compute_share",
+                    "ActionOnFailure": "CONTINUE",
+                    "HadoopJarStep.$": "$.compute_share.HadoopJarStep"
+                }
+            },
+            "ResultPath": "$.emrRes",
+            "Next": "UpdateDataSetIndex",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.Runtime"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.TaskFailed"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                },
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "ResultPath": "$.error",
+                    "Next": "CleanUp"
+                }
+            ]
+        },
+        "UpdateDataSetIndex": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phupdatedsindex-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares"
+            },
+            "ResultPath": null,
+            "Next": "ComputeShareEndHook"
+        },
+        "ComputeShareEndHook": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phstatemachinejobhook-dev:Current",
+            "Parameters": {
+                "runnerId.$": "$.common.runnerId",
+                "projectId.$": "$.common.projectId",
+                "projectName.$": "$.common.projectName",
+                "owner.$": "$.common.owner",
+                "showName.$": "$.common.showName",
+                "stepId.$": "$.emrRes.Step.Id",
+                "clusterId.$": "$.compute_share.clusterId",
+                "jobName": "compute_share",
+                "status": "success"
+            },
+            "ResultPath": null,
+            "End": true
+        },
+        "CleanUp": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phsharedscleanup-dev:Current",
+            "Parameters": {
+                "projectId.$": "$.common.projectId",
+                "owner.$": "$.common.owner",
+                "tenantId.$": "$.common.tenantId",
+                "shares.$": "$.shares",
+                "errors.$": "$.error"
+            },
+            "ResultPath": null,
+            "End": true
+        }
+    }
+}

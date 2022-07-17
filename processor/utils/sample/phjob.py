@@ -1,193 +1,229 @@
 # -*- coding: utf-8 -*-
-"""alfredyang@pharbers.com.
 
-This is job template for Pharbers Max Job
-"""
-
-import boto3
 import json
-import time
+import boto3
 
-import re
-from functools import reduce
-from pyspark.sql.functions import lit, col, struct, to_json, json_tuple
-from pyspark.sql.types import StructType, StringType
+from pyspark.sql.types import StructType, StringType, DoubleType, LongType
+from pyspark.sql.functions import lit, col, struct, to_json, json_tuple, when, split
 from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+from functools import reduce
 from clickhouse_driver import Client
 from boto3.dynamodb.conditions import Key
 
+dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
-def execute(**kwargs):
-    logger = phs3logger(kwargs["job_id"], LOG_DEBUG_LEVEL)
-    dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
 
-    # 对多TraceId取Schema的col的并集（暂时先不管类型）
-    def convert_union_schema(df):
-        rows = df.select("traceId", "schema").distinct().collect()
-        return list(reduce(lambda pre, next: set(pre).union(set(next)), list(map(lambda row: [schema["name"] for schema in json.loads(row["schema"])], rows))))
+# 解决在读取中间型DF Schema Type冲突后的选择
+# 在同Schema Col类型冲突后优先选择非String类型的描述 list(filter(lambda item: item["type"] != "String", values))
+# 这部分在后续扩展时不是很友好，原因是后续会扩展很多类型
+def conflict_schema_type_resolve(df):
+    from itertools import groupby
+    rows = df.select("traceId", "schema").distinct().withColumn("__run_id", split("traceId", "\+00:00")[0]).orderBy(
+        "__run_id", ascending=True).collect()
+    schema_strs = list(reduce(lambda schema_pre, schema_next: set(schema_pre).union(set(schema_next)),
+                              list(map(lambda row: [f"{schema['name']}:{schema['type']}" for schema in
+                                                    json.loads(row["schema"])], rows))))
+    group_schemas = groupby(
+        list(map(lambda item: {"src": item.split(":")[0], "type": item.split(":")[1].capitalize()}, schema_strs)),
+        key=lambda x: x["src"])
+    schemas = []
+    for key, group in group_schemas:
+        values = list(group)
+        if len(values) > 1:
+            values = list(filter(lambda item: item["type"] != "String", values))
+        schemas += values
+    return schemas
 
-    # 将统一Schema的DF转成正常的DataFrame
-    def convert_normal_df(df, cols):
-        return df.select(col("traceId"),json_tuple(col("data"), *cols)) \
-            .toDF("traceId", *cols)
 
-    def get_ds_with_index(dsName, projectId):
+# 根据Schema类型转换DF类型
+def transform_schema_type(df, schemas):
+    pattern = "^-?[0-9]*.?[0-9]*$rep"
 
-        ds_table = dynamodb_resource.Table('dataset')
-        res = ds_table.query(
-            IndexName='dataset-projectId-name-index',
-            KeyConditionExpression=Key("projectId").eq(projectId)
-                                   & Key("name").begins_with(dsName)
-        )
-        return res["Items"][0]
+    choose_schema_type = {
+        "string": StringType(),
+        "double": DoubleType(),
+        "long": LongType(),
+        "bigint": LongType()
+    }
 
-    def uploaded_s3_df(lake_prefix, name, project_id):
+    def transform_number(default="double"):
+        transform_df = df.withColumn(f"""__{item["src"]}_type""",
+                                     when(col(item["src"]).rlike(pattern), "true").when(col(item["src"]).isNull(),
+                                                                                        "true").otherwise("false"))
+        if transform_df.filter(f"""`__{item["src"]}_type` = 'false'""").count() == 0:
+            transform_df = transform_df.withColumn(item["src"], col(item["src"]).cast(choose_schema_type[default]))
+        else:
+            transform_df = transform_df.withColumn(item["src"], col(item["src"]).cast(StringType()))
+        return transform_df
 
-        schemas = json.loads(get_ds_with_index(name, project_id).get("schema"))
-        schema_type = StructType()
+    def transform_string(default="string"):
+        return df.withColumn(item["src"], col(item["src"]).cast(choose_schema_type[default]))
 
-        for item in schemas:
-            schema_type = schema_type.add(item["src"], StringType())
+    choose_schema_func = {
+        "string": transform_string,
+        "double": transform_number,
+        "long": transform_number
+    }
 
-        reader = spark.read.schema(schema_type)
-
-        df = reader.csv(f"{lake_prefix}{project_id}/{name}")
-        logger.debug("从s3读取df")
-        logger.debug(df.count())
-        logger.debug("从s3读取df")
-        # if len(version) != 0:
-        #     df = df.where(df["version"].isin(version))
-        # logger.debug(df.count())
+    types = list(set(map(lambda item: item["type"].lower(), schemas)))
+    if len(types) == 1 and types[0] == "string":
         return df
 
-    def deleteTableSql(table, database='default'):
-        sql_content = f"DROP TABLE IF EXISTS {database}.`{table}`"
-        return sql_content
-
-    def clickhouse_client(projectIp):
-
-        ch_client = Client(
-            host=projectIp
-        )
-
-        return ch_client
-
-    def createClickhouseTableSql(df, table_name, database='default', order_by='', partition_by='version'):
-        def getSchemeSql(df):
-            file_scheme = df.dtypes
-            sql_scheme = ""
-            for i in file_scheme:
-                if i[0] in [order_by, partition_by]:
-                    # 主键和分区键不支持null
-                    coltype = i[1].capitalize()
-                else:
-                    coltype = f"Nullable({i[1].capitalize()})"
-                sql_scheme += f"`{i[0]}` {coltype},"
-            sql_scheme = re.sub(r",$", "", sql_scheme)
-            return sql_scheme
-        return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({getSchemeSql(df)}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
+    for item in schemas:
+        df = choose_schema_func[item["type"].lower()](item["type"].lower()).drop(f"""__{item["src"]}_type""")
+    return df
 
 
-    def put_dynamodb_item(table_name, item):
-        table = dynamodb_resource.Table(table_name)
-        table.put_item(
-            Item=item
-        )
-
-    def put_scheme_to_dataset(output_name, project_id, schema_list, output_version):
-
-        table_name = "dataset"
-        dataset_item = get_ds_with_index(output_name, project_id)
-        dataset_item.update({"schema": json.dumps(schema_list, ensure_ascii=False)})
-        dataset_item.update({"version": json.dumps(output_version, ensure_ascii=False)})
-        put_dynamodb_item(table_name, dataset_item)
-
-    def putOutputSchema(output_name, project_id, df, output_version):
-
-        def getSchemaSql(df):
-            schema_list = []
-            file_scheme = df.dtypes
-            for i in file_scheme:
-                schema_map = {}
-                schema_map["src"] = i[0]
-                schema_map["des"] = i[0]
-                schema_map["type"] = i[1].capitalize().replace('Int', 'Double')
-                schema_list.append(schema_map)
-            return schema_list
-
-        schema_list = getSchemaSql(df)
-        res = put_scheme_to_dataset(output_name, project_id, schema_list, output_version)
+# 获取DataFrame Schema转JSON字符串
+def get_df_schema2json(df):
+    schema_list = list(filter(lambda item: item["name"] != "traceId",
+                              list(map(lambda item: {"name": item["name"], "type": item["type"]},
+                                       df.schema.jsonValue()["fields"]))))
+    return json.dumps(schema_list, ensure_ascii=False)
 
 
-    spark = kwargs["spark"]()
+# 将DataFrame统一Schema一致性
+def convert_consistency_schema(df, schema):
+    return df.withColumn("data",
+                         to_json(struct(*[col(c) for c in list(map(lambda item: item["name"], json.loads(schema)))]))) \
+        .withColumn("schema", lit(schema)).select("traceId", "schema", "data")
+
+
+# 对多TraceId取Schema的col的并集
+def convert_union_schema(df):
+    rows = df.select("traceId", "schema").distinct().collect()
+    return list(reduce(lambda schema_pre, schema_next: set(schema_pre).union(set(schema_next)),
+                       list(map(lambda row: [schema["name"] for schema in json.loads(row["schema"])], rows))))
+
+
+# 将统一Schema的DF转成正常的DataFrame
+def convert_normal_df(df, cols):
+    return df.select(col("traceId"), json_tuple(col("data"), *cols)).toDF("traceId", *cols)
+
+
+# 根据DynamoDB index查询
+def get_ds_with_index(ds_name, project_id):
+    ds_table = dynamodb_resource.Table("dataset")
+    return ds_table.query(
+        IndexName="dataset-projectId-name-index",
+        KeyConditionExpression=Key("projectId").eq(project_id) & Key("name").begins_with(ds_name)
+    )["Items"][0]
+
+
+# DynamoDB增加更新操作
+def put_dynamodb_item(table_name, item):
+    table = dynamodb_resource.Table(table_name)
+    table.put_item(Item=item)
+
+
+# 读取S3文件转为DF
+def s3_to_df(spark, suffix, path, options=None):
+    def reader_csv():
+        if options:
+            return spark.read.schema(options).csv(path)
+        return spark.read.csv(path, header=True)
+
+    def reader_parquet():
+        return spark.read.parquet(path)
+
+    reader_funcs = {
+        "csv": reader_csv,
+        "parquet": reader_parquet
+    }
+    df = reader_funcs[suffix]()
+    # if len(versions) != 0:
+    #     df = df.where(df["traceId"].isin(versions))
+    return df
+
+
+# 针对Uploaded的类型处理
+def load_uploaded_s3_df(spark, path, schemas=None):
+    suffix = "csv"
+    schema_type = StructType()
+    for item in schemas:
+        schema_type = schema_type.add(item["src"], StringType())
+    return transform_schema_type(s3_to_df(spark, suffix, path, schema_type), schemas)
+
+
+# intermediate Parquet
+def load_intermediate_df(spark, path, schemas=None):
+    suffix = "parquet"
+    df = s3_to_df(spark, suffix, path)
+    parquet_df = convert_normal_df(df, convert_union_schema(df)).drop("traceId")
+    return transform_schema_type(parquet_df, conflict_schema_type_resolve(df))
+
+
+# Catalog Parquet
+def load_catalog_df(spark, path, schemas=None):
+    suffix = "parquet"
+    return transform_schema_type(s3_to_df(spark, suffix, path), schemas)
+
+
+read_data_cat = {
+    "uploaded": load_uploaded_s3_df,
+    "intermediate": load_intermediate_df,
+    "catalog": load_catalog_df
+}
+
+
+# build Create Sql
+def build_create_sql(df, table_name, database="default", order_by="", partition_by="version"):
+    sql_cols = list(map(lambda item: f"`{item[0]}` {item[1].capitalize()}" if item[0] in [order_by, partition_by]
+    else f"`{item[0]}` Nullable({item[1].capitalize()})", df.dtypes))
+    sql_schema = ",".join(sql_cols)
+    return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({sql_schema}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
+
+
+def execute(**kwargs):
+    logger = phs3logger("sample_log", LOG_DEBUG_LEVEL)
+    spark = kwargs["spark"]
     tenantIp = kwargs.get("tenant_ip")
     ph_conf = json.loads(kwargs.get("ph_conf", {}))
     sourceProjectId = ph_conf.get("sourceProjectId")
     targetProjectId = ph_conf.get("targetProjectId")
-
-    projectName = ph_conf.get("projectName")
     datasetName = ph_conf.get("datasetName")
-    datasetId = ph_conf.get("datasetId")
     datasetType = ph_conf.get("datasetType")
     sample = ph_conf.get("sample")
-    owner = ph_conf.get("showName")
-    company = ph_conf.get("company")
-    version = owner + "_" + datasetName + "_" + time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime())
+    tenant = ph_conf.get("company")
+    lake_prefix = f"s3://ph-platform/2020-11-11/lake/{tenant}/"
+    path = f"{lake_prefix}{sourceProjectId}/{datasetName}/"
 
-    path = f"s3://ph-platform/2020-11-11/lake/{company}/{sourceProjectId}/{datasetName}/"
+    schemas = json.loads(get_ds_with_index(datasetName, sourceProjectId).get("schema"))
 
-    logger.debug("datasetType")
-    # 从s3 读取数据
-    # 1 uploaded
-    if datasetType == "uploaded":
-        logger.debug("uploaded sample")
-        lake_prefix = f"s3://ph-platform/2020-11-11/lake/{company}/"
-        logger.debug(lake_prefix)
-        df = uploaded_s3_df(lake_prefix, datasetName, sourceProjectId)
-        logger.debug(df.count())
-    # 2 intermediate
-    if datasetType == "intermediate":
-        logger.debug("intermediate sample")
-        df = spark.read.parquet(path)
-        df = convert_normal_df(df, convert_union_schema(df))
-        logger.debug(df.count())
-    # 3 catalog
-    if datasetType == "catalog":
-        df = spark.read.parquet(path)
+    df = read_data_cat[datasetType](spark, path, schemas)
 
     # 按照 sample 对数据进行处理
     df_sample = sample.split("_")[0]
     df_count = sample.split("_")[1]
-    if df_sample == "F":
-        sample_df = df.limit(int(df_count) * 10000)
-    elif df_sample == "R":
+
+    def sample_first():
+        return df.limit(int(df_count) * 10000)
+
+    def sample_random():
         fraction = float(int(df_count) * 20000 / df.count())
         if fraction >= 1.0:
             fraction = 1.0
-        sample_df = df.sample(withReplacement=False, fraction=fraction)
-        sample_df = sample_df.limit(int(df_count) * 10000)
+        return df.sample(withReplacement=False, fraction=fraction).limit(int(df_count) * 10000)
 
-    sample_df = sample_df.na.fill("None")
+    sample_strategy = {
+        "F": sample_first,
+        "R": sample_random
+    }
 
-    logger.debug("sample_df 创建完成")
-    logger.debug(sample_df.count())
-    # 获取projectip
-    logger.debug("ip 获取完成")
-    logger.debug(tenantIp)
-    # 创建clickhouse client
-    ch_client = clickhouse_client(tenantIp)
-    # 如果表已经存在 删除已有的表
+    sample_df = sample_strategy[df_sample]().na.fill("None").drop("traceId")
+
+    # 创建ClickHouse Client
+    ch_client = Client(host=tenantIp)
+
     table_name = targetProjectId + "_" + datasetName
-    delete_sql = deleteTableSql(table_name)
-    ch_client.execute(delete_sql)
+    ch_client.execute(f"DROP TABLE IF EXISTS default.`{table_name}`")
 
-    # 创建创表语句
-    sql_create_table = createClickhouseTableSql(sample_df, table_name)
-    logger.debug(sql_create_table)
-    ch_client.execute(sql_create_table)
+    create_sql = build_create_sql(sample_df, table_name)
+    logger.debug(create_sql)
+    ch_client.execute(create_sql)
 
-    logger.debug(sample_df.count())
-    # 写入clickhouse
+    sample_df.show(100000, False)
+
     sample_df.write.format("jdbc").mode("append") \
         .option("url", f"jdbc:clickhouse://{tenantIp}:8123/default") \
         .option("dbtable", f"`{table_name}`") \
@@ -200,7 +236,4 @@ def execute(**kwargs):
         .option("rewriteBatchedStatements", True) \
         .save()
 
-    putOutputSchema(datasetName, targetProjectId, sample_df, version)
-
-    return {'out_df': {}}
-
+    return {"out_df": {}}

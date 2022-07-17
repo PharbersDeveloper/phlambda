@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-
 import os
 
 import click
 import traceback
-
 from phjob import execute
 from pyspark.sql import SparkSession
 from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
@@ -27,7 +25,6 @@ if access_key is not None:
     spark._jsc.hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true")
     spark._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
     spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.cn-northwest-1.amazonaws.com.cn")
-
 
 @click.command()
 @click.option('--owner')
@@ -54,6 +51,6 @@ def debug_execute(**kwargs):
         print(traceback.format_exc())
         raise e
 
-
 if __name__ == '__main__':
     debug_execute()
+

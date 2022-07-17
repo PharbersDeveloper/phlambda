@@ -11,7 +11,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
@@ -67,7 +67,7 @@
       },
       "ScenarioTriggerCalCount": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercalcount-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercalcount",
          "Parameters": {
             "projectId.$": "$.common.projectId",
             "scenarioId.$": "$.scenario.scenarioId"
@@ -77,7 +77,7 @@
       },
       "ScenarioTriggerGetDetail": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggergetdetail-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggergetdetail",
          "Parameters": {
             "iterator.$": "$.iterator",
             "scenarioItems.$": "$.metadata.scenarioItems"
@@ -87,7 +87,7 @@
       },
       "ScenarioTriggerArgsCreation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerargscreation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargscreation",
          "Parameters": {
             "projectId.$": "$.common.projectId",
             "tenantId.$": "$.common.tenantId",
@@ -105,7 +105,7 @@
          "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters":{
             "Input.$": "$.currentTriggerStep",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:pharbers-trigger",
+            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2",
             "Name.$":"$.currentTriggerStep.common.runName"
          },
          "ResultPath": null,
@@ -113,7 +113,7 @@
       },
       "ScenarioTriggerStepCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerstepcheck-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerstepcheck",
          "Parameters": {
             "scenarioStep.$": "$.currentScenarioStep",
             "count.$": "$.metadata.count",
@@ -130,7 +130,7 @@
       },
       "ScenarioTriggerRecord": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggerrecord-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord",
          "Parameters": {
             "scenarioId.$": "$.scenario.scenarioId",
             "runnerId.$": "$.currentTriggerStep.common.runnerId",
@@ -172,7 +172,7 @@
       },
       "SuccessMessage":{
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggersuccessmessage-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggersuccessmessage",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -203,7 +203,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phscenariotriggercleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

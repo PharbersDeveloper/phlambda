@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambdaHandler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phemail-V2
+      FunctionName: phemail
       Description: "发送各种邮件"
       MemorySize: 512
       Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

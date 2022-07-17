@@ -9,22 +9,32 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phbootargsvalidation",
          "ResultPath": null,
          "Next": "SSMTrace",
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "SSMTrace": {
          "Type": "Task",
@@ -41,7 +51,7 @@
       },
       "ResouceMetadata": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootresourcemate-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phbootresourcemate",
          "Parameters": {
             "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
@@ -50,19 +60,29 @@
             "showName.$": "$.common.showName",
             "resources.$": "$.resources"
          },
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ],
          "ResultPath": "$.metadata",
          "Next": "ResourceCreation"
       },
@@ -148,7 +168,6 @@
                                  "Variable": "$.iterator.currentStatus",
                                  "StringEquals": "success"
                               }
-
                            ],
                            "Next": "EngineResultCollection"
                         },
@@ -162,7 +181,6 @@
                                  "Variable": "$.iterator.currentStatus",
                                  "StringEquals": "success"
                               }
-
                            ],
                            "Next": "EngineResultStepsCollection"
                         }
@@ -269,7 +287,6 @@
                                  "Variable": "$.iterator.currentStatus",
                                  "StringEquals": "success"
                               }
-
                            ],
                            "Next": "OlapResultCollection"
                         },
@@ -283,7 +300,6 @@
                                  "Variable": "$.iterator.currentStatus",
                                  "StringEquals": "success"
                               }
-
                            ],
                            "Next": "OlapResultStepsCollection"
                         }
@@ -320,19 +336,29 @@
                }
             }
          ],
-         "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error",
-             "Next": "CleanUp"
-          } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "SSMCreation": {
          "Type": "Task",
@@ -377,7 +403,9 @@
                "type": "notification",
                "opname.$": "$.common.owner",
                "cnotification": {
-                  "data": {"tenantStart":"starting"},
+                  "data": {
+                     "tenantStart": "starting"
+                  },
                   "error": {}
                }
             },
@@ -401,7 +429,9 @@
                "type": "notification",
                "opname.$": "$.common.owner",
                "cnotification": {
-                  "data": {"tenantStart":"started"},
+                  "data": {
+                     "tenantStart": "started"
+                  },
                   "error": {}
                }
             },
@@ -411,17 +441,14 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phbootfailedcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phbootfailedcleanup",
          "Parameters": {
             "tenantId.$": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "error.$" : "$.error"
+            "error.$": "$.error"
          },
          "ResultPath": null,
          "Next": "Failed"
@@ -443,5 +470,4 @@
          "End": true
       }
    }
-
 }

@@ -35,23 +35,24 @@ def check_ssm(tenantId):
         raise Exception(f"ssm not exits tenantId: {tenantId}")
 
 
-def check_parameter(data, **kwargs):
-    common = data.get("action", {})
-    # 1. action.cat 只能是 personalResBoots
-    if not common.get("cat") == "personalResBoots":
+def check_parameter(common, action, resourceId=None, **kwargs):
+
+    if not action.get("cat") == "personalResBoots":
         raise Exception('action.cat must be personalResBoots')
 
     # 2. resourcesId 必须存在
-    if not data.get("resourcesId"):
+    if not resourceId:
         raise Exception('resourcesId not exits')
 
     # 3. ssm 中必须存在 key 为 tenantId的项
     tenantId = common.get("tenantId")
     check_ssm(tenantId)
+
     return True
 
 
 def lambda_handler(event, context):
+    print(event)
     return check_parameter(**event)
     # 1. action.cat 只能是 personalResBoots
     # 2. resourcesId 必须存在

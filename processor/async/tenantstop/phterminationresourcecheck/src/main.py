@@ -23,20 +23,20 @@ def lambda_handler(event, context):
     while len(stackNames) != 0:
         curSn = stackNames[0]
         stackNames = stackNames[1:]
-        
+
         try:
             response = client.describe_stacks(
                 StackName=curSn
             )
             print(response)
-            
+
             return {
-               "stackNames": initialNames,
+                "stackNames": initialNames,
                 "wait": True
             }
         except:
             traceback.print_exc()
-          
+
     return {
         "stackNames": [],
         "wait": False

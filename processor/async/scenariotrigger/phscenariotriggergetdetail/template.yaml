@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phscenariotriggergetdetail-dev
+      FunctionName: phscenariotriggergetdetail
       MemorySize: 1024
       Description: "phscenariotriggergetdetail"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

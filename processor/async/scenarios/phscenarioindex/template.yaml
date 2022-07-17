@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phscenarioindex-dev
+      FunctionName: phscenarioindex
       MemorySize: 1024
       Description: "phscenarioindex"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phresourceversioncreation-dev
+      FunctionName: phresourceversioncreation
       MemorySize: 1024
       Description: "创建完DS索引后，添加Version索引"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

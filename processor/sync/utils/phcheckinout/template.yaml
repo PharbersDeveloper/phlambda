@@ -7,16 +7,12 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
-      FunctionName: lmd-phcheckinout-V2
+      FunctionName: phcheckinout
       Description: "输入输出 修改校验"
       MemorySize: 1024
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
-      Environment:
-        Variables:
-          EDITION: "V2"
       Timeout: 30
 

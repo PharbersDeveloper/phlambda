@@ -7,15 +7,14 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:change-reosurce-position
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcechangepos
           EDITION: "dev"
-      FunctionName: lmd-phchangeresourcepositiontrigger-dev
+      FunctionName: phchangeresourcepositiontrigger
       Description: "运行修改脚本信息的sfn"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

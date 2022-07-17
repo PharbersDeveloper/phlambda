@@ -33,6 +33,13 @@ event = {
             }
         ],
         "required": false
+    },
+    "utils": {
+        "repo": "phlambda",
+        "branch": "feature/PBDP-3043-async-cicd-state-machine",
+        "commit": "207d2c7173a434605ed7fa444c62c77b4a26eb78",
+        "prefix": "processor/utils/cfnlambda",
+        "required": false
     }
 }
 '''
@@ -67,6 +74,14 @@ def lambda_handler(event, context):
             "functionName": event["trigger"]["prefix"].split("/")[-1],
             "entry": event["trigger"]["entry"],
             "required": event["trigger"]["required"]
+        },
+        "utils": {
+            "commit": event["utils"]["commit"],
+            "repo": event["utils"]["repo"],
+            "branch": event["utils"]["branch"],
+            "prefix": "/".join(event["utils"]["prefix"].split("/")[0:-1]),
+            "functionName": event["utils"]["prefix"].split("/")[-1],
+            "required": event["utils"]["required"]
         }
     }
 

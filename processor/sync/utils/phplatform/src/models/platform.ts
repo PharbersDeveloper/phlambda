@@ -209,6 +209,7 @@ export default class Platform {
     operations = {
         hooks: {
             file: [this.hooksDate],
+            project: [this.hooksDate],
             account: [ this.hookAccountInput, this.hookAccountOutput],
         }
     }

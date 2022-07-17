@@ -82,7 +82,8 @@ export default class Platform {
         article: {
             title: String,
             date: Number,
-            uri: String
+            uri: String,
+            avatar: String
         },
         // 官网 结束
 

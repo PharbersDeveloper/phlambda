@@ -101,6 +101,7 @@ class ConvertDataTypesOfCache:
         ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
         Originalschema = json.loads(ds_Item["schema"]) if isinstance(ds_Item["schema"], str) else ds_Item["schema"]
         print("*"*50+"original schema " + "*"*50)
+        print(Originalschema)
         for elem in Originalschema:
             if elem["src"] == colItem["column"]:
                 elem["type"] = colItem["to"]
@@ -108,6 +109,8 @@ class ConvertDataTypesOfCache:
         #Changescheam = list(map(lambda x: converSchema(x, colItem), Originalschema))
         #ds_Item["schema"] = Changescheam if isinstance(Changescheam, str) else json.dumps(Changescheam)
         ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema)
+        print("*"*50+"now schema " + "*"*50)
+        print(ds_Item)
         #-- put item to ds --#
         self.put_dynamodb_item(table_name=dyName, item=ds_Item)
 

@@ -14,8 +14,10 @@ lmdVersionTemplateS3Path = "2020-11-11/cicd/template/lmdVersion.yaml"
 lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
-mangeLocalPath = "/tmp/manage.yaml"
-dealMangeLocalPath = "/tmp/deal_manage.yaml"
+mangeLocalPathPrefix = "/tmp/"
+mangeLocalPathSuffix = "/manage.yaml"
+dealMangeLocalPathPrefix = "/tmp/"
+dealMangeLocalPathSuffix = "/deal_manage.yaml"
 apiResourceLocalPathPrefix = "/tmp/"
 lmdVersionLocalPath = "/tmp/lmdVersion.yaml"
 lmdAliasLocalPath = "/tmp/lmdAlias.yaml"
@@ -96,7 +98,7 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def write_api_resource(apiGateWayArgs, version, runtime):
+def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, lmdName):
     methods = apiGateWayArgs["methods"]
     methods.insert(0, "Init")
 
@@ -105,8 +107,8 @@ def write_api_resource(apiGateWayArgs, version, runtime):
         download_s3_file(
             apiTemplateS3Key,
             apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
-            apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml")
-        f1 = open(apiResourceLocalPathPrefix + "api" + method.upper() + "Resource.yaml", "r")
+            apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
+        f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
         f2.write("  " + runtime.upper() + version.replace("-", "").upper() + method.upper() + "METHOD:\n")
         for line in f1.readlines():
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
@@ -132,6 +134,8 @@ def lambda_handler(event, context):
     print(event)
     apiGateWayArgs = event["apiGateWayArgs"]
     runtime = event["runtime"]
+    mangeLocalPath = mangeLocalPathPrefix + event["trigger"]["functionName"] + mangeLocalPathSuffix
+    dealMangeLocalPath = dealMangeLocalPathPrefix + event["trigger"]["functionName"] + dealMangeLocalPathSuffix
     # 2 下载manage template文件
     download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
     # 判断manage.yaml文件是否存在 存在则下载 对此文件进行更改
@@ -203,7 +207,7 @@ def lambda_handler(event, context):
     f1.close()
 
     # 5 将 api 相关信息写入到 manage中
-    write_api_resource(apiGateWayArgs, event["version"], runtime)
+    write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath)
     os.system("touch " + dealMangeLocalPath)
     m = open(mangeLocalPath, "a+")
     m.write("Transform: AWS::Serverless-2016-10-31")

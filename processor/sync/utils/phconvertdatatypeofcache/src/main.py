@@ -85,24 +85,22 @@ class ConvertDataTypesOfCache:
         print(resp)
 
 
-    def ConverSchemaOfDataType(self, dyName, dsName, projectId,colItem):
+    def ConverSchemaOfDataType(self, dyName, OldItem,colItem):
 
         #---查表---#
-        ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
-        Old_Item = ds_Item
-        Originalschema = json.loads(ds_Item["schema"]) if isinstance(ds_Item["schema"], str) else ds_Item["schema"]
+        #ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
+        Originalschema = json.loads(OldItem["schema"]) if isinstance(OldItem["schema"], str) else OldItem["schema"]
         print("*"*50+"original schema " + "*"*50)
         print(Originalschema)
         for elem in Originalschema:
             if elem["src"] == colItem["column"]:
                 elem["type"] = colItem["to"]
 
-        ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema, ensure_ascii=False)
+        OldItem["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema, ensure_ascii=False)
         print("*"*50+"now schema " + "*"*50)
-        print(ds_Item)
+        print(OldItem)
         #-- put item to ds --#
-        self.put_dynamodb_item(table_name=dyName, item=ds_Item)
-        return Old_Item
+        self.put_dynamodb_item(table_name=dyName, item=OldItem)
 
     def IsDBException(self, stringOfError):
         import re
@@ -130,7 +128,7 @@ class ConvertDataTypesOfCache:
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=ConvertType)
                 ckClient.execute(SingleExcuteSql)
                 #----- 修改dataset schema --------#
-                self.ConverSchemaOfDataType(dyName="dataset", dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"], colItem=colItem)
+                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
 
             except Exception as e:
                 #---- 回滚 ------------#

@@ -23,11 +23,11 @@ Resources:
           ACCESSKEYID: AKIAWPBDTVEAI6LUCLPX
           EDITION: "V2"
           ENTITY: "platform"
-          DATABASE: "phplatform_dev"
+          DATABASE: "phplatform"
           USER: "pharbers"
           PASSWORD: "Abcde196125"
-          HOST: "ph-db-lambda-2021-11-15.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
-          PORT: "5432"
+          HOST: "192.168.26.64"
+          PORT: "5439"
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

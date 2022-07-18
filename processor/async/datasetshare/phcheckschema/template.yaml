@@ -8,12 +8,12 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
-      FunctionName: phresourcecodegenquerysteps
+      FunctionName: phcheckschema
       MemorySize: 1024
-      Description: "当传入Steps为空时 进行查询"
+      Description: "检查 schema"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "release"
+          EDITION: "DEV"
 
 

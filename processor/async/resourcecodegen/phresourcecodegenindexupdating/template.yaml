@@ -14,12 +14,12 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "V2"
+          EDITION: "release"
       Tags:
-        edition: dev
+        edition: release
         owner: pqian
         version: Beta
-        api: v2
+        api: release
       Timeout: 600
       VpcConfig:
         SecurityGroupIds:

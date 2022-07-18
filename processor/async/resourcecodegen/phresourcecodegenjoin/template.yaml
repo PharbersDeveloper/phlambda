@@ -16,7 +16,7 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "DEV"
+          EDITION: "release"
           BUCKET: ph-platform
           CLI_VERSION: 2020-11-11
           JOB_PATH_PREFIX: /tmp/phjobs/

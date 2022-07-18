@@ -132,8 +132,8 @@ class ConvertDataTypesOfCache:
 
             except Exception as e:
                 #---- 回滚 ------------#
-                SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=colItem["from"])
-                ckClient.execute(SingleExcuteSql)
+                #SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=colItem["from"])
+                #ckClient.execute(SingleExcuteSql)
                 #--- schema 还原 --------#
                 self.put_dynamodb_item(table_name="dataset", item=OldItem)
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))

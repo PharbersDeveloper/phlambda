@@ -133,8 +133,9 @@ class ConvertDataTypesOfCache:
             except Exception as e:
                 #---- 还原dataset schema --------#
                 #TODO 还原sql可能会引入新的异常
-                #RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
-                #ckClient.execute(RestoreExcuteSql)
+                print("*"*50 + " 回滚 " + "*"*50)
+                RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
+                ckClient.execute(RestoreExcuteSql)
 
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
 

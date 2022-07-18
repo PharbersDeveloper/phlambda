@@ -121,6 +121,7 @@ class ConvertDataTypesOfCache:
         for colItem in self.Mappings:
             colName = colItem["column"]
             ConvertType = colItem["to"]
+            OriginalType = colItem["from"]
 
             OldItem = self.get_ds_with_index(dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"])
 
@@ -129,11 +130,13 @@ class ConvertDataTypesOfCache:
                 ckClient.execute(SingleExcuteSql)
             except Exception as e:
                 #---- 还原dataset schema --------#
+                RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
+                ckClient.execute(RestoreExcuteSql)
                 self.put_dynamodb_item(table_name="dataset", item=OldItem)
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
                 raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
             else:
-                #----- 修改dataset schema --------#
+                #----- 更新dataset schema --------#
                 self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
 
 

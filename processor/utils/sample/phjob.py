@@ -156,7 +156,9 @@ def load_intermediate_df(spark, path, schemas=None):
 # Catalog Parquet
 def load_catalog_df(spark, path, schemas=None):
     suffix = "parquet"
-    return transform_schema_type(s3_to_df(spark, suffix, path), schemas)
+    if schemas:
+        return transform_schema_type(s3_to_df(spark, suffix, path), schemas)
+    return s3_to_df(spark, suffix, path)
 
 
 read_data_cat = {
@@ -174,6 +176,24 @@ def build_create_sql(df, table_name, database="default", order_by="", partition_
     return f"CREATE TABLE IF NOT EXISTS {database}.`{table_name}`({sql_schema}) ENGINE = MergeTree() ORDER BY tuple({order_by}) PARTITION BY {partition_by};"
 
 
+# 获取DynamoDB数据
+def get_dynamodb_item(table_name, key):
+    table = dynamodb_resource.Table(table_name)
+    res = table.get_item(Key=key)
+    return res.get("Item")
+
+
+# dataset 更新Schema
+def put_scheme_to_dataset(output_id, project_id, df):
+    schema_list = list(
+        map(lambda item: {"src": item[0], "des": item[0], "type": item[1].capitalize().replace("Int", "Double")},
+            df.dtypes))
+    key = {"id": output_id, "projectId": project_id}
+    dataset_item = get_dynamodb_item("dataset", key)
+    dataset_item.update({"schema": json.dumps(schema_list, ensure_ascii=False)})
+    put_dynamodb_item("dataset", dataset_item)
+
+
 def execute(**kwargs):
     logger = phs3logger("sample_log", LOG_DEBUG_LEVEL)
     spark = kwargs["spark"]
@@ -188,7 +208,9 @@ def execute(**kwargs):
     lake_prefix = f"s3://ph-platform/2020-11-11/lake/{tenant}/"
     path = f"{lake_prefix}{sourceProjectId}/{datasetName}/"
 
-    schemas = json.loads(get_ds_with_index(datasetName, sourceProjectId).get("schema"))
+    dataset_item = get_ds_with_index(datasetName, targetProjectId)
+
+    schemas = json.loads(dataset_item.get("schema"))
 
     df = read_data_cat[datasetType](spark, path, schemas)
 
@@ -222,8 +244,6 @@ def execute(**kwargs):
     logger.debug(create_sql)
     ch_client.execute(create_sql)
 
-    sample_df.show(100000, False)
-
     sample_df.write.format("jdbc").mode("append") \
         .option("url", f"jdbc:clickhouse://{tenantIp}:8123/default") \
         .option("dbtable", f"`{table_name}`") \
@@ -235,5 +255,6 @@ def execute(**kwargs):
         .option("numPartitions", 2) \
         .option("rewriteBatchedStatements", True) \
         .save()
-
+    
+    put_scheme_to_dataset(dataset_item.get("id"), dataset_item.get("projectId"), sample_df)
     return {"out_df": {}}

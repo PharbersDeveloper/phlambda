@@ -1,5 +1,5 @@
 {
-   "Comment": "Pharbers Resource Creation",
+   "Comment": "Pharbers Resource Scripts Creation",
    "StartAt": "StartState",
    "States": {
       "StartState": {
@@ -69,6 +69,21 @@
          "ResultPath": "$.script",
          "End": true
       },
+      "PysparkFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcepycodegen",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
       "RFiles": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcercodegen",
@@ -87,21 +102,6 @@
       "SparkrFiles": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcercodegen",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "dagName.$": "$.common.dagName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "script.$": "$.script"
-         },
-         "ResultPath": "$.script",
-         "End": true
-      },
-      "PysparkFiles": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcepycodegen",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

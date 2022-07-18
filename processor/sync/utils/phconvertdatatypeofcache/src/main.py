@@ -137,6 +137,7 @@ class ConvertDataTypesOfCache:
                 try:
                     RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
                     ckClient.execute(RestoreExcuteSql)
+                    self.put_dynamodb_item(table_name="dataset", item=OldItem)
                     print("*"*50 + " 回滚成功 " + "*"*50)
                 except Exception as RollBackError:
                     print("*"*50 + " 回滚失败 " + "*"*50)
@@ -144,7 +145,6 @@ class ConvertDataTypesOfCache:
 
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
 
-                self.put_dynamodb_item(table_name="dataset", item=OldItem)
                 self.statusCode = 500
                 self.result["status"] = "failed"
                 self.result["message"] = f"{colName}: {OriginalType} can't convert to {ConvertType}"

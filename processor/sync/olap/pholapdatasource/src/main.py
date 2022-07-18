@@ -35,6 +35,7 @@ def executeSql(sql, method, tenantId):
 
 
 
+
 def get_result_of_executeSql(args):
 
     result = {}

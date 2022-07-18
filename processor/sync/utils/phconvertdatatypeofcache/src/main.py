@@ -84,13 +84,9 @@ class ConvertDataTypesOfCache:
         )
         print("*"*50+"put  item to dataset" + "*"*50)
         print(item)
-        print(resp)
-
 
     def ConverSchemaOfDataType(self, dyName, OldItem,colItem):
 
-        #---查表---#
-        #ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
         Originalschema = json.loads(OldItem["schema"]) if isinstance(OldItem["schema"], str) else OldItem["schema"]
         print("*"*50+"original schema " + "*"*50)
         print(Originalschema)
@@ -100,7 +96,7 @@ class ConvertDataTypesOfCache:
 
         OldItem["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema, ensure_ascii=False)
         print("*"*50+"now schema " + "*"*50)
-        print(OldItem)
+        print(OldItem["schema"])
         #-- put item to ds --#
         self.put_dynamodb_item(table_name=dyName, item=OldItem)
 

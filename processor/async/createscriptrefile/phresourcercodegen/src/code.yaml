@@ -183,8 +183,8 @@ code:
       # 获取df schema 转成 json 字符串
       get_schema2str <- function(df) {
           schemas <- list()
-          for (item in dtypes(df)) {
-              schema <- strsplit(item, " ")
+          for (item in SparkR::dtypes(df)) {
+              schema <- strsplit(item, '" "')
               if (schema[[1]] != "traceId") {
                   content <- list(name=schema[[1]], type=schema[[2]])
                   schemas <- append(schemas, list(content))
@@ -332,7 +332,7 @@ code:
               column_types <- SparkR::dtypes(df)
               sql_schema <- ""
               for (ct in column_types) {
-                  item <- strsplit(ct, " ")
+                  item <- strsplit(ct, '" "')
                   coltype <- str_to_title(item[[2]])
                   col <- item[[1]]
                   col_str <- ""

@@ -127,22 +127,14 @@ class ConvertDataTypesOfCache:
             try:
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=ConvertType)
                 ckClient.execute(SingleExcuteSql)
-                #----- 修改dataset schema --------#
-                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
-
             except Exception as e:
-                #---- 回滚 ------------#
-                #SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=colItem["from"])
-                #ckClient.execute(SingleExcuteSql)
-                #--- schema 还原 --------#
+                #---- 还原dataset schema --------#
                 self.put_dynamodb_item(table_name="dataset", item=OldItem)
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
                 raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
-
-                #TODO 异常处理中未捕获的异常可能会导致目前前端流程的预览失败
-                #if self.IsDBException(str(e)):
-                #    raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
-                #raise Exception(str(e))
+            else:
+                #----- 修改dataset schema --------#
+                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
 
 
 def lambda_handler(event, context):

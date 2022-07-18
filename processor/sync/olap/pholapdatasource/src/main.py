@@ -44,6 +44,7 @@ def IsDBException(SqlExecuteResponse):
         return False
 
 
+
 def get_result_of_executeSql(args):
 
     try:

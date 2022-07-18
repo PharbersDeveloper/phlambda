@@ -130,11 +130,12 @@ class ConvertDataTypesOfCache:
                 ckClient.execute(SingleExcuteSql)
             except Exception as e:
                 #---- 还原dataset schema --------#
-                RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
-                ckClient.execute(RestoreExcuteSql)
+                #TODO 还原sql可能会引入新的异常
+                #RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
+                #ckClient.execute(RestoreExcuteSql)
                 self.put_dynamodb_item(table_name="dataset", item=OldItem)
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
-                raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
+                raise Exception(f" {OriginalType} can't convert to {ConvertType}")
             else:
                 #----- 更新dataset schema --------#
                 self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)

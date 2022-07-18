@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-dagresource-V2
+      FunctionName: phdagresource
       Description: "创建dag的resource"
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phdydatasource:1

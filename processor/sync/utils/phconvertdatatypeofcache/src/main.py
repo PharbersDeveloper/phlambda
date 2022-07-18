@@ -12,7 +12,7 @@ args = {
         "tenantId": "zudIcG_17yj8CEUoCTHg",
         "datasetName": "I6FDBI62N9VLus4"
     },
-    "Mappings": [
+    "mappings": [
         {
             "column": "a",
             "from": "string",
@@ -27,6 +27,8 @@ class ConvertDataTypesOfCache:
     def __init__(self, event):
         self.event = event
         self.Mappings = event["mappings"]
+        self.result = {}
+        self.statusCode = 200
 
     def get_tableName(self):
         return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetName"]
@@ -128,42 +130,38 @@ class ConvertDataTypesOfCache:
             try:
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=ConvertType)
                 ckClient.execute(SingleExcuteSql)
+                #----- 更新dataset schema --------#
+                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
+                self.result["status"] = "success"
+                self.result["message"] = f"{colName}: {OriginalType}  convert to {ConvertType} success"
             except Exception as e:
                 #---- 还原dataset schema --------#
                 #TODO 还原sql可能会引入新的异常
                 #RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
                 #ckClient.execute(RestoreExcuteSql)
-                self.put_dynamodb_item(table_name="dataset", item=OldItem)
+
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
-                raise Exception(f" {OriginalType} can't convert to {ConvertType}")
-            else:
-                #----- 更新dataset schema --------#
-                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
+
+                self.put_dynamodb_item(table_name="dataset", item=OldItem)
+                self.statusCode = 500
+                self.result["status"] = "failed"
+                self.result["message"] = f"{colName}: {OriginalType} can't convert to {ConvertType}"
+                #raise Exception(f" {OriginalType} can't convert to {ConvertType}")
 
 
 def lambda_handler(event, context):
     event = json.loads(event["body"])
     print("*"*50 + "Event" + "*"*50 + "\n", event)
 
-    result = {}
-    try:
-        ConvertClient = ConvertDataTypesOfCache(event)
-        ConvertClient.ConvertColumnsDataType()
-        statusCode = 200
-        result["status"] = "success"
-        result["message"] = "col convert success"
-    except Exception as e:
-        print("*"*50 + " ERROR " + "*"*50 + "\n" + str(e))
-        statusCode = 500
-        result["status"] = "failed"
-        result["message"] = str(e)
+    ConvertClient = ConvertDataTypesOfCache(event)
+    ConvertClient.ConvertColumnsDataType()
 
     return {
-        "statusCode": statusCode,
+        "statusCode": ConvertClient.statusCode,
         "headers": {
             "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
         },
-        "body": json.dumps(result, ensure_ascii=False)
+        "body": json.dumps(ConvertClient.result, ensure_ascii=False)
     }

@@ -136,10 +136,13 @@ class ConvertDataTypesOfCache:
                 ckClient.execute(SingleExcuteSql)
                 #--- schema 还原 --------#
                 self.put_dynamodb_item(table_name="dataset", item=OldItem)
+                print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
+                raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
 
-                if self.IsDBException(str(e)):
-                    raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
-                raise Exception(str(e))
+                #TODO 异常处理中未捕获的异常可能会导致目前前端流程的预览失败
+                #if self.IsDBException(str(e)):
+                #    raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
+                #raise Exception(str(e))
 
 
 def lambda_handler(event, context):

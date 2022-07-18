@@ -134,8 +134,13 @@ class ConvertDataTypesOfCache:
                 #---- 还原dataset schema --------#
                 #TODO 还原sql可能会引入新的异常
                 print("*"*50 + " 回滚 " + "*"*50)
-                RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
-                ckClient.execute(RestoreExcuteSql)
+                try:
+                    RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
+                    ckClient.execute(RestoreExcuteSql)
+                    print("*"*50 + " 回滚成功 " + "*"*50)
+                except Exception as RollBackError:
+                    print("*"*50 + " 回滚失败 " + "*"*50)
+                    print(str(RollBackError))
 
                 print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
 

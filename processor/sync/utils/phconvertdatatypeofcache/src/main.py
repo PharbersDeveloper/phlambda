@@ -147,6 +147,7 @@ class ConvertDataTypesOfCache:
 
 def lambda_handler(event, context):
     event = json.loads(event["body"])
+    print("*"*50 + "Event" + "*"*50 + "\n", event)
 
     result = {}
     try:

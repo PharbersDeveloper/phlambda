@@ -245,7 +245,14 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message.$": "$.error",
+            "message": {
+               "type": "notification",
+               "opname.$": "$.common.owner",
+               "cnotification": {
+                  "data": {"scenariosdeletion":"failed"},
+                  "error": {"details":"$.error"}
+               }
+            },
             "status": "failed"
          },
          "End": true

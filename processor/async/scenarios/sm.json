@@ -239,7 +239,7 @@
                "opname.$": "$.common.owner",
                "cnotification": {
                   "data": {"scenarios":"failed"},
-                  "error": {"details":"$.error"}
+                  "error": {"details.$":"$.error"}
                }
             },
             "status": "failed"

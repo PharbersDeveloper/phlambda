@@ -250,7 +250,7 @@
                "opname.$": "$.common.owner",
                "cnotification": {
                   "data": {"scenariosdeletion":"failed"},
-                  "error": {"details":"$.error"}
+                  "error": {"details.$":"$.error"}
                }
             },
             "status": "failed"

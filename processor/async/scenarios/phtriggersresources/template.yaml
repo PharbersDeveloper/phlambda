@@ -12,6 +12,7 @@ Resources:
       MemorySize: 1024
       Description: "phtriggersresources"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Timeout: 600
       Environment:
         Variables:
           EDITION: "DEV"

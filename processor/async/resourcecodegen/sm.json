@@ -97,7 +97,8 @@
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
                 "jobName.$": "$.script.jobName",
-                "steps.$": "$.steps"
+                "steps.$": "$.steps",
+                "id.$": "$.script.id"
             },
             "ResultPath": "$.steps",
             "Next": "ScriptsFilesCreation"

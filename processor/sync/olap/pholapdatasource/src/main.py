@@ -21,7 +21,7 @@ def executeSql(sql, method, tenantId):
     # ip = "192.168.16.117"
     # if len(proxies) > 0:
     #     ip = proxies[0]
-    
+
 
     response = ssm.get_parameter(
         Name=tenantId,
@@ -42,6 +42,7 @@ def IsDBException(SqlExecuteResponse):
         return True
     else:
         return False
+
 
 
 def get_result_of_executeSql(args):

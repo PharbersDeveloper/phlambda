@@ -16,6 +16,8 @@ Resources:
           SPARK_EXECUTOR_CORES: "1"
           SPARK_EXECUTOR_MEMORY: "1g"
           SPARK_EXECUTOR_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
+          SPARK_SQL_BROADCASTTIMEOUT: 1200
+          SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD: 104857600
       FunctionName: phstatemachinedaggen
       Description: "根据前端传入参数，生成符合调用dag submit的参数"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

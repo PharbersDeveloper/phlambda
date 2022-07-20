@@ -12,7 +12,7 @@ args = {
         "tenantId": "zudIcG_17yj8CEUoCTHg",
         "datasetName": "I6FDBI62N9VLus4"
     },
-    "Mappings": [
+    "mappings": [
         {
             "column": "a",
             "from": "string",
@@ -27,6 +27,8 @@ class ConvertDataTypesOfCache:
     def __init__(self, event):
         self.event = event
         self.Mappings = event["mappings"]
+        self.result = {}
+        self.statusCode = 200
 
     def get_tableName(self):
         return self.event["common"]["projectId"] + "_" + self.event["common"]["datasetName"]
@@ -38,7 +40,7 @@ class ConvertDataTypesOfCache:
 
     def MakeSingleColConvertSqlExpress(self, tableName, colName, dataType):
 
-        SingleSqlExpress = f"ALTER TABLE {tableName} MODIFY COLUMN  `{colName}` {dataType};"
+        SingleSqlExpress = f"ALTER TABLE `{tableName}` MODIFY COLUMN  `{colName}` `{dataType}`;"
         return SingleSqlExpress
 
     def GetClickHouseClient(self, *args, **kwargs):
@@ -66,8 +68,6 @@ class ConvertDataTypesOfCache:
         )
         return res["Items"][0]
 
-
-
     #--------------检查表名是否存在-------------------#
     def CheckTableExist(self, client, dataBase, tableName):
         allTableNames = client.execute(f"SELECT DISTINCT table FROM system.columns WHERE database='{dataBase}';")
@@ -84,32 +84,21 @@ class ConvertDataTypesOfCache:
         )
         print("*"*50+"put  item to dataset" + "*"*50)
         print(item)
-        print(resp)
 
+    def ConverSchemaOfDataType(self, dyName, OldItem,colItem):
 
-    def ConverSchemaOfDataType(self, dyName, dsName, projectId,colItem):
-
-        '''
-        def converSchema(OriginalItem, colItem):
-            try:
-                OriginalItem["type"] == colItem["to"] if OriginalItem["src"] == colItem['column'] else OriginalItem["type"]
-            except:
-                OriginalItem = OriginalItem
-            return OriginalItem
-        '''
-        #---查表---#
-        ds_Item = self.get_ds_with_index(dsName=dsName, projectId=projectId)
-        Originalschema = json.loads(ds_Item["schema"]) if isinstance(ds_Item["schema"], str) else ds_Item["schema"]
+        Originalschema = json.loads(OldItem["schema"]) if isinstance(OldItem["schema"], str) else OldItem["schema"]
         print("*"*50+"original schema " + "*"*50)
+        print(Originalschema)
         for elem in Originalschema:
             if elem["src"] == colItem["column"]:
                 elem["type"] = colItem["to"]
 
-        #Changescheam = list(map(lambda x: converSchema(x, colItem), Originalschema))
-        #ds_Item["schema"] = Changescheam if isinstance(Changescheam, str) else json.dumps(Changescheam)
-        ds_Item["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema)
+        OldItem["schema"] = Originalschema if isinstance(Originalschema, str) else json.dumps(Originalschema, ensure_ascii=False)
+        print("*"*50+"now schema " + "*"*50)
+        print(OldItem["schema"])
         #-- put item to ds --#
-        self.put_dynamodb_item(table_name=dyName, item=ds_Item)
+        self.put_dynamodb_item(table_name=dyName, item=OldItem)
 
     def IsDBException(self, stringOfError):
         import re
@@ -130,43 +119,51 @@ class ConvertDataTypesOfCache:
         for colItem in self.Mappings:
             colName = colItem["column"]
             ConvertType = colItem["to"]
+            OriginalType = colItem["from"]
+
+            OldItem = self.get_ds_with_index(dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"])
+
             try:
                 SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=ConvertType)
                 ckClient.execute(SingleExcuteSql)
-                #----- 修改dataset schema --------#
-                self.ConverSchemaOfDataType(dyName="dataset",dsName=self.event["common"]["datasetName"], projectId=self.event["common"]["projectId"], colItem=colItem)
-
+                #----- 更新dataset schema --------#
+                self.ConverSchemaOfDataType(dyName="dataset", OldItem=OldItem, colItem=colItem)
+                self.result["status"] = "success"
+                self.result["message"] = f"{colName}: {OriginalType}  convert to {ConvertType} success"
             except Exception as e:
-                #---- 回滚 ------------#
-                SingleExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=colItem["from"])
-                ckClient.execute(SingleExcuteSql)
-                if self.IsDBException(str(e)):
-                    raise Exception(f" {colItem['from']} can't convert to {ConvertType}")
-                raise Exception(str(e))
+                #---- 还原dataset schema --------#
+                #TODO 还原sql可能会引入新的异常
+                print("*"*50 + " 回滚 " + "*"*50)
+                try:
+                    RestoreExcuteSql = self.MakeSingleColConvertSqlExpress(tableName=self.get_tableName(), colName=colName, dataType=OriginalType)
+                    ckClient.execute(RestoreExcuteSql)
+                    self.put_dynamodb_item(table_name="dataset", item=OldItem)
+                    print("*"*50 + " 回滚成功 " + "*"*50)
+                except Exception as RollBackError:
+                    print("*"*50 + " 回滚失败 " + "*"*50)
+                    print(str(RollBackError))
+
+                print("*"*50 + "ERROR" + "*"*50 + "\n" + str(e))
+
+                self.statusCode = 500
+                self.result["status"] = "failed"
+                self.result["message"] = f"{colName}: {OriginalType} can't convert to {ConvertType}"
+                #raise Exception(f" {OriginalType} can't convert to {ConvertType}")
 
 
 def lambda_handler(event, context):
     event = json.loads(event["body"])
+    print("*"*50 + "Event" + "*"*50 + "\n", event)
 
-    result = {}
-    try:
-        ConvertClient = ConvertDataTypesOfCache(event)
-        ConvertClient.ConvertColumnsDataType()
-        statusCode = 200
-        result["status"] = "success"
-        result["message"] = "col convert success"
-    except Exception as e:
-        print("*"*50 + " ERROR " + "*"*50 + "\n" + str(e))
-        statusCode = 500
-        result["status"] = "failed"
-        result["message"] = str(e)
+    ConvertClient = ConvertDataTypesOfCache(event)
+    ConvertClient.ConvertColumnsDataType()
 
     return {
-        "statusCode": statusCode,
+        "statusCode": ConvertClient.statusCode,
         "headers": {
             "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
         },
-        "body": json.dumps(result)
+        "body": json.dumps(ConvertClient.result, ensure_ascii=False)
     }

@@ -2,6 +2,9 @@ import yaml
 import os
 import time
 import boto3
+import math
+import random
+
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
 cfn_client = boto3.client('cloudformation')
@@ -98,9 +101,12 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath):
+def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath,  resourceName, resourceValue):
     methods = apiGateWayArgs["methods"]
     methods.insert(0, "Init")
+    pathPart = resourceName.split("/")[-1]
+    parentId = runtime.upper() + version.replace("-", "").upper() \
+               + "".join(resourceName.split("/")[:-1]).replace("{}", "") + "INITMETHOD"
 
     f2 = open(mangeLocalPath, "a+")
     for method in methods:
@@ -128,6 +134,21 @@ def copy_manage_resource(bucket_name, prefix):
         'Key': prefix + "/manage.yaml"
     }
     s3_resource.meta.client.copy(copy_source, bucket_name, prefix + "/manage_back.yaml")
+
+
+def generate():
+    charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+              "abcdefghijklmnopqrstuvwxyz" \
+              "0123456789"
+
+    charsetLength = len(charset)
+    keyLength = 3 * 5
+
+    array = []
+    for i in range(keyLength):
+        array.append(charset[math.floor(random.random() * charsetLength)])
+
+    return "".join(array)
 
 
 def lambda_handler(event, context):
@@ -207,7 +228,17 @@ def lambda_handler(event, context):
     f1.close()
 
     # 5 将 api 相关信息写入到 manage中
-    write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath)
+    resources = apiGateWayArgs["resources"]
+    resource_id_map = {}
+    for resource in resources:
+        resource_id_map[resource["name"]] = {}
+        resource_id_map[resource["name"]]["methods"] = resource["methods"]
+        resource_id_map[resource["name"]]["resourceId"] = generate().upper()
+
+    for resourceName, resourceValue in resource_id_map.items():
+        write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath, resourceName, resourceValue)
+
+    # 6 处理manage文件
     os.system("touch " + dealMangeLocalPath)
     m = open(mangeLocalPath, "a+")
     m.write("Transform: AWS::Serverless-2016-10-31")

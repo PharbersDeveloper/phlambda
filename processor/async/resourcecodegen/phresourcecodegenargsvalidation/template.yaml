@@ -14,6 +14,6 @@ Resources:
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:
-          EDITION: "V2"
+          EDITION: "release"
 
 

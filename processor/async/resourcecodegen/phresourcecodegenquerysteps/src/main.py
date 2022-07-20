@@ -46,12 +46,13 @@ args:
 dynamodb = boto3.resource("dynamodb")
 
 
-def query_steps(projectId, projectName, flowVersion, jobName, **kwargs):
-    pjName = "_".join([projectId, projectName, projectName, flowVersion, jobName])
+def query_steps(projectId, id, **kwargs):
+    pjName = "_".join([projectId, id])
     print(pjName)
     table = dynamodb.Table("step")
     response = table.query(
-        KeyConditionExpression=Key('pjName').eq(pjName),
+        IndexName='id-index-index',
+        KeyConditionExpression=Key('id').eq(pjName),
     )
     return response.get("Items")
 

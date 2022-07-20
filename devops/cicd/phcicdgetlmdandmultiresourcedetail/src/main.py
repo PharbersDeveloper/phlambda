@@ -112,6 +112,7 @@ def create_api_args(event):
         "LmdName": event["trigger"]["functionName"],
         "RestApiId": apigateway_resource[runtime]["RestApiId"],
         "AuthorizerId": apigateway_resource[runtime]["AuthorizerId"],
+        "ApiResourceId": apigateway_resource[runtime]["ApiResourceId"],
         "ParentId": apigateway_resource[runtime]["ParentId"]
     }
     return api_args

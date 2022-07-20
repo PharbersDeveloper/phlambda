@@ -105,6 +105,7 @@ def get_all_item_from_dag(projectId):
 
 
 def lambda_handler(event, context):
+    print(event)
     # 获取所有的project items
     all_dag_items = get_all_item_from_dag(event["projectId"])
     all_link_dag_items = list(item for item in all_dag_items if item["ctype"] == "link")
@@ -156,7 +157,7 @@ def lambda_handler(event, context):
     # dag表中script的处理
     del_script_item = [item for item in all_dag_items if item["representId"] == event["script"]["old"]["id"]][0]
     deleteLinkItems.append(del_script_item)
-    insert_script_item = del_script_item
+    insert_script_item = del_script_item.copy()
     insert_script_item.update({
         "cmessage": event["script"]["new"]["name"],
         "name": event["script"]["new"]["name"],

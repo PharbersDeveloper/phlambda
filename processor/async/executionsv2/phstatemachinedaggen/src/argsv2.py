@@ -26,19 +26,58 @@ def submitArgsByEngine(curJ, event):
     result['clusterId'] = event['engine']['id']
     result['HadoopJarStep'] = {}
     result['HadoopJarStep']['Jar'] = 'command-runner.jar'
+    coefficient = event['calculate']['conf']['userConf'].get("coefficient", "1")
+    print("====================================>>>>")
+    print(event['calculate']['conf'])
+    print(coefficient)
 
+    spark_args = {
+        "1": {
+            "SPARK_DRIVER_CORES": "1",
+            "SPARK_DRIVER_MEMORY": "1g",
+            "SPARK_EXECUTOR_CORES": "1",
+            "SPARK_EXECUTOR_MEMORY": "1g"
+        },
+        "2": {
+            "SPARK_DRIVER_CORES": "1",
+            "SPARK_DRIVER_MEMORY": "2g",
+            "SPARK_EXECUTOR_CORES": "1",
+            "SPARK_EXECUTOR_MEMORY": "2g"
+        },
+        "3": {
+            "SPARK_DRIVER_CORES": "2",
+            "SPARK_DRIVER_MEMORY": "2g",
+            "SPARK_EXECUTOR_CORES": "2",
+            "SPARK_EXECUTOR_MEMORY": "2g"
+        },
+        "4": {
+            "SPARK_DRIVER_CORES": "2",
+            "SPARK_DRIVER_MEMORY": "4g",
+            "SPARK_EXECUTOR_CORES": "2",
+            "SPARK_EXECUTOR_MEMORY": "4g"
+        },
+        "5": {
+            "SPARK_DRIVER_CORES": "4",
+            "SPARK_DRIVER_MEMORY": "4g",
+            "SPARK_EXECUTOR_CORES": "4",
+            "SPARK_EXECUTOR_MEMORY": "4g"
+        }
+
+    }
+    print(spark_args[coefficient])
+    print("====================================>>>>")
     tmp = []
     tmp.append('spark-submit')
     tmp.append('--deploy-mode')
     tmp.append('cluster')
-    # tmp.append('--conf')
-    # tmp.append('spark.driver.cores=' + os.getenv("SPARK_DRIVER_CORES")) # To ENV
-    # tmp.append('--conf')
-    # tmp.append('spark.driver.memory=' + os.getenv("SPARK_DRIVER_MEMORY")) # To ENV
-    # tmp.append('--conf')
-    # tmp.append('spark.executor.cores=' + os.getenv("SPARK_EXECUTOR_CORES")) # To ENV
-    # tmp.append('--conf')
-    # tmp.append('spark.executor.memory=' + os.getenv("SPARK_EXECUTOR_MEMORY")) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.driver.cores=' + spark_args[coefficient]["SPARK_DRIVER_CORES"]) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.driver.memory=' + spark_args[coefficient]["SPARK_DRIVER_MEMORY"]) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.executor.cores=' + spark_args[coefficient]["SPARK_EXECUTOR_CORES"]) # To ENV
+    tmp.append('--conf')
+    tmp.append('spark.executor.memory=' + spark_args[coefficient]["SPARK_EXECUTOR_MEMORY"]) # To ENV
     tmp.append('--conf')
     tmp.append('spark.executor.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
     tmp.append('--conf')

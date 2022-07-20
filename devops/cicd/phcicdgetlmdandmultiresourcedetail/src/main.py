@@ -85,17 +85,17 @@ def get_dict_ssm_parameter(parameter_name):
 
 def create_lmd_args(event):
     lmd_args = {
-        "name": event["trigger"]["functionName"] + "codebuild",
+        "name": event["multistage"]["functionName"] + "codebuild",
         "cfn": codebuild_cfn_path,
         "parameters": {
-            "FunctionName": event["trigger"]["functionName"],
+            "FunctionName": event["multistage"]["functionName"],
             "BuildSpec": buildSpec,
-            "FunctionPath": event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"],
-            "FunctionPathPrefix": event["trigger"]["prefix"],
-            "GitCommit": event["trigger"]["commit"],
+            "FunctionPath": event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"],
+            "FunctionPathPrefix": event["multistage"]["prefix"],
+            "GitCommit": event["multistage"]["commit"],
             "GitUrl": git_url,
-            "BranchName": event["trigger"]["branch"],
-            "RepoName": event["trigger"]["repo"],
+            "BranchName": event["multistage"]["branch"],
+            "RepoName": event["multistage"]["repo"],
             "Version": event["version"]
         }
     }
@@ -106,10 +106,9 @@ def create_api_args(event):
 
     apigateway_resource = get_dict_ssm_parameter("apigateway_resource")
     runtime = event["runtime"]
-    ev
     api_args = {
-        "resources": event["trigger"]["entry"]["resources"],
-        "LmdName": event["trigger"]["functionName"],
+        "resources": event["multistage"]["entry"]["resources"],
+        "LmdName": event["multistage"]["functionName"],
         "RestApiId": apigateway_resource[runtime]["RestApiId"],
         "AuthorizerId": apigateway_resource[runtime]["AuthorizerId"],
         "ApiResourceId": apigateway_resource[runtime]["ApiResourceId"],

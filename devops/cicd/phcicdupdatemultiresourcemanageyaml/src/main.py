@@ -18,13 +18,13 @@ lmdVersionTemplateS3Path = "2020-11-11/cicd/template/lmdVersion.yaml"
 lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
-mangeLocalPathPrefix = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/"
+mangeLocalPathPrefix = "/tmp/cicd/tmp/"
 mangeLocalPathSuffix = "/manage.yaml"
-dealMangeLocalPathPrefix = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/"
+dealMangeLocalPathPrefix = "/tmp/cicd/tmp/"
 dealMangeLocalPathSuffix = "/deal_manage.yaml"
-apiResourceLocalPathPrefix = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/"
-lmdVersionLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/lmdVersion.yaml"
-lmdAliasLocalPath = "/home/hbzhao/PycharmProjects/pythonProject/test/tmp/cicd/tmp/lmdAlias.yaml"
+apiResourceLocalPathPrefix = "/tmp/cicd/tmp/"
+lmdVersionLocalPath = "/tmp/cicd/tmp/lmdVersion.yaml"
+lmdAliasLocalPath = "/tmp/cicd/tmp/lmdAlias.yaml"
 
 
 class Ref(object):
@@ -166,17 +166,17 @@ def lambda_handler(event, context):
     print(event)
     apiGateWayArgs = event["apiGateWayArgs"]
     runtime = event["runtime"]
-    mangeLocalPath = mangeLocalPathPrefix + event["trigger"]["functionName"] + mangeLocalPathSuffix
-    dealMangeLocalPath = dealMangeLocalPathPrefix + event["trigger"]["functionName"] + dealMangeLocalPathSuffix
+    mangeLocalPath = mangeLocalPathPrefix + event["multistage"]["functionName"] + mangeLocalPathSuffix
+    dealMangeLocalPath = dealMangeLocalPathPrefix + event["multistage"]["functionName"] + dealMangeLocalPathSuffix
     # 2 下载manage template文件
     download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
     # 判断manage.yaml文件是否存在 存在则下载 对此文件进行更改
-    if s3_file_exist("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                                    event["trigger"]["functionName"] + "/manage.yaml"):
-        download_s3_file("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                         event["trigger"]["functionName"] + "/manage.yaml",
+    if s3_file_exist("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                                    event["multistage"]["functionName"] + "/manage.yaml"):
+        download_s3_file("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                         event["multistage"]["functionName"] + "/manage.yaml",
                          mangeLocalPath)
-        copy_manage_resource("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"])
+        copy_manage_resource("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"])
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
@@ -192,8 +192,8 @@ def lambda_handler(event, context):
     # print(manage_result)
 
     # 3 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"
-    functionName = event["trigger"]["functionName"]
-    functionPath = event["trigger"]["prefix"] + "/" + functionName
+    functionName = event["multistage"]["functionName"]
+    functionPath = event["multistage"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
     package_local_path = "/tmp/" + functionName + "/package.yaml"
@@ -220,6 +220,7 @@ def lambda_handler(event, context):
     write_yaml_file(manage_result, mangeLocalPath)
 
     # 创建Version
+
     download_s3_file(TemplateS3Key, lmdAliasTemplateS3Path, lmdAliasLocalPath)
     download_s3_file(TemplateS3Key, lmdVersionTemplateS3Path, lmdVersionLocalPath)
     manage = open(mangeLocalPath, "a+")
@@ -275,14 +276,14 @@ def lambda_handler(event, context):
     ff.close()
     ff2.close()
 
-    # 6 上传manage文件 manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
+    # 6 上传manage文件 manageUrlPrefix + event["multistage"]["prefix"] + "/manage.yaml"
     upload_s3_file(
         bucket_name=manageTemplateS3Key,
-        object_name=resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                    event["trigger"]["functionName"] + "/manage.yaml",
+        object_name=resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                    event["multistage"]["functionName"] + "/manage.yaml",
         file=dealMangeLocalPath
     )
-    manageUrl = manageUrlPrefix + event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"] + "/manage.yaml"
+    manageUrl = manageUrlPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"] + "/manage.yaml"
     print(manageUrl)
     # 创建resource cfn
     stackName = functionName + "-apiresource"

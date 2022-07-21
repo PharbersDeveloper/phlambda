@@ -74,8 +74,9 @@ def get_dag_item_by_name(projectId, name):
         KeyConditionExpression=Key("projectId").eq(projectId)
                                & Key("name").eq(name)
     )
+    item = None if len(res["Items"]) == 0 else res["Items"][0]
 
-    return res["Items"][0]
+    return item
 
 
 def get_dag_item_by_sortVersion(projectId, sortVersion):
@@ -144,7 +145,8 @@ def lambda_handler(event, context):
     # 再判断job的link
     for script in event["scripts"]:
         script_dag_item = get_dag_item_by_name(projectId, script["actionName"])
-        all_del_links.append(script_dag_item)
+        if script_dag_item:
+            all_del_links.append(script_dag_item)
         script_item = get_dagcof_item_by_sortVersion(projectId, script["jobName"])
         del_script_links, related_node_ids = get_node_link(all_links, script_item["id"])
         all_del_links.extend(del_script_links)
@@ -152,7 +154,8 @@ def lambda_handler(event, context):
     # 再次判断dataset的link
     for dataset in event["datasets"]:
         dag = get_dag_item_by_name(projectId, dataset["name"])
-        all_del_links.append(dag)
+        if dag:
+            all_del_links.append(dag)
         del_ds_links, related_job_node_ids = get_node_link(all_links, dag["representId"])
         all_del_links.extend(del_ds_links)
 

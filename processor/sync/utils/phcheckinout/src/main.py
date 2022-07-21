@@ -47,13 +47,24 @@ class Check:
 def lambda_handler(event, context):
     body = eval(event["body"])
     print(body)
-    input_names, output_names = Check().check_parameter(**body)
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Headers": "Content-Type",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
-        },
-        "body": json.dumps({"input": input_names, "output": output_names})
-    }
+    try:
+        input_names, output_names = Check().check_parameter(**body)
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "body": json.dumps({"input": input_names, "output": output_names})
+        }
+    except:
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH,DELETE",
+            },
+            "body": json.dumps({"status": "error", "input": "", "output": ""})
+        }

@@ -364,7 +364,7 @@ code:
 
           # 将数据转为多级Schema存入S3
           convert_consistency_schema(df, get_df_schema2json(df)) \
-              .repartition(number_partitions).write.format("parquet") \
+              .write.format("parquet") \
               .mode(mode) \
               .partitionBy("traceId") \
               .save(path)
@@ -386,7 +386,6 @@ code:
                   .option("password", "") \
                   .option("batchsize", 1000) \
                   .option("socket_timeout", 300000) \
-                  .option("numPartitions", number_partitions) \
                   .option("rewrtieBatchedStatements", True) \
                   .save()
 

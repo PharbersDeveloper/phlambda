@@ -1,0 +1,57 @@
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      ApiKeyRequired: false
+      RestApiId: ${RestApiId}
+      ResourceId: !Ref ${ReplaceResource}
+      RequestParameters:
+        method.request.path.proxy: true #加上这组参数可以添加proxy
+        method.request.header.Accept: true
+        method.request.header.Content-Type: true
+      HttpMethod: PATCH
+      AuthorizationType: AWS_IAM
+      Integration:
+        Type: "AWS_PROXY"
+        Uri: !Sub arn:aws-cn:apigateway:cn-northwest-1:lambda:path/2015-03-31/functions/arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}:Current/invocations
+        IntegrationHttpMethod: "POST"
+        TimeoutInMillis: 29000
+        Credentials: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+        RequestParameters:
+          integration.request.path.proxy: 'method.request.path.proxy'
+        IntegrationResponses:
+          - StatusCode: "200"
+      MethodResponses:
+        - StatusCode: "200"
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Origin": Fasle
+          ResponseModels:
+            "application/json": "Empty"
+
+  OPTIONSMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      ApiKeyRequired: false
+      RestApiId: !Ref RestApiId
+      ResourceId: !Ref triggerResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        TimeoutInMillis: 29000
+        RequestTemplates:
+          "application/json": "{\n \"statusCode\": 200\n}"
+        IntegrationResponses:
+          - StatusCode: "200"
+            ResponseParameters:
+              "method.response.header.Access-Control-Allow-Headers": "\"Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token\""
+              "method.response.header.Access-Control-Allow-Methods": "\"GET,OPTIONS,POST\""
+              "method.response.header.Access-Control-Allow-Origin": "\"*\""
+            ResponseTemplates:
+              "application/json": None
+      MethodResponses:
+        - StatusCode: "200"
+          ResponseParameters:
+            "method.response.header.Access-Control-Allow-Headers": False
+            "method.response.header.Access-Control-Allow-Methods": Fasle
+            "method.response.header.Access-Control-Allow-Origin": Fasle
+          ResponseModels:
+            "application/json": "Empty"

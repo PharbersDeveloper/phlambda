@@ -147,17 +147,17 @@ def lambda_handler(event, context):
         script_dag_item = get_dag_item_by_name(projectId, script["actionName"])
         if script_dag_item:
             all_del_links.append(script_dag_item)
-        script_item = get_dagcof_item_by_sortVersion(projectId, script["jobName"])
-        del_script_links, related_node_ids = get_node_link(all_links, script_item["id"])
-        all_del_links.extend(del_script_links)
+            script_item = get_dagcof_item_by_sortVersion(projectId, script["jobName"])
+            del_script_links, related_node_ids = get_node_link(all_links, script_item["id"])
+            all_del_links.extend(del_script_links)
 
     # 再次判断dataset的link
     for dataset in event["datasets"]:
         dag = get_dag_item_by_name(projectId, dataset["name"])
         if dag:
             all_del_links.append(dag)
-        del_ds_links, related_job_node_ids = get_node_link(all_links, dag["representId"])
-        all_del_links.extend(del_ds_links)
+            del_ds_links, related_job_node_ids = get_node_link(all_links, dag["representId"])
+            all_del_links.extend(del_ds_links)
 
     # 根据判断dataset得到的
     for jobId in related_job_node_ids:

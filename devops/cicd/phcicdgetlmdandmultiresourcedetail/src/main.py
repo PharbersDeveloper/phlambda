@@ -68,9 +68,11 @@ return:
         }
     }
 '''
+nodejs_codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-nodejs-codebuild.yaml"
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phlambda-codebuild.yaml"
 git_url = "http://cicd:Abcde196125@192.168.53.179:7990/scm/lgc/phlambda.git"
 buildSpec = "lmdAndApiBuildspec"
+nodejsBuildSpec = "nodejsLmdAndApiBuildspec"
 
 
 def get_dict_ssm_parameter(parameter_name):
@@ -89,14 +91,15 @@ def create_lmd_args(event):
         "cfn": codebuild_cfn_path,
         "parameters": {
             "FunctionName": event["multistage"]["functionName"],
-            "BuildSpec": buildSpec,
+            "BuildSpec": nodejsBuildSpec if event["multistage"]["functionRuntime"] == "nodejs" else buildSpec,
             "FunctionPath": event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"],
             "FunctionPathPrefix": event["multistage"]["prefix"],
             "GitCommit": event["multistage"]["commit"],
             "GitUrl": git_url,
             "BranchName": event["multistage"]["branch"],
             "RepoName": event["multistage"]["repo"],
-            "Version": event["version"]
+            "Version": event["version"],
+            "FunctionRuntime": event["multistage"]["functionRuntime"]
         }
     }
     return lmd_args

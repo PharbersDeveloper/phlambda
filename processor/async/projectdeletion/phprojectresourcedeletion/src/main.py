@@ -37,6 +37,25 @@ class ResourceDeletion:
         bucket = self.s3.Bucket("ph-platform")
         bucket.objects.filter(Prefix=key).delete()
 
+    def query_table(self, table, key, value):
+        table = self.dynamodb.Table(table)
+        response = table.query(
+            KeyConditionExpression=Key(key).eq(value),
+        )
+        return response.get("Items")
+
+    def del_cloudformation(self, projectId):
+        client = boto3.client('cloudformation')
+        stackNames = []
+        scenario_ids = [scenario["id"] for scenario in self.query_table("scenario", 'projectId', "ggjpDje0HUC2JW")]
+        for scenario_id in scenario_ids:
+            stackNames += [str("-".join(["scenario", projectId, trigger["id"]])).replace("_", "") for trigger in
+                           self.query_table("scenario_trigger", 'scenarioId', scenario_id) if trigger]
+        for stackName in stackNames:
+            response = client.delete_stack(
+                StackName=stackName
+            )
+
     def ls_s3_key(self, file_key):
         s3 = boto3.client("s3")
         response = s3.list_objects_v2(
@@ -50,11 +69,11 @@ class ResourceDeletion:
         dataset_key = f"2020-11-11/lake/pharbers/{projectId}"
         job_key = f"2020-11-11/jobs/python/phcli/{projectName}_{projectName}"
         sm_json_key = f"2020-11-11/jobs/statemachine/pharbers/{projectName}_{projectName}"
+        self.del_cloudformation(projectId)
         for table_name in self.ls_s3_key(dataset_key):
             print(table_name)
             if table_name:
                 self.del_clickhouse(f"{projectId}_{table_name}")
-
         for key in [dataset_key, job_key, sm_json_key]:
             self.del_s3_obj(key)
 

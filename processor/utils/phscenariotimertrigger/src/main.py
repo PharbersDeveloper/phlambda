@@ -118,7 +118,7 @@ def lambda_handler(event, context):
     # ---------------------- 埋点 -------------------------------------#
     aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
                                    MetricName='platform-usage',
-                                   tenantId=args["common"]["tenantId"])
+                                   tenantId=event["TenantId"])
     # ---------------------- 埋点 -------------------------------------#
 
     return True

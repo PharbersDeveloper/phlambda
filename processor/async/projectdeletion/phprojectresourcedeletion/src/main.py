@@ -24,7 +24,7 @@ args = {
 class ResourceDeletion:
 
     def __init__(self, host):
-        self.dynamodb = boto3.client("dynamodb")
+        self.dynamodb = boto3.resource("dynamodb")
         self.s3 = boto3.resource("s3")
         self.clickhouse = Client(host=host, port=9000)
 

@@ -47,7 +47,7 @@ class ResourceDeletion:
     def del_cloudformation(self, projectId):
         client = boto3.client('cloudformation')
         stackNames = []
-        scenario_ids = [scenario["id"] for scenario in self.query_table("scenario", 'projectId', "ggjpDje0HUC2JW")]
+        scenario_ids = [scenario["id"] for scenario in self.query_table("scenario", 'projectId', projectId)]
         for scenario_id in scenario_ids:
             stackNames += [str("-".join(["scenario", projectId, trigger["id"]])).replace("_", "") for trigger in
                            self.query_table("scenario_trigger", 'scenarioId', scenario_id) if trigger]

@@ -19,7 +19,16 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:base-layer-node:14
       Environment:
         Variables:
-          EDITION: "DEV"
+          REDISENTITY: "db/token"
+          REDISDATABASE: 0
+          REDISHOST: pharbers-cache.xtjxgq.0001.cnw1.cache.amazonaws.com.cn
+          REDISPORT: 6379
+          ENTITY: "db/oauth"
+          DATABASE: phplatform
+          USER: pharbers
+          PASSWORD: Abcde196125
+          HOST: 192.168.26.64
+          PORT: 5439
       VpcConfig:
         SecurityGroupIds:
           - sg-058404c2ad02dcbb9

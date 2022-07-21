@@ -144,7 +144,7 @@ def create_code_gen_args(event):
             "required": True
         },
         "script": {
-            "id": "",
+            "id": event["script"]["old"]["id"],
             "jobName": event["script"]["new"]["name"],
             "jobPath": "",
             "inputs": json.loads(event["script"]["new"]["inputs"]),

@@ -7,6 +7,7 @@ import random
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
+
 cfn_client = boto3.client('cloudformation')
 manageTemplateS3Key = "ph-platform"
 manageTemplateS3Path = "2020-11-11/cicd/template/manageApiTemplate.yaml"
@@ -17,13 +18,13 @@ lmdVersionTemplateS3Path = "2020-11-11/cicd/template/lmdVersion.yaml"
 lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
-mangeLocalPathPrefix = "/tmp/"
+mangeLocalPathPrefix = "/tmp/cicd/tmp/"
 mangeLocalPathSuffix = "/manage.yaml"
-dealMangeLocalPathPrefix = "/tmp/"
+dealMangeLocalPathPrefix = "/tmp/cicd/tmp/"
 dealMangeLocalPathSuffix = "/deal_manage.yaml"
-apiResourceLocalPathPrefix = "/tmp/"
-lmdVersionLocalPath = "/tmp/lmdVersion.yaml"
-lmdAliasLocalPath = "/tmp/lmdAlias.yaml"
+apiResourceLocalPathPrefix = "/tmp/cicd/tmp/"
+lmdVersionLocalPath = "/tmp/cicd/tmp/lmdVersion.yaml"
+lmdAliasLocalPath = "/tmp/cicd/tmp/lmdAlias.yaml"
 
 
 class Ref(object):
@@ -101,12 +102,21 @@ def s3_file_exist(s3_key, s3_path):
     return result
 
 
-def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath,  resourceName, resourceValue):
-    methods = apiGateWayArgs["methods"]
+def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resource_id_map,
+                       resourceName, resourceValue):
+    methods = resourceValue["methods"]
     methods.insert(0, "Init")
     pathPart = resourceName.split("/")[-1]
-    parentId = runtime.upper() + version.replace("-", "").upper() \
-               + "".join(resourceName.split("/")[:-1]).replace("{}", "") + "INITMETHOD"
+    resourceId = resource_id_map[resourceName]["resourceId"]
+    parentId = apiGateWayArgs["ParentId"]
+    parentName = "/".join(resourceName.split("/")[:-1])
+    print(apiGateWayArgs["ApiResourceId"].keys())
+    if parentName and parentName not in apiGateWayArgs["ApiResourceId"].keys():
+        parentId = "!Ref " + runtime.upper() + version.replace("-", "").upper() \
+                   + resource_id_map[parentName]["resourceId"] + "INITMETHOD"
+    elif parentName and parentName in apiGateWayArgs["ApiResourceId"].keys():
+        parentId = apiGateWayArgs["ApiResourceId"][parentName]
+
 
     f2 = open(mangeLocalPath, "a+")
     for method in methods:
@@ -115,14 +125,15 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath,  resour
             apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
-        f2.write("  " + runtime.upper() + version.replace("-", "").upper() + method.upper() + "METHOD:\n")
+        f2.write("  " + runtime.upper() + version.replace("-", "").upper() + resourceId + method.upper() + "METHOD:\n")
         for line in f1.readlines():
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
-                     .replace("${PathPart}", apiGateWayArgs["PathPart"])
-                     .replace("${ParentId}", apiGateWayArgs["ParentId"])
+                     .replace("${PathPart}", "\"" + pathPart + "\"")
+                     .replace("${ParentId}", parentId)
                      .replace("${ReplaceLmdName}", apiGateWayArgs["LmdName"] + ":" + version)
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
-                     .replace("${ReplaceResource}", runtime.upper() + version.replace("-", "").upper() +"INITMETHOD")
+                     .replace("${ReplaceResource}", runtime.upper() + version.replace("-", "").upper() \
+                              + resourceId + "INITMETHOD")
                      )
         f1.close()
     f2.close()
@@ -155,17 +166,17 @@ def lambda_handler(event, context):
     print(event)
     apiGateWayArgs = event["apiGateWayArgs"]
     runtime = event["runtime"]
-    mangeLocalPath = mangeLocalPathPrefix + event["trigger"]["functionName"] + mangeLocalPathSuffix
-    dealMangeLocalPath = dealMangeLocalPathPrefix + event["trigger"]["functionName"] + dealMangeLocalPathSuffix
+    mangeLocalPath = mangeLocalPathPrefix + event["multistage"]["functionName"] + mangeLocalPathSuffix
+    dealMangeLocalPath = dealMangeLocalPathPrefix + event["multistage"]["functionName"] + dealMangeLocalPathSuffix
     # 2 下载manage template文件
     download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
     # 判断manage.yaml文件是否存在 存在则下载 对此文件进行更改
-    if s3_file_exist("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                                    event["trigger"]["functionName"] + "/manage.yaml"):
-        download_s3_file("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                         event["trigger"]["functionName"] + "/manage.yaml",
+    if s3_file_exist("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                                    event["multistage"]["functionName"] + "/manage.yaml"):
+        download_s3_file("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                         event["multistage"]["functionName"] + "/manage.yaml",
                          mangeLocalPath)
-        copy_manage_resource("ph-platform", resourcePathPrefix + event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"])
+        copy_manage_resource("ph-platform", resourcePathPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"])
     else:
         # 如果不存在 从s3下载manage template文件
         download_s3_file(manageTemplateS3Key, manageTemplateS3Path, mangeLocalPath)
@@ -174,11 +185,15 @@ def lambda_handler(event, context):
         manage_result["Resources"] = {}
     if manage_result.get("Transform"):
         del manage_result["Transform"]
+    # 判断Resource 下以Runtime开头的 如果相同直接删除
+    for resourceName in manage_result["Resources"].keys():
+        if resourceName.startswith(runtime.upper()):
+            del manage_result["Resources"][resourceName]
     # print(manage_result)
 
     # 3 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"
-    functionName = event["trigger"]["functionName"]
-    functionPath = event["trigger"]["prefix"] + "/" + functionName
+    functionName = event["multistage"]["functionName"]
+    functionPath = event["multistage"]["prefix"] + "/" + functionName
     package_s3_key = "ph-platform"
     package_s3_path = resourcePathPrefix + functionPath + "/package/package.yaml"
     package_local_path = "/tmp/" + functionName + "/package.yaml"
@@ -205,6 +220,7 @@ def lambda_handler(event, context):
     write_yaml_file(manage_result, mangeLocalPath)
 
     # 创建Version
+
     download_s3_file(TemplateS3Key, lmdAliasTemplateS3Path, lmdAliasLocalPath)
     download_s3_file(TemplateS3Key, lmdVersionTemplateS3Path, lmdVersionLocalPath)
     manage = open(mangeLocalPath, "a+")
@@ -228,6 +244,8 @@ def lambda_handler(event, context):
     f1.close()
 
     # 5 将 api 相关信息写入到 manage中
+
+
     resources = apiGateWayArgs["resources"]
     resource_id_map = {}
     for resource in resources:
@@ -235,8 +253,10 @@ def lambda_handler(event, context):
         resource_id_map[resource["name"]]["methods"] = resource["methods"]
         resource_id_map[resource["name"]]["resourceId"] = generate().upper()
 
+    print(resource_id_map)
     for resourceName, resourceValue in resource_id_map.items():
-        write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath, resourceName, resourceValue)
+        write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath, resource_id_map,
+                           resourceName, resourceValue)
 
     # 6 处理manage文件
     os.system("touch " + dealMangeLocalPath)
@@ -256,14 +276,14 @@ def lambda_handler(event, context):
     ff.close()
     ff2.close()
 
-    # 6 上传manage文件 manageUrlPrefix + event["trigger"]["prefix"] + "/manage.yaml"
+    # 6 上传manage文件 manageUrlPrefix + event["multistage"]["prefix"] + "/manage.yaml"
     upload_s3_file(
         bucket_name=manageTemplateS3Key,
-        object_name=resourcePathPrefix + event["trigger"]["prefix"] + "/" +
-                    event["trigger"]["functionName"] + "/manage.yaml",
+        object_name=resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                    event["multistage"]["functionName"] + "/manage.yaml",
         file=dealMangeLocalPath
     )
-    manageUrl = manageUrlPrefix + event["trigger"]["prefix"] + "/" + event["trigger"]["functionName"] + "/manage.yaml"
+    manageUrl = manageUrlPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"] + "/manage.yaml"
     print(manageUrl)
     # 创建resource cfn
     stackName = functionName + "-apiresource"

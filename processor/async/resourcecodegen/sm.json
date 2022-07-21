@@ -97,7 +97,8 @@
                 "owner.$": "$.common.owner",
                 "showName.$": "$.common.showName",
                 "jobName.$": "$.script.jobName",
-                "steps.$": "$.steps"
+                "steps.$": "$.steps",
+                "id.$": "$.script.id"
             },
             "ResultPath": "$.steps",
             "Next": "ScriptsFilesCreation"
@@ -520,7 +521,8 @@
                 "projectName.$": "$.common.projectName",
                 "steps.$": "$.steps",
                 "oldImage.$": "$.oldImage",
-                "errors.$": "$.error"
+                "errors.$": "$.error",
+                "ifsteps.$": "$.ifsteps"
             },
             "ResultPath": "$.message",
             "Next": "Failed"

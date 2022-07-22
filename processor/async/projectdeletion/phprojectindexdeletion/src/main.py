@@ -34,6 +34,9 @@ args = {
 
 IndexTables = ['scenario', 'dataset',  'dagconf', 'dag', 'action', 'notification', 'dashboard', 'execution', 'executionStatus', 'logs', 'scenario_trigger', 'scenario_step', 'step', 'slide', 'version']
 
+#----- dynamoDB 二级索引 ------#
+IndexList = ['dataset-projectId-name-index', 'dag-projectId-name-index']
+
 def query_table_item(tableName, QueryKey, Queryvalue):
     dynamodb = boto3.resource('dynamodb')
     ds_table = dynamodb.Table(tableName)
@@ -42,15 +45,18 @@ def query_table_item(tableName, QueryKey, Queryvalue):
     tableScheam = list(map(lambda x:  {'PartitionKey': x['AttributeName']} if x['KeyType'] == 'HASH' else {'SortKey': x['AttributeName']}, tableScheam))
     tableScheamDict = {**tableScheam[0], **tableScheam[1]}
     indexs_of_table = ds_table.global_secondary_indexes
-    if indexs_of_table is None:
-        return None, None
+    if indexs_of_table is None and tableScheamDict['PartitionKey'] == str(QueryKey):
+        res = ds_table.query(
+            KeyConditionExpression=Key(str(QueryKey)).eq(Queryvalue)
+        )
+        return res['Items'], tableScheamDict
     else:
         #-----------table index------------------#
         IndexName = indexs_of_table[0]['IndexName']
         KeySchema = indexs_of_table[0]['KeySchema']
         KeySchema = list(map(lambda x:  {'PartitionKey': x['AttributeName']} if x['KeyType'] == 'HASH' else {'SortKey': x['AttributeName']}, KeySchema))
         MapKeyDict = {**KeySchema[0], **KeySchema[1]}
-        if IndexName == 'dataset-projectId-name-index':
+        if IndexName in IndexList:
             res = ds_table.query(
                 IndexName=IndexName,
                 KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
@@ -75,10 +81,11 @@ def del_table_item(tableName, **kwargs):
 def lambda_handler(event, context):
 
     projectId = event['projectId']
+    print("*"*50 + " event " + "*"*50 + "\n", event)
 
     result = {}
+    count = 0
     try:
-        count = 0
         sum_of_tables = len(IndexTables)
         #------------------获取表中含index的Items数据--------------------------------------#
         for table in IndexTables:

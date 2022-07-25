@@ -11,6 +11,7 @@ Resources:
       FunctionName: phtriggersindex
       MemorySize: 1024
       Description: "phtriggersindex"
+      Timeout: 300
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:

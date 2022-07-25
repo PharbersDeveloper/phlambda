@@ -40,6 +40,7 @@ IndexList = ['dataset-projectId-name-index', 'dag-projectId-name-index']
 
 #------ 处理空Item -----------#
 def handleQueryResponse(resp):
+    print("*"*50 + " query  response  " + "*"*50 + "\n", str(resp))
     try:
         if len(resp['Items']) == 0:
             return None
@@ -62,7 +63,7 @@ def query_table_item(tableName, QueryKey, Queryvalue):
         res = ds_table.query(
             KeyConditionExpression=Key(str(QueryKey)).eq(Queryvalue)
         )
-        return handleQueryResponse(res['Items']), tableScheamDict
+        return handleQueryResponse(res), tableScheamDict
     else:
         #-----------table index------------------#
         IndexName = indexs_of_table[0]['IndexName']
@@ -74,12 +75,12 @@ def query_table_item(tableName, QueryKey, Queryvalue):
                 IndexName=IndexName,
                 KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
             )
-            return handleQueryResponse(res['Items']), tableScheamDict
+            return handleQueryResponse(res), tableScheamDict
         elif tableScheamDict['PartitionKey'] == str(QueryKey):
             res = ds_table.query(
                 KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
             )
-            return handleQueryResponse(res['Items']), tableScheamDict
+            return handleQueryResponse(res), tableScheamDict
         else:
             return None, None
 

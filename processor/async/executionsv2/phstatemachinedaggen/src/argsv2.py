@@ -1,6 +1,6 @@
 import json
 import os
-from phmetriclayer import aws_cloudwatch_put_metric_data
+
 
 def extractJobArgs(jobNames, jobs, event):
     args = {}
@@ -92,7 +92,6 @@ def submitArgsByEngine(curJ, event):
 
     projectName = event['projectName']
     projectIp = event['engine']['dss']['ip']
-    tenantId = event["tenantId"]
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
@@ -132,7 +131,5 @@ def submitArgsByEngine(curJ, event):
 
     result['HadoopJarStep']['Args'] = tmp
 
-    aws_cloudwatch_put_metric_data(NameSpace="pharbers-platform",
-                                   MetricName="platform-usage",
-                                   tenantId=tenantId)
+    
     return result

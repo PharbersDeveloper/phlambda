@@ -105,6 +105,7 @@ def s3_file_exist(s3_key, s3_path):
 def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resource_id_map,
                        resourceName, resourceValue):
     methods = resourceValue["methods"]
+    auth = resourceValue["auth"]
     methods.insert(0, "Init")
     pathPart = resourceName.split("/")[-1]
     resourceId = resource_id_map[resourceName]["resourceId"]
@@ -121,7 +122,7 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
     for method in methods:
         download_s3_file(
             apiTemplateS3Key,
-            apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
+            apiTemplateS3PathPrefix + auth + "Api/" + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
         f2.write("  " + runtime.upper() + version.replace("-", "").upper() + resourceId + method.upper() + "METHOD:\n")
@@ -250,6 +251,7 @@ def lambda_handler(event, context):
     for resource in resources:
         resource_id_map[resource["name"]] = {}
         resource_id_map[resource["name"]]["methods"] = resource["methods"]
+        resource_id_map[resource["name"]]["auth"] = resource["auth"]
         resource_id_map[resource["name"]]["resourceId"] = generate().upper()
 
     print(resource_id_map)

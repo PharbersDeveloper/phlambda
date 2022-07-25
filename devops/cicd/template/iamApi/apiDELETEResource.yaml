@@ -11,7 +11,7 @@
       AuthorizationType: AWS_IAM
       Integration:
         Type: "AWS_PROXY"
-        Uri: !Sub arn:aws-cn:apigateway:cn-northwest-1:lambda:path/2015-03-31/functions/arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}:Current/invocations
+        Uri: arn:aws-cn:apigateway:cn-northwest-1:lambda:path/2015-03-31/functions/arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}/invocations
         IntegrationHttpMethod: "POST"
         TimeoutInMillis: 29000
         Credentials: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd

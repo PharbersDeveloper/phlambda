@@ -122,7 +122,7 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
     for method in methods:
         download_s3_file(
             apiTemplateS3Key,
-            apiTemplateS3PathPrefix + auth + "Api/" + "api" + method.upper() + "Resource.yaml",
+            apiTemplateS3PathPrefix + auth.lower() + "Api/" + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
         f2.write("  " + runtime.upper() + version.replace("-", "").upper() + resourceId + method.upper() + "METHOD:\n")

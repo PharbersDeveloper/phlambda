@@ -42,6 +42,9 @@ class TriggersIndex:
     def get_traceId(self):
         return self.event['traceId']
 
+    def get_projectId(self):
+        return self.event['projectId']
+
     def put_item(self, scenarioId, TriggerId, active, detail, index, mode, traceId):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_trigger')
@@ -114,9 +117,37 @@ class TriggersIndex:
         NeedDeleteKey = [x for x in AllScenarioKey if x not in CurrentTriggers]
         return NeedDeleteKey
 
+    def get_trigger_stackName(self, triggerId):
+
+        return str("-".join(["scenario", self.get_projectId(), str(triggerId)])).replace("_", "")
+
+    def del_trigger_rule(self, stackName):
+        print("*"*50 +"stackName" + "*"*50 + "\n" +stackName)
+        processMessage = {}
+        processMessage["Name"] = stackName
+
+        try:
+            client = boto3.client('cloudformation')
+            response = client.delete_stack(
+                StackName=stackName # event['runnerId']
+            )
+            processMessage['status'] = 'success'
+            processMessage['message'] = f'delete {stackName} resource success'
+            print(response)
+        except Exception as e:
+            print("*"*50 + "error" + "*"*50)
+            print(str(e))
+            processMessage['status'] = 'failed'
+            processMessage['message'] = str(e)
+        return processMessage
+
     def DeleteNotNeedItems(self):
         NeedDeleteKey = self.GetNeedDeleteItems(self.event["scenario"]["id"])
+        #------ 删除 event rule ----------------#
         for item in NeedDeleteKey:
+            #----- delete per event rule ---------------#
+            self.del_trigger_rule(self.get_trigger_stackName(item['id']))
+            #----- update item of trigger ---------------#
             self.del_table_item("scenario_trigger", "scenarioId", "id", item["scenarioId"], item["id"])
 
     def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):

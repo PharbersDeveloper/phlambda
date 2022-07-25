@@ -186,7 +186,8 @@ def lambda_handler(event, context):
     if manage_result.get("Transform"):
         del manage_result["Transform"]
     # 判断Resource 下以Runtime开头的 如果相同直接删除
-    for resourceName in manage_result["Resources"].keys():
+    manage_result_resources = list(manage_result["Resources"].keys())
+    for resourceName in manage_result_resources:
         if resourceName.startswith(runtime.upper()):
             del manage_result["Resources"][resourceName]
     # print(manage_result)
@@ -245,10 +246,11 @@ def lambda_handler(event, context):
 
     # 5 将 api 相关信息写入到 manage中
 
-
+    pathParts = []
     resources = apiGateWayArgs["resources"]
     resource_id_map = {}
     for resource in resources:
+        pathParts.append(resource["name"].split("/")[-1])
         resource_id_map[resource["name"]] = {}
         resource_id_map[resource["name"]]["methods"] = resource["methods"]
         resource_id_map[resource["name"]]["auth"] = resource["auth"]
@@ -273,6 +275,10 @@ def lambda_handler(event, context):
             line = "            \"method.response.header.Access-Control-Allow-Methods\": \"\'GET,OPTIONS,POST\'\"\n"
         if "method.response.header.Access-Control-Allow-Origin: *" in line:
             line = "            \"method.response.header.Access-Control-Allow-Origin\": \"\'*\'\"\n"
+        for pathPart in pathParts:
+            if "      PathPart: " + pathPart in line:
+                line = "      PathPart: " + "\"" + pathPart + "\"\n"
+
         ff2.write(line)
     ff.close()
     ff2.close()

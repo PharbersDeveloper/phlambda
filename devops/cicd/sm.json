@@ -1,5 +1,5 @@
 {
-   "Comment": "Pharbers Resource Creation",
+   "Comment": "CICD Resource Creation",
    "StartAt": "StartState",
    "States": {
       "StartState": {

@@ -20,14 +20,9 @@ Resources:
           SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD: 104857600
           SPARK_FILE_MAX_RECORDS: 10000
       FunctionName: phstatemachinedaggen
-      Description: "根据前端传入参数，生成符合调用dag submit的参数"
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
+      Description: "根据前端传入参数,生成符合调用dag submit的参数"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-058404c2ad02dcbb9
-          - sg-09f5205a1194149ab
-        SubnetIds:
-          - subnet-0260eab5acd58bc53
-          - subnet-0e3daa88acef9b136

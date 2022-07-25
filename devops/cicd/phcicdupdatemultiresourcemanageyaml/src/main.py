@@ -110,7 +110,6 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
     resourceId = resource_id_map[resourceName]["resourceId"]
     parentId = apiGateWayArgs["ParentId"]
     parentName = "/".join(resourceName.split("/")[:-1])
-    print(apiGateWayArgs["ApiResourceId"].keys())
     if parentName and parentName not in apiGateWayArgs["ApiResourceId"].keys():
         parentId = "!Ref " + runtime.upper() + version.replace("-", "").upper() \
                    + resource_id_map[parentName]["resourceId"] + "INITMETHOD"

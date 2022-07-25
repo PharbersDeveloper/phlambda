@@ -18,6 +18,8 @@ Resources:
           SPARK_EXECUTOR_MEMORY: "1g"
           SPARK_EXECUTOR_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
       FunctionName: phsamplegen
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Description: "phsamplegen"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

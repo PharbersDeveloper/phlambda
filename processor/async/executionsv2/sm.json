@@ -11,6 +11,7 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
+            "tenantId.$": "$.common.tenantId",
             "engine.$": "$.engine",
             "calculate.$": "$.calculate"
          },

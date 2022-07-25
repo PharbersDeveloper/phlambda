@@ -1,6 +1,6 @@
 import json
 import os
-
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 def extractJobArgs(jobNames, jobs, event):
     args = {}
@@ -86,13 +86,13 @@ def submitArgsByEngine(curJ, event):
     tmp.append('--conf')
     tmp.append('spark.sql.broadcastTimeout=%s' % (os.getenv("SPARK_SQL_BROADCASTTIMEOUT")))  # To ENV
     tmp.append('--conf')
-    tmp.append(
-        'spark.sql.autoBroadcastJoinThreshold=%s' % (os.getenv("SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD")))  # To ENV
+    tmp.append('spark.sql.autoBroadcastJoinThreshold=%s' % (os.getenv("SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD")))  # To ENV
     tmp.append('--conf')
     tmp.append(f"spark.sql.files.maxRecordsPerFile={os.getenv('SPARK_FILE_MAX_RECORDS')}")
 
     projectName = event['projectName']
     projectIp = event['engine']['dss']['ip']
+    tenantId = event["tenantId"]
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
@@ -113,11 +113,9 @@ def submitArgsByEngine(curJ, event):
         tmp.append(ph_conf)
     else:
         tmp.append('--jars')
-        tmp.append(
-            's3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar')
+        tmp.append('s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar')
         tmp.append('--py-files')
-        tmp.append(
-            's3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/' + dagName + '/' + jobName + '/phjob.py')
+        tmp.append('s3://ph-platform/2020-11-11/jobs/python/phcli/common/phcli-4.0.0-py3.8.egg,s3://ph-platform/2020-11-11/jobs/python/phcli/' + dagName + '/' + jobName + '/phjob.py')
         tmp.append('s3://ph-platform/2020-11-11/jobs/python/phcli/' + dagName + '/' + jobName + '/phmain.py')
         tmp.append('--owner')
         tmp.append(event['showName'])
@@ -133,4 +131,8 @@ def submitArgsByEngine(curJ, event):
         tmp.append(ph_conf)
 
     result['HadoopJarStep']['Args'] = tmp
+
+    aws_cloudwatch_put_metric_data(NameSpace="pharbers-platform",
+                                   MetricName="platform-usage",
+                                   tenantId=tenantId)
     return result

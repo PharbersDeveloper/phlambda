@@ -32,11 +32,13 @@ args = {
 }
 '''
 #---- !!! 注：DynamoDB 表无二级索引时，默认分区键为 projectId   ------------#
-
+#TODO 部分结构不满足projectId作为分区键or不存在二级索引，目前先过滤掉
+filterTables = ['executionStatus', 'logs', 'scenario_trigger', 'scenario_step', 'slide', 'version']
 IndexTables = ['scenario', 'dataset',  'dagconf', 'dag', 'action', 'notification', 'dashboard', 'execution', 'executionStatus', 'logs', 'scenario_trigger', 'scenario_step', 'step', 'slide', 'version']
+IndexTables = [x for x in IndexTables if x not in filterTables]
 
 #----- dynamoDB 二级索引 ------#
-IndexList = ['dataset-projectId-name-index', 'dag-projectId-name-index']
+IndexList = ['dataset-projectId-name-index', 'dag-projectId-name-index', 'notification-traceId-id-index', 'runnerId-jobName-index','id-index-index']
 
 #------ 处理空Item -----------#
 def handleQueryResponse(resp):
@@ -73,11 +75,6 @@ def query_table_item(tableName, QueryKey, Queryvalue):
         if IndexName in IndexList:
             res = ds_table.query(
                 IndexName=IndexName,
-                KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
-            )
-            return handleQueryResponse(res), tableScheamDict
-        elif tableScheamDict['PartitionKey'] == str(QueryKey):
-            res = ds_table.query(
                 KeyConditionExpression=Key(MapKeyDict['PartitionKey']).eq(Queryvalue)
             )
             return handleQueryResponse(res), tableScheamDict

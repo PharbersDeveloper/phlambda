@@ -217,6 +217,7 @@ def lambda_handler(event, context):
                      .replace("${S3TemplateKey}", event["stepFunctionArgs"]["S3TemplateKey"])
                      .replace("${StateMachineName}", event["stepFunctionArgs"]["StateMachineName"])
                      .replace("${SubmitOwner}", event["stepFunctionArgs"]["SubmitOwner"])
+                     .replace("${Date}", str(int(round(time.time() * 1000))))
                      )
     manage.write("\n")
     manage.write("Transform: AWS::Serverless-2016-10-31")

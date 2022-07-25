@@ -8,7 +8,9 @@
       StateMachineName: ${StateMachineName}
       StateMachineType: STANDARD
       Tags:
-        - Key: Tenrant
+        - Key: Tenant
           Value: Pharbers
         - Key: Owner
           Value: ${SubmitOwner}
+        - Key: Date
+          Value: ${Date}

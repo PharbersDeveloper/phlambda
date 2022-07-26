@@ -577,7 +577,7 @@ code:
           out_df <- transform_other_df2_spark_df(runtime, args$out_df)
           if (count(out_df) == 0) {
               cols <- list()
-              column_types <- SparkR::dtypes(df)
+              column_types <- SparkR::dtypes(out_df)
               for (ct in column_types) {
                   item <- strsplit(ct, '" "')
                   col <- item[[1]]

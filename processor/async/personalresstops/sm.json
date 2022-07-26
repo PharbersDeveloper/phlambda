@@ -91,7 +91,7 @@
       },
       "CodeeditorDeletionCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phterminationresourcecheck-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phterminationresourcecheck",
          "Parameters": {
             "stackNames.$": "$.iterator.stackNames"
          },
@@ -155,7 +155,7 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "delete",
-            "key.$": "States.Format('jupyter-{}-{}', $.common.owner, $.resourceId)",
+            "key.$": "States.Format('{}-{}-{}', $.iterator.type, $.common.owner, $.resourceId)",
             "value": {}
          },
          "ResultPath": "$.resources",

@@ -30,13 +30,14 @@ def lambda_handler(event, context):
 
     print(resources)
 
+    type = "jupyter"
     stackNames = []
     # 2. 找到所有的resouce，并生成需要修改的 stack name
     for tenant_item in resources:
         tmp = json.loads(tenant_item["properties"])
         for item in tmp:
             stackNames.append("-".join([tenant_item["role"], item["type"], event["resourceId"], tenant_item["ownership"], tenant_item["owner"]]))
-
+            type = item["type"]
 
     stackNames = list(map(lambda x: x.replace("_", "-").replace(":", "-").replace("+", "-"), stackNames))
 
@@ -52,5 +53,6 @@ def lambda_handler(event, context):
 
     return {
         "stackNames": stackNames,
-        "wait": True
+        "wait": True,
+        "type": type
     }

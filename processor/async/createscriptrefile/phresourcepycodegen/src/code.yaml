@@ -93,7 +93,8 @@ code:
               "double": DoubleType(),
               "float": DoubleType(),
               "long": LongType(),
-              "bigint": LongType()
+              "bigint": LongType(),
+              "integer": LongType()
           }
 
           def transform_number(default="double"):
@@ -114,7 +115,8 @@ code:
               "double": transform_number,
               "float": transform_number,
               "long": transform_number,
-              "bigint": transform_number
+              "bigint": transform_number,
+              "integer": transform_number
           }
 
           types = list(set(map(lambda item: item["type"].lower(), schemas)))

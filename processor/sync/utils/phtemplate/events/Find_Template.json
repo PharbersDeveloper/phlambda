@@ -1,15 +1,13 @@
 {
-  "body": "{\"target\":\"notification\",\"id\":\"fishman_fishman_developer_2022-03-11T06:55:28+00:00\",\"runnerId\":\"\",\"type\":\"ptp\"}",
-  "resource": "/phnotification/{projectId}/{ownerId}/{eventName}",
-  "path": "/phnotification/fishman_fishman_developer_compute_A/5UBSLZvV0w9zh7-lZQap/runDag1646981722223",
-  "httpMethod": "POST",
+  "body": "",
+  "resource": "/phplatform/{type}",
+  "path": "",
+  "httpMethod": "GET",
   "isBase64Encoded": false,
   "queryStringParameters": {
   },
   "pathParameters": {
-    "projectId": "fishman_fishman_developer_compute_A",
-    "ownerId": "5UBSLZvV0w9zh7-lZQap",
-    "eventName": "runDag1646981722223"
+    "type": ""
   },
   "stageVariables": {
     "baz": "qux"

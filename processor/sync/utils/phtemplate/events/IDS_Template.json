@@ -1,0 +1,101 @@
+{
+  "resource": "/phplatform/{type}",
+  "path": "/phplatform/projects",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Authorization": "64288bd766d96b683d079a72cebfb9e9abef175de2e11e0898913ed0e2161935",
+    "Cache-Control": "no-cache",
+    "Host": "apiv2.pharbers.com",
+    "Postman-Token": "012eb868-94ef-4fce-9da8-96a19066508b",
+    "User-Agent": "PostmanRuntime/7.28.4",
+    "X-Amzn-Trace-Id": "Root=1-61dce0d0-5ac5136d3822c914453e1156",
+    "X-Forwarded-For": "221.219.246.98",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "*/*"
+    ],
+    "Accept-Encoding": [
+      "gzip, deflate, br"
+    ],
+    "Authorization": [
+      "64288bd766d96b683d079a72cebfb9e9abef175de2e11e0898913ed0e2161935"
+    ],
+    "Cache-Control": [
+      "no-cache"
+    ],
+    "Host": [
+      "apiv2.pharbers.com"
+    ],
+    "Postman-Token": [
+      "012eb868-94ef-4fce-9da8-96a19066508b"
+    ],
+    "User-Agent": [
+      "PostmanRuntime/7.28.4"
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-61dce0d0-5ac5136d3822c914453e1156"
+    ],
+    "X-Forwarded-For": [
+      "221.219.246.98"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "queryStringParameters": {
+    "ids[]": "JfSmQBYUpyb4jsei"
+  },
+  "multiValueQueryStringParameters": {
+    "ids[]": [
+      "JfSmQBYUpyb4jsei"
+    ]
+  },
+  "pathParameters": {
+    "type": "projects"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "gujjwe",
+    "authorizer": {
+      "principalId": "5UBSLZvV0w9zh7-lZQap",
+      "integrationLatency": 0
+    },
+    "resourcePath": "/phplatform/{type}",
+    "httpMethod": "GET",
+    "extendedRequestId": "LwgQrGVTZPgFY-Q=",
+    "requestTime": "11/Jan/2022:01:43:44 +0000",
+    "path": "/phplatform/projects",
+    "accountId": "444603803904",
+    "protocol": "HTTP/1.1",
+    "stage": "v0",
+    "domainPrefix": "apiv2",
+    "requestTimeEpoch": 1641865424959,
+    "requestId": "eaf1f4f9-0349-4dd4-9157-65d18cc5041c",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "221.219.246.98",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "PostmanRuntime/7.28.4",
+      "user": null
+    },
+    "domainName": "apiv2.pharbers.com",
+    "apiId": "r8cfw4b09l"
+  },
+  "body": "",
+  "isBase64Encoded": false
+}

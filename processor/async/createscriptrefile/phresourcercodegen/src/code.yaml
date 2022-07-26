@@ -290,14 +290,18 @@ code:
           )
       }
 
-      handle_msg_to_ds <- function(project_id, name) {
+      handle_msg_to_ds <- function(project_id, name, df) {
           ds_name <- paste(project_id, "_", name, sep = "")
           schema <- list()
           item <- get_ds_item(project_id, name)
-          result <- create_table_http_call(paste("SELECT name, type from system.columns where database='default' AND table='", ds_name, "' FORMAT JSON", sep = ""))
-
-          for (data in fromJSON(result, simplifyVector = FALSE)$data) {
-              content <- list(src = data$name, des = data$name, type = data$type)
+          column_types <- SparkR::dtypes(df)
+          for (ct in column_types) {
+              item <- strsplit(ct, '" "')
+              content <- list(
+                  src=item[[1]],
+                  des=item[[1]],
+                  type=str_to_title(item[[2]])
+              )
               schema <- append(schema, list(content))
           }
           schema_str <- paste0(toJSON(schema, auto_unbox = TRUE), spe = "")
@@ -629,7 +633,7 @@ code:
           output_result <- get_ds_item(project_id, output)
           output_id <- output_result$id$S
 
-          handle_msg_to_ds(project_id, output)
+          handle_msg_to_ds(project_id, output, out_df)
 
           handle_msg_to_version(project_id, output_id, output_version, owner)
       }

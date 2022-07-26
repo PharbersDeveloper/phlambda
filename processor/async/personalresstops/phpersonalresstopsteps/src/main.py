@@ -56,3 +56,4 @@ def lambda_handler(event, context):
         "wait": True,
         "type": type
     }
+

@@ -43,9 +43,8 @@ def submitArgsByEngine(curJ, event):
     result['HadoopJarStep'] = {}
     result['HadoopJarStep']['Jar'] = 'command-runner.jar'
     coefficient = event['calculate']['conf']['userConf'].get("coefficient", "1")
-    print("====================================>>>>")
-    print(event['calculate']['conf'])
-    print(coefficient)
+    # print("====================================>>>>start")
+    # print(event['calculate']['conf'])
 
     spark_args = {
         "1": {
@@ -80,8 +79,7 @@ def submitArgsByEngine(curJ, event):
         }
 
     }
-    print(spark_args[coefficient])
-    print("====================================>>>>")
+    # print("====================================>>>>end")
     tmp = []
     tmp.append('spark-submit')
     tmp.append('--deploy-mode')
@@ -113,19 +111,17 @@ def submitArgsByEngine(curJ, event):
     # 通过projecId
     projectId = event["projectId"]
     jobId = curJ["representId"]
-    inputs = get_dagcof_item_by_jobId(projectId, jobId)["inputs"]
+    inputs = json.loads(get_dagcof_item_by_jobId(projectId, jobId)["inputs"])
     datasets = event['calculate']['conf']['datasets']
     input_datasets = []
     for dataset in datasets:
         if dataset["name"] in inputs:
+            print(dataset["name"])
             input_datasets.append(dataset)
-    print(input_datasets)
-    dict_ph_conf = event['calculate']['conf']
+    dict_ph_conf = event['calculate']['conf'].copy()
     dict_ph_conf["datasets"] = input_datasets
-    print(dict_ph_conf)
 
     ph_conf = json.dumps(dict_ph_conf, ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
-
     if curJ['runtime'] == 'r' or curJ['runtime'] == 'sparkr':
         tmp.append('--jars')
         tmp.append('/jars/clickhouse-jdbc-0.2.4.jar,/jars/guava-30.1.1-jre.jar')

@@ -296,12 +296,8 @@ code:
           item <- get_ds_item(project_id, name)
           column_types <- SparkR::dtypes(df)
           for (ct in column_types) {
-              item <- strsplit(ct, '" "')
-              content <- list(
-                  src=item[[1]],
-                  des=item[[1]],
-                  type=str_to_title(item[[2]])
-              )
+              dtypes_item <- strsplit(ct, '" "')
+              content <- list(src=dtypes_item[[1]], des=dtypes_item[[1]], type=str_to_title(dtypes_item[[2]]))
               schema <- append(schema, list(content))
           }
           schema_str <- paste0(toJSON(schema, auto_unbox = TRUE), spe = "")

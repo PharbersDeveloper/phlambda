@@ -1,1 +1,291 @@
-{"owner": "APqnkJ2TjdeYG-gsc9n8", "showName": "渊杨", "engine": {"type": "awsemr", "id": "j-294Q24LIRJWSA", "dss": {"ip": "192.168.32.58"}}, "runnerId": "automax_automax_developer_2022-05-23T10:43:21+00:00", "calculate": {"type": "dataset", "name": "new_hospital", "conf": {"datasets": [{"name": "not_arrived", "representId": "xkgyES3Pkg6rpQj", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "not_arrived", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "cpa_pha_mapping", "representId": "temHHkBqKt74WKH", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "cpa_pha_mapping", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "universe_base", "representId": "sw2qtFWTB2end2E", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "universe_base", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "max_raw_data", "representId": "eV78Pks36x6MucK", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "max_raw_data", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "poi", "representId": "b5c99k1qR1T2HKM", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "poi", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "published", "representId": "U0dxVCcsjGziwnj", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "published", "databaseName": "zudIcG_17yj8CEUoCTHg"}}, {"name": "prod_mapping", "representId": "Ny1R9MM3SfmjFtc", "version": [], "cat": "catalog", "prop": {"path": "", "partitions": 1, "format": "", "tableName": "prod_mapping", "databaseName": "zudIcG_17yj8CEUoCTHg"}}], "scripts": [], "userConf": {}, "ownerId": "APqnkJ2TjdeYG-gsc9n8", "showName": "渊杨", "jobDesc": "runDag1653301912233"}, "recursive": true}, "projectName": "automax", "projectId": "s7nBDbpqfUShq1w"}
+{
+  "owner": "93e3865a-ea36-4f9e-af21-e0a8187a48f1",
+  "showName": "袁毓蔚",
+  "engine": {
+    "type": "awsemr",
+    "id": "j-1E9YYV7AY52KA",
+    "dss": {
+      "ip": "192.168.31.240"
+    }
+  },
+  "tenantId": "zudIcG_17yj8CEUoCTHg",
+  "runnerId": "automax_automax_developer_2022-07-26T06:00:49+00:00",
+  "calculate": {
+    "type": "dataset",
+    "name": "max_result_standard",
+    "conf": {
+      "datasets": [
+        {
+          "name": "not_arrived",
+          "representId": "xkgyES3Pkg6rpQj",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "not_arrived",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "cpa_pha_mapping",
+          "representId": "temHHkBqKt74WKH",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "cpa_pha_mapping",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "universe_base",
+          "representId": "sw2qtFWTB2end2E",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "universe_base",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "weight_default",
+          "representId": "qfYuITvfiIWs6Tz",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "weight_default",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "province_city_mapping_common",
+          "representId": "ooL6Hh20wpcAB3z",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "province_city_mapping_common",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "universe_outlier",
+          "representId": "lrJ0ImrqURVTsJx",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "universe_outlier",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "province_city_mapping",
+          "representId": "lb1kDLPWAz7eD1Y",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "province_city_mapping",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "product_map_all_atc",
+          "representId": "j8Di8mBKXkFUfsN",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "product_map_all_atc",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "max_raw_data",
+          "representId": "eV78Pks36x6MucK",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "max_raw_data",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "poi",
+          "representId": "b5c99k1qR1T2HKM",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "poi",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "master_data_map",
+          "representId": "VSTyv6xM9Yw2eQJ",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "master_data_map",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "id_bedsize",
+          "representId": "VMHvDhj3WLW2fSe",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "id_bedsize",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "published",
+          "representId": "U0dxVCcsjGziwnj",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "published",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "mkt_mapping",
+          "representId": "T5HdEGCBPYU7dYi",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "mkt_mapping",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "prod_mapping",
+          "representId": "Ny1R9MM3SfmjFtc",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "prod_mapping",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "cpa_pha_mapping_common",
+          "representId": "KIfB6tRiUe6UVTN",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "cpa_pha_mapping_common",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "max_raw_data_std",
+          "representId": "JfrDj8b2r0tR8tN",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "max_raw_data_std",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "factor",
+          "representId": "GIW00UG4fg19bp0",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "factor",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "weight",
+          "representId": "8c79gRkxnNZ7tYd",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "weight",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        },
+        {
+          "name": "universe_other",
+          "representId": "2EdPsEptOMKWFiL",
+          "version": [],
+          "cat": "catalog",
+          "prop": {
+            "path": "",
+            "partitions": 1,
+            "format": "",
+            "tableName": "universe_other",
+            "databaseName": "zudIcG_17yj8CEUoCTHg"
+          }
+        }
+      ],
+      "scripts": [],
+      "userConf": {
+        "data": "None"
+      },
+      "ownerId": "93e3865a-ea36-4f9e-af21-e0a8187a48f1",
+      "showName": "袁毓蔚",
+      "jobDesc": "runDag1658815226965"
+    },
+    "recursive": true
+  },
+  "projectName": "automax",
+  "projectId": "s7nBDbpqfUShq1w"
+}

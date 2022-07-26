@@ -1,5 +1,6 @@
 import json
 import boto3
+from phmetriclayer import aws_cloudwatch_put_metric_data
 from datetime import datetime
 from collections import deque
 from notify import *
@@ -50,6 +51,10 @@ def lambda_handler(event, context):
     ts = datetime.timestamp(dt)
 
     result = build_execution_process(event, ts, dynamodb)
+
+    aws_cloudwatch_put_metric_data(NameSpace="pharbers-platform",
+                                   MetricName="platform-usage",
+                                   tenantId=event["tenantId"])
 
     return result
 

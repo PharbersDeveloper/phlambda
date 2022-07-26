@@ -7,9 +7,8 @@ Resources:
     Properties:
       Handler: app.lambdaHandler
       Runtime: nodejs14.x
-      AutoPublishAlias: Current
       CodeUri: ./lmdcode
-      FunctionName: lmd-phplatform-V2
+      FunctionName: phplatform
       Description: "JSONAPI Lambda cloudformation"
       Timeout: 600
       Role: arn:aws-cn:iam::444603803904:role/Pharbers-ETL-Roles

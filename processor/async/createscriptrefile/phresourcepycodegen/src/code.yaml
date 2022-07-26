@@ -93,7 +93,8 @@ code:
               "double": DoubleType(),
               "float": DoubleType(),
               "long": LongType(),
-              "bigint": LongType()
+              "bigint": LongType(),
+              "integer": LongType()
           }
 
           def transform_number(default="double"):
@@ -114,7 +115,8 @@ code:
               "double": transform_number,
               "float": transform_number,
               "long": transform_number,
-              "bigint": transform_number
+              "bigint": transform_number,
+              "integer": transform_number
           }
 
           types = list(set(map(lambda item: item["type"].lower(), schemas)))
@@ -241,7 +243,7 @@ code:
           if len(versions) != 0:
               if suffix == "csv":
                   df = df.where(df["version"].isin(versions))
-              else:    
+              else:
                   df = df.where(df["traceId"].isin(versions))
           return df
 
@@ -399,23 +401,26 @@ code:
       # build output DF
       def build_output_df(runtime, kwargs, ph_conf, output_ds_name, output_version, tenant_ip, project_id):
           out_df = transform_other_df2_spark_df(runtime, kwargs.get("out_df"))
-          if out_df:
-              table_name = project_id + "_" + output_ds_name
-              output_id = get_ds_with_index(output_ds_name, project_id).get("id")
-              ch_client = Client(host=tenant_ip)
-              out_df = add_column(out_df, output_version, col_name="version")
+          if out_df.count() == 0:
+              cols = list(map(lambda x: x[0], out_df.dtypes))
+              values = [tuple([""] * len(cols))]
+              out_df = spark.createDataFrame(values, cols)
+          table_name = project_id + "_" + output_ds_name
+          output_id = get_ds_with_index(output_ds_name, project_id).get("id")
+          ch_client = Client(host=tenant_ip)
+          out_df = add_column(out_df, output_version, col_name="version")
 
-              # 保持原有产品层级的version，新增traceId内容与version一致
-              add_traceId_df = add_column(out_df, output_version, col_name='traceId')
-              sql_create_table = build_create_sql(out_df, table_name)
+          # 保持原有产品层级的version，新增traceId内容与version一致
+          add_traceId_df = add_column(out_df, output_version, col_name='traceId')
+          sql_create_table = build_create_sql(out_df, table_name)
 
-              # 因为schema可能会与原不一致导致插入错误，在此之前会进行删除表操作
-              ch_client.execute(f"DROP TABLE IF EXISTS default.`{project_id}_{output_ds_name}`")
+          # 因为schema可能会与原不一致导致插入错误，在此之前会进行删除表操作
+          ch_client.execute(f"DROP TABLE IF EXISTS default.`{project_id}_{output_ds_name}`")
 
-              ch_client.execute(sql_create_table)
+          ch_client.execute(sql_create_table)
 
-              write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, table_name,
-                              output_id)
+          write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, table_name,
+                          output_id)
 
 
       @click.command()

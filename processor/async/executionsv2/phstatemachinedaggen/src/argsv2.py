@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def extractJobArgs(jobNames, jobs, event):
     args = {}
 
@@ -71,22 +72,23 @@ def submitArgsByEngine(curJ, event):
     tmp.append('--deploy-mode')
     tmp.append('cluster')
     tmp.append('--conf')
-    tmp.append('spark.driver.cores=' + spark_args[coefficient]["SPARK_DRIVER_CORES"]) # To ENV
+    tmp.append('spark.driver.cores=' + spark_args[coefficient]["SPARK_DRIVER_CORES"])  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.driver.memory=' + spark_args[coefficient]["SPARK_DRIVER_MEMORY"]) # To ENV
+    tmp.append('spark.driver.memory=' + spark_args[coefficient]["SPARK_DRIVER_MEMORY"])  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.executor.cores=' + spark_args[coefficient]["SPARK_EXECUTOR_CORES"]) # To ENV
+    tmp.append('spark.executor.cores=' + spark_args[coefficient]["SPARK_EXECUTOR_CORES"])  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.executor.memory=' + spark_args[coefficient]["SPARK_EXECUTOR_MEMORY"]) # To ENV
+    tmp.append('spark.executor.memory=' + spark_args[coefficient]["SPARK_EXECUTOR_MEMORY"])  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.executor.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
+    tmp.append('spark.executor.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS")))  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.driver.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS"))) # To ENV
+    tmp.append('spark.driver.extraJavaOptions=%s' % (os.getenv("SPARK_EXECUTOR_EXTRAJAVAOPTIONS")))  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.sql.broadcastTimeout=%s' % (os.getenv("SPARK_SQL_BROADCASTTIMEOUT"))) # To ENV
+    tmp.append('spark.sql.broadcastTimeout=%s' % (os.getenv("SPARK_SQL_BROADCASTTIMEOUT")))  # To ENV
     tmp.append('--conf')
-    tmp.append('spark.sql.autoBroadcastJoinThreshold=%s' % (os.getenv("SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD"))) # To ENV
-
+    tmp.append('spark.sql.autoBroadcastJoinThreshold=%s' % (os.getenv("SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD")))  # To ENV
+    tmp.append('--conf')
+    tmp.append(f"spark.sql.files.maxRecordsPerFile={os.getenv('SPARK_FILE_MAX_RECORDS')}")
 
     projectName = event['projectName']
     projectIp = event['engine']['dss']['ip']
@@ -128,5 +130,6 @@ def submitArgsByEngine(curJ, event):
         tmp.append(ph_conf)
 
     result['HadoopJarStep']['Args'] = tmp
-    return result
 
+    
+    return result

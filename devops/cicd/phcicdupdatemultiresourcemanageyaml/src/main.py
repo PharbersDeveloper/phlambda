@@ -105,12 +105,12 @@ def s3_file_exist(s3_key, s3_path):
 def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resource_id_map,
                        resourceName, resourceValue):
     methods = resourceValue["methods"]
+    auth = resourceValue["auth"]
     methods.insert(0, "Init")
     pathPart = resourceName.split("/")[-1]
     resourceId = resource_id_map[resourceName]["resourceId"]
     parentId = apiGateWayArgs["ParentId"]
     parentName = "/".join(resourceName.split("/")[:-1])
-    print(apiGateWayArgs["ApiResourceId"].keys())
     if parentName and parentName not in apiGateWayArgs["ApiResourceId"].keys():
         parentId = "!Ref " + runtime.upper() + version.replace("-", "").upper() \
                    + resource_id_map[parentName]["resourceId"] + "INITMETHOD"
@@ -122,7 +122,7 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
     for method in methods:
         download_s3_file(
             apiTemplateS3Key,
-            apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
+            apiTemplateS3PathPrefix + auth.lower() + "Api/" + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
         f2.write("  " + runtime.upper() + version.replace("-", "").upper() + resourceId + method.upper() + "METHOD:\n")
@@ -186,7 +186,8 @@ def lambda_handler(event, context):
     if manage_result.get("Transform"):
         del manage_result["Transform"]
     # 判断Resource 下以Runtime开头的 如果相同直接删除
-    for resourceName in manage_result["Resources"].keys():
+    manage_result_resources = list(manage_result["Resources"].keys())
+    for resourceName in manage_result_resources:
         if resourceName.startswith(runtime.upper()):
             del manage_result["Resources"][resourceName]
     # print(manage_result)
@@ -245,12 +246,14 @@ def lambda_handler(event, context):
 
     # 5 将 api 相关信息写入到 manage中
 
-
+    pathParts = []
     resources = apiGateWayArgs["resources"]
     resource_id_map = {}
     for resource in resources:
+        pathParts.append(resource["name"].split("/")[-1])
         resource_id_map[resource["name"]] = {}
         resource_id_map[resource["name"]]["methods"] = resource["methods"]
+        resource_id_map[resource["name"]]["auth"] = resource["auth"]
         resource_id_map[resource["name"]]["resourceId"] = generate().upper()
 
     print(resource_id_map)
@@ -272,6 +275,10 @@ def lambda_handler(event, context):
             line = "            \"method.response.header.Access-Control-Allow-Methods\": \"\'GET,OPTIONS,POST\'\"\n"
         if "method.response.header.Access-Control-Allow-Origin: *" in line:
             line = "            \"method.response.header.Access-Control-Allow-Origin\": \"\'*\'\"\n"
+        for pathPart in pathParts:
+            if "      PathPart: " + pathPart in line:
+                line = "      PathPart: " + "\"" + pathPart + "\"\n"
+
         ff2.write(line)
     ff.close()
     ff2.close()

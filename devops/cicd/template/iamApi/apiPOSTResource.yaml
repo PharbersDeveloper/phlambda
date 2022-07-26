@@ -7,15 +7,14 @@
         method.request.path.proxy: true #加上这组参数可以添加proxy
         method.request.header.Accept: true
         method.request.header.Content-Type: true
-      HttpMethod: DELETE
-      AuthorizationType: CUSTOM
-      AuthorizerId: ${AuthorizerId}
+      HttpMethod: POST
+      AuthorizationType: AWS_IAM
       Integration:
         Type: "AWS_PROXY"
         Uri: arn:aws-cn:apigateway:cn-northwest-1:lambda:path/2015-03-31/functions/arn:aws-cn:lambda:cn-northwest-1:444603803904:function:${ReplaceLmdName}/invocations
         IntegrationHttpMethod: "POST"
-        TimeoutInMillis: 29000
         Credentials: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+        TimeoutInMillis: 29000
         RequestParameters:
           integration.request.path.proxy: 'method.request.path.proxy'
         IntegrationResponses:

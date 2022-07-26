@@ -1,0 +1,5 @@
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: ${RestApiId}
+      ParentId: ${ParentId}
+      PathPart: ${PathPart}

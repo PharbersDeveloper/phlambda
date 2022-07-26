@@ -1,5 +1,20 @@
 import json
 import os
+import boto3
+from boto3.dynamodb.conditions import Key
+
+dynamodb = boto3.resource('dynamodb')
+
+
+def get_dagcof_item_by_jobId(projectId, jobId):
+
+    ds_table = dynamodb.Table('dagconf')
+    res = ds_table.query(
+        IndexName='dagconf-projectId-id-indexd',
+        KeyConditionExpression=Key("projectId").eq(projectId)
+                               & Key("id").eq(jobId)
+    )
+    return res["Items"][0]
 
 
 def extractJobArgs(jobNames, jobs, event):
@@ -95,7 +110,21 @@ def submitArgsByEngine(curJ, event):
     flowVersion = 'developer'
     dagName = '_'.join([projectName, projectName, flowVersion])
     jobName = '_'.join([projectName, projectName, flowVersion, curJ['name']])
-    ph_conf = json.dumps(event['calculate']['conf'], ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
+    # 通过projecId
+    projectId = event["projectId"]
+    jobId = curJ["representId"]
+    inputs = get_dagcof_item_by_jobId(projectId, jobId)["inputs"]
+    datasets = event['calculate']['conf']['datasets']
+    input_datasets = []
+    for dataset in datasets:
+        if dataset["name"] in inputs:
+            input_datasets.append(dataset)
+    print(input_datasets)
+    dict_ph_conf = event['calculate']['conf']
+    dict_ph_conf["datasets"] = input_datasets
+    print(dict_ph_conf)
+
+    ph_conf = json.dumps(dict_ph_conf, ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
 
     if curJ['runtime'] == 'r' or curJ['runtime'] == 'sparkr':
         tmp.append('--jars')

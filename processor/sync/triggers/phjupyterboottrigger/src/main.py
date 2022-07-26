@@ -132,7 +132,7 @@ def lambda_handler(event, context):
             "cat": "personalResBoots",
             "desc": "reboot project",
             "comments": "something need to say",
-            "message": "something need to say",
+            "message": {"optionName": "jupyter_boot", "cat": "", "runtime": "", "actionName": event.get("actionName","")},
             "required": True
         },
         "resourceId": resourceId,  # TODO: 从 event 中找到 resourceID @mzhang

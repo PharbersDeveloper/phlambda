@@ -221,7 +221,6 @@ def lambda_handler(event, context):
     write_yaml_file(manage_result, mangeLocalPath)
 
     # 创建Version
-
     download_s3_file(TemplateS3Key, lmdAliasTemplateS3Path, lmdAliasLocalPath)
     download_s3_file(TemplateS3Key, lmdVersionTemplateS3Path, lmdVersionLocalPath)
     manage = open(mangeLocalPath, "a+")

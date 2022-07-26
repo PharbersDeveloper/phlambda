@@ -34,6 +34,7 @@ from phmetriclayer import aws_cloudwatch_put_metric_data
 
 
 def lambda_handler(event, context):
+    # cicd test 0726 1823
     event = json.loads(event["body"])
     print(event)
 

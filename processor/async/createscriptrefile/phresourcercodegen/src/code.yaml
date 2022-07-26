@@ -575,6 +575,16 @@ code:
           Encoding(output_version)
           Encoding(output_version) <- "UTF-8"
           out_df <- transform_other_df2_spark_df(runtime, args$out_df)
+          if (count(out_df) == 0) {
+              cols <- list()
+              column_types <- SparkR::dtypes(df)
+              for (ct in column_types) {
+                  item <- strsplit(ct, '" "')
+                  col <- item[[1]]
+                  cols[col] = ""
+              }
+              out_df <- SparkR::createDataFrame(as.data.frame(t(sapply(cols,c))))
+          }
 
           table_name <- paste(project_id, "_", output, sep = "")
           Encoding(table_name)

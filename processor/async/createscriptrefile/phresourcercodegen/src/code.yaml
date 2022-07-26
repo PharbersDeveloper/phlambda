@@ -577,7 +577,7 @@ code:
           Encoding(output_version)
           Encoding(output_version) <- "UTF-8"
           out_df <- transform_other_df2_spark_df(runtime, args$out_df)
-          if (count(out_df) == 0) {
+          if (SparkR::count(out_df) == 0) {
               cols <- list()
               column_types <- SparkR::dtypes(out_df)
               for (ct in column_types) {

@@ -86,8 +86,8 @@ def lambda_handler(event, context):
             copy_manage_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"])
             # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage_back.yaml")
         for function in event["processor"]["functions"]:
-            if judge_stack_exist(function + "codebuild"):
-                delete_stack(function + "codebuild")
+            if judge_stack_exist(function["name"] + "codebuild"):
+                delete_stack(function["name"] + "codebuild")
 
     if event["trigger"]["required"]:
         del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + event["trigger"]["functionName"] + "/manage.yaml")

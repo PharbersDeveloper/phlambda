@@ -43,13 +43,14 @@ class Check:
             response = ssm.get_parameter(
                 Name=tenantId
             )
-            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId}")
+            return 1
         except:
-            pass
+            return 0
 
     def check_parameter(self, data):
         tenantId = data["common"]["tenantId"]
-        self.check_ssm(tenantId)
+        if self.check_ssm(tenantId):
+            raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId}")
         return True
 
 

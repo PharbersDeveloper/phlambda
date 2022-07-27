@@ -65,7 +65,7 @@ def lambda_handler(event, context):
         "utils": {
             "required": False
         },
-        "mutilstage": {
+        "multistage": {
             "required": False
         }
     }

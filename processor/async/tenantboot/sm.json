@@ -5,7 +5,36 @@
       "StartState": {
          "Type": "Pass",
          "ResultPath": null,
-         "Next": "ArgsValidation"
+         "Next": "checkstarted"
+      },
+      "checkstarted": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phbootcheckstarted",
+         "ResultPath": null,
+         "Next": "ArgsValidation",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "Failed"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "Failed"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "Failed"
+            }
+         ]
       },
       "ArgsValidation": {
          "Type": "Task",

@@ -8,10 +8,9 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
-      FunctionName: phbootargsvalidation
+      FunctionName: phbootcheckstarted
       MemorySize: 1024
-      Timeout: 60
-      Description: "phbootargsvalidation"
+      Description: "phbootcheckstarted"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:

@@ -48,19 +48,6 @@ class Check:
             return 0
 
     def check_parameter(self, data):
-
-        # 1. action.cat 只能是 tenantStart
-        if not data.get("action").get("cat") == "tenantStart":
-            raise Exception('action.cat not tenantStart')
-
-        # 2. resources 当前只能是以下值的一种
-        resources_args = ["emr", "ec2", "clickhouse", "chproxy", "dns", "target group", "load balance rule"]
-
-        resources = data.get("resources")
-        for resource in resources:
-            if resource not in resources_args:
-                raise Exception('resouces error')
-
         tenantId = data["common"]["tenantId"]
         if self.check_ssm(tenantId):
             raise Exception(f"stack_Name in ssm already exits tenantId: {tenantId}")

@@ -1,0 +1,4 @@
+tests/*
+__tests__/*
+/__tests__/*
+src/__tests__/*

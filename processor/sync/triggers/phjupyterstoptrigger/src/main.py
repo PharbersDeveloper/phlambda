@@ -131,7 +131,7 @@ def lambda_handler(event, context):
             "cat": "personalResStops",
             "desc": "reboot project",
             "comments": "something need to say",
-            "message": "something need to say",
+            "message": {"optionName": "jupyter_stop", "cat": "", "runtime": "", "actionName": event.get("actionName","")},
             "required": True
         },
         "resourceId": resourceId,

@@ -133,7 +133,7 @@ def query_status(tenantId, resourceId):
     table = dynamodb.Table('resource')
     res = table.query(
         KeyConditionExpression=Key("tenantId").eq(tenantId) & Key("id").eq(resourceId),
-        FilterExpression=Attr("ctype").eq("jupyter") | Attr("ctype").eq("jupyter")
+        FilterExpression=Attr("ctype").eq("jupyter") | Attr("ctype").eq("c9")
     )
     resources = res["Items"]
     ssm_list = []

@@ -61,12 +61,13 @@ def query_table_item(tableName, QueryKey, Queryvalue):
     tableScheam = list(map(lambda x:  {'PartitionKey': x['AttributeName']} if x['KeyType'] == 'HASH' else {'SortKey': x['AttributeName']}, tableScheam))
     tableScheamDict = {**tableScheam[0], **tableScheam[1]}
     indexs_of_table = ds_table.global_secondary_indexes
-    if indexs_of_table is None and tableScheamDict['PartitionKey'] == str(QueryKey):
+
+    if tableScheamDict['PartitionKey'] == str(QueryKey):
         res = ds_table.query(
             KeyConditionExpression=Key(str(QueryKey)).eq(Queryvalue)
         )
         return handleQueryResponse(res), tableScheamDict
-    else:
+    elif indexs_of_table is not None:
         #-----------table index------------------#
         IndexName = indexs_of_table[0]['IndexName']
         KeySchema = indexs_of_table[0]['KeySchema']

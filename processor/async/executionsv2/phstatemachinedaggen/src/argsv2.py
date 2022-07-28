@@ -100,8 +100,9 @@ def submitArgsByEngine(curJ, event):
     tmp.append('spark.sql.broadcastTimeout=%s' % (os.getenv("SPARK_SQL_BROADCASTTIMEOUT")))  # To ENV
     tmp.append('--conf')
     tmp.append('spark.sql.autoBroadcastJoinThreshold=%s' % (os.getenv("SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD")))  # To ENV
-    tmp.append('--conf')
-    tmp.append(f"spark.sql.files.maxRecordsPerFile={os.getenv('SPARK_FILE_MAX_RECORDS')}")
+    # TODO: 注释掉的原因是，小鹿那边需要下载文件去做验证，还得reparation为1个去下载
+    # tmp.append('--conf')
+    # tmp.append(f"spark.sql.files.maxRecordsPerFile={os.getenv('SPARK_FILE_MAX_RECORDS')}")
 
     projectName = event['projectName']
     projectIp = event['engine']['dss']['ip']

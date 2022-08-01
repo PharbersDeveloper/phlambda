@@ -8,6 +8,7 @@ from phmetriclayer import aws_cloudwatch_put_metric_data
 def lambda_handler(event, context):
     # 1516
     event = json.loads(event["body"])
+    calculate = event.get("calculate")
     print(event)
 
     projectId = event['common']['tenantId']
@@ -18,6 +19,14 @@ def lambda_handler(event, context):
         Name=projectId,
     )
     value = json.loads(response["Parameter"]["Value"])
+
+    event["Actions"] = {
+            "cat": calculate.get("type"),
+            "desc": "sample",
+            "comments": "something need to say",
+            "message": {"optionName": calculate.get("type"), "cat": calculate.get("datasetType"), "runtime": "", "actionName": calculate.get("datasetName")},
+            "required": True
+        },
 
     event['engine'] = {
         'type': 'awsemr',

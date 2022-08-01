@@ -26,7 +26,7 @@ def lambda_handler(event, context):
             "comments": "something need to say",
             "message": {"optionName": calculate.get("type"), "cat": calculate.get("datasetType"), "runtime": "", "actionName": calculate.get("datasetName")},
             "required": True
-        },
+        }
 
     event['engine'] = {
         'type': 'awsemr',

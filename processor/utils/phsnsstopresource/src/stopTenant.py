@@ -133,7 +133,7 @@ def stop(event):
 
 class StopTenant(StopResource):
 
-    def run(self, tenantId, ctype="jupyter"):
+    def run(self, tenantId, ctype="emr"):
 
         for item in self.query_resource(tenantId, ctype):
             event = {"tenantId": tenantId,

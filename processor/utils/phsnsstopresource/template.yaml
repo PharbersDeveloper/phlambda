@@ -17,5 +17,5 @@ Resources:
       Environment:
         Variables:
           EDITION: "dev"
-      Timeout: 30
+      Timeout: 300
 

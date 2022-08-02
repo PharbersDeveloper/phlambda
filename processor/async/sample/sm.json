@@ -149,6 +149,22 @@
             "error.$": "$.error"
          },
          "ResultPath": null,
+         "Next": "MapErrorMessage"
+      },
+      "MapErrorMessage": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampleerror",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "Input.$": "$.executeArgs.args",
+            "engine.$": "$.engine",
+            "error.$": "$.error"
+         },
+         "ResultPath": null,
          "Next": "clearDag"
       },
       "clearDag": {

@@ -109,9 +109,8 @@ class ParameterError(Errors):
 def serialization(data):
 
     content = {}
-    content["error"] = {}
-    content["error"]["errorcode"] = data.errorcode
-    content["error"]["errormessage"] = data.errormessage
+    content["errorcode"] = data.errorcode
+    content["errormessage"] = data.errormessage
     '''
     content = {
         "code": 200,

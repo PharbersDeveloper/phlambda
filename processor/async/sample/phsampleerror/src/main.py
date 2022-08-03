@@ -64,7 +64,7 @@ def lambda_handler(event, context):
 
     #---- 基于error信息映射pherrorlayer ----------#
     #TODO 目前对事件错误信息掌握不全，需要多次测试后再编写映射逻辑
-    errorMessage = MapErrorType(cause)['error']
+    errorMessage = MapErrorType(cause)
 
     #--- 错误信息写入notification表 -----------#
     dt = datetime.now()

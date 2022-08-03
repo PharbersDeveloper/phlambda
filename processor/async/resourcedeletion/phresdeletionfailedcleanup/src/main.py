@@ -343,3 +343,4 @@ def lambda_handler(event, context):
             "error": errors_adapter(errors.get("Cause"))
         }
     }
+

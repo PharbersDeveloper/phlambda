@@ -13,7 +13,7 @@ Resources:
       FunctionName: phsnsstopresource
       Description: "lmd-phsnsstopresource-dev"
       MemorySize: 1024
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:
           EDITION: "dev"

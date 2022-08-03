@@ -237,7 +237,7 @@
             "steps.$": "$.steps",
             "error.$":"$.error"
          },
-         "ResultPath": null,
+         "ResultPath": "$.MapError",
          "Next": "Failed"
       },
       "Failed": {
@@ -251,14 +251,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message": {
-               "type": "notification",
-               "opname.$": "$.common.owner",
-               "cnotification": {
-                  "data": {"scenarios":"failed"},
-                  "error": {"details.$":"$.error"}
-               }
-            },
+            "message.$": "$.MapError",
             "status": "failed"
          },
          "End": true

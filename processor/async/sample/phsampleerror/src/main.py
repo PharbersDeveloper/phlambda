@@ -57,14 +57,14 @@ def lambda_handler(event, context):
     print(event)
 
     error = event["error"]
-    print("*"*50 + " ERROR " + "*"*50)
+    print("*"*50 + "传入的 ERROR 信息 " + "*"*50)
     print(error)
 
     cause = SearchErrorType(error)
 
     #---- 基于error信息映射pherrorlayer ----------#
     #TODO 目前对事件错误信息掌握不全，需要多次测试后再编写映射逻辑
-    errorMessage = MapErrorType(cause)
+    errorMessage = MapErrorType(cause)['error']
 
     #--- 错误信息写入notification表 -----------#
     dt = datetime.now()
@@ -74,7 +74,6 @@ def lambda_handler(event, context):
                      owner=event['owner'], showName=event['showName'], errorMessage=errorMessage, jobCat='notification',
                      jobDesc='executionFailed', status='failed', dynamodb=None)
 
-    #put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'], status='running')
     return {}
 
 

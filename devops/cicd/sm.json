@@ -912,7 +912,7 @@
             "processor.$": "$.processor",
             "trigger.$": "$.trigger",
             "multistage.$": "$.multistage",
-            "utils": "utils",
+            "utils.$": "$.utils",
             "status": "failed"
          },
          "ResultPath": "$.message",

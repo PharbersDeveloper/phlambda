@@ -112,8 +112,7 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
     parentId = apiGateWayArgs["ParentId"]
     parentName = "/".join(resourceName.split("/")[:-1])
     if parentName and parentName not in apiGateWayArgs["ApiResourceId"].keys():
-        parentId = "!Ref " + runtime.upper() + version.replace("-", "").upper() \
-                   + resource_id_map[parentName]["resourceId"] + "INITMETHOD"
+        parentId = "!Ref " + runtime.upper() + resource_id_map[parentName]["resourceId"] + "INITMETHOD"
     elif parentName and parentName in apiGateWayArgs["ApiResourceId"].keys():
         parentId = apiGateWayArgs["ApiResourceId"][parentName]
 
@@ -125,15 +124,14 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath, resourc
             apiTemplateS3PathPrefix + auth.lower() + "Api/" + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
-        f2.write("  " + runtime.upper() + version.replace("-", "").upper() + resourceId + method.upper() + "METHOD:\n")
+        f2.write("  " + runtime.upper() + resourceId + method.upper() + "METHOD:\n")
         for line in f1.readlines():
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", "\"" + pathPart + "\"")
                      .replace("${ParentId}", parentId)
                      .replace("${ReplaceLmdName}", apiGateWayArgs["LmdName"] + ":" + version)
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
-                     .replace("${ReplaceResource}", runtime.upper() + version.replace("-", "").upper() \
-                              + resourceId + "INITMETHOD")
+                     .replace("${ReplaceResource}", runtime.upper() + resourceId + "INITMETHOD")
                      )
         f1.close()
     f2.close()
@@ -221,7 +219,6 @@ def lambda_handler(event, context):
     write_yaml_file(manage_result, mangeLocalPath)
 
     # 创建Version
-
     download_s3_file(TemplateS3Key, lmdAliasTemplateS3Path, lmdAliasLocalPath)
     download_s3_file(TemplateS3Key, lmdVersionTemplateS3Path, lmdVersionLocalPath)
     manage = open(mangeLocalPath, "a+")
@@ -254,7 +251,10 @@ def lambda_handler(event, context):
         resource_id_map[resource["name"]] = {}
         resource_id_map[resource["name"]]["methods"] = resource["methods"]
         resource_id_map[resource["name"]]["auth"] = resource["auth"]
-        resource_id_map[resource["name"]]["resourceId"] = generate().upper()
+        resource_id_map[resource["name"]]["resourceId"] = resource["name"]\
+            .replace("/", "")\
+            .replace("{", "0")\
+            .replace("}", "0").upper()
 
     print(resource_id_map)
     for resourceName, resourceValue in resource_id_map.items():

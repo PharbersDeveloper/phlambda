@@ -57,6 +57,20 @@ def lambda_handler(event, context):
             "runtime": event["runtime"]
         },
         "processor": {
+            "required": False
+        },
+        "trigger": {
+            "required": False
+        },
+        "utils": {
+            "required": False
+        },
+        "multistage": {
+            "required": False
+        }
+    }
+    if event.get("processor"):
+        processor = {
             "repo": event["processor"]["repo"],
             "branch": event["processor"]["branch"],
             "commit": event["processor"]["commit"],
@@ -65,8 +79,10 @@ def lambda_handler(event, context):
             "sm": event["processor"]["prefix"] + "/sm.json",
             "functions": event["processor"]["functions"],
             "required": event["processor"]["required"]
-        },
-        "trigger": {
+        }
+        state_machine_event["processor"] = processor
+    if event.get("trigger"):
+        trigger = {
             "commit": event["trigger"]["commit"],
             "repo": event["trigger"]["repo"],
             "branch": event["trigger"]["branch"],
@@ -74,8 +90,10 @@ def lambda_handler(event, context):
             "functionName": event["trigger"]["prefix"].split("/")[-1],
             "entry": event["trigger"]["entry"],
             "required": event["trigger"]["required"]
-        },
-        "utils": {
+        }
+        state_machine_event["trigger"] = trigger
+    if event.get("utils"):
+        utils = {
             "commit": event["utils"]["commit"],
             "repo": event["utils"]["repo"],
             "branch": event["utils"]["branch"],
@@ -83,7 +101,19 @@ def lambda_handler(event, context):
             "functionName": event["utils"]["prefix"].split("/")[-1],
             "required": event["utils"]["required"]
         }
-    }
+        state_machine_event["utils"] = utils
+    if event.get("multistage"):
+        multistage = {
+            "commit": event["multistage"]["commit"],
+            "repo": event["multistage"]["repo"],
+            "branch": event["multistage"]["branch"],
+            "prefix": "/".join(event["multistage"]["prefix"].split("/")[0:-1]),
+            "functionName": event["multistage"]["prefix"].split("/")[-1],
+            "functionRuntime": event["multistage"]["functionRuntime"],
+            "entry": event["multistage"]["entry"],
+            "required": event["multistage"]["required"]
+        }
+        state_machine_event["multistage"] = multistage
 
     state_machine_arn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:async-trigger-cicd"
     client = boto3.client('stepfunctions')

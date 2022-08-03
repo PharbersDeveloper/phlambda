@@ -61,13 +61,15 @@ class DynamoDB:
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
-                "start_key": result.get("NextToken", "")
+                "start_key": result.get("NextToken", ""),
+                "pre_key": start_key if start_key else ""
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
-                "start_key": ""
+                "start_key": "",
+                "pre_key": ""
             }
 
     def scanTable(self, data):
@@ -94,13 +96,15 @@ class DynamoDB:
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
-                "start_key": result.get("NextToken", "")
+                "start_key": result.get("NextToken", ""),
+                "pre_key": start_key if start_key else ""
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
-                "start_key": ""
+                "start_key": "",
+                "pre_key": ""
             }
 
     def putData(self, data):

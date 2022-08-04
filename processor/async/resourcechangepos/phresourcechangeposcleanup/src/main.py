@@ -2,7 +2,12 @@ import json
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
+from pherrorlayer import *
+
+
 dynamodb = boto3.resource('dynamodb')
+
+
 '''
 将错误提取出来写入到notification中
 args:
@@ -61,8 +66,23 @@ def update_dagconf_item(scriptItems):
         )
 
 
+def errors_adapter(error):
+    error = json.loads(error)
+    Command = {
+        "common must exist": ParameterError,
+        "action must exist": ParameterError,
+        "action.cat must be changeResourcePosition": ParameterError,
+        "script item must exist": ParameterError,
+        "item must exist": ParameterError,
+    }
+    errorMessage = error.get("errorMessage").replace(" ", "_")
+    errorMessage = "item must exist" if "item must exist" in errorMessage else errorMessage
+    return serialization(Command[errorMessage])
+
+
 def lambda_handler(event, context):
     print(event)
+    errors = event.get("errors")
     # item处理
     # 恢复dag表中已经删除的item
     # 删除dag表中已经创建的item
@@ -75,12 +95,11 @@ def lambda_handler(event, context):
     # 删除s3上脚本路径上的文件
 
     # 创建失败的 notification message
-    message = {
+    return {
         "type": "notification",
         "opname": event["owner"],
         "cnotification": {
             "data": "{}",
-            "error": json.dumps(event["errors"])
+            "error": errors_adapter(errors.get("Cause"))
         }
     }
-    return message

@@ -6,15 +6,15 @@
         "Type": "Task",
         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
         "Parameters": {
-          "traceId.$": "$.common.traceId",
+          "traceId.$": "$.common.runnerId",
           "projectId.$": "$.common.projectId",
           "owner.$": "$.common.owner",
           "showName.$": "$.common.showName",
-          "jobCat.$": "$.action.cat",
-          "jobDesc.$": "$.action.desc",
-          "comments.$": "$.action.comments",
-          "message.$": "$.action.message",
-          "required.$": "$.action.required"
+          "jobCat.$": "$.Actions.cat",
+          "jobDesc.$": "$.Actions.desc",
+          "comments.$": "$.Actions.comments",
+          "message.$": "$.Actions.message",
+          "required.$": "$.Actions.required"
         },
         "ResultPath": null,
         "Next": "genStartArgs"

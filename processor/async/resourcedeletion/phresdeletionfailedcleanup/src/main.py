@@ -1,5 +1,8 @@
 import time
 import boto3
+import json
+from pherrorlayer import *
+
 
 '''
 这个函数实现两件事情：
@@ -308,6 +311,23 @@ class CleanUp:
             self.put_item("dag", link)
 
 
+def errors_adapter(error):
+    error = json.loads(error)
+    Command = {
+        "datasets or scripts Missing field": ParameterError,
+        "scripts type error": ParameterError,
+        "datasets type error": ParameterError,
+        "datasets name already exits": ParameterError,
+        "dagconf actionName already exits": ParameterError,
+        "common not exits": ParameterError,
+        "action_not_exits": ParameterError,
+        "notificaiton not exits": ParameterError,
+        "datasets scripts not exits": ParameterError
+    }
+    errorMessage = error.get("errorMessage").replace(" ", "_")
+    return serialization(Command[errorMessage])
+
+
 def lambda_handler(event, context):
     result = event.get("result")
     errors = event.get("errors")
@@ -320,6 +340,6 @@ def lambda_handler(event, context):
         "opname": event["owner"],
         "cnotification": {
             "data": {},
-            "error": errors
+            "error": errors_adapter(errors.get("Cause"))
         }
     }

@@ -221,6 +221,23 @@
             "steps.$": "$.steps"
          },
          "ResultPath": null,
+         "Next": "MapScenarioError"
+      },
+      "MapScenarioError": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phmapscenarioerror",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.scenario",
+            "triggers.$": "$.triggers",
+            "steps.$": "$.steps",
+            "error.$":"$.error"
+         },
+         "ResultPath": "$.MapError",
          "Next": "Failed"
       },
       "Failed": {
@@ -234,14 +251,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message": {
-               "type": "notification",
-               "opname.$": "$.common.owner",
-               "cnotification": {
-                  "data": {"scenarios":"failed"},
-                  "error": {"details.$":"$.error"}
-               }
-            },
+            "message.$": "$.MapError",
             "status": "failed"
          },
          "End": true

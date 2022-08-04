@@ -22,9 +22,7 @@ class TestQueryDynamoDB:
     #     with open("../events/event_query.json", "r", encoding="utf8") as file:
     #         event = json.load(file)
     #         result = app.lambda_handler(event, None)
-    #         count = len(json.loads(result["body"])["data"])
-    #         print(count)
-    #         assert count > 0
+    #         print(result)
     #         assert result["statusCode"] == 200
 
     # def test_scan(self):

@@ -1,0 +1,25 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  pre_build:
+    commands:
+      - mkdir -p /frontend-code/$COMPONENT_NAME/$REPO_NAME
+      - cd /frontend-code/$COMPONENT_NAME/$REPO_NAME
+      - git init
+      - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
+      - git checkout $GIT_COMMIT
+      - cd $COMPONENT_PATH
+      - cp -r /node_modules/ .
+      - ls
+      - npm run build || (echo 'run build error')
+      - npm run build || (echo 'run build error')
+  build:
+    commands:
+      - ls
+      - ls dist
+      - echo `date +"%Y_%m_%d_%H_%M_%S"` >> dist/README.md
+      - echo $GIT_COMMIT >> dist/README.md
+      - aws s3 cp dist $S3_COMPONENT_PATH --recursive
+      - rm -rf /frontend-code//$COMPONENT_NAME/$REPO_NAME

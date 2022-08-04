@@ -198,7 +198,7 @@ def fill_empty_with_value(data, cols):
         raise Exception("length is greater than 100 `value`")
     if len(value) == 0 or " " in value:
         raise Exception("cannot be empty `value`")
-    expr = ", ".join(list(map(lambda col: f"""(replaceRegexpAll(`{col}`, '^', '{value}') AS `{col}`)""", columns)))
+    expr = ", ".join(list(map(lambda col: f"""(multiIf(`{col}` == '', '{value}', `{col}`)) AS `{col}`)""", columns)))
     return {
         "index": data["index"],
         "expr": expr

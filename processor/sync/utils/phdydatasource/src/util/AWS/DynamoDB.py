@@ -1,6 +1,7 @@
 import boto3
 from constants.Common import Common
 from util.GenerateID import GenerateID
+from functools import reduce
 
 
 class DynamoDB:
@@ -9,19 +10,14 @@ class DynamoDB:
         self.access_key = kwargs.get("access_key", None)
         self.secret_key = kwargs.get("secret_key", None)
         if self.access_key and self.secret_key:
-            self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION,
-                                                    aws_access_key_id=self.access_key,
-                                                    aws_secret_access_key=self.secret_key)
             self.dynamodb_client = boto3.client("dynamodb", region_name=Common.AWS_REGION,
                                                 aws_access_key_id=self.access_key,
                                                 aws_secret_access_key=self.secret_key)
             return
         self.sts = kwargs.get("sts", None)
         if self.sts and self.sts.credentials:
-            self.dynamodb_resource = boto3.resource("dynamodb", **self.sts.get_cred())
             self.dynamodb_client = boto3.client("dynamodb", **self.sts.get_cred())
             return
-        self.dynamodb_resource = boto3.resource("dynamodb", region_name=Common.AWS_REGION)
         self.dynamodb_client = boto3.client("dynamodb", region_name=Common.AWS_REGION)
 
     def __dynamoData2EntityData(self, record):
@@ -112,9 +108,10 @@ class DynamoDB:
         item = data["item"]
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
-        table = self.dynamodb_resource.Table(table_name)
-        table.put_item(
-            Item=item
+
+        self.dynamodb_client.put_item(
+            TableName=table_name,
+            Item=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(item[x])}}, item.keys())))
         )
         return {
             "data": item
@@ -123,9 +120,9 @@ class DynamoDB:
     def deleteData(self, data):
         table_name = data["table_name"]
         keys = data["conditions"]
-        table = self.dynamodb_resource.Table(table_name)
-        table.delete_item(
-            Key=keys
+        self.dynamodb_client.put_item(
+            TableName=table_name,
+            Key=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(keys[x])}}, keys.keys())))
         )
         return {
             "status": "complete"

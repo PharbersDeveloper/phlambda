@@ -96,6 +96,10 @@ template:
             g_l_keys = $g_keys$
             g_globalCount = $g_globalCount$
 
+            if len(g_l_keys) == 0:
+                df = df.withColumn("__flag", lit("flag"))
+                g_l_keys = ["__flag"]
+
             # ===============  执行  =================
             # preFilter
             if g_preFilter['enabled'] == True:
@@ -128,5 +132,7 @@ template:
                 df = df.where(g_postFilter['expr'])
                 if g_postFilter['distinct'] == True:
                     df = df.distinct()
+            
+            df = df.drop("__flag")
 
             return {"out_df":df}

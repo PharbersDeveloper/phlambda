@@ -232,6 +232,22 @@
             "steps.$": "$.steps"
          },
          "ResultPath": null,
+         "Next": "MapScenarioDelError"
+      },
+      "MapScenarioDelError": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariocleanup",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "scenario.$": "$.scenario",
+            "triggers.$": "$.triggers",
+            "steps.$": "$.steps",
+            "error.$":"$.error"
+         },
+         "ResultPath": "$.errorMessage",
          "Next": "Failed"
       },
       "Failed": {
@@ -245,14 +261,7 @@
             "jobCat.$": "$.action.cat",
             "jobDesc.$": "$.action.desc",
             "comments.$": "$.action.comments",
-            "message": {
-               "type": "notification",
-               "opname.$": "$.common.owner",
-               "cnotification": {
-                  "data": {"scenariosdeletion":"failed"},
-                  "error": {"details.$":"$.error"}
-               }
-            },
+            "message.$": "$.errorMessage",
             "status": "failed"
          },
          "End": true

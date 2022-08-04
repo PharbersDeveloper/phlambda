@@ -49,23 +49,36 @@ class DynamoDB:
             }
         }
 
+        count_parameter = {
+            "TableName": table_name,
+            "Select": "COUNT",
+            "ScanIndexForward": False,
+            "KeyConditionExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+        }
+
         if index_name is not None:
             parameter.update({"IndexName": index_name})
+            count_parameter.update({"IndexName": index_name})
 
         try:
+            count_result = self.dynamodb_client.query(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
                 "start_key": result.get("NextToken", ""),
-                "pre_key": start_key if start_key else ""
+                "pre_key": start_key if start_key else "",
+                "total_count": count_result["Count"]
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
                 "start_key": "",
-                "pre_key": ""
+                "pre_key": "",
+                "total_count": 0
             }
 
     def scanTable(self, data):
@@ -87,20 +100,31 @@ class DynamoDB:
             }
         }
 
+        count_parameter = {
+            "TableName": table_name,
+            "Select": "COUNT",
+            "FilterExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+        }
+
         try:
+            count_result = self.dynamodb_client.query(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
                 "start_key": result.get("NextToken", ""),
-                "pre_key": start_key if start_key else ""
+                "pre_key": start_key if start_key else "",
+                "total_count": count_result["Count"]
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
                 "start_key": "",
-                "pre_key": ""
+                "pre_key": "",
+                "total_count": 0
             }
 
     def putData(self, data):

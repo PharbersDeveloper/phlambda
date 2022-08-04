@@ -60,13 +60,17 @@ def lambda_handler(event, context):
     print("*"*50 + "传入的 ERROR 信息 " + "*"*50)
     print(error)
 
-    cause = SearchErrorType(error)
+    try:
+        cause = SearchErrorType(error)
 
-    #---- 基于error信息映射pherrorlayer ----------#
-    #TODO 目前对事件错误信息掌握不全，需要多次测试后再编写映射逻辑
-    errorMessage = MapErrorType(cause)
+        #---- 基于error信息映射pherrorlayer ----------#
+        #TODO 目前对事件错误信息掌握不全，需要多次测试后再编写映射逻辑
+        errorMessage = MapErrorType(cause)
+    except Exception as e:
+        print("*"*50 + " 代码解析错误" + "*"*50, str(e))
+        errorMessage = serialization(Errors)
 
-    #--- 错误信息写入notification表 -----------#
+        #--- 错误信息写入notification表 -----------#
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 

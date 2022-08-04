@@ -1,6 +1,6 @@
 import json
 from delegate.AppLambdaDelegate import AppLambdaDelegate
-from phmetriclayer import aws_cloudwatch_put_metric_data
+# from phmetriclayer import aws_cloudwatch_put_metric_data
 # import requests
 
 

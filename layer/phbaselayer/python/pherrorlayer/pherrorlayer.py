@@ -8,9 +8,6 @@ class Errors(Exception):
         "zh": "未知错误"
     }
 
-    def __init__(self, msg):
-        self.message["meta"] = str(msg)
-
 
 class NoImplError(Errors):
     errorcode = -99
@@ -91,8 +88,30 @@ class ColumnDuplicate(Errors):
         "zh": "重复的列名"
     }
 
+class EMRError(Errors):
+    errorcode = -802
+    errormessage = {
+        "en": "EMR error",
+        "zh": "EMR 错误"
+    }
 
+
+class ParameterError(Errors):
+    errorcode = -98
+    errormessage = {
+        "en": "Parameter Error",
+        "zh": "输入参数错误"
+    }
+
+
+
+#---序列化错误信息----#
 def serialization(data):
+
+    content = {}
+    content["errorcode"] = data.errorcode
+    content["errormessage"] = data.errormessage
+    '''
     content = {
         "code": 200,
         "data": data
@@ -101,5 +120,6 @@ def serialization(data):
         content["error"] = {}
         content["error"]["errorcode"] = data.errorcode
         content["error"]["errormessage"] = data.errormessage
+    '''
 
     return json.dumps(content, ensure_ascii=False)

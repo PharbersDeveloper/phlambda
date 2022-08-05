@@ -56,7 +56,7 @@
                   },
                   {
                      "Variable": "$.iterator.index",
-                     "NumericGreaterThan": 0 
+                     "NumericGreaterThan": 0
                   }
                ],
                "Next": "endExecutionHook"
@@ -103,18 +103,18 @@
             "index.$": "$.iterator.index"
          },
          "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "clearDag"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "clearDag"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.genDagError",
-             "Next": "clearDag"
-          } ],
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error.genDagError",
+            "Next": "clearDag"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error.genDagError",
+            "Next": "clearDag"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error.genDagError",
+            "Next": "clearDag"
+         } ],
          "ResultPath": "$.iterator.smarn",
          "Next": "executeDag"
       },
@@ -126,18 +126,18 @@
             "StateMachineArn.$": "$.iterator.smarn"
          },
          "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "clearDag"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "clearDag"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.error.executeError",
-             "Next": "clearDag"
-          } ],
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.error.executeError",
+            "Next": "clearDag"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.error.executeError",
+            "Next": "clearDag"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.error.executeError",
+            "Next": "clearDag"
+         } ],
          "ResultPath": null,
          "Next": "clearDag"
       },
@@ -146,11 +146,11 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinehook",
          "Parameters": {
             "runnerId.$" : "$.common.runnerId",
-           "projectId.$" : "$.common.projectId",
-           "projectName.$" : "$.common.projectName",
-           "owner.$" : "$.common.owner",
-           "showName.$" : "$.common.showName",
-           "stage" : "end"
+            "projectId.$" : "$.common.projectId",
+            "projectName.$" : "$.common.projectName",
+            "owner.$" : "$.common.owner",
+            "showName.$" : "$.common.showName",
+            "stage" : "end"
          },
          "ResultPath": null,
          "End": true
@@ -158,6 +158,21 @@
       "failedExecutionHook": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinefailedhook",
+         "Parameters": {
+            "runnerId.$": "$.common.runnerId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "engine.$": "$.engine",
+            "error.$": "$.error"
+         },
+         "ResultPath": null,
+         "Next": "MapExecutionV2Error"
+      },
+      "MapExecutionV2Error": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phmapexecutionsv2error",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

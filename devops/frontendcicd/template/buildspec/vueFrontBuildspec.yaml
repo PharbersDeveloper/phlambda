@@ -27,5 +27,5 @@ phases:
       - ls dist
       - echo `date +"%Y_%m_%d_%H_%M_%S"` >> dist/README.md
       - echo $GIT_COMMIT >> dist/README.md
+      - cp .devops dist
       - aws s3 cp dist $S3_COMPONENT_PATH --recursive
-      - rm -rf /frontend-code//$COMPONENT_NAME/$REPO_NAME

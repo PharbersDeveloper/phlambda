@@ -7,13 +7,10 @@ Resources:
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.8
-      AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phcicdargsvalidation-dev
+      FunctionName: phfrontendcicdargsvalidation
       MemorySize: 1024
-      Description: "phcicdargsvalidation"
+      Timeout: 180
+      Description: "phfrontendcicdargsvalidation"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
-      Environment:
-        Variables:
-          EDITION: "DEV"
 

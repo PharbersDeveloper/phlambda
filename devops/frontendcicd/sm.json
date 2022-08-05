@@ -79,6 +79,16 @@
                         "frontend.$": "$.utils"
                      },
                      "ResultPath": "$.metadata",
+                     "Next": "CreateCurrentLmdArgs"
+                  },
+                  "CreateCurrentLmdArgs": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcreatecurrentargs",
+                     "Parameters": {
+                        "componentArgs.$": "$.metadata.componentArgs",
+                        "iterator.$": "$.metadata.iterator"
+                     },
+                     "ResultPath": "$.currentComponentArgs",
                      "Next": "CreateFrontendCodeBuildCfn"
                   },
                   "CreateFrontendCodeBuildCfn": {
@@ -91,9 +101,9 @@
                         "cfn.$": "$.metadata.frontendArgs.cfn"
                      },
                      "ResultPath": null,
-                     "Next": "FrontendLmdCodebuildWait"
+                     "Next": "FrontendCodebuildWait"
                   },
-                  "FrontendLmdCodebuildWait": {
+                  "FrontendCodebuildWait": {
                      "Type": "Wait",
                      "Seconds": 30,
                      "Next": "FrontendCodebuildCheck"
@@ -103,7 +113,7 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
                      "Parameters": {
                         "current.$": "$.metadata.iterator.index",
-                        "name.$": "$.metadata.frontendArgs.name",
+                        "name.$": "$.metadata.frontendArgs.stackName",
                         "expect": "CREATE_COMPLETE"
                      },
                      "ResultPath": "$.metadata.iterator",
@@ -118,13 +128,13 @@
                            "Next": "RunFrontendCodebuild"
                         }
                      ],
-                     "Default": "FrontendLmdCodebuildWait"
+                     "Default": "FrontendCodebuildWait"
                   },
                   "RunFrontendCodebuild": {
                      "Type": "Task",
                      "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
                      "Parameters": {
-                        "ProjectName.$": "$.metadata.frontendArgs.name"
+                        "ProjectName.$": "$.metadata.frontendArgs.stackName"
                      },
                      "ResultPath": null,
                      "Next": "DeleteFrontendCodeBuildCfn"
@@ -134,10 +144,22 @@
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
                      "Parameters": {
                         "action": "deletion",
-                        "name.$": "$.metadata.frontendArgs.name"
+                        "name.$": "$.metadata.frontendArgs.stackName"
                      },
                      "ResultPath": null,
-                     "Next": "UpdateFrontendManageYaml"
+                     "Next": "FrontendCountReached"
+                  },
+                  "FrontendCountReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.index",
+                           "NumericEqualsPath": "$.metadata.componentArgs",
+                           "Next": "UpdateFrontendManageYaml"
+                        }
+                     ],
+                     "Default": "CreateCurrentLmdArgs"
                   },
                   "UpdateFrontendManageYaml": {
                      "Type": "Task",
@@ -146,7 +168,8 @@
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
                         "runtime.$": "$.common.runtime",
-                        "frontend.$": "$.frontend"
+                        "frontend.$": "$.frontend",
+                        "componentArgs.$": "$.metadata.componentArgs"
                      },
                      "ResultPath": "$.stackMessage",
                      "Next": "FrontendBranchEnd"
@@ -191,8 +214,8 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcleanup",
          "Parameters": {
-            "processor.$": "$.processor",
             "frontend.$": "$.frontend",
+            "componentArgs.$": "$.metadata.componentArgs",
             "status": "failed"
          },
          "ResultPath": "$.message",

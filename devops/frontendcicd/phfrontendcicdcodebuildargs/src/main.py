@@ -8,14 +8,14 @@ args:
     event = {
         "version": "0-0-1",
         "publisher": "赵浩博",
-        "runtime": "test/dev/prod"
+        "runtime": "prod"
         "frontend": {
             "branch": "PBDP-3235-cicd",
-            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+            "commit": "184d0599303ccaa537417610c0dd6b929fe3a8a5",
             "repo": "micro-frontend",
             "components": [
                 {
-                    "prefix": "iframe-web-components/iframe-dags-component",
+                    "prefix": "client-helper/offweb-model-helper",
                 }
             ]
             "required": true
@@ -24,16 +24,21 @@ args:
 '''
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phfront-codebuild.yaml"
 git_url = "http://cicd:Abcde196125@192.168.53.179:7990/scm/lgc/phlambda.git"
-buildSpec = "iframeFrontBuildspec"
+buildSpec = {
+    "client-helper": "helperFrontBuildspec",
+    "iframe-web-components": "iframeFrontBuildspec",
+    "vue-web-components": "vueFrontBuildspec",
+    "web-shell": "emberFrontBuildspec"
+}
 
 def create_component_args(event):
     component_args = []
     frontend = event["frontend"]
     for component in frontend["components"]:
         component_arg = {
-            "stackName": component["name"] + "codebuild",
+            "stackName": component["prefix"].split("/")[-1] + "codebuild",
             "componentPrefix": component["prefix"],
-            "buildSpec": buildSpec,
+            "buildSpec": buildSpec[component["prefix"].split("/")[0]],
             "codebuildCfn": codebuild_cfn_path,
             "componentName": component["prefix"].split("/")[-1],
             "branchName": frontend["branch"],
@@ -42,7 +47,7 @@ def create_component_args(event):
             "runtime": event["runtime"],
             "gitCommit": event["commit"],
             "gitUrl": git_url,
-            "s3ComponentPath": "s3://ph-platform/2020-11-11/cicd/" + component["prefix"] + event["version"]
+            "s3ComponentPath": "s3://ph-platform/2020-11-11/cicd/frontendcicd/" + component["prefix"] + event["version"]
         }
         component_args.append(component_arg)
 

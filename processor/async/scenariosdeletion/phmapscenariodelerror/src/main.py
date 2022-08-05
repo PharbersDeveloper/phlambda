@@ -19,27 +19,29 @@ event = {
 def ChangeStrToDict(data):
     return json.loads(data) if isinstance(data, str) else data
 
-def FindErrorKey(key):
-    Patter = re.compile(pattern='Cause', flags=re.IGNORECASE)
+def FindErrorKey(PatternValue,key):
+    #Patter = re.compile(pattern='Cause', flags=re.IGNORECASE)
+    Patter = re.compile(pattern=str(PatternValue), flags=re.IGNORECASE)
     result = Patter.findall(string=key)
     return True if len(result) > 0 else False
 
-def FindErrorCause(data):
+def FindErrorCause(data, causeType):
     data = ChangeStrToDict(data)
     try:
-        tag = data['errorType']
+        #tag = data['errorType']
+        tag = data[causeType]
         return tag
     except Exception as e:
         return False
 
 def SearchErrorType(error):
     keys = ChangeStrToDict(error).keys()
-    keys = list(filter(lambda x: FindErrorKey(x) is True, keys))
+    keys = list(filter(lambda x: FindErrorKey('Cause',x) is True, keys))
     if len(keys) == 0:
         return None
     else:
-        cause = list(filter(lambda x: FindErrorCause(error[x]) is not False, keys))
-        cause = list(map(lambda x: FindErrorCause(ChangeStrToDict(error[x])), cause))
+        cause = list(filter(lambda x: FindErrorCause(error[x], 'errorType') is not False, keys))
+        cause = list(map(lambda x: FindErrorCause(ChangeStrToDict(error[x]), 'errorType'), cause))
         if len(cause) == 0:
             return None
         return cause
@@ -54,7 +56,7 @@ def MapErrorType(cause):
         #TODO 后续出现新的错误类型再添加
         if isinstance(cause, list) and "KeyError" in cause:
             tmp = serialization(ParameterError)
-        elif isinstance(cause, dict) and cause.get("errorType") == "Exception":
+        elif isinstance(cause, list) and "Exception" in cause:
             tmp = serialization(ParameterError)
         else:
             tmp = serialization(Errors)

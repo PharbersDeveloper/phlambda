@@ -236,7 +236,7 @@
       },
       "MapScenarioDelError": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelscenariocleanup",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phmapscenariodelerror",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -245,7 +245,7 @@
             "scenario.$": "$.scenario",
             "triggers.$": "$.triggers",
             "steps.$": "$.steps",
-            "error.$":"$.error"
+            "error.$": "$.error"
          },
          "ResultPath": "$.errorMessage",
          "Next": "Failed"

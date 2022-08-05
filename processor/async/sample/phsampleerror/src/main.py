@@ -70,7 +70,8 @@ def lambda_handler(event, context):
         print("*"*50 + " 代码解析错误" + "*"*50, str(e))
         errorMessage = serialization(Errors)
 
-        #--- 错误信息写入notification表 -----------#
+    #--- 错误信息写入notification表 -----------#
+
     dt = datetime.now()
     ts = datetime.timestamp(dt)
 

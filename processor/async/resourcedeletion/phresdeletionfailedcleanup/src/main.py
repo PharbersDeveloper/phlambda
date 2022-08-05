@@ -314,11 +314,11 @@ class CleanUp:
 def errors_adapter(error):
     error = json.loads(error)
     Command = {
-        "datasets_or_scripts_Missing_field": ParameterError,
-        "scripts_type_error": ParameterError,
         "datasets_type_error": ParameterError,
-        "datasets_name_already_exits": ParameterError,
-        "dagconf_actionName_already_exits": ParameterError,
+        "datasets_missing_name_field": ParameterError,
+        "datasets_name_not_exits": ParameterError,
+        "scripts_missing_name_field": ParameterError,
+        "dagconf_actionName_not_exits": ParameterError,
         "common_not_exits": ParameterError,
         "action_not_exits": ParameterError,
         "notificaiton_not_exits": ParameterError,
@@ -335,7 +335,8 @@ def errors_adapter(error):
 def lambda_handler(event, context):
     result = event.get("result")
     errors = event.get("errors")
-    CleanUp().run(**result)
+    if result:
+      CleanUp().run(**result)
     # 1. 将错误的信息写入 notification 中
     # 2. 将错误的被删除的 index 重新写回 dynamodb 中
     #     所有的信息都在 result 中存放

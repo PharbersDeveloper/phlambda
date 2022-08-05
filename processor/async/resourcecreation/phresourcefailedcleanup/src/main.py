@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
+from pherrorlayer import *
 
 '''
 这个函数清理已经操作的东西，保证操作的原子性
@@ -124,6 +125,23 @@ class CleanUp:
                     self.del_s3_obj(key)
 
 
+def errors_adapter(error):
+    error = json.loads(error)
+    Command = {
+        "datasets or scripts Missing field": ParameterError,
+        "scripts type error": ParameterError,
+        "datasets type error": ParameterError,
+        "datasets name already exits": ParameterError,
+        "dagconf actionName already exits": ParameterError,
+        "common not exits": ParameterError,
+        "action_not_exits": ParameterError,
+        "notificaiton not exits": ParameterError,
+        "datasets scripts not exits": ParameterError
+    }
+    errorMessage = error.get("errorMessage").replace(" ", "_")
+    return serialization(Command[errorMessage])
+
+
 def lambda_handler(event, context):
     errors = event.get("errors")
     CleanUp().run(**event)
@@ -133,12 +151,13 @@ def lambda_handler(event, context):
     # 4. 如果dag表中，ctype = link && cmessage 中 sourceId 或者 targetId 为上述中的删除节点的删除
     # 5. 删除s3中目标文件夹的文件
     #   5.1 每一个生成过程都给一个TraceID命名的文件，如果文件名一样，删除，如果文件不一样说明时别人创建的不能删除
+
+
     return {
         "type": "notification",
         "opname": event["owner"],
         "cnotification": {
             "data": {},
-            "error": errors
+            "error": errors_adapter(errors.get("Cause"))
         }
     }
-

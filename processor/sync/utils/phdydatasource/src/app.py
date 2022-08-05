@@ -1,6 +1,6 @@
 import json
 from delegate.AppLambdaDelegate import AppLambdaDelegate
-from phmetriclayer import aws_cloudwatch_put_metric_data
+# from phmetriclayer import aws_cloudwatch_put_metric_data
 # import requests
 
 
@@ -26,7 +26,6 @@ def lambda_handler(event, context):
 
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
-
     # try:
     #     ip = requests.get("http://checkip.amazonaws.com/")
     # except requests.RequestException as e:

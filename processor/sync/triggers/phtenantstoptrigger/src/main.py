@@ -111,7 +111,7 @@ def lambda_handler(event, context):
             "cat": "tenantStop",
             "desc": "reboot project",
             "comments": "",
-            "message": "",
+            "message": {"optionName": "tenant_stop", "cat": "", "runtime": "", "actionName": ""},
             "required": True
         },
         "resources": [

@@ -1,5 +1,5 @@
 {
-   "Comment": "Pharbers Resource Creation",
+   "Comment": "CICD Resource Creation",
    "StartAt": "StartState",
    "States": {
       "StartState": {
@@ -674,6 +674,207 @@
                      "End": true
                   }
                }
+            },
+            {
+               "StartAt": "CreateMultistageChoice",
+               "States": {
+                  "CreateMultistageChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.multistage.required",
+                           "BooleanEquals": true,
+                           "Next": "GetLmdAndMultistageDetail"
+                        },
+                        {
+                           "Variable": "$.multistage.required",
+                           "BooleanEquals": false,
+                           "Next": "MultistageBranchEnd"
+                        }
+                     ],
+                     "Default": "GetLmdAndMultistageDetail"
+                  },
+                  "GetLmdAndMultistageDetail": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandmultiresourcedetail-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "alias.$": "$.common.alias",
+                        "runtime.$": "$.common.runtime",
+                        "multistage.$": "$.multistage"
+                     },
+                     "ResultPath": "$.metadata",
+                     "Next": "CreateMultistageCodeBuildCfn"
+                  },
+                  "CreateMultistageCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.metadata.lambdaArgs.name",
+                        "parameters.$": "$.metadata.lambdaArgs.parameters",
+                        "cfn.$": "$.metadata.lambdaArgs.cfn"
+                     },
+                     "ResultPath": null,
+                     "Next": "MultistageLmdCodebuildWait"
+                  },
+                  "MultistageLmdCodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "MultistageLmdCodebuildCheck"
+                  },
+                  "MultistageLmdCodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.metadata.lambdaArgs.name",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.metadata.iterator",
+                     "Next": "MultistageLmdCodebuildReached"
+                  },
+                  "MultistageLmdCodebuildReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
+                           "Next": "RunMultistageCodebuild"
+                        }
+                     ],
+                     "Default": "MultistageLmdCodebuildWait"
+                  },
+                  "RunMultistageCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
+                     "Parameters": {
+                        "ProjectName.$": "$.metadata.lambdaArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "DeleteMultistageCodeBuildCfn"
+                  },
+                  "DeleteMultistageCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "deletion",
+                        "name.$": "$.metadata.lambdaArgs.name"
+                     },
+                     "ResultPath": null,
+                     "Next": "UpdateMultistageManageYaml"
+                  },
+                  "UpdateMultistageManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdatemultiresourcemanageyaml-dev",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "runtime.$": "$.common.runtime",
+                        "multistage.$": "$.multistage",
+                        "apiGateWayArgs.$": "$.metadata.apiGateWayArgs"
+                     },
+                     "ResultPath": "$.stackMessage",
+                     "Next": "MultistageCreateManageStack"
+                  },
+                  "MultistageCreateManageStack": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Parameters": {
+                        "stackName.$": "$.stackMessage.stackName",
+                        "manageUrl.$": "$.stackMessage.manageUrl",
+                        "version.$": "$.common.version",
+                        "stackParameters.$": "$.stackMessage.stackParameters"
+                     },
+                     "ResultPath": "$.changeSetMsg",
+                     "Next": "MultistageJudgeExecuteChangeSet"
+                  },
+                  "MultistageJudgeExecuteChangeSet": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetMsg.changeSetName",
+                           "IsNull": true,
+                           "Next": "MultistageStackStatusCheckWait"
+                        }
+                     ],
+                     "Default": "MultistageChangeSetWait"
+                  },
+                  "MultistageChangeSetWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "MultistageCheckChangeSet"
+                  },
+                  "MultistageCheckChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": "$.changeSetStatus",
+                     "Next": "MultistageChangeSetStatusReached"
+                  },
+                  "MultistageChangeSetStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.changeSetStatus",
+                           "BooleanEquals": true,
+                           "Next": "MultistageExecutionChangeSet"
+                        }
+                     ],
+                     "Default": "MultistageChangeSetWait"
+                  },
+                  "MultistageExecutionChangeSet": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "changeSetName.$": "$.changeSetMsg.changeSetName"
+                     },
+                     "ResultPath": null,
+                     "Next": "MultistageStackStatusCheckWait"
+                  },
+                  "MultistageStackStatusCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "MultistageCreateOrUpdateCheck"
+                  },
+                  "MultistageCreateOrUpdateCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Parameters": {
+                        "stackName.$": "$.changeSetMsg.stackName",
+                        "processor.$": "$.processor",
+                        "trigger.$": "$.trigger",
+                        "multistage.$": "$.multistage"
+                     },
+                     "ResultPath": "$.StackStatus",
+                     "Next": "MultistageStackStatusReached"
+                  },
+                  "MultistageStackStatusReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.StackStatus",
+                           "BooleanEquals": true,
+                           "Next": "MultistageBranchEnd"
+                        }
+                     ],
+                     "Default": "MultistageStackStatusCheckWait"
+                  },
+                  "MultistageBranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
+                     "End": true
+                  }
+               }
             }
          ],
          "Catch": [
@@ -710,7 +911,8 @@
          "Parameters": {
             "processor.$": "$.processor",
             "trigger.$": "$.trigger",
-            "utils": "utils",
+            "multistage.$": "$.multistage",
+            "utils.$": "$.utils",
             "status": "failed"
          },
          "ResultPath": "$.message",

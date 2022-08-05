@@ -144,7 +144,7 @@ def create_code_gen_args(event):
             "required": True
         },
         "script": {
-            "id": "",
+            "id": event["script"]["old"]["id"],
             "jobName": event["script"]["new"]["name"],
             "jobPath": "",
             "inputs": json.loads(event["script"]["new"]["inputs"]),
@@ -209,7 +209,7 @@ def lambda_handler(event, context):
     update_dag_item(event["dagItems"])
     # 获取需要更新的dag conf Items
     update_dagconf_item(event["scriptItems"])
-    runtime = ["pyspark", "sparkr", "python", "r"]
+    runtime = ["pyspark", "sparkr", "python", "r", "sync"]
     if event["script"]["new"]["runtime"] in runtime:
         # 创建触发copy script file 参数
         args = create_copy_script_file_args(event)

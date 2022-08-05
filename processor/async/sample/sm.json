@@ -1,7 +1,24 @@
 {
    "Comment": "Pharbers Dag Trigger Factory",
-   "StartAt": "genStartArgs",
+   "StartAt": "Actions",
    "States": {
+     "Actions": {
+        "Type": "Task",
+        "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+        "Parameters": {
+          "traceId.$": "$.common.runnerId",
+          "projectId.$": "$.common.projectId",
+          "owner.$": "$.common.owner",
+          "showName.$": "$.common.showName",
+          "jobCat.$": "$.Actions.cat",
+          "jobDesc.$": "$.Actions.desc",
+          "comments.$": "$.Actions.comments",
+          "message.$": "$.Actions.message",
+          "required.$": "$.Actions.required"
+        },
+        "ResultPath": null,
+        "Next": "genStartArgs"
+      },
       "genStartArgs": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplegen",

@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: phsnsstopresource
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./src
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:psycopg2:4
+      FunctionName: phsnsstopresource
+      Description: "lmd-phsnsstopresource-dev"
+      MemorySize: 1024
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Environment:
+        Variables:
+          EDITION: "dev"
+      Timeout: 300
+

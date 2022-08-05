@@ -1,0 +1,26 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+  pre_build:
+    commands:
+      - mkdir -p /code/$FUNCTION_NAME/$REPO_NAME
+      - cd /code/$FUNCTION_NAME/$REPO_NAME
+      - git init
+      - git pull $GIT_URL $BRANCH_NAME:$BRANCH_NAME
+      - git checkout $GIT_COMMIT
+      - cd $FUNCTION_PATH
+      - mkdir lmdcode
+      - ln -s /code/node/node_modules node_modules
+      - npm run build
+      - cp -r dist lmdcode
+      - cp app.js lmdcode
+  build:
+    commands:
+      - echo `date +"%Y_%m_%d_%H_%M_%S"` >> lmdcode/README.md
+      - echo $GIT_COMMIT >> lmdcode/README.md
+      - sam package --template-file template.yaml --output-template-file package.yaml --s3-bucket ph-platform --s3-prefix 2020-11-11/cicd/$FUNCTION_PATH/samtem/$VERSION
+      - ls
+      - aws s3 cp package.yaml s3://ph-platform/2020-11-11/cicd/$FUNCTION_PATH/package/package.yaml
+      - rm -rf /code/$FUNCTION_NAME/$REPO_NAME

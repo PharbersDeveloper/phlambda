@@ -1,0 +1,16 @@
+  PhStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      DefinitionS3Location: 
+        Bucket: ${S3Bucket}
+        Key: ${S3TemplateKey}
+      RoleArn: "arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin"
+      StateMachineName: ${StateMachineName}
+      StateMachineType: STANDARD
+      Tags:
+        - Key: Tenant
+          Value: Pharbers
+        - Key: Owner
+          Value: ${SubmitOwner}
+        - Key: Date
+          Value: ${Date}

@@ -128,18 +128,23 @@ class CleanUp:
 def errors_adapter(error):
     error = json.loads(error)
     Command = {
-        "datasets or scripts Missing field": ParameterError,
-        "scripts type error": ParameterError,
-        "datasets type error": ParameterError,
-        "datasets name already exits": ParameterError,
-        "dagconf actionName already exits": ParameterError,
-        "common not exits": ParameterError,
+        "datasets_or_scripts_Missing_field": ParameterError,
+        "scripts_type_error": ParameterError,
+        "datasets_type_error": ParameterError,
+        "datasets_name_already_exits": ParameterError,
+        "dagconf_actionName_already_exits": ParameterError,
+        "common_not_exits": ParameterError,
         "action_not_exits": ParameterError,
-        "notificaiton not exits": ParameterError,
-        "datasets scripts not exits": ParameterError
+        "notificaiton_not_exits": ParameterError,
+        "datasets_scripts_not_exits": ParameterError,
+        "errors": Errors
     }
     errorMessage = error.get("errorMessage").replace(" ", "_")
-    return serialization(Command[errorMessage])
+    if errorMessage in Command.keys():
+      return serialization(Command[errorMessage])
+    else:
+      return serialization(Command["errors"])
+
 
 
 def lambda_handler(event, context):

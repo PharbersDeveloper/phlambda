@@ -258,8 +258,7 @@
                "showName.$": "$.common.showName",
                "projectName.$": "$.common.projectName",
                "errors.$": "$.error",
-               "result.$": "$.result",
-               "resources.$": "$.resources"
+               "result.$": "$.result"
            },
            "ResultPath": "$.error",
            "Next": "Failed"

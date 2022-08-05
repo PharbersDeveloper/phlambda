@@ -1,24 +1,7 @@
 {
    "Comment": "Pharbers Dag Trigger Factory",
-   "StartAt": "Actions",
+   "StartAt": "genStartArgs",
    "States": {
-      "Actions": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
-         "Parameters": {
-            "traceId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.Actions.cat",
-            "jobDesc.$": "$.Actions.desc",
-            "comments.$": "$.Actions.comments",
-            "message.$": "$.Actions.message",
-            "required.$": "$.Actions.required"
-         },
-         "ResultPath": null,
-         "Next": "genStartArgs"
-      },
       "genStartArgs": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplegen",
@@ -138,22 +121,6 @@
       "failedExecutionHook": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsamplefailedhook",
-         "Parameters": {
-            "runnerId.$": "$.common.runnerId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "Input.$": "$.executeArgs.args",
-            "engine.$": "$.engine",
-            "error.$": "$.error"
-         },
-         "ResultPath": null,
-         "Next": "MapErrorMessage"
-      },
-      "MapErrorMessage": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phsampleerror",
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",

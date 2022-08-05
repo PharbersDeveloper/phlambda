@@ -51,9 +51,11 @@ def MapErrorType(cause):
     else:
         #--- 错误详情，用于解析映射用 -----#
         #ErrorKeys = list(*map(lambda x: list(x.keys()), cause))
-        if "KeyError" in cause:
-            tmp = serialization(ParameterError)
         #TODO 后续出现新的错误类型再添加
+        if isinstance(cause, list) and "KeyError" in cause:
+            tmp = serialization(ParameterError)
+        elif isinstance(cause, dict) and cause.get("errorType") == "Exception":
+            tmp = serialization(ParameterError)
         else:
             tmp = serialization(Errors)
     return tmp

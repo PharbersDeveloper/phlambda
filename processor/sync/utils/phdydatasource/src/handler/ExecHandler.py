@@ -74,7 +74,8 @@ def __queryData(table, body, type_name):
     result = list(map(lambda item: __table_structure[table](item), payload["data"]))
     json_api_data = json.loads(Convert2JsonAPI(__table_structure[table], many=True).build().dumps(result))
     json_api_data["meta"] = {
-        "start_key": payload["start_key"]
+        "start_key": payload["start_key"],
+        "pre_key": payload["pre_key"]
     }
     return json_api_data
 

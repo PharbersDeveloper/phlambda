@@ -1,0 +1,229 @@
+{
+   "Comment": "CICD Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "Result": {
+            "dagItems": "",
+            "scriptItems": ""
+         },
+         "ResultPath": "$.metadata",
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdargsvalidation",
+         "ResultPath": null,
+         "Next": "Frontend",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "Frontend": {
+         "Type": "Parallel",
+         "InputPath": "$",
+         "ResultPath": "$",
+         "ResultSelector": {
+            "frontendMetadata.$": "$.[0]"
+         },
+         "Next": "Success",
+         "Branches": [
+            {
+               "StartAt": "CreateFrontendChoice",
+               "States": {
+                  "CreateFrontendChoice": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.frontend.required",
+                           "BooleanEquals": true,
+                           "Next": "GetFrontendLmdDetail"
+                        },
+                        {
+                           "Variable": "$.frontend.required",
+                           "BooleanEquals": false,
+                           "Next": "FrontendBranchEnd"
+                        }
+                     ],
+                     "Default": "GetFrontendLmdDetail"
+                  },
+                  "GetFrontendLmdDetail": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcodebuildargs",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "runtime.$": "$.common.runtime",
+                        "frontend.$": "$.utils"
+                     },
+                     "ResultPath": "$.metadata",
+                     "Next": "CreateCurrentLmdArgs"
+                  },
+                  "CreateCurrentLmdArgs": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcreatecurrentargs",
+                     "Parameters": {
+                        "componentArgs.$": "$.metadata.componentArgs",
+                        "iterator.$": "$.metadata.iterator"
+                     },
+                     "ResultPath": "$.currentComponentArgs",
+                     "Next": "CreateFrontendCodeBuildCfn"
+                  },
+                  "CreateFrontendCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "creation",
+                        "name.$": "$.metadata.frontendArgs.name",
+                        "parameters.$": "$.metadata.frontendArgs.parameters",
+                        "cfn.$": "$.metadata.frontendArgs.cfn"
+                     },
+                     "ResultPath": null,
+                     "Next": "FrontendCodebuildWait"
+                  },
+                  "FrontendCodebuildWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "FrontendCodebuildCheck"
+                  },
+                  "FrontendCodebuildCheck": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdastackcheck-dev",
+                     "Parameters": {
+                        "current.$": "$.metadata.iterator.index",
+                        "name.$": "$.metadata.frontendArgs.stackName",
+                        "expect": "CREATE_COMPLETE"
+                     },
+                     "ResultPath": "$.metadata.iterator",
+                     "Next": "FrontendLmdCodebuildReached"
+                  },
+                  "FrontendLmdCodebuildReached": {
+                     "Type": "Choice",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.currentStatus",
+                           "StringEquals": "success",
+                           "Next": "RunFrontendCodebuild"
+                        }
+                     ],
+                     "Default": "FrontendCodebuildWait"
+                  },
+                  "RunFrontendCodebuild": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:states:::codebuild:startBuild.sync",
+                     "Parameters": {
+                        "ProjectName.$": "$.metadata.frontendArgs.stackName"
+                     },
+                     "ResultPath": null,
+                     "Next": "DeleteFrontendCodeBuildCfn"
+                  },
+                  "DeleteFrontendCodeBuildCfn": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambda-dev",
+                     "Parameters": {
+                        "action": "deletion",
+                        "name.$": "$.metadata.frontendArgs.stackName"
+                     },
+                     "ResultPath": null,
+                     "Next": "FrontendCountReached"
+                  },
+                  "FrontendCountReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.metadata.iterator.index",
+                           "NumericEqualsPath": "$.metadata.componentArgs",
+                           "Next": "UpdateFrontendManageYaml"
+                        }
+                     ],
+                     "Default": "CreateCurrentLmdArgs"
+                  },
+                  "UpdateFrontendManageYaml": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicddeploy",
+                     "Parameters": {
+                        "version.$": "$.common.version",
+                        "publisher.$": "$.common.publisher",
+                        "runtime.$": "$.common.runtime",
+                        "frontend.$": "$.frontend",
+                        "componentArgs.$": "$.metadata.componentArgs"
+                     },
+                     "ResultPath": "$.stackMessage",
+                     "Next": "FrontendBranchEnd"
+                  },
+                  "FrontendBranchEnd": {
+                     "Type": "Pass",
+                     "ResultPath": "$",
+                     "End": true
+                  }
+               }
+            }
+         ],
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "Success": {
+         "Type": "Pass",
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcleanup",
+         "Parameters": {
+            "frontend.$": "$.frontend",
+            "componentArgs.$": "$.metadata.componentArgs",
+            "status": "failed"
+         },
+         "ResultPath": "$.message",
+         "Next": "Failed"
+      },
+      "Failed": {
+         "Type": "Pass",
+         "End": true
+      }
+   }
+}

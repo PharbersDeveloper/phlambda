@@ -56,13 +56,14 @@ def lambda_handler(event, context):
         "name": currentComponentMsg["stackName"],
         "cfn": currentComponentMsg["codebuildCfn"],
         "parameters": {
-            "COMPONENT_NAME": currentComponentMsg["componentName"],
-            "REPO_NAME": currentComponentMsg["repoName"],
-            "BRANCH_NAME": currentComponentMsg["branchName"],
-            "GIT_COMMIT": currentComponentMsg["gitCommit"],
-            "GIT_URL": currentComponentMsg["gitUrl"],
-            "COMPONENT_PATH": currentComponentMsg["componentPrefix"],
-            "S3_COMPONENT_PATH": currentComponentMsg["s3ComponentPath"]
+            "ComponentName": currentComponentMsg["componentName"],
+            "RepoName": currentComponentMsg["repoName"],
+            "BranchName": currentComponentMsg["branchName"],
+            "GitCommit": currentComponentMsg["gitCommit"],
+            "GitUrl": currentComponentMsg["gitUrl"],
+            "ComponentPath": currentComponentMsg["componentPrefix"],
+            "S3ComponentPath": currentComponentMsg["s3ComponentPath"],
+            "BuildSpec": currentComponentMsg["buildSpec"]
         }
     }
 

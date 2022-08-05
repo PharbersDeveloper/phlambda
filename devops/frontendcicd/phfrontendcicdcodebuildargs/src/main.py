@@ -23,7 +23,7 @@ args:
     }
 '''
 codebuild_cfn_path = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/template/phfront-codebuild.yaml"
-git_url = "http://cicd:Abcde196125@192.168.53.179:7990/scm/lgc/phlambda.git"
+git_url = "http://cicd:Abcde196125@192.168.53.179:7990/scm/fron/micro-frontend.git"
 buildSpec = {
     "client-helper": "helperFrontBuildspec",
     "iframe-web-components": "iframeFrontBuildspec",
@@ -45,9 +45,9 @@ def create_component_args(event):
             "repoName": frontend["repo"],
             "version": event["version"],
             "runtime": event["runtime"],
-            "gitCommit": event["commit"],
+            "gitCommit": frontend["commit"],
             "gitUrl": git_url,
-            "s3ComponentPath": "s3://ph-platform/2020-11-11/cicd/frontendcicd/" + component["prefix"] + event["version"]
+            "s3ComponentPath": "s3://ph-platform/2020-11-11/cicd/frontendcicd/" + component["prefix"] + "/" + event["version"]
         }
         component_args.append(component_arg)
 

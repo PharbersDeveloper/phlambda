@@ -51,13 +51,13 @@ args:
 '''
 
 
-def download_s3_dir(bucket, dir_key, dist_local_path):
-    bucket = s3_resource.Bucket(bucket)
+def download_s3_dir(bucket_name, dir_key, dist_local_path):
+    bucket = s3_resource.Bucket(bucket_name)
     for obj in bucket.objects.filter(Prefix=dir_key):
         if not os.path.exists(dist_local_path):
             os.makedirs(dist_local_path)
         if not obj.key.endswith("/"):
-            download_s3_file(bucket, obj.key, dist_local_path + obj.key.split("/")[-1])
+            download_s3_file(bucket_name, obj.key, dist_local_path + obj.key.split("/")[-1])
 
 
 def download_s3_file(bucket, key, file_path):
@@ -113,7 +113,7 @@ def lambda_handler(event, context):
     componentArgs = event["componentArgs"]
     for componentArg in componentArgs:
         dist_s3_source = "/".join(componentArg["s3ComponentPath"].split("/")[3:])
-        dist_local_path = "/tmp/" + componentArg["componentPrefix"] + "/dist"
+        dist_local_path = "/tmp/" + componentArg["componentPrefix"] + "/dist/"
         # 下载s3ComponentPath 目录下的dist
         download_s3_dir("ph-platform", dist_s3_source, dist_local_path)
         # 读取.devops文件 通过devops/runtime/prefix

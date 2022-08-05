@@ -26,7 +26,7 @@ mangeLocalPathSuffix = "/manage.yaml"
 apiManageLocalPathSuffix = "/cfn.yaml"
 dealApiManageLocalPathSuffix = "/deal_cfn.yaml"
 dealMangeLocalPathPrefix = "/tmp/cicd/tmp/"
-dealMangeLocalPathSuffix = "/deal_manage.yaml"
+dealMangeLocalPathSuffix = "/manage.yaml"
 apiResourceLocalPathPrefix = "/tmp/cicd/tmp/"
 lmdVersionLocalPath = "/tmp/cicd/tmp/lmdVersion.yaml"
 lmdAliasLocalPath = "/tmp/cicd/tmp/lmdAlias.yaml"
@@ -280,7 +280,7 @@ def lambda_handler(event, context):
 
     print(resource_id_map)
     for resourceName, resourceValue in resource_id_map.items():
-        write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath, resource_id_map,
+        write_api_resource(apiGateWayArgs, event["version"], runtime, apiManagelocalPath, resource_id_map,
                            resourceName, resourceValue)
 
     # 6 处理manage文件
@@ -315,7 +315,7 @@ def lambda_handler(event, context):
         bucket_name=manageTemplateS3Key,
         object_name=resourcePathPrefix + event["multistage"]["prefix"] + "/" +
                     event["multistage"]["functionName"] + "/manage.yaml",
-        file=dealMangeLocalPath
+        file=mangeLocalPath
     )
     manageUrl = manageUrlPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"] + "/manage.yaml"
     print(manageUrl)

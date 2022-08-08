@@ -7,54 +7,36 @@ dynamodb = boto3.resource('dynamodb')
 args:
     event = {
         "common": {
-            "version": "version",
-            "commit": "9f2b50e4bc89dd903f85ef1215f0b31079537450",
+            "version": "0-0-1",
             "publisher": "赵浩博",
-            "alias": "hbzhao-resource-change-position-owner",
-            "runtime": "dev/v2/prod"
+            "runtime": "prod"
         },
-        "processor": {
-            "repo": "phlambda",
-            "branch": "",
-            "prefix": "processor/async/createscriptrefile",
-            "stateMachineName": "createscriptrefile",
-            "sm": "processor/async/createscriptrefile/sm.json",
-            "functions": [
-                {   
-                    "name": "phresourcepycodegen"
-                },
+        "frontend": {
+            "branch": "PBDP-3235-cicd",
+            "commit": "184d0599303ccaa537417610c0dd6b929fe3a8a5",
+            "repo": "micro-frontend",
+            "components": [
                 {
-                    "name": "phresourcercodegen"
+                "prefix": "client-helper/offweb-model-helper"
                 }
-            ]
+            ],
             "required": true
-        },
-        "trigger": {
-            "repo": "phlambda",
-            "branch": "",
-            "prefix": "processor/sync/utils/phemail",
-            "stateMachineName": "createscriptrefile",
-            "name": "phemail"
-            "entry": {
-                "type": "ApiGateway",
-                "resource": "",
-                "method": ""
-            }
-            "required": true      
         }
     }
 '''
 
 
 def check_parameter(event):
-    print(1)
+    # 1. common 必须存在
+    if not event.get("common"):
+        raise Exception('common must exist')
+    # 2. frontend 必须存在
+    if not event.get("common"):
+        raise Exception('common must exist')
     return True
 
 
 def lambda_handler(event, context):
     print(event)
     return check_parameter(event)
-    # 1. common 必须存在
-    # 2. action 必须存在 cat 必须是 changeResourcePosition
-    # 3. datasets 中的 old["name"] 必须在dag中查询到
-    # 4. script中的 old id必须在dagconf表查询到
+

@@ -133,9 +133,26 @@ class DynamoDB:
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
 
+        __dynamodb_type = {
+            "str": "S",
+            "int": "N",
+            "float": "N",
+            "bool": "BOOL"
+        }
+
+        def get_type(target):
+            return str(type(target)).replace("<class", "").replace("'", "").replace(">", "").replace(" ", "")
+
+        def join_data(key):
+            value_type = get_type(item[key])
+            value = item[key]
+            if value_type != "bool":
+                value = str(value)
+            return {key: {__dynamodb_type[value_type]: value}}
+
         self.dynamodb_client.put_item(
             TableName=table_name,
-            Item=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(item[x])}}, item.keys())))
+            Item=reduce(lambda p, n: {**p, **n}, list(map(join_data, item.keys())))
         )
         return {
             "data": item

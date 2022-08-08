@@ -161,7 +161,7 @@ class DynamoDB:
     def deleteData(self, data):
         table_name = data["table_name"]
         keys = data["conditions"]
-        self.dynamodb_client.put_item(
+        self.dynamodb_client.delete_item(
             TableName=table_name,
             Key=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(keys[x])}}, keys.keys())))
         )

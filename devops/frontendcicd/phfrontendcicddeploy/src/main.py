@@ -82,7 +82,15 @@ def read_local_json_file(local_path):
     return json_data
 
 
-def create_devops_file_map(files, dist_local_path, destinations):
+def create_devops_file_map(files, dist_local_path, destinations, modifications):
+
+    def deal_resolve(file_name, file_modify_maps):
+        if file_modify_maps:
+            for file_modify_map in file_modify_maps:
+                if file_modify_map["source"] == file_name:
+                    file_name = file_modify_map["target"]
+        return file_name
+
     # 获取 dist_local_path 下的所有文件
     file_names = os.listdir(dist_local_path)
     deal_file_names = []
@@ -97,9 +105,10 @@ def create_devops_file_map(files, dist_local_path, destinations):
     local_s3_maps = []
     result = product(deal_file_names, destinations.copy())
     for i in list(result):
+        s3_file_name = deal_resolve(i[0], modifications)
         local_s3_maps.append({
             "bucket": i[1]["bucket"],
-            "key": i[1]["key"] + i[0],
+            "key": i[1]["key"] + s3_file_name,
             "local_path": dist_local_path + i[0]
         })
     print(local_s3_maps)
@@ -125,6 +134,7 @@ def lambda_handler(event, context):
             frontend_devops_data["devops"][runtime]["files"],
             dist_local_path,
             frontend_devops_data["devops"][runtime]["destinations"],
+            frontend_devops_data["devops"][runtime]["modifications"]
         )
         # 上传deploy文件
         for local_s3_map in local_s3_maps:

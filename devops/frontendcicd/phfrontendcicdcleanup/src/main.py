@@ -19,5 +19,6 @@ args:
 
 def lambda_handler(event, context):
     print(event)
-    # 需要
+    # 将已经发布过的内容进行回滚
+    # 
     return 1

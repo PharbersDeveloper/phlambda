@@ -145,10 +145,10 @@ class DynamoDB:
 
         def join_data(key):
             value_type = get_type(item[key])
-            value = item[key]
-            if value_type != "bool":
-                value = str(value)
-            return {key: {__dynamodb_type[value_type]: value}}
+            value = str(item[key])
+            if value_type == "bool":
+                value = eval(value)
+            return {key: {__dynamodb_type.get(value_type, "str"): value}}
 
         self.dynamodb_client.put_item(
             TableName=table_name,

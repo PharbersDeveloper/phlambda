@@ -39,7 +39,7 @@ args:
                        }
                    ],
                 resolve: ""
-            }
+            } 
         },
         "prod": {
         
@@ -57,7 +57,9 @@ def download_s3_dir(bucket_name, dir_key, dist_local_path):
         if not os.path.exists(dist_local_path):
             os.makedirs(dist_local_path)
         if not obj.key.endswith("/"):
-            download_s3_file(bucket_name, obj.key, dist_local_path + obj.key.split("/")[-1])
+            if not os.path.exists("/".join((dist_local_path + obj.key.replace(dir_key + "/", "")).split("/")[:-1])):
+                os.makedirs("/".join((dist_local_path + obj.key.replace(dir_key + "/", "")).split("/")[:-1]))
+            download_s3_file(bucket_name, obj.key, dist_local_path + obj.key.replace(dir_key + "/", ""))
 
 
 def download_s3_file(bucket, key, file_path):
@@ -83,7 +85,6 @@ def read_local_json_file(local_path):
 
 
 def create_devops_file_map(files, dist_local_path, destinations, modifications):
-
     def deal_resolve(file_name, file_modify_maps):
         if file_modify_maps:
             for file_modify_map in file_modify_maps:
@@ -92,7 +93,10 @@ def create_devops_file_map(files, dist_local_path, destinations, modifications):
         return file_name
 
     # 获取 dist_local_path 下的所有文件
-    file_names = os.listdir(dist_local_path)
+    file_names = []
+    for root, dirs, file in os.walk(dist_local_path):
+        for name in file:
+            file_names.append(os.path.join(root, name).replace(dist_local_path, ""))
     deal_file_names = []
     # 判断files下的文件后缀 如果为空则上传文件夹下所有文件
     if files:
@@ -124,9 +128,9 @@ def lambda_handler(event, context):
         dist_s3_source = "/".join(componentArg["s3ComponentPath"].split("/")[3:])
         dist_local_path = "/tmp/" + componentArg["componentPrefix"] + "/dist/"
         # 下载s3ComponentPath 目录下的dist
-        download_s3_dir("ph-platform", dist_s3_source, dist_local_path)
+        # download_s3_dir("ph-platform", dist_s3_source, dist_local_path)
         # 读取.devops文件 通过devops/runtime/prefix
-        frontend_devops_data = read_local_json_file(dist_local_path + "/.devops")
+        frontend_devops_data = read_local_json_file(dist_local_path + ".devops")
         # files 如果files为空则获取所有prefix下文件'
         # 获取本地文件和上传位置的map
         # destination 为s3目标目录
@@ -134,7 +138,7 @@ def lambda_handler(event, context):
             frontend_devops_data["devops"][runtime]["files"],
             dist_local_path,
             frontend_devops_data["devops"][runtime]["destinations"],
-            frontend_devops_data["devops"][runtime]["modifications"]
+            frontend_devops_data["devops"][runtime].get("modifications")
         )
         # 上传deploy文件
         for local_s3_map in local_s3_maps:

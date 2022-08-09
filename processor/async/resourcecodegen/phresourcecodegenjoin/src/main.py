@@ -59,7 +59,9 @@ def lambda_handler(event, context):
     print(event)
     args = {
         "inputs": event["script"]["inputs"],
-        "join_args": event["steps"][0]["expressions"]["params"]
+        "join_args": event["steps"][0]["expressions"]["params"],
+        "project_id": event["projectId"],
+        "job_id": event["steps"][0]["id"].split("_")[-1]
     }
     name = f"{event['projectName']}_{event['dagName']}_{event['flowVersion']}"
     job_full_name = f"""{name}_{event["script"]["jobName"]}"""
@@ -70,7 +72,7 @@ def lambda_handler(event, context):
     # 创建 TraceId File
     subprocess.call(["touch", jobPath + "/" + event["traceId"]])
 
-    with open('./code.yaml', encoding='utf-8') as file:
+    with open("./code.yaml", encoding="utf-8") as file:
         file_name = "phjob.py"
         result = yaml.safe_load(stream=Template(file.read()).substitute(args))
         write_file(f"{jobPath}/{file_name}", result["code"]["phjob"]["code"])

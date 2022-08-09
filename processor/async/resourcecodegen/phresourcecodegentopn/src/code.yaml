@@ -7,9 +7,28 @@ code:
   phjob:
     input: ~
     topn_args: ~
+    project_id: ~
+    job_id: ~
     code: |
+      import json
+      import boto3
       from pyspark.sql.functions import *
       from pyspark.sql import *
+      from functools import reduce
+      from string import Template
+      from boto3.dynamodb.conditions import Key
+      from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+      dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+      logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
+      def get_ds_with_index(project_id, job_id):
+          table = dynamodb_resource.Table("dagconf")
+          return table.query(
+              IndexName="dagconf-projectId-id-indexd",
+              KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+          )["Items"][0]
+
 
       def pre_filter(df, args):
           enabled = args["enabled"]
@@ -22,12 +41,14 @@ code:
                   df = df.filter(expression)
           return df
 
+
       def computed_columns(df, args):
-        if len(args) > 0:
-            for item in args:
-                expr = f"{item['expr']} AS `{item['name']}`"
-                df = df.selectExpr('*', expr).withColumn(item["name"], col(item["name"]).cast(item["type"]))
-        return df
+          if len(args) > 0:
+              for item in args:
+                  df = df.selectExpr('*', f"{item['expr']} AS `{item['name']}`") \
+                      .withColumn(item["name"], col(item["name"]).cast(item["type"]))
+          return df
+
 
       def window_df(df, keys, order_cols):
           return df.withColumn("__row_number", row_number().over(Window.partitionBy(keys).orderBy(order_cols))) \
@@ -35,6 +56,7 @@ code:
                 .withColumn("__duplicate_count", count(lit(1)).over(Window.partitionBy(keys))) \
                 .withColumn("__rank", rank().over(Window.partitionBy(keys).orderBy(order_cols))) \
                 .withColumn("__dense_rank", dense_rank().over(Window.partitionBy(keys).orderBy(order_cols)))
+
 
       def top_n(df, args):
           first_rows = args["firstRows"]
@@ -47,13 +69,13 @@ code:
           # order_cols = list(map(lambda item: item["column"], orders))
           order_rule = list(map(lambda item: desc('`'+ item["column"] +'`') if item["desc"] else asc('`'+ item["column"] +'`'), orders))
 
-          order_rule = list(map(lambda item: asc('`'+ item +'`'), keys)) + order_rule 
-          
+          order_rule = list(map(lambda item: asc('`'+ item +'`'), keys)) + order_rule
+
           df = window_df(df, keys, order_rule)
-          max_number = df.select("__max").head()
+          max_number = df.select("__max").head()[0] if df.count() > 0 else 0
           if max_number[0] == 1:
               return df.filter(f"__row_number > 0 and __row_number <= {first_rows + last_rows}")
-          
+
           first_rows_df = df.filter(f"__row_number > 0 and __row_number <= {first_rows}")
 
           last_rows_df = df.filter(f"__row_number > (__max - {last_rows})")
@@ -61,6 +83,7 @@ code:
           df = first_rows_df.union(last_rows_df).orderBy(order_rule)
 
           return df
+
 
       def retrieved_columns(df, args):
           _total_cols = list(filter(lambda col:
@@ -90,13 +113,45 @@ code:
 
           return df.select(select_cols)
 
+
+      def transform_type(tp, val):
+          data_val_type = {
+              "string": lambda x: str(x),
+              "double": lambda x: float(x),
+              "bigint": lambda x: int(x)
+          }
+          return data_val_type[tp](val)
+
+
+      def code_free(args, prop, user_conf):
+          args_str = json.dumps(args, ensure_ascii=False)
+
+          def generate_data(key):
+              if key in user_conf:
+                  return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+              else:
+                  return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+
+          result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+          return json.loads(Template(args_str).substitute(reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
+
       def execute(**kwargs):
           data_frame = kwargs["df_$input"]
           args = $topn_args
+          project_id = "$project_id"
+          job_id = "$job_id"
+
+          dag_conf = get_ds_with_index(project_id, job_id)
+
           if args:
+              if len(dag_conf["prop"]) > 0:
+                  args = code_free(args, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+
               data_frame = pre_filter(data_frame, args["preFilter"])
               data_frame = computed_columns(data_frame, args["computedColumns"])
               data_frame = retrieved_columns(top_n(data_frame, args), args)
+
           return {"out_df": data_frame}
 
 

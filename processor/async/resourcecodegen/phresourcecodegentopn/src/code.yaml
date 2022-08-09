@@ -142,7 +142,6 @@ code:
           project_id = "$project_id"
           job_id = "$job_id"
 
-          code_free = kwargs["codeFree"]
           dag_conf = get_ds_with_index(project_id, job_id)
 
           if args:

@@ -1,6 +1,8 @@
 import os
 import json
 import boto3
+import datetime
+import math
 import traceback
 '''
 event = {
@@ -26,11 +28,14 @@ def lambda_handler(event, context):
     event = json.loads(event["body"])
     print(event)
 
+    execution_time = str(math.floor(datetime.datetime.now().timestamp() * 1000))
     state_machine_event = {
         "common": {
             "version": event["version"],
             "publisher": event["publisher"],
-            "runtime": event["runtime"]
+            "runtime": event["runtime"],
+            "email": event["email"],
+            "executionName": execution_time
         },
         "frontend": {
             "required": False
@@ -48,7 +53,9 @@ def lambda_handler(event, context):
 
     state_machine_arn = "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:frontendcicd"
     client = boto3.client('stepfunctions')
-    res = client.start_execution(stateMachineArn=state_machine_arn, input=json.dumps(state_machine_event))
+    res = client.start_execution(stateMachineArn=state_machine_arn,
+                                 input=json.dumps(state_machine_event),
+                                 name=execution_time)
     run_arn = res['executionArn']
     print("Started  ARN is %s.", run_arn)
     result = {

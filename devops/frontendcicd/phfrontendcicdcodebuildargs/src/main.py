@@ -1,7 +1,8 @@
 import boto3
-from boto3.dynamodb.conditions import Key
+import json
 
 dynamodb = boto3.resource('dynamodb')
+ssm_client = boto3.client('ssm')
 '''
 这个函数只做一件事情，检查参数是否合法
 args:
@@ -31,6 +32,20 @@ buildSpec = {
     "web-shell": "emberFrontBuildspec"
 }
 
+
+def get_client_id(client_name):
+    try:
+        response = ssm_client.get_parameter(
+            Name=client_name + "-client-args",
+        )
+        value = json.loads(response["Parameter"]["Value"])
+    except Exception as e:
+        print(e)
+        value = {"Id": "default_id"}
+
+    return value.get("Id", "default_id")
+
+
 def create_component_args(event):
     component_args = []
     frontend = event["frontend"]
@@ -41,6 +56,8 @@ def create_component_args(event):
             "buildSpec": buildSpec[component["prefix"].split("/")[0]],
             "codebuildCfn": codebuild_cfn_path,
             "componentName": component["prefix"].split("/")[-1],
+            "clientName": component.get("clientName", "default_name"),
+            "clientId": get_client_id(component.get("clientName", "default_name")),
             "branchName": frontend["branch"],
             "repoName": frontend["repo"],
             "version": event["version"],

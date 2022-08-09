@@ -63,6 +63,8 @@ def lambda_handler(event, context):
             "GitUrl": currentComponentMsg["gitUrl"],
             "ComponentPath": currentComponentMsg["componentPrefix"],
             "S3ComponentPath": currentComponentMsg["s3ComponentPath"],
+            "ClientName": currentComponentMsg["clientName"],
+            "ClientId": currentComponentMsg["clientId"],
             "BuildSpec": currentComponentMsg["buildSpec"]
         }
     }

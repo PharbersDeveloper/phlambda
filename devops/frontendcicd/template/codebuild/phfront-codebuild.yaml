@@ -57,6 +57,14 @@ Parameters:
     Type: String
     Default: s3://ph-platform/2020-11-11/cicd/test/vue-excelv2-component/
     Description: "Version"
+  ClientName:
+    Type: String
+    Default: default_name
+    Description: "Version"
+  ClientId:
+    Type: String
+    Default: default_id
+    Description: "Version"
 
 Resources:
   PharbersAutoBuildProject:
@@ -106,6 +114,12 @@ Resources:
           - Name: S3_COMPONENT_PATH
             Type: PLAINTEXT
             Value: !Ref S3ComponentPath
+          - Name: CLIENT_ID
+            Type: PLAINTEXT
+            Value: !Ref ClientId
+          - Name: CLIENT_NAME
+            Type: PLAINTEXT
+            Value: !Ref ClientName
 
 #      FileSystemLocations:
 #        - Identifier: EFS

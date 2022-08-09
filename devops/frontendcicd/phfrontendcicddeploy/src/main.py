@@ -6,6 +6,7 @@ from itertools import product
 
 s3_resource = boto3.resource('s3')
 s3_client = boto3.client('s3')
+
 '''
 这个函数只做一件事情，检查参数是否合法
 args:
@@ -123,12 +124,13 @@ def create_devops_file_map(files, dist_local_path, destinations, modifications):
 def lambda_handler(event, context):
     print(event)
     runtime = event["runtime"]
+    deploy_s3_paths = []
     componentArgs = event["componentArgs"]
     for componentArg in componentArgs:
         dist_s3_source = "/".join(componentArg["s3ComponentPath"].split("/")[3:])
         dist_local_path = "/tmp/" + componentArg["componentPrefix"] + "/dist/"
         # 下载s3ComponentPath 目录下的dist
-        # download_s3_dir("ph-platform", dist_s3_source, dist_local_path)
+        download_s3_dir("ph-platform", dist_s3_source, dist_local_path)
         # 读取.devops文件 通过devops/runtime/prefix
         frontend_devops_data = read_local_json_file(dist_local_path + ".devops")
         # files 如果files为空则获取所有prefix下文件'
@@ -140,7 +142,10 @@ def lambda_handler(event, context):
             frontend_devops_data["devops"][runtime]["destinations"],
             frontend_devops_data["devops"][runtime].get("modifications")
         )
+        print(local_s3_maps)
         # 上传deploy文件
         for local_s3_map in local_s3_maps:
             upload_s3_file(local_s3_map["bucket"], local_s3_map["key"], local_s3_map["local_path"])
-    return 1
+        deploy_s3_paths.extend(local_s3_maps)
+
+    return deploy_s3_paths

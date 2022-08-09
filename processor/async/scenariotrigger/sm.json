@@ -15,18 +15,18 @@
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [ {
-             "ErrorEquals": [ "States.Runtime" ],
-             "ResultPath": "$.iterator.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.TaskFailed" ],
-             "ResultPath": "$.iterator.error",
-             "Next": "CleanUp"
-          }, {
-             "ErrorEquals": [ "States.ALL" ],
-             "ResultPath": "$.iterator.error",
-             "Next": "CleanUp"
-          } ]
+            "ErrorEquals": [ "States.Runtime" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.TaskFailed" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         }, {
+            "ErrorEquals": [ "States.ALL" ],
+            "ResultPath": "$.iterator.error",
+            "Next": "CleanUp"
+         } ]
       },
       "Actions": {
          "Type": "Task",
@@ -136,7 +136,8 @@
             "runnerId.$": "$.currentTriggerStep.common.runnerId",
             "owner.$": "$.common.owner",
             "runtime.$": "$.scenario.runtime",
-            "reporter": "default_reporter"
+            "reporter": "default_reporter",
+            "traceId.$":"$.currentTriggerStep.common.traceId"
          },
          "ResultPath": null,
          "Next": "ScenarioTriggerStepCountReached"

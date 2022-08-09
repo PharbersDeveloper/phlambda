@@ -109,7 +109,7 @@ class DynamoDB:
         }
 
         try:
-            count_result = self.dynamodb_client.query(**count_parameter)
+            count_result = self.dynamodb_client.scan(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {

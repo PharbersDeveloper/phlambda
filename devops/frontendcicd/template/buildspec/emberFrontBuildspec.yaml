@@ -12,9 +12,12 @@ phases:
       - git checkout $GIT_COMMIT
       - cd $COMPONENT_PATH
       - cp -r /node_modules/ .
+      - sudo sed -i s#replaceClientId#$CLIENT_ID# config/environment.js
+      - sudo sed -i s#replaceClientName#$CLIENT_NAME# config/environment.js
       - ls
       - ember build --environment production || (echo 'run build error')
       - ember build --environment production || (echo 'run build error')
+      - ember build --environment production
   build:
     commands:
       - ls

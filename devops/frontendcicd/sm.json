@@ -4,10 +4,6 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "Result": {
-            "dagItems": "",
-            "scriptItems": ""
-         },
          "ResultPath": "$.metadata",
          "Next": "ArgsValidation"
       },
@@ -207,22 +203,37 @@
          ]
       },
       "Success": {
-         "Type": "Pass",
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdemail",
+         "Parameters": {
+            "executionName.$": "$.frontendMetadata.common.executionName",
+            "email.$": "$.frontendMetadata.common.email",
+            "publisher.$": "$.frontendMetadata.common.publisher",
+            "status": "success"
+         },
+         "ResultPath": "$.message",
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcleanup",
          "Parameters": {
-            "frontend.$": "$.frontend",
-            "componentArgs.$": "$.metadata.componentArgs",
+            "frontend.$": "$.frontendMetadata.frontend",
             "status": "failed"
          },
          "ResultPath": "$.message",
          "Next": "Failed"
       },
       "Failed": {
-         "Type": "Pass",
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdemail",
+         "Parameters": {
+            "executionName.$": "$.frontendMetadata.common.executionName",
+            "email.$": "$.frontendMetadata.common.email",
+            "publisher.$": "$.frontendMetadata.common.publisher",
+            "status": "failed"
+         },
+         "ResultPath": "$.message",
          "End": true
       }
    }

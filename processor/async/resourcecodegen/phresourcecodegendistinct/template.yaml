@@ -17,5 +17,8 @@ Resources:
       Environment:
         Variables:
           EDITION: "release"
+          BUCKET: ph-platform
+          CLI_VERSION: 2020-11-11
+          DAG_S3_JOBS_PATH: /jobs/python/phcli
 
 

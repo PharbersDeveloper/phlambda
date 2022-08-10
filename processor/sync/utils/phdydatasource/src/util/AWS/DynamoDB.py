@@ -49,23 +49,36 @@ class DynamoDB:
             }
         }
 
+        count_parameter = {
+            "TableName": table_name,
+            "Select": "COUNT",
+            "ScanIndexForward": False,
+            "KeyConditionExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+        }
+
         if index_name is not None:
             parameter.update({"IndexName": index_name})
+            count_parameter.update({"IndexName": index_name})
 
         try:
+            count_result = self.dynamodb_client.query(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
                 "start_key": result.get("NextToken", ""),
-                "pre_key": start_key if start_key else ""
+                "pre_key": start_key if start_key else "",
+                "total_count": count_result["Count"]
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
                 "start_key": "",
-                "pre_key": ""
+                "pre_key": "",
+                "total_count": 0
             }
 
     def scanTable(self, data):
@@ -87,20 +100,31 @@ class DynamoDB:
             }
         }
 
+        count_parameter = {
+            "TableName": table_name,
+            "Select": "COUNT",
+            "FilterExpression": expression["FilterExpression"],
+            "ExpressionAttributeNames": expression["ExpressionAttributeNames"],
+            "ExpressionAttributeValues": expression["ExpressionAttributeValues"],
+        }
+
         try:
+            count_result = self.dynamodb_client.scan(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
                 "data": list(map(self.__dynamoData2EntityData, result.get("Items", []))),
                 "start_key": result.get("NextToken", ""),
-                "pre_key": start_key if start_key else ""
+                "pre_key": start_key if start_key else "",
+                "total_count": count_result["Count"]
             }
         except Exception as e:
             print(e)
             return {
                 "data": [],
                 "start_key": "",
-                "pre_key": ""
+                "pre_key": "",
+                "total_count": 0
             }
 
     def putData(self, data):
@@ -109,9 +133,26 @@ class DynamoDB:
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
 
+        __dynamodb_type = {
+            "str": "S",
+            "int": "N",
+            "float": "N",
+            "bool": "BOOL"
+        }
+
+        def get_type(target):
+            return str(type(target)).replace("<class", "").replace("'", "").replace(">", "").replace(" ", "")
+
+        def join_data(key):
+            value_type = get_type(item[key])
+            value = str(item[key])
+            if value_type == "bool":
+                value = eval(value)
+            return {key: {__dynamodb_type.get(value_type, "str"): value}}
+
         self.dynamodb_client.put_item(
             TableName=table_name,
-            Item=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(item[x])}}, item.keys())))
+            Item=reduce(lambda p, n: {**p, **n}, list(map(join_data, item.keys())))
         )
         return {
             "data": item
@@ -120,7 +161,7 @@ class DynamoDB:
     def deleteData(self, data):
         table_name = data["table_name"]
         keys = data["conditions"]
-        self.dynamodb_client.put_item(
+        self.dynamodb_client.delete_item(
             TableName=table_name,
             Key=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(keys[x])}}, keys.keys())))
         )

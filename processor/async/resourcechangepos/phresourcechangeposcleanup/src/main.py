@@ -69,15 +69,21 @@ def update_dagconf_item(scriptItems):
 def errors_adapter(error):
     error = json.loads(error)
     Command = {
-        "common must exist": ParameterError,
-        "action must exist": ParameterError,
-        "action.cat must be changeResourcePosition": ParameterError,
-        "script item must exist": ParameterError,
-        "item must exist": ParameterError,
+        "common_must_exist": ParameterError,
+        "action_must_exist": ParameterError,
+        "action.cat_must_be_changeResourcePosition": ParameterError,
+        "script_item_must_exist": ParameterError,
+        "item_must_exist": ParameterError,
+        "errors": Errors
     }
     errorMessage = error.get("errorMessage").replace(" ", "_")
-    errorMessage = "item must exist" if "item must exist" in errorMessage else errorMessage
-    return serialization(Command[errorMessage])
+    errorMessage = "item_must_exist" if "item must exist" in errorMessage else errorMessage
+
+    if errorMessage in Command.keys():
+      return serialization(Command[errorMessage])
+    else:
+      return serialization(Command["errors"])
+
 
 
 def lambda_handler(event, context):

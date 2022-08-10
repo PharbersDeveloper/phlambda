@@ -4,12 +4,12 @@ import src.app as app
 
 
 class TestQueryDynamoDB:
-    # def test_put(self):
-    #     with open("../events/event_put.json", "r", encoding="utf8") as file:
-    #         event = json.load(file)
-    #         result = app.lambda_handler(event, None)
-    #         print(result)
-    #         assert result["statusCode"] == 200
+    def test_put(self):
+        with open("../events/event_put.json", "r", encoding="utf8") as file:
+            event = json.load(file)
+            result = app.lambda_handler(event, None)
+            print(result)
+            assert result["statusCode"] == 200
 
     # def test_puts(self):
     #     with open("../events/event_puts.json", "r", encoding="utf8") as file:

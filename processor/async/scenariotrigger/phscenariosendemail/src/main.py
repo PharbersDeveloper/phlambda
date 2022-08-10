@@ -40,7 +40,7 @@ def query_item_of_dyTable(tableName, **kwargs):
     dynamodb = boto3.resource('dynamodb')
     ds_table = dynamodb.Table(tableName)
     res = ds_table.query(
-        key=kwargs
+        Key=kwargs
     )
     try:
         item = res["Items"]

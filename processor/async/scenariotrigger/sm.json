@@ -4,8 +4,7 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "Result": {
-         },
+         "Result": {},
          "ResultPath": "$.iterator",
          "Next": "ArgsValidation"
       },
@@ -14,19 +13,29 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
-         "Catch": [ {
-            "ErrorEquals": [ "States.Runtime" ],
-            "ResultPath": "$.iterator.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.TaskFailed" ],
-            "ResultPath": "$.iterator.error",
-            "Next": "CleanUp"
-         }, {
-            "ErrorEquals": [ "States.ALL" ],
-            "ResultPath": "$.iterator.error",
-            "Next": "CleanUp"
-         } ]
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "Actions": {
          "Type": "Task",
@@ -101,12 +110,12 @@
          "Next": "ExecutionTrigger"
       },
       "ExecutionTrigger": {
-         "Type":"Task",
-         "Resource":"arn:aws-cn:states:::states:startExecution.sync:2",
-         "Parameters":{
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
             "Input.$": "$.currentTriggerStep",
-            "StateMachineArn":"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2",
-            "Name.$":"$.currentTriggerStep.common.runName"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2",
+            "Name.$": "$.currentTriggerStep.common.runName"
          },
          "ResultPath": null,
          "Next": "ScenarioTriggerStepCheck"
@@ -137,7 +146,7 @@
             "owner.$": "$.common.owner",
             "runtime.$": "$.scenario.runtime",
             "reporter": "default_reporter",
-            "traceId.$":"$.currentTriggerStep.common.traceId",
+            "traceId.$": "$.common.traceId",
             "stepId.$": "$.currentScenarioStep.stepId"
          },
          "ResultPath": null,
@@ -182,7 +191,7 @@
          "ResultPath": null,
          "End": true
       },
-      "SuccessMessage":{
+      "SuccessMessage": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggersuccessmessage",
          "Parameters": {
@@ -211,6 +220,7 @@
             "message.$": "$.message",
             "status": "success"
          },
+         "ResultPath": null,
          "Next": "SendEmail"
       },
       "CleanUp": {
@@ -222,7 +232,7 @@
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
-            "errors.$" : "$.iterator.error",
+            "errors.$": "$.iterator.error",
             "status": "failed"
          },
          "ResultPath": "$.message",
@@ -242,8 +252,8 @@
             "message.$": "$.message",
             "status": "failed"
          },
+         "ResultPath": null,
          "Next": "SendEmail"
       }
    }
-
 }

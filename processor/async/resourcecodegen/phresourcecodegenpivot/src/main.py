@@ -1,4 +1,3 @@
-import json
 import os
 import yaml
 import boto3
@@ -149,13 +148,14 @@ event = {
 
 '''
 
+
 def lambda_handler(event, context):
     g_flowVersion = event['flowVersion']
     g_projectName = event['projectName']
     g_output = event['script']['outputs']
     g_input = event['script']['inputs'][0]
     g_scripts_name = event['script']['jobName']
-    
+
     params = event["steps"][0]["expressions"]["params"]
     g_preFilter = params['preFilter']
     g_computedColumns = params['computedColumns']
@@ -164,31 +164,41 @@ def lambda_handler(event, context):
     g_otherColumns = params['otherColumns']
 
     # 读取yaml文件
-    template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
+    template_yaml = open('/Users/qianpeng/GitHub/phlambda/processor/async/resourcecodegen/phresourcecodegenpivot/src/template.yaml', 'r', encoding='utf-8').read()
     template_yaml = yaml.load(template_yaml, Loader=yaml.FullLoader)
 
     # 获取phjob.py 模板
     phjob_script = template_yaml['template']['phjob.py']['content'] \
-                        .replace("$g_input$", str(g_input)) \
-                        .replace("$g_preFilter$", str(g_preFilter)) \
-                        .replace("$g_computedColumns$", str(g_computedColumns)) \
-                        .replace("$g_identifiers$", str(g_identifiers)) \
-                        .replace("$g_pivot$", str(g_pivot)) \
-                        .replace("$g_otherColumns$", str(g_otherColumns))
+        .replace("$project_id$", event["projectId"]) \
+        .replace("$job_id$", event["steps"][0]["id"].split("_")[-1]) \
+        .replace("$g_input$", str(g_input)) \
+        .replace("$g_preFilter$", str(g_preFilter)) \
+        .replace("$g_computedColumns$", str(g_computedColumns)) \
+        .replace("$g_identifiers$", str(g_identifiers)) \
+        .replace("$g_pivot$", str(g_pivot)) \
+        .replace("$g_otherColumns$", str(g_otherColumns))
 
-    # 写出到s3
-    def getScriptPathKey(g_projectName, g_flowVersion, g_output):
-        return f"2020-11-11/jobs/python/phcli/{g_projectName}_{g_projectName}_{g_flowVersion}/{g_projectName}_{g_projectName}_{g_flowVersion}_{g_output}"
+    job_file_name = "phjob.py"
+    project_folder_name = f"{g_projectName}_{g_projectName}_{g_flowVersion}"
+    job_folder_name = f"{g_projectName}_{g_projectName}_{g_flowVersion}_{g_scripts_name}"
+    s3_path = f'{os.environ["CLI_VERSION"]}{os.environ["DAG_S3_JOBS_PATH"]}/{project_folder_name}/{job_folder_name}'
 
-    def toS3(script, g_projectName, g_flowVersion, g_scripts_name, filename):
-        script_bytes = str.encode(script)
-        client = boto3.client('s3')
-        response = client.put_object(
-            Body = script_bytes,
-            Bucket='ph-platform',
-            Key=f"{getScriptPathKey(g_projectName, g_flowVersion, g_scripts_name)}/{filename}") 
+    def write_local(path, code):
+        import subprocess
+        # 创建目录
+        subprocess.call(["mkdir", "-p", path])
+        # 创建 TraceId File
+        subprocess.call(["touch", path + "/" + event["traceId"]])
+        with open(f'{path}/{job_file_name}', "w") as file:
+            file.write(code)
 
-    toS3(phjob_script, g_projectName, g_flowVersion, g_scripts_name, "phjob.py")
+    write_local(f'{os.environ["JOB_PATH_PREFIX"]}{project_folder_name}/{job_folder_name}', phjob_script)
+
+    # def toS3(code, bucket, path):
+    #     client = boto3.client("s3")
+    #     client.put_object(Body=str.encode(code), Bucket=bucket, Key=f"{path}/{job_file_name}")
+    #     client.put_object(Body=str.encode(""), Bucket=bucket, Key=f"{path}/{event['traceId']}")
+    # toS3(phjob_script, os.environ["BUCKET"], s3_path)
 
     return {
         "type": "notification",

@@ -4,18 +4,59 @@ template:
       - key: a
         Index: 0
     content: |-
+        import json
+        import boto3
         from pyspark.sql.functions import *
         from pyspark.sql import functions as func
         from pyspark.sql import Window
         from functools import reduce
+        from string import Template
+        from boto3.dynamodb.conditions import Key
+        from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+
+        dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
+
+        def get_ds_with_index(project_id, job_id):
+            table = dynamodb_resource.Table("dagconf")
+            return table.query(
+                IndexName="dagconf-projectId-id-indexd",
+                KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+            )["Items"][0]
+
+
+        def transform_type(tp, val):
+            data_val_type = {
+                "string": lambda x: str(x),
+                "double": lambda x: float(x),
+                "bigint": lambda x: int(x)
+            }
+            return data_val_type[tp](val)
+
+
+        def code_free(args, prop, user_conf):
+            args_str = json.dumps(args, ensure_ascii=False)
+
+            def generate_data(key):
+                if key in user_conf:
+                    return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+                else:
+                    return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+
+            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+            return json.loads(Template(args_str).substitute(
+                reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
 
         def getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=False, g_first=False):
             if g_last == True:
-                str_orderby = f"col('{g_orderColumn}').desc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').desc()"  
+                str_orderby = f"col('{g_orderColumn}').desc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').desc()"
                 colname_type="last"
             if g_first == True:
-                str_orderby = f"col('{g_orderColumn}').asc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').asc()"  
-                colname_type="first"   
+                str_orderby = f"col('{g_orderColumn}').asc_nulls_last()" if g_firstLastNotNull == True else f"col('{g_orderColumn}').asc()"
+                colname_type="first"
             # 用默认的升序排列：first为最小值-升序第一个， last则为最大值-降序第一个
             df_out = df.withColumn("row_number", func.row_number().over(Window.partitionBy(g_l_keys).orderBy( eval(str_orderby) ))) \
                         .where(col('row_number') == 1) \
@@ -28,7 +69,7 @@ template:
             str_concat = f"collect_set('{g_column}')" if g_concatDistinct == True else f"collect_list({g_column})"
             df_concat = df.groupby(g_l_keys).agg( eval(str_concat).alias(f"concat")) \
                         .withColumn(f"{g_column}_concat", func.concat_ws(g_concatSeparator, func.col('concat'))) \
-                        .drop("concat")  
+                        .drop("concat")
             return df_concat
 
         def dealNormalAgg(df, g_l_keys, i_g_values):
@@ -39,25 +80,25 @@ template:
             g_firstLastNotNull = i_g_values['firstLastNotNull']
             g_concat = i_g_values['concat']
             g_concatSeparator = i_g_values['concatSeparator']
-            g_concatDistinct = i_g_values['concatDistinct']    
+            g_concatDistinct = i_g_values['concatDistinct']
 
             dict_df_n = {}
 
             # 简单函数处理 :"countDistinct", "min", "avg", "max", "count", "sum", "stddev"
             single_func = list(i for i in ["countDistinct", "min", "avg", "max", "count", "sum", "stddev"]  if i_g_values[i] == True)
             if len(single_func) > 0:
-                df_single_func = df.groupby(g_l_keys).agg( *[eval(f"{y}") for y in list(map(lambda i:f"{i}('{g_column}').alias('{g_column}_{i}')" , single_func)) ] ) 
+                df_single_func = df.groupby(g_l_keys).agg( *[eval(f"{y}") for y in list(map(lambda i:f"{i}('{g_column}').alias('{g_column}_{i}')" , single_func)) ] )
                 dict_df_n['df_single_func'] = df_single_func
 
-            # last: 
+            # last:
             if g_last == True:
                 dict_df_n['df_last'] = getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=True, g_first=False)
 
-            # first: 
+            # first:
             if g_first == True:
                 dict_df_n['df_first'] = getLastFirst(df, g_l_keys, g_column, g_orderColumn, g_firstLastNotNull, g_last=False, g_first=True)
 
-            # concat: 
+            # concat:
             if g_concat == True:
                 dict_df_n['df_concat'] = getConcat(df, g_l_keys, g_column, g_concatDistinct, g_concatSeparator)
 
@@ -81,7 +122,7 @@ template:
                     dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_custom.items()})
                 else:
                     dict_df_normal = dealNormalAgg(df, g_l_keys, i_g_values)
-                    dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_normal.items()})  
+                    dict_df_all.update({f"{k}_{i}":v for k,v in dict_df_normal.items()})
             df_out = reduce(lambda x, y: x.join(y, on=g_l_keys, how='left'), dict_df_all.values())
             return df_out
 
@@ -105,23 +146,31 @@ template:
                 df_out = df_out_pivot.join(df_otherColumns, on=g_groupByOn_final, how='left')
             else:
                 df_out = df_out_pivot
-                
+
             df_out = df_out.orderBy(g_groupByOn_final)
-            
+
             return df_out
 
 
-                        
         def execute(**kwargs):
             spark = kwargs['spark']
             df = kwargs['df_$g_input$']
-            
+
+            project_id = "$project_id$"
+            job_id = "$job_id$"
+
+            dag_conf = get_ds_with_index(project_id, job_id)
+
             g_preFilter = $g_preFilter$
             g_computedColumns = $g_computedColumns$
             g_identifiers = $g_identifiers$
             g_pivot = $g_pivot$
             g_otherColumns = $g_otherColumns$
-            
+
+            if len(dag_conf["prop"]) > 0:
+                g_preFilter = code_free(g_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+                g_computedColumns = code_free(g_computedColumns, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+
             g_pivot_globalCount = g_pivot['globalCount']
             g_pivot_keyColumns = g_pivot['keyColumns']
             g_pivot_valueColumns = g_pivot['valueColumns']
@@ -139,10 +188,10 @@ template:
                 for i_args in g_computedColumns:
                     df = df.withColumn(i_args['name'],  func.expr( i_args['expr'] ) ) \
                             .withColumn(i_args['name'], col(i_args['name']).cast( i_args['type'] ) )
-            
+
             # globalCount对 keyColumns 进行统计
             if g_pivot['globalCount'] == True:
-                df = df.withColumn('temp_groupbykey', func.lit('temp_groupbykey') )   
+                df = df.withColumn('temp_groupbykey', func.lit('temp_groupbykey') )
                 g_pivot_valueColumns.append({'avg': False, 'column': 'temp_groupbykey', 'concat': False, 'concatDistinct': False, 'concatSeparator': ',', 'count': True, 'countDistinct': False, 'first': False, 'firstLastNotNull': False, 'last': False, 'max': False, 'min': False, 'orderColumn': '11111', 'stddev': False, 'sum': False})
             # pivots 执行
             if g_pivotedColumnType == 'all':

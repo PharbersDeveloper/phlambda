@@ -39,7 +39,7 @@ def get_Item_of_dyTable(tableName, IndexName, traceId):
 def query_item_of_dyTable(tableName, **kwargs):
     dynamodb = boto3.resource('dynamodb')
     ds_table = dynamodb.Table(tableName)
-    res = ds_table.query(
+    res = ds_table.get_item(
         Key=kwargs
     )
     try:

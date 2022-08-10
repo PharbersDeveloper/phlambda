@@ -12,7 +12,15 @@ Resources:
       MemorySize: 1024
       Description: "phscenariosendemail"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:phpandas:2
       Environment:
         Variables:
           EDITION: "DEV"
+          SENDMAILBOX: "project@data-pharbers.com"
+          SENDPW: "qiye@126"
+          TOMAILBOX: "ylzhang@data-pharbers.com"
+          SENDNICKNAME: "Pharbers Scenario"
+          TONICKNAME: "Hello, strange."
+
 

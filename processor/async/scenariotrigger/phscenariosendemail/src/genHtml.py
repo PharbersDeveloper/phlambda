@@ -1,13 +1,13 @@
 import json
 import pandas as pd
+from decimal import Decimal
 
 def getResultHTML(result):
     resultData = ConverResultDataType(result)
     pd.set_option('display.max_colwidth', 200)
-    columns = ['Index','Name','Type','recursive','StartTime','EndTime','Status','Error']
+    columns = ['Index', 'Name', 'Type', 'Recursive', 'StartTime', 'EndTime', 'Status', 'Error']
 
-    filter_merge_data = pd.DataFrame(resultData,
-                                     columns=columns)
+    filter_merge_data = pd.DataFrame(resultData, columns=columns)
 
     df_html = filter_merge_data.to_html(index=False)  # DataFrame数据转化为HTML表格形式
 
@@ -124,6 +124,7 @@ def ConverResultDataType(Result):
         tmpList = [data['stepIndex'], Basic['name'], Basic['type'], Basic['recursive'], data['startTime'], data['endTime'], data['status'], json.dumps(data['Error'], ensure_ascii=False)]
         result.append(tmpList)
     return result
+
 
 
 

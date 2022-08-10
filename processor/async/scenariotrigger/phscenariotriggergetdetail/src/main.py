@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         if round(scenario_step_item.get("index")) == currentIndex:
             scenarioStep["detail"] = json.loads(scenario_step_item.get("detail"))
             scenarioStep["confData"] = scenario_step_item.get("confData")
+            scenarioStep["stepId"] = scenario_step_item.get("id")
 
     print(scenarioStep)
 

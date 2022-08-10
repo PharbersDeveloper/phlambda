@@ -137,7 +137,8 @@
             "owner.$": "$.common.owner",
             "runtime.$": "$.scenario.runtime",
             "reporter": "default_reporter",
-            "traceId.$":"$.currentTriggerStep.common.traceId"
+            "traceId.$":"$.currentTriggerStep.common.traceId",
+            "stepId.$": "$.currentScenarioStep.stepId"
          },
          "ResultPath": null,
          "Next": "ScenarioTriggerStepCountReached"
@@ -167,7 +168,17 @@
          "Default": "ScenarioTriggerGetDetail"
       },
       "SendEmail": {
-         "Type": "Pass",
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariosendemail",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "jobCat.$": "$.action.cat",
+            "jobDesc.$": "$.action.desc",
+            "comments.$": "$.action.comments"
+         },
          "ResultPath": null,
          "End": true
       },

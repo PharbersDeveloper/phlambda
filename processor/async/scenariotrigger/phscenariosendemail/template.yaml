@@ -15,4 +15,10 @@ Resources:
       Environment:
         Variables:
           EDITION: "DEV"
+          SENDMAILBOX: "project@data-pharbers.com"
+          SENDPW: "qiye@126"
+          TOMAILBOX: "813757798@qq.com"
+          SENDNICKNAME: "Pharbers Scenario"
+          TONICKNAME: "Hello, strange."
+
 

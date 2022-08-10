@@ -1,10 +1,9 @@
 import json
 import boto3
-import math
-import datetime
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 import time
+from sendemail import SendEmail
 
 ''''
 1. 通过当前的tranceid 在scenario execution 表中找到所有对应的 runner id
@@ -52,6 +51,9 @@ def query_item_of_dyTable(tableName, **kwargs):
         item = []
     return item
 
+def turn_decimal_into_int(data):
+    return int(data) if isinstance(data, Decimal) else data
+
 def handleResultData(ResultData):
     #4. 将基本信息语状态或错误信息，拼接成一个html 发送给固定邮件 alfredyang@pharbers.com
     #其基本信息包括：step index， detail里面的type， 是否递归执行，以及计算数据集的名称
@@ -61,10 +63,10 @@ def handleResultData(ResultData):
     for result in ResultData:
         tmp = {}
         tmp['BasicInfo'] = ChangeStrToDict(result[-1]['detail'])
-        tmp['stepIndex'] = result[-1]['index']
+        tmp['stepIndex'] = turn_decimal_into_int(result[-1]['index'])
         tmp['startTime'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(int(result[0]['date'])/1000)))
         tmp['endTime'] = EndTime
-        tmp['stauts'] = result[1]['status']
+        tmp['status'] = result[1]['status']
         tmp['Error'] = ChangeStrToDict(ChangeStrToDict(result[1]['message'])['cnotification']['error']) if result[1]['status'] == 'failed' else ''
         ResultList.append(tmp)
     return ResultList
@@ -93,6 +95,7 @@ def lambda_handler(event, context):
         Result = handleResultData(ResultData)
         print("*"*50 + "Result" + "*"*50)
         print(Result)
+        SendEmail(Result)
 
     except Exception as e:
         print("*"*50 + "Error" + "*"*50)

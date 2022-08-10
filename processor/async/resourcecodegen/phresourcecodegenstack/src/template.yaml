@@ -4,14 +4,60 @@ template:
       - key: a
         Index: 0
     content: |-
+        import json
+        import boto3
         from pyspark.sql.functions import *
         from pyspark.sql import functions as func
         from pyspark.sql import Window
         from functools import reduce
-                        
+        from string import Template
+        from boto3.dynamodb.conditions import Key
+        from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+
+        dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
+
+        def get_ds_with_index(project_id, job_id):
+            table = dynamodb_resource.Table("dagconf")
+            return table.query(
+                IndexName="dagconf-projectId-id-indexd",
+                KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+            )["Items"][0]
+
+
+        def transform_type(tp, val):
+            data_val_type = {
+                "string": lambda x: str(x),
+                "double": lambda x: float(x),
+                "bigint": lambda x: int(x)
+            }
+            return data_val_type[tp](val)
+
+
+        def code_free(args, prop, user_conf):
+            args_str = json.dumps(args, ensure_ascii=False)
+
+            def generate_data(key):
+                if key in user_conf:
+                    return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+                else:
+                    return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+
+            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+            return json.loads(Template(args_str).substitute(
+                reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
+
         def execute(**kwargs):
             spark = kwargs['spark']
-             
+
+            project_id = "$project_id$"
+            job_id = "$job_id$"
+
+            dag_conf = get_ds_with_index(project_id, job_id)
+
             g_preFilter = $g_preFilter$
             g_selectedColumns = $g_selectedColumns$
             g_columnsMatches = $g_columnsMatches$
@@ -19,13 +65,17 @@ template:
             g_postFilter = $g_postFilter$
             g_inputs = $g_inputs$
 
+            if len(dag_conf["prop"]) > 0:
+                g_preFilter = code_free(g_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+                g_postFilter = code_free(g_postFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+
             # ===============  执行  =================
             # 输入table
             dict_df = {k.replace("df_", ""):v for k,v in kwargs.items() if k.replace("df_", "") in g_inputs}
 
             # preFilters
-            g_preFilter = [i for i in g_preFilter if i['preFilter']['enabled']==True]
-            if len(g_preFilter) > 0 :
+            g_preFilter = [i for i in g_preFilter if i['preFilter']['enabled']]
+            if len(g_preFilter) > 0:
                 # 处理'expr'和'distinct'
                 dict_df_preFilter = dict(map(lambda i_preFilter: (f"{i_preFilter['ds']}", dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr']).distinct() if i_preFilter['preFilter']['distinct'] == True else dict_df[i_preFilter['ds']].where(i_preFilter['preFilter']['expr'])) , g_preFilter))
                 # 更新到 dict_df
@@ -40,17 +90,17 @@ template:
             dict_df = {k:v.select(g_selectedColumns) for k,v in dict_df.items()}
 
             # originColumn
-            if g_originColumn["enabled"] == True:
+            if g_originColumn["enabled"]:
                 for i_dict in g_originColumn["originDatasets"] :
-                    dict_df[i_dict["ds"]] = dict_df[i_dict["ds"]].withColumn(g_originColumn["columnName"], func.lit(i_dict["value"])) 
+                    dict_df[i_dict["ds"]] = dict_df[i_dict["ds"]].withColumn(g_originColumn["columnName"], func.lit(i_dict["value"]))
 
             # union
             df_union = reduce(lambda x,y:x.union(y), dict_df.values())
 
             # postFilter
-            if g_postFilter['enabled'] == True:
+            if g_postFilter['enabled']:
                 df_union = df_union.where(g_postFilter['expr'])
-                if g_postFilter['distinct'] == True:
+                if g_postFilter['distinct']:
                     df_union = df_union.distinct()
-                    
+
             return {"out_df":df_union}

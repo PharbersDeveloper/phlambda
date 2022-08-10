@@ -164,7 +164,7 @@ def lambda_handler(event, context):
     g_otherColumns = params['otherColumns']
 
     # 读取yaml文件
-    template_yaml = open('/Users/qianpeng/GitHub/phlambda/processor/async/resourcecodegen/phresourcecodegenpivot/src/template.yaml', 'r', encoding='utf-8').read()
+    template_yaml = open('template.yaml', 'r', encoding='utf-8').read()
     template_yaml = yaml.load(template_yaml, Loader=yaml.FullLoader)
 
     # 获取phjob.py 模板
@@ -183,22 +183,11 @@ def lambda_handler(event, context):
     job_folder_name = f"{g_projectName}_{g_projectName}_{g_flowVersion}_{g_scripts_name}"
     s3_path = f'{os.environ["CLI_VERSION"]}{os.environ["DAG_S3_JOBS_PATH"]}/{project_folder_name}/{job_folder_name}'
 
-    def write_local(path, code):
-        import subprocess
-        # 创建目录
-        subprocess.call(["mkdir", "-p", path])
-        # 创建 TraceId File
-        subprocess.call(["touch", path + "/" + event["traceId"]])
-        with open(f'{path}/{job_file_name}', "w") as file:
-            file.write(code)
-
-    write_local(f'{os.environ["JOB_PATH_PREFIX"]}{project_folder_name}/{job_folder_name}', phjob_script)
-
-    # def toS3(code, bucket, path):
-    #     client = boto3.client("s3")
-    #     client.put_object(Body=str.encode(code), Bucket=bucket, Key=f"{path}/{job_file_name}")
-    #     client.put_object(Body=str.encode(""), Bucket=bucket, Key=f"{path}/{event['traceId']}")
-    # toS3(phjob_script, os.environ["BUCKET"], s3_path)
+    def toS3(code, bucket, path):
+        client = boto3.client("s3")
+        client.put_object(Body=str.encode(code), Bucket=bucket, Key=f"{path}/{job_file_name}")
+        client.put_object(Body=str.encode(""), Bucket=bucket, Key=f"{path}/{event['traceId']}")
+    toS3(phjob_script, os.environ["BUCKET"], s3_path)
 
     return {
         "type": "notification",

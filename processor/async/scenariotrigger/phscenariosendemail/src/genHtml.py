@@ -5,7 +5,7 @@ from decimal import Decimal
 def getResultHTML(result):
     resultData = ConverResultDataType(result)
     pd.set_option('display.max_colwidth', 200)
-    columns = ['Index', 'Name', 'Type', 'Recursive', 'StartTime', 'EndTime', 'Status', 'Error']
+    columns = ['Index', 'DsName', 'Type', 'Recursive', 'StartTime', 'EndTime', 'Status', 'Error']
 
     filter_merge_data = pd.DataFrame(resultData, columns=columns)
 

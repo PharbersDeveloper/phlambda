@@ -4,21 +4,73 @@ template:
       - key: a
         Index: 0
     content: |-
+        import json
+        import boto3
         from pyspark.sql.functions import *
         from pyspark.sql import functions as func
-        from pyspark.sql import Window        
-           
-    
+        from pyspark.sql import Window
+        from functools import reduce
+        from string import Template
+        from boto3.dynamodb.conditions import Key
+        from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+
+        dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
+
+        def get_ds_with_index(project_id, job_id):
+            table = dynamodb_resource.Table("dagconf")
+            return table.query(
+                IndexName="dagconf-projectId-id-indexd",
+                KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+            )["Items"][0]
+
+
+        def transform_type(tp, val):
+            data_val_type = {
+                "string": lambda x: str(x),
+                "double": lambda x: float(x),
+                "bigint": lambda x: int(x)
+            }
+            return data_val_type[tp](val)
+
+
+        def code_free(args, prop, user_conf):
+            args_str = json.dumps(args, ensure_ascii=False)
+
+            def generate_data(item):
+                name = f"${item['name']}"
+                if name in user_conf:
+                    return {name: transform_type(item["type"].lower(), user_conf[name])}
+                else:
+                    return {name: transform_type(item["type"].lower(), item["default"])}
+
+            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop)))
+            return json.loads(Template(args_str).substitute(
+                reduce(lambda p, n: {**p, **n},
+                       list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
+
         def execute(**kwargs):
             spark = kwargs['spark']
             df = kwargs['df_$input$']
-            
+
+            project_id = "$project_id$"
+            job_id = "$job_id$"
+
+            dag_conf = get_ds_with_index(project_id, job_id)
+
             args_preFilter = $args_preFilter$
             args_orders = $args_orders$
             args_denseRank = $args_denseRank$
             args_rank = $args_rank$
             args_rowNumber = $args_rowNumber$
             args_computedColumns = $args_computedColumns$
+
+            if len(dag_conf["prop"]) > 0:
+                args_preFilter = code_free(args_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+                args_computedColumns = code_free(args_computedColumns, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
 
             # preFilter
             if args_preFilter['enabled'] == True:

@@ -152,12 +152,12 @@
                         {
                            "Variable": "$.metadata.iterator.index",
                            "NumericEqualsPath": "$.metadata.componentCounts",
-                           "Next": "UpdateFrontendManageYaml"
+                           "Next": "UpdateFrontendDeploy"
                         }
                      ],
                      "Default": "CreateCurrentLmdArgs"
                   },
-                  "UpdateFrontendManageYaml": {
+                  "UpdateFrontendDeploy": {
                      "Type": "Task",
                      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicddeploy",
                      "Parameters": {
@@ -167,7 +167,16 @@
                         "frontend.$": "$.frontend",
                         "componentArgs.$": "$.metadata.componentArgs"
                      },
-                     "ResultPath": "$.stackMessage",
+                     "ResultPath": "$.deployS3Paths",
+                     "Next": "CreateInvalidation"
+                  },
+                  "CreateInvalidation": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcreateinvalidation",
+                     "Parameters": {
+                        "invalidate.$": "$.common.invalidate",
+                        "deployS3Paths.$": "$.deployS3Paths"
+                     },
                      "Next": "FrontendBranchEnd"
                   },
                   "FrontendBranchEnd": {

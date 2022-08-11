@@ -12,5 +12,5 @@ Resources:
       MemorySize: 1024
       Timeout: 180
       Description: "phfrontendcicdcreateinvalidation"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Front-RW
 

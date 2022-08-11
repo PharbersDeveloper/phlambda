@@ -4,6 +4,8 @@ from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 import time
 from sendemail import SendEmail
+from datetime import datetime, timedelta
+
 
 ''''
 1. 通过当前的tranceid 在scenario execution 表中找到所有对应的 runner id
@@ -54,18 +56,26 @@ def query_item_of_dyTable(tableName, **kwargs):
 def turn_decimal_into_int(data):
     return int(data) if isinstance(data, Decimal) else data
 
+#---- 线上时间转换成标准时间-> 8h -------#
+def time_transformate(timestamp):
+    import time
+    timestamp = int(timestamp)
+    time_local = time.localtime((timestamp/1000) + 8*60*60)
+    data = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+    return data
+
+
 def handleResultData(ResultData):
-    #4. 将基本信息语状态或错误信息，拼接成一个html 发送给固定邮件 alfredyang@pharbers.com
-    #其基本信息包括：step index， detail里面的type， 是否递归执行，以及计算数据集的名称
-    #其状态信息包括：开始执行时间，结束执行时间，执行成功与否，以及错误信息
-    EndTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+
+    #EndTime = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+    ctime = time.time()*1000
     ResultList = []
     for result in ResultData:
         tmp = {}
         tmp['BasicInfo'] = ChangeStrToDict(result[-1]['detail'])
         tmp['stepIndex'] = turn_decimal_into_int(result[-1]['index'])
-        tmp['startTime'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(int(result[0]['date'])/1000)))
-        tmp['endTime'] = EndTime
+        tmp['startTime'] = time_transformate(result[0]['date'])
+        tmp['endTime'] = time_transformate(ctime)
         tmp['status'] = result[1]['status']
         tmp['Error'] = ChangeStrToDict(ChangeStrToDict(result[1]['message'])['cnotification']['error']) if result[1]['status'] == 'failed' else ''
         ResultList.append(tmp)

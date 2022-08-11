@@ -1,4 +1,3 @@
-  PhStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
     Properties:
       DefinitionS3Location: 

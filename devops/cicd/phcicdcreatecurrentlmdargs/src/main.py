@@ -64,7 +64,8 @@ def lambda_handler(event, context):
             "GitUrl": currentlambdaMsg["gitUrl"],
             "BranchName": currentlambdaMsg["branchName"],
             "RepoName": currentlambdaMsg["repoName"],
-            "Version": currentlambdaMsg["version"]
+            "Version": currentlambdaMsg["version"],
+            "Runtime": currentlambdaMsg["runtime"]
         }
     }
 

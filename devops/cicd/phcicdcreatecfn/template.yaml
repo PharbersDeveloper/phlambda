@@ -9,7 +9,7 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phcicdcreatecfn-dev
+      FunctionName: phcicdcreatecfn
       MemorySize: 1024
       Description: "phcicdargsvalidation"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

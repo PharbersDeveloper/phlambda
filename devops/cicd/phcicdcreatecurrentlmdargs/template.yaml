@@ -9,7 +9,8 @@ Resources:
       Runtime: python3.8
       AutoPublishAlias: Current
       CodeUri: ./src
-      FunctionName: lmd-phcicdcreatecurrentlmdargs-dev
+      FunctionName: phcicdcreatecurrentlmdargs
+      Timeout: 60
       MemorySize: 1024
       Description: "phcicdcreatecurrentlmdargs"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

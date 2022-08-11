@@ -88,6 +88,7 @@ def create_lambda_args(event):
             "branchName": processor["branch"],
             "repoName": processor["repo"],
             "version": event["version"],
+            "runtime": event["runtime"],
             "gitCommit": event["processor"]["commit"],
             "gitUrl": git_url
         }
@@ -102,7 +103,7 @@ def create_step_function_args(event):
         "StateMachineName": event["processor"]["stateMachineName"],
         "SubmitOwner": event["publisher"],
         "S3Bucket": "ph-platform",
-        "S3TemplateKey": "2020-11-11/cicd/" + event["processor"]["prefix"] + "/sm.json"
+        "S3TemplateKey": "2020-11-11/cicd/" + event["processor"]["prefix"] + "/" + event["runtime"] + "/sm.json"
     }
 
     return stepfuntionArgs

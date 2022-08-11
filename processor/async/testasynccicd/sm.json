@@ -86,7 +86,7 @@
       },
       "RFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncc",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncb",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -101,7 +101,7 @@
       },
       "SparkrFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncc",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncb",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

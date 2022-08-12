@@ -27,6 +27,8 @@ return:
     }
 }
 '''
+
+
 def get_dict_ssm_parameter(parameter_name):
 
     try:
@@ -65,19 +67,16 @@ def delete_ssm_parameter(parameter_name):
 
 def lambda_handler(event, context):
     print(event)
-    # 判断
-    # type add/release
+    # type check/release
     whether_continue = False
     # 判断是否上锁
-    if event["lockType"] == "add":
-        if not get_dict_ssm_parameter(event["stateMachineName"] + "-lock"):
+    if event["lockType"] == "check":
+        if not get_dict_ssm_parameter(event["stackName"] + "-lock"):
             # 没有上锁则加锁
-            put_dict_ssm_parameter(event["stateMachineName"] + "-lock", "lock")
+            put_dict_ssm_parameter(event["stackName"] + "-lock", "lock")
             whether_continue = True
-        else:
-            raise Exception("state machine is deploying")
     if event["lockType"] == "release":
-        delete_ssm_parameter(event["stateMachineName"] + "-lock")
+        delete_ssm_parameter(event["stackName"] + "-lock")
         whether_continue = True
     return whether_continue
 

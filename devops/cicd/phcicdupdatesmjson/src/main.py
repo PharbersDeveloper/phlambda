@@ -78,14 +78,16 @@ def replace_file(resource, target):
 def lambda_handler(event, context):
     print(event)
     # 判断当前 smName + runtime + "-resource" 是否在SSM中存在
-    ssm_name = event["stateMachineName"] + "-" + event["runtime"] + "-resource"
-    sm_value = get_dict_ssm_parameter(ssm_name)
-
+    ssm_name = event["stateMachineName"] #+ "-" + event["runtime"] + "-resource"
+    sm_args = get_dict_ssm_parameter(ssm_name)
+    sm_value = sm_args.get(event["runtime"], {})
     # 如果不存在则进行创建 存在则更新里面lmd 的信息
     # 更新本次发布中lmd的version
     for lambdaArg in event["lambdaArgs"]:
         sm_value[lambdaArg["functionName"]] = lambdaArg["version"]
-    put_dict_ssm_parameter(ssm_name, json.dumps(sm_value))
+    sm_args[event["runtime"]] = sm_value
+    print(sm_args)
+    put_dict_ssm_parameter(ssm_name, json.dumps(sm_args))
 
     # 下载sm.json
     download_s3_file(event["smJsonPathBucket"], event["smJsonPathKey"], "/tmp/sm.json")

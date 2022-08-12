@@ -12,5 +12,5 @@ Resources:
       FunctionName: phcicdaddorreleaselock
       MemorySize: 1024
       Description: "phcicdaddorreleaselock"
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Front-RW
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Timeout: 180

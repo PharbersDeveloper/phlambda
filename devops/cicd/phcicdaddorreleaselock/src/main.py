@@ -79,6 +79,5 @@ def lambda_handler(event, context):
     if event["lockType"] == "release":
         delete_ssm_parameter(event["stateMachineName"] + "-lock")
         whether_continue = True
-    return {
-        "continue": whether_continue
-    }
+    return whether_continue
+

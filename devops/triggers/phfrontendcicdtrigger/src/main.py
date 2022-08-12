@@ -35,6 +35,7 @@ def lambda_handler(event, context):
             "publisher": event["publisher"],
             "runtime": event["runtime"],
             "email": event["email"],
+            "invalidate": event["invalidate"],
             "executionName": execution_time
         },
         "frontend": {

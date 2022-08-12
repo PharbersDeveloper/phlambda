@@ -7,6 +7,7 @@ class DagConf(Model):
     attributes = {
         "projectId": fields.Str(required=True),
         "jobName": fields.Str(required=True),
+        "actionName": fields.Str(dump_default="unknown"),
         "flowVersion": fields.Str(dump_default="unknown"),
         "dagName": fields.Str(dump_default="unknown"),
         "inputs": fields.Str(dump_default="unknown"),

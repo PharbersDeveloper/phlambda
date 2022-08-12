@@ -48,6 +48,8 @@ def lambda_handler(event, context):
             'runtime': event['runtime'],
             'owner': event['owner'],
             'reporter': event['reporter'],
+            'traceId': event['traceId'],
+            'stepId': event['stepId']
         }
     )
 

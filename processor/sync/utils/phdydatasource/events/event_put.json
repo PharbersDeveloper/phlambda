@@ -1,5 +1,5 @@
 {
-  "body": "{\"table\":\"dataset\",\"item\":{\"id\":\"001\",\"projectId\":\"JfSmQBYUpyb4jsei\",\"label\":\"[\\\"测试Tag100\\\",\\\"测试Tag200\\\"]\",\"schema\":\"\",\"date\":100000,\"name\":\"测试不用管\"}}",
+  "body": "{\"table\":\"dataset\",\"item\":{\"id\":\"001\",\"projectId\":\"JfSmQBYUpyb4jsei\", \"cat\": false, \"label\":\"[\\\"测试Tag100\\\",\\\"测试Tag200\\\"]\",\"schema\":\"\",\"date\":100000,\"name\":\"测试不用管\"}}",
   "resource": "/phdydatasource/{type}",
   "path": "/phdydatasource/put_item",
   "httpMethod": "POST",

@@ -6,28 +6,30 @@ class TestGenerateCode:
     def test_generate(self):
         event = {
             "traceId": "alex_test_traceId",
-            "projectId": "ggjpDje0HUC2JW",
-            "projectName": "demo",
+            "tenantId": "zudIcG_17yj8CEUoCTHg",
+            "projectId": "4pzAo3zNFF-gIrUQw9t1",
+            "projectName": "Tutorial",
             "flowVersion": "developer",
-            "dagName": "demo",
-            "owner": "hbzhao",
-            "showName": "赵浩博",
+            "dagName": "Tutorial",
+            "owner": "5UBSLZvV0w9zh7-lZQap",
+            "showName": "鹏钱",
             "script": {
-                "jobName": "compute_BB",
-                "runtime": "topn",
+                "jobName": "compute_joinab",
+                "runtime": "join",
                 "jobPath": "",
-                "inputs": ["A", "B", "C"],      # 现在没用，可能以后有用
-                "outputs": [],            # 现在没用，可能以后有用
+                "inputs": ["A", "B"],      # 现在没用，可能以后有用
+                "outputs": ["joinab"],            # 现在没用，可能以后有用
                 "id": "001"
             },
             "steps": [                  # 这个地方特别需要注意，直接传最后需要保存的样子，（跳出删除修改插入的思想死循环）
                 {
-                    "id": "alextest_demo_demo_developer_compute_十多个",
+                    "id": "4pzAo3zNFF-gIrUQw9t1_B98WIHKrXjUmTQa",
+                    "pjName": "4pzAo3zNFF-gIrUQw9t1_Tutorial_Tutorial_developer_compute_joinab",
                     "stepId": "1",
                     "index": "1",
-                    "runtime": "topn",
+                    "runtime": "join",
                     "stepName": "Initial Filter On Value",
-                    "ctype": "FillEmptyWithValue",
+                    "ctype": "Join",
                     "groupIndex": 0,
                     "groupName": "",
                     "expressionsValue": "JSON",
@@ -35,90 +37,62 @@ class TestGenerateCode:
                         "params": {
                             "preFilters": [
                                 {
-                                    "ds": "A",
+                                    "ds": "B",
+                                    "index": 0,
                                     "preFilter": {
                                         "distinct": False,
                                         "enabled": True,
-                                        "expr": "`商品名称` = '立普妥' AND `剂型` = 'TAB'"
+                                        "expr": "`名称` like '%$fruit%'"
                                     }
                                 },
                                 {
-                                    "ds": "B",
+                                    "ds": "A",
+                                    "index": 1,
                                     "preFilter": {
                                         "distinct": False,
                                         "enabled": True,
-                                        "expr": "`剂型` = 'TAB'"
+                                        "expr": "`姓名` like '%$name%'"
                                     }
                                 }
                             ],
                             "preJoinComputedColumns": [
                                 {
+                                    "ds": "B",
+                                    "index": 0,
+                                    "computedColumns": []
+                                },
+                                {
                                     "ds": "A",
-                                    "computedColumns": [
-                                        {
-                                            "name": "拼接列",
-                                            "type": "string",
-                                            "expr": 'concat_ws("", `11111`, `商品名称`)'
-                                        }
-                                    ]
+                                    "index": 1,
+                                    "computedColumns": []
                                 }
                             ],
                             "joins": [
                                 {
                                     "datasets": [
                                         {
-                                            "name": "A",
+                                            "name": "B",
                                             "index": 0
                                         },
                                         {
-                                            "name": "B",
+                                            "name": "A",
                                             "index": 1
                                         }
                                     ],
-                                    "caseInsensitive": False,
                                     "normalizeText": False,
                                     "type": "LEFT",
+                                    "caseInsensitive": False,
                                     "on": [
                                         {
                                             "type": "=",
                                             "conditions": [
+                                                {
+                                                    "ds": "B",
+                                                    "column": "序号"
+                                                },
                                                 {
                                                     "ds": "A",
-                                                    "column": "11111"
-                                                },
-                                                {
-                                                    "ds": "B",
-                                                    "column": "商品名称"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "datasets": [
-                                        {
-                                            "name": "B",
-                                            "index": 1
-                                        },
-                                        {
-                                            "name": "C",
-                                            "index": 2
-                                        }
-                                    ],
-                                    "caseInsensitive": False,
-                                    "normalizeText": False,
-                                    "type": "LEFT",
-                                    "on": [
-                                        {
-                                            "type": "=",
-                                            "conditions": [
-                                                {
-                                                    "ds": "B",
-                                                    "column": "商品名称"
-                                                },
-                                                {
-                                                    "ds": "C",
-                                                    "column": "商品名称"
+                                                    "column": "ID"
                                                 }
                                             ]
                                         }
@@ -127,34 +101,41 @@ class TestGenerateCode:
                             ],
                             "selectedColumns": [
                                 {
-                                    "ds": "A",
-                                    "prefix": "prefix",
-                                    "type": "select",
-                                    "columns": ["11111", "商品名称", "生产企业", "剂型", "规格", "包装数量", "包装单位", "version"]
-                                },
-                                {
                                     "ds": "B",
+                                    "index": 0,
                                     "prefix": "",
-                                    "type": "autoselectall",
-                                    "columns": []
+                                    "type": "select",
+                                    "columns": [
+                                        "序号",
+                                        "名称",
+                                        "重量",
+                                        "单价",
+                                        "总价",
+                                        "损耗成本",
+                                        "利润",
+                                        "产地",
+                                        "运输方式"
+                                    ]
                                 },
                                 {
-                                    "ds": "C",
-                                    "prefix": "123",
+                                    "ds": "A",
+                                    "index": 1,
+                                    "prefix": "",
                                     "type": "select",
-                                    "columns": ["商品名称"]
+                                    "columns": [
+                                        "姓名",
+                                        "ID",
+                                        "学号",
+                                        "成绩",
+                                        "籍贯",
+                                        "年龄"
+                                    ]
                                 }
                             ],
-                            "postJoinComputedColumns": [
-                                {
-                                    "name": "小风车",
-                                    "type": "double",
-                                    "expr": 'concat_ws("", `通用名称`, `商品名称`)'
-                                }
-                            ],
+                            "postJoinComputedColumns": [],
                             "postFilter": {
-                                "distinct": True,
-                                "enabled": True,
+                                "distinct": False,
+                                "enabled": False,
                                 "expr": ""
                             }
                         }

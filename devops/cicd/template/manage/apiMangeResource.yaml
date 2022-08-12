@@ -1,0 +1,4 @@
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://${ReplaceApiBucket}.s3.cn-northwest-1.amazonaws.com.cn/${ReplaceApiPath}
+      TimeoutInMinutes: '600'

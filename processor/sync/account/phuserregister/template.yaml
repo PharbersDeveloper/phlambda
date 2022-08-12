@@ -17,11 +17,11 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          DBNAME: "phplatform_dev"
-          USER: "pharbers_dev"
-          PASSWORD: "123456"
-          HOST: "ph-db-lambda-2021-11-15.cngk1jeurmnv.rds.cn-northwest-1.amazonaws.com.cn"
-          PORT: "5432"
+          DBNAME: "phplatform"
+          USER: "pharbers"
+          PASSWORD: "Abcde196125"
+          HOST: "192.168.74.58"
+          PORT: "5439"
           EDITION: "DEV"
       VpcConfig:
         SecurityGroupIds:

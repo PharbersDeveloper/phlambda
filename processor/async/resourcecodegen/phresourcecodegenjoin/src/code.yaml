@@ -7,13 +7,34 @@ code:
   phjob:
     inputs: ~
     join_args: ~
+    project_id: ~
+    job_id: ~
     code: |
+      import json
+      import boto3
       from pyspark.sql.functions import *
       from pyspark.sql import *
+      from functools import reduce
+      from string import Template
+      from boto3.dynamodb.conditions import Key
+      from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+      dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+      logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
       df_list = []
+
+      def get_ds_with_index(project_id, job_id):
+          table = dynamodb_resource.Table("dagconf")
+          return table.query(
+              IndexName="dagconf-projectId-id-indexd",
+              KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+          )["Items"][0]
+
 
       def get_df(ds_name):
           return list(filter(lambda item: item["name"] == ds_name, df_list))[0]
+
 
       def pre_filter(args):
           ds_name = args["ds"]
@@ -30,11 +51,13 @@ code:
                   df = df.filter(expression)
           df_map["df"] = df
 
+
       def rename_df_cols(args):
           ds_name = args["ds"]
           df_map = get_df(ds_name)
           df = df_map["df"]
           df_map["df"] = df.selectExpr(list(map(lambda item: item["value"], args["columns"])))
+
 
       def pre_join_computed_columns(args):
           if len(args) > 0:
@@ -46,12 +69,13 @@ code:
                   df = df.selectExpr('*', f"{item['expr']} AS `{item['name']}`").withColumn(item["name"], col(item["name"]).cast(item["type"]))
               df_map["df"] = df
 
+
       def select_columns(args):
           ds_name = args["ds"]
           prefix = args["prefix"]
           df_map = get_df(ds_name)
           df_cols = list(map(lambda item: item[0], df_map["df"].dtypes))
-          
+
           # 变换Col为不重复的列名 为后续select做准备
           def prefix_append(cols, falg):
               return list(map(lambda item: {"key": f"`{item}`", "value": f"`{item}` AS `{prefix}_{ds_name}_{item}`", "selected": falg, "prefix": prefix, "ds": ds_name}, cols))
@@ -69,11 +93,13 @@ code:
               "columns": all_cols
           }
 
+
       def post_join_computed_columns(df, args):
           if len(args) > 0:
               for item in args:
                   df = df.selectExpr('*', f"{item['expr']} AS `{item['name']}`").withColumn(item["name"], col(item["name"]).cast(item["type"]))
           return df
+
 
       def post_filter(df, args):
           distinct = args["distinct"]
@@ -84,6 +110,7 @@ code:
           if enabled and len(expression) > 0:
               df = df.filter(expression)
           return df
+
 
       def joins(select_cols ,args):
           on_func = {
@@ -130,6 +157,28 @@ code:
               return None
 
 
+      def transform_type(tp, val):
+          data_val_type = {
+              "string": lambda x: str(x),
+              "double": lambda x: float(x),
+              "bigint": lambda x: int(x)
+          }
+          return data_val_type[tp](val)
+
+
+      def code_free(args, prop, user_conf):
+          args_str = json.dumps(args, ensure_ascii=False)
+
+          def generate_data(key):
+              if key in user_conf:
+                  return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+              else:
+                  return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+
+          result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+          return json.loads(Template(args_str).substitute(reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
+
       def execute(**kwargs):
           inputs = $inputs
 
@@ -137,6 +186,16 @@ code:
               df_list.append({"name": ds_name, "df": kwargs["df_" + ds_name]})
 
           join_args = $join_args
+
+          project_id = "$project_id"
+          job_id = "$job_id"
+
+          dag_conf = get_ds_with_index(project_id, job_id)
+
+          if len(dag_conf["prop"]) > 0:
+              join_args = code_free(join_args, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+              logger.debug("Alex Join Args Logs ===>")
+              logger.debug(join_args)
 
           preFilters = join_args["preFilters"]
           preJoinComputedColumns = join_args["preJoinComputedColumns"]
@@ -157,9 +216,10 @@ code:
               rename_df_cols(item)
 
           df = joins(select_column_results, joinArgs)
-          
+
           # 将重名的col 再次转为原有值（有前缀的添加前缀）
           selected_cols = []
+
           def rollback_col(item):
               current_col_name = item["value"].split(" ")[-1]
               current_prefix = f"""{item["prefix"]}_{item["ds"]}_"""
@@ -168,10 +228,10 @@ code:
                  return f"""{current_col_name} AS `{item["prefix"]}_{original_col_name}"""
               else:
                  return f"""{current_col_name} AS `{original_col_name}"""
-    
+
           for item in select_column_results:
               selected_cols += list(map(rollback_col, list(filter(lambda col: col["selected"] == True, item["columns"]))))
-          
+
           df = df.selectExpr(selected_cols)
 
           df = post_filter(post_join_computed_columns(df, postJoinComputedColumns), postFilter)

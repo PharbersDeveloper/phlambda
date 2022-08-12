@@ -161,8 +161,8 @@ def lambda_handler(event, context):
         manage_result["Resources"] = {}
     if manage_result.get("Transform"):
         del manage_result["Transform"]
-    if manage_result["Resources"].get("PhStateMachine"):
-        del manage_result["Resources"]["PhStateMachine"]
+    if manage_result["Resources"].get(event["runtime"].upper() + "PhStateMachine"):
+        del manage_result["Resources"][event["runtime"].upper() + "PhStateMachine"]
     print(manage_result)
 
     # 获取每个function package.yaml的内容
@@ -212,10 +212,12 @@ def lambda_handler(event, context):
 
     # 将sfnTemplate.yaml文件写入到 manage文件中
     f3 = open(sfnLocalPath, "r")
+    manage.write("  " + event["runtime"].upper() + "PhStateMachine:")
+    manage.write("\n")
     for line in f3.readlines():
         manage.write(line.replace("${S3Bucket}", event["stepFunctionArgs"]["S3Bucket"])
                      .replace("${S3TemplateKey}", event["stepFunctionArgs"]["S3TemplateKey"])
-                     .replace("${StateMachineName}", event["stepFunctionArgs"]["StateMachineName"])
+                     .replace("${StateMachineName}", event["stepFunctionArgs"]["StateMachineName"] + "-" + event["runtime"])
                      .replace("${SubmitOwner}", event["stepFunctionArgs"]["SubmitOwner"])
                      .replace("${Date}", str(int(round(time.time() * 1000))))
                      )

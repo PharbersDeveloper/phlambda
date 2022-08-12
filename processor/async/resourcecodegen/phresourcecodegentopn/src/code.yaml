@@ -73,7 +73,7 @@ code:
 
           df = window_df(df, keys, order_rule)
           max_number = df.select("__max").head()[0] if df.count() > 0 else 0
-          if max_number[0] == 1:
+          if max_number == 1:
               return df.filter(f"__row_number > 0 and __row_number <= {first_rows + last_rows}")
 
           first_rows_df = df.filter(f"__row_number > 0 and __row_number <= {first_rows}")
@@ -126,8 +126,8 @@ code:
       def code_free(args, prop, user_conf):
           args_str = json.dumps(args, ensure_ascii=False)
 
-          def generate_data(key):
-              name = f"${item['name']}"
+          def generate_data(item):
+              name = f"$code_free_placeholder{item['name']}"
               if name in user_conf:
                   return {name: transform_type(item["type"].lower(), user_conf[name])}
               else:

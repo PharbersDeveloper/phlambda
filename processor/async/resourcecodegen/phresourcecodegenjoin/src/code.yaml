@@ -169,8 +169,8 @@ code:
       def code_free(args, prop, user_conf):
           args_str = json.dumps(args, ensure_ascii=False)
 
-          def generate_data(key):
-              name = f"${item['name']}"
+          def generate_data(item):
+              name = f"$code_free_placeholder{item['name']}"
               if name in user_conf:
                   return {name: transform_type(item["type"].lower(), user_conf[name])}
               else:

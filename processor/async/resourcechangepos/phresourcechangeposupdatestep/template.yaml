@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./src
+      FunctionName: phresourcechangeposupdatestep
+      MemorySize: 1024
+      Description: "phresourcechangeposupdatestep"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PHErrorLayer:4
+      Environment:
+        Variables:
+          EDITION: "DEV"
+

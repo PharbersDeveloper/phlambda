@@ -1,6 +1,6 @@
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr
+from boto3.dynamodb.conditions import Key, Attr
 '''
 这个函数只做一件事情，检查参数是否合法
 args:
@@ -60,6 +60,18 @@ args:
     }
 '''
 
+dynamodb = boto3.resource("dynamodb")
+
+
+def query_scenario(projectId, scenarioName):
+    table = dynamodb.Table("scenario")
+    response = table.query(
+        IndexName='projectId-scenarioName-index',
+        KeyConditionExpression=Key('projectId').eq(projectId) & Key('scenarioName').eq(scenarioName)
+    )
+    return response.get("Items")
+
+
 class CheckParameters:
     def __init__(self, event):
         self.event = event
@@ -109,6 +121,10 @@ class Check:
         else:
             missing_field = " or ".join([x for x in _key_all if x not in input_keys])
             raise Exception(f"Field missing: {input_keys} possible missing fields {missing_field}")
+
+        for scenario in query_scenario(event.get("common").get("projectId"), event.get("scenario").get("scenarioName")):
+            if scenario["id"] != event.get("scenario").get("id"):
+                raise Exception(f"scenario name already exist")
         return True
 
 def lambda_handler(event, context):

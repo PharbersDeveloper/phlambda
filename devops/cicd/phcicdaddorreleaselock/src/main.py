@@ -35,7 +35,7 @@ def get_dict_ssm_parameter(parameter_name):
         response = ssm_client.get_parameter(
             Name=parameter_name,
         )
-        value = json.loads(response["Parameter"]["Value"])
+        value = response["Parameter"]["Value"]
     except ssm_client.exceptions.ParameterNotFound as e:
         print("参数不存在")
         value = {}

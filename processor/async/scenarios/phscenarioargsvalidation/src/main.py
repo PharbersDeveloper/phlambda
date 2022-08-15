@@ -124,7 +124,7 @@ class Check:
 
         for scenario in query_scenario(event.get("common").get("projectId"), event.get("scenario").get("scenarioName")):
             if scenario["id"] != event.get("scenario").get("id"):
-                raise Exception(f"该Scenario已存在！")
+                raise Exception(f"scenario name already exist")
         return True
 
 def lambda_handler(event, context):

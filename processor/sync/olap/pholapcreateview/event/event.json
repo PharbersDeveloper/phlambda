@@ -1,7 +1,31 @@
+
 {
-  "job_name": "demo_demo_developer_compute_out3",
-  "tenant_id": "",
-  "project_id": "ggjpDje0HUC2JW",
-  "ds_name": "AAA",
-  "overwrite": false
+  "project_id":"4pzAo3zNFF-gIrUQw9t1",
+  "job_name":"Tutorial_Tutorial_developer_compute_tttt1111",
+  "tenant_id":"zudIcG_17yj8CEUoCTHg",
+  "ds_name":"tttttt",
+  "overwrite":false
 }
+
+
+CREATE VIEW `4pzAo3zNFF-gIrUQw9t1_Tutorial_Tutorial_developer_compute_tttt1111` AS select * from (
+                                  select * from (
+                                                  select *, CONCAT(Project, City) AS __sum from (
+                                                  select *, 1 AS __match from `AAA`)
+                                                )
+                                  )
+
+
+CREATE VIEW `4pzAo3zNFF-gIrUQw9t1_Tutorial_Tutorial_developer_compute_tttt1111` AS select * from (
+                                  select *, 1 AS __match from `4pzAo3zNFF-gIrUQw9t1_tttttt`)
+select * from `AAA` limit 10 FORMAT JSON
+select Project,City,Project+City abcc from AAA
+select CONCAT(Project, City) as str from AAA
+select * from `AAA` limit 10 FORMAT JSON
+ALTER TABLE my_table MODIFY COLUMN f Float64 DEFAULT -1
+select *, CONCAT(Project, City) AS __sum from `AAA` limit 10 FORMAT JSON"
+
+select * from (
+                                                  select *, __matchNum AS Res from (
+                                                  select *, 1 AS __match from `AAA` limit 100)
+                                                ) format JSON

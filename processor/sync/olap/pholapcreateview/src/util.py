@@ -205,6 +205,16 @@ def fill_empty_with_value(data, cols):
     }
 
 
+def formula(data, cols):
+    columns = data["expressions"]["params"]["columns"]
+    sqlexpression = data["expressions"]["params"]["sqlexpression"]
+    # return f"select * from (select *, {sqlexpression} AS {columns} from (select *, 1 AS __match from `AAA` limit 100)) format JSON"
+    return {
+        "index": data["index"],
+        "expr": f"{sqlexpression} AS {columns}"
+    }
+
+
 def merge_cell_operation(data):
     result = sorted(data, key=lambda x: x["index"])
     return result
@@ -242,4 +252,5 @@ command = {
     "ColumnReplace": column_replace,
     "ReplaceValue": value_replace,
     "FillEmptyWithValue": fill_empty_with_value,
+    "Formula": formula,
 }

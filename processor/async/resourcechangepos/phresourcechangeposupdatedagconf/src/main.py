@@ -80,7 +80,8 @@ def lambda_handler(event, context):
         "outputs": newOutput,
         "owner": newOwnerd,
         "showName": newShowName,
-        "traceId": newTraceId
+        "traceId": newTraceId,
+        "prop": script["new"]["prop"]
     })
     insertItems.append(newDagconfItem)
     return {

@@ -97,5 +97,5 @@ def lambda_handler(event, context):
         replace_file(lmd, lmd + ":" + version)
 
     # 上传sm.json
-    upload_s3_file(event["smJsonPathBucket"], event["smJsonPathKey"], "/tmp/sm.json")
+    upload_s3_file(event["smJsonPathBucket"], event["smJsonPathKey"].replace("sm.json", "modify_sm.json"), "/tmp/sm.json")
     return 1

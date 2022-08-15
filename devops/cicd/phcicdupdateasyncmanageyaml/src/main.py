@@ -216,7 +216,7 @@ def lambda_handler(event, context):
     manage.write("\n")
     for line in f3.readlines():
         manage.write(line.replace("${S3Bucket}", event["stepFunctionArgs"]["S3Bucket"])
-                     .replace("${S3TemplateKey}", event["stepFunctionArgs"]["S3TemplateKey"])
+                     .replace("${S3TemplateKey}", event["stepFunctionArgs"]["S3TemplateKey"].replace("sm.json", "modify_sm.json"))
                      .replace("${StateMachineName}", event["stepFunctionArgs"]["StateMachineName"] + "-" + event["runtime"])
                      .replace("${SubmitOwner}", event["stepFunctionArgs"]["SubmitOwner"])
                      .replace("${Date}", str(int(round(time.time() * 1000))))

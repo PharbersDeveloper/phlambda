@@ -20,7 +20,7 @@ Resources:
           DBNAME: "phplatform"
           USER: "pharbers"
           PASSWORD: "Abcde196125"
-          HOST: "192.168.109.165"
+          HOST: "192.168.103.111"
           PORT: "5439"
       VpcConfig:
         SecurityGroupIds:

@@ -359,10 +359,37 @@
                         {
                            "Variable": "$.metadata.iterator.index",
                            "NumericEqualsPath": "$.metadata.lmdCounts",
-                           "Next": "UpdateAsyncSmJson"
+                           "Next": "CheckStackLock"
                         }
                      ],
                      "Default": "CreateCurrentLmdArgs"
+                  },
+                  "CheckStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "check"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "CheckStackLockReached"
+                  },
+                  "CheckStackLockReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.lockStatus",
+                           "BooleanEquals": true,
+                           "Next": "UpdateAsyncSmJson"
+                        }
+                     ],
+                     "Default": "LockCheckWait"
+                  },
+                  "LockCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "CheckStackLock"
                   },
                   "UpdateAsyncSmJson": {
                      "Type": "Task",
@@ -477,10 +504,20 @@
                         {
                            "Variable": "$.StackStatus",
                            "BooleanEquals": true,
-                           "Next": "AsyncBranchEnd"
+                           "Next": "ReleaseStackLock"
                         }
                      ],
                      "Default": "StackStatusCheckWait"
+                  },
+                  "ReleaseStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "release"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "AsyncBranchEnd"
                   },
                   "AsyncBranchEnd": {
                      "Type": "Pass",

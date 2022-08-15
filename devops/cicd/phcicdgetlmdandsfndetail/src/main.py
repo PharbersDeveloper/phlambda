@@ -122,10 +122,12 @@ def lambda_handler(event, context):
     lambdaArgs = create_lambda_args(event)
     # 处理step function相关信息
     stepfuntionArgs = create_step_function_args(event)
+    stackName = event["processor"]["stateMachineName"] + "-resource"
 
     return {
         "lmdCounts": lmdCounts,
         "iterator": iterator,
         "lambdaArgs": lambdaArgs,
-        "stepFunctionArgs": stepfuntionArgs
+        "stepFunctionArgs": stepfuntionArgs,
+        "stackName": stackName
     }

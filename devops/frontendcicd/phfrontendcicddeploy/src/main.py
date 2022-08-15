@@ -71,12 +71,12 @@ def download_s3_file(bucket, key, file_path):
     )
 
 
-def upload_s3_file(bucket, key, file_path):
-    s3_client.upload_file(
-        Bucket=bucket,
-        Key=key,
-        Filename=file_path
-    )
+def copy_s3_file(bucket, key, resource_path):
+    copy_source = {
+        'Bucket': "ph-platform",
+        'Key': resource_path
+    }
+    s3_resource.meta.client.copy(copy_source, bucket, key)
 
 
 def read_local_json_file(local_path):
@@ -85,7 +85,7 @@ def read_local_json_file(local_path):
     return json_data
 
 
-def create_devops_file_map(files, dist_local_path, destinations, modifications):
+def create_devops_file_map(files, dist_local_path, dist_s3_source, destinations, modifications):
     def deal_resolve(file_name, file_modify_maps):
         if file_modify_maps:
             for file_modify_map in file_modify_maps:
@@ -114,7 +114,7 @@ def create_devops_file_map(files, dist_local_path, destinations, modifications):
         local_s3_maps.append({
             "bucket": i[1]["bucket"],
             "key": i[1]["key"] + s3_file_name,
-            "local_path": dist_local_path + i[0]
+            "resource_path": dist_s3_source + "/" + i[0]
         })
     print(local_s3_maps)
     # 返回需要上传的本地文件路径和线上
@@ -139,13 +139,14 @@ def lambda_handler(event, context):
         local_s3_maps = create_devops_file_map(
             frontend_devops_data["devops"][runtime]["files"],
             dist_local_path,
+            dist_s3_source,
             frontend_devops_data["devops"][runtime]["destinations"],
             frontend_devops_data["devops"][runtime].get("modifications")
         )
         print(local_s3_maps)
         # 上传deploy文件
         for local_s3_map in local_s3_maps:
-            upload_s3_file(local_s3_map["bucket"], local_s3_map["key"], local_s3_map["local_path"])
+            copy_s3_file(local_s3_map["bucket"], local_s3_map["key"], local_s3_map["resource_path"])
         deploy_s3_paths.extend(local_s3_maps)
 
     return deploy_s3_paths

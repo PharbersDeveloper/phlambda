@@ -26,7 +26,7 @@ Resources:
           DATABASE: phplatform
           USER: pharbers
           PASSWORD: Abcde196125
-          HOST: 192.168.26.64
+          HOST: 192.168.103.111
           PORT: 5439
       VpcConfig:
         SecurityGroupIds:

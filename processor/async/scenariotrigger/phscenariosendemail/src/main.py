@@ -56,18 +56,20 @@ def query_item_of_dyTable(tableName, **kwargs):
 def turn_decimal_into_int(data):
     return int(data) if isinstance(data, Decimal) else data
 
-#---- 线上时间转换成标准时间-> 8h -------#
+
+#---- 线上时间转换成标准时间-> Asia/Shanghai -------#
 def time_transformate(timestamp):
-    import time
-    timestamp = int(timestamp)
-    time_local = time.localtime((timestamp/1000) + 8*60*60)
-    data = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
-    return data
+    from pytz import timezone
+    import datetime
+    tz = timezone("Asia/Shanghai")
+    timestamp = float(timestamp/1000)
+    result = tz.fromutc(datetime.datetime.utcfromtimestamp(timestamp)).strftime("%Y-%m-%d %H:%M:%S")
+    return result
+
 
 
 def handleResultData(ResultData):
 
-    #EndTime = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
     ctime = time.time()*1000
     ResultList = []
     for result in ResultData:

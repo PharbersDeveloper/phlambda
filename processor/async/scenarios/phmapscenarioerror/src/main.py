@@ -88,11 +88,3 @@ def lambda_handler(event, context):
     print(result)
 
     return result
-
-
-#-- 本地测试用 --#
-if __name__ == '__main__':
-
-    event = {'traceId': '569abb059b0940a68f21f3erw24b060df77', 'owner': '35cca7e1-45d9-4a6e-80f6-09e5417feb33', 'showName': '朗轩齐', 'scenario': {'id': 'ggjpDje0HUC2JW_5c689d48746846958cb62582a3f46qwer083', 'active': True, 'scenarioName': '00000', 'deletion': False}, 'projectName': 'demo', 'triggers': [], 'error': {'Error': 'KeyError', 'Cause': '{"errorMessage": "\'index\'", "errorType": "KeyError", "stackTrace": ["  File \\"/var/task/main.py\\", line 119, in lambda_handler\\n    scenarioClient.put_item()\\n", "  File \\"/var/task/main.py\\", line 71, in put_item\\n    \'index\': self.turn_decimal_into_int(self.get_index()),\\n", "  File \\"/var/task/main.py\\", line 42, in get_index\\n    return self.scenario[\'index\']\\n"]}'}, 'projectId': 'ggjpDje0HeqrewUC2JW', 'steps': []}
-    lambda_handler(event,"")
-

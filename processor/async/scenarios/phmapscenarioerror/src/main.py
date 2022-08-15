@@ -38,10 +38,7 @@ def SearchErrorType(error):
     if len(keys) == 0:
         return None
     else:
-        cause = list(filter(lambda x: FindErrorCause(error[x]) is not False, keys))
-        cause = list(map(lambda x: FindErrorCause(ChangeStrToDict(error[x])), cause))
-        if len(cause) == 0:
-            return None
+        cause = list(map(lambda x: ChangeStrToDict(error[x]), keys))
         return cause
 
 def MapErrorType(cause):
@@ -49,11 +46,20 @@ def MapErrorType(cause):
     if cause is None:
         tmp = serialization(Errors)
     else:
-        #--- 错误详情，用于解析映射用 -----#
-        #ErrorKeys = list(*map(lambda x: list(x.keys()), cause))
-        if "KeyError" in cause:
+        #1 错误类型
+        errorTypes = list(map(lambda x: x.get("errorType"), cause))
+        #----解析参数类型--------#
+        if "KeyError" in errorTypes:
             tmp = serialization(ParameterError)
-        #TODO 后续出现新的错误类型再添加
+        #--- 解析主动抛出的异常内容-----#
+        elif "Exception" in errorTypes:
+            Errordetails = list(map(lambda x: x.get("errorMessage"), cause))
+            print("解析错误内容")
+            #TODO 后续类型增多后再采用表驱动的形式来匹配，去掉if else
+            if "scenario name already exist" in Errordetails:
+                tmp = serialization(ScenarioNameDuplicateError)
+            else:
+                tmp = serialization(Errors)
         else:
             tmp = serialization(Errors)
     return tmp

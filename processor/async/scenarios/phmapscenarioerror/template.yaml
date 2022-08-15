@@ -14,4 +14,4 @@ Resources:
       MemorySize: 1024
       Timeout: 600
       Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PHErrorLayer:4
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PHErrorLayer:5

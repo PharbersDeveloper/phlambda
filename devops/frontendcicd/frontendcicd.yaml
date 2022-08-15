@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Submit Steps 20220614
+Resources:
+  PhStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      DefinitionS3Location:
+        Bucket: ph-platform
+        Key: 2020-11-11/cicd/devops/frontendcicd/sm.json
+      RoleArn: "arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin"
+      StateMachineName: frontendcicd
+      StateMachineType: STANDARD
+      Tags:
+        - Key: Tenant
+          Value: Pharbers
+        - Key: Owner
+          Value: hbzhao

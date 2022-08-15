@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: cicd lambda phemail-v2
+Resources:
+  ATTFFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./src
+      FunctionName: phfrontendcicdemail
+      Description: "发送各种邮件"
+      MemorySize: 512
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Cli-Lmd
+      Timeout: 30
+      Environment:
+        Variables:
+          USER: "project@data-pharbers.com"
+          PSWD: "qiye@126"
+          HOST: "smtp.ym.163.com"
+          PORT: "465"
+          SENDER: "project@data-pharbers.com"
+          SENDER_NAME: "爸爸去哪儿"

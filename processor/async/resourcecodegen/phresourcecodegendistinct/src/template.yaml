@@ -4,41 +4,89 @@ template:
       - key: a
         Index: 0
     content: |-
-        from pyspark.sql.functions import col
-        from pyspark.sql.types import StructType, StringType
+        import json
+        import boto3
         from pyspark.sql import functions as func
         from pyspark.sql import Window
-           
-    
+        from functools import reduce
+        from string import Template
+        from boto3.dynamodb.conditions import Key
+        from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+
+
+        dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+        logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
+
+
+        def get_ds_with_index(project_id, job_id):
+            table = dynamodb_resource.Table("dagconf")
+            return table.query(
+                IndexName="dagconf-projectId-id-indexd",
+                KeyConditionExpression=Key("projectId").eq(project_id) & Key("id").eq(job_id)
+            )["Items"][0]
+
+
+        def transform_type(tp, val):
+            data_val_type = {
+                "string": lambda x: str(x),
+                "double": lambda x: float(x),
+                "bigint": lambda x: int(x)
+            }
+            return data_val_type[tp](val)
+
+
+        def code_free(args, prop, user_conf):
+            args_str = json.dumps(args, ensure_ascii=False)
+
+            def generate_data(key):
+                if key in user_conf:
+                    return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+                else:
+                    return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+
+            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+            return json.loads(Template(args_str).substitute(
+                reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+
+
         def execute(**kwargs):
             spark = kwargs['spark']
             df = kwargs['df_$g_input$']
-            
+
+            project_id = "$project_id$"
+            job_id = "$job_id$"
+
+            dag_conf = get_ds_with_index(project_id, job_id)
+
             g_preFilter = $g_preFilter$
             g_postFilter = $g_postFilter$
             g_distinct_key = $g_distinct_key$
             g_globalCount = $g_globalCount$
-            
+
+            if len(dag_conf["prop"]) > 0:
+                g_preFilter = code_free(g_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+                g_postFilter = code_free(g_postFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+
             # args_preFilter 处理
-            if g_preFilter['enabled'] == True:
+            if g_preFilter['enabled']:
                 df = df.where(g_preFilter['expression'])
-            
+
             # globalCount 计算
-            if g_globalCount == True:
+            if g_globalCount:
                 cols_globalCount = (g_distinct_key if len(g_distinct_key) > 0 else df.columns)
-                df = df.withColumn('count', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()) )
-            
+                df = df.withColumn('count', func.count(cols_globalCount[0]).over(Window.partitionBy(cols_globalCount).orderBy()))
+
             # distinct 处理
             if len(g_distinct_key) > 0:
-                if g_globalCount == True:
+                if g_globalCount:
                     df = df.select(g_distinct_key + ['count']).distinct()
                 else:
                     df = df.select(g_distinct_key).distinct()
             else:
                 df = df.distinct()
-            
+
             # args_postFilter 处理
-            if g_postFilter['enabled'] == True:
+            if g_postFilter['enabled']:
                 df = df.where(g_postFilter['expression'])
 
-            return {"out_df":df}
+            return {"out_df": df}

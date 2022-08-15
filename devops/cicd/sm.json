@@ -13,7 +13,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdargsvalidation-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdargsvalidation",
          "ResultPath": null,
          "Next": "TriggerAndAsync",
          "Catch": [
@@ -72,7 +72,7 @@
                   },
                   "GetLmdAndApiDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandapidetail-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdgetlmdandapidetail",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -143,7 +143,7 @@
                   },
                   "UpdateTriggerManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdatetriggermanageyaml-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdupdatetriggermanageyaml",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -156,7 +156,7 @@
                   },
                   "ApiCreateManageStack": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcreatecfn",
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
@@ -185,7 +185,7 @@
                   },
                   "ApiCheckChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -207,7 +207,7 @@
                   },
                   "ApiExecutionChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdexecutestackchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -222,7 +222,7 @@
                   },
                   "ApiCreateOrUpdateCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckcfnstatus",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "processor.$": "$.processor",
@@ -272,7 +272,7 @@
                   },
                   "GetLmdAndSfnDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandsfndetail-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdgetlmdandsfndetail",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "commit.$": "$.processor.commit",
@@ -286,7 +286,7 @@
                   },
                   "CreateCurrentLmdArgs": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecurrentlmdargs-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcreatecurrentlmdargs",
                      "Parameters": {
                         "lambdaArgs.$": "$.metadata.lambdaArgs",
                         "iterator.$": "$.metadata.iterator"
@@ -359,14 +359,27 @@
                         {
                            "Variable": "$.metadata.iterator.index",
                            "NumericEqualsPath": "$.metadata.lmdCounts",
-                           "Next": "UpdateAsyncManageYaml"
+                           "Next": "UpdateAsyncSmJson"
                         }
                      ],
                      "Default": "CreateCurrentLmdArgs"
                   },
+                  "UpdateAsyncSmJson": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdupdatesmjson",
+                     "Parameters": {
+                        "stateMachineName.$": "$.metadata.stepFunctionArgs.StateMachineName",
+                        "runtime.$": "$.common.runtime",
+                        "lambdaArgs.$": "$.metadata.lambdaArgs",
+                        "smJsonPathBucket.$": "$.metadata.stepFunctionArgs.S3Bucket",
+                        "smJsonPathKey.$": "$.metadata.stepFunctionArgs.S3TemplateKey"
+                     },
+                     "ResultPath": null,
+                     "Next": "UpdateAsyncManageYaml"
+                  },
                   "UpdateAsyncManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdateasyncmanageyaml-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdupdateasyncmanageyaml",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "commit.$": "$.processor.commit",
@@ -382,7 +395,7 @@
                   },
                   "CreateManageStack": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcreatecfn",
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
@@ -411,7 +424,7 @@
                   },
                   "CheckChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -433,7 +446,7 @@
                   },
                   "ExecutionChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdexecutestackchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -448,7 +461,7 @@
                   },
                   "CreateOrUpdateCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckcfnstatus",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "processor.$": "$.processor",
@@ -498,7 +511,7 @@
                   },
                   "GetUtilsLmdDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetutilslmddetail-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdgetutilslmddetail",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -569,7 +582,7 @@
                   },
                   "UpdateUtilsManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdateutilsmanageyaml-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdupdateutilsmanageyaml",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -581,7 +594,7 @@
                   },
                   "UtilsCreateManageStack": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcreatecfn",
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
@@ -610,7 +623,7 @@
                   },
                   "UtilsCheckChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -632,7 +645,7 @@
                   },
                   "UtilsExecutionChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdexecutestackchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -647,7 +660,7 @@
                   },
                   "UtilsCreateOrUpdateCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckcfnstatus",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "processor.$": "$.processor",
@@ -697,7 +710,7 @@
                   },
                   "GetLmdAndMultistageDetail": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdgetlmdandmultiresourcedetail-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdgetlmdandmultiresourcedetail",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -768,7 +781,7 @@
                   },
                   "UpdateMultistageManageYaml": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdupdatemultiresourcemanageyaml-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdupdatemultiresourcemanageyaml",
                      "Parameters": {
                         "version.$": "$.common.version",
                         "publisher.$": "$.common.publisher",
@@ -781,7 +794,7 @@
                   },
                   "MultistageCreateManageStack": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcreatecfn-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcreatecfn",
                      "Parameters": {
                         "stackName.$": "$.stackMessage.stackName",
                         "manageUrl.$": "$.stackMessage.manageUrl",
@@ -810,7 +823,7 @@
                   },
                   "MultistageCheckChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -832,7 +845,7 @@
                   },
                   "MultistageExecutionChangeSet": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdexecutestackchangeset-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdexecutestackchangeset",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "changeSetName.$": "$.changeSetMsg.changeSetName"
@@ -847,7 +860,7 @@
                   },
                   "MultistageCreateOrUpdateCheck": {
                      "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcheckcfnstatus-dev",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcheckcfnstatus",
                      "Parameters": {
                         "stackName.$": "$.changeSetMsg.stackName",
                         "processor.$": "$.processor",
@@ -907,7 +920,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phcicdcleanup-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdcleanup",
          "Parameters": {
             "processor.$": "$.processor",
             "trigger.$": "$.trigger",

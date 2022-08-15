@@ -109,7 +109,7 @@ class DynamoDB:
         }
 
         try:
-            count_result = self.dynamodb_client.query(**count_parameter)
+            count_result = self.dynamodb_client.scan(**count_parameter)
             response_iterator = paginator.paginate(**parameter)
             result = response_iterator.build_full_result()
             return {
@@ -133,9 +133,26 @@ class DynamoDB:
         if "id" not in item.keys():
             item["id"] = GenerateID.generate()
 
+        __dynamodb_type = {
+            "str": "S",
+            "int": "N",
+            "float": "N",
+            "bool": "BOOL"
+        }
+
+        def get_type(target):
+            return str(type(target)).replace("<class", "").replace("'", "").replace(">", "").replace(" ", "")
+
+        def join_data(key):
+            value_type = get_type(item[key])
+            value = str(item[key])
+            if value_type == "bool":
+                value = eval(value)
+            return {key: {__dynamodb_type.get(value_type, "str"): value}}
+
         self.dynamodb_client.put_item(
             TableName=table_name,
-            Item=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(item[x])}}, item.keys())))
+            Item=reduce(lambda p, n: {**p, **n}, list(map(join_data, item.keys())))
         )
         return {
             "data": item
@@ -144,7 +161,7 @@ class DynamoDB:
     def deleteData(self, data):
         table_name = data["table_name"]
         keys = data["conditions"]
-        self.dynamodb_client.put_item(
+        self.dynamodb_client.delete_item(
             TableName=table_name,
             Key=reduce(lambda p, n: {**p, **n}, list(map(lambda x: {x: {"S": str(keys[x])}}, keys.keys())))
         )

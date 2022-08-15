@@ -11,6 +11,8 @@ s3_resource = boto3.resource('s3')
 cfn_client = boto3.client('cloudformation')
 manageTemplateS3Key = "ph-platform"
 manageTemplateS3Path = "2020-11-11/cicd/template/manageApiTemplate.yaml"
+apiManageTemplateS3Path = "2020-11-11/cicd/template/apiResource.yaml"
+apiManageResourceS3Path = "2020-11-11/cicd/template/apiMangeResource.yaml"
 apiTemplateS3Key = "ph-platform"
 apiTemplateS3PathPrefix = "2020-11-11/cicd/template/"
 TemplateS3Key = "ph-platform"
@@ -19,12 +21,16 @@ lmdAliasTemplateS3Path = "2020-11-11/cicd/template/lmdAlias.yaml"
 resourcePathPrefix = "2020-11-11/cicd/"
 manageUrlPrefix = "https://ph-platform.s3.cn-northwest-1.amazonaws.com.cn/2020-11-11/cicd/"
 mangeLocalPathPrefix = "/tmp/cicd/tmp/"
+apiManageLocalPathPrefix = "/tmp/cicd/tmp/"
 mangeLocalPathSuffix = "/manage.yaml"
+apiManageLocalPathSuffix = "/cfn.yaml"
+dealApiManageLocalPathSuffix = "/deal_cfn.yaml"
 dealMangeLocalPathPrefix = "/tmp/cicd/tmp/"
-dealMangeLocalPathSuffix = "/deal_manage.yaml"
+dealMangeLocalPathSuffix = "/manage.yaml"
 apiResourceLocalPathPrefix = "/tmp/cicd/tmp/"
 lmdVersionLocalPath = "/tmp/cicd/tmp/lmdVersion.yaml"
 lmdAliasLocalPath = "/tmp/cicd/tmp/lmdAlias.yaml"
+apiManageResourceLocalPath = "/tmp/cicd/tmp/apiMangeResource.yaml"
 
 
 class Ref(object):
@@ -221,9 +227,11 @@ def lambda_handler(event, context):
     # 创建Version
     download_s3_file(TemplateS3Key, lmdAliasTemplateS3Path, lmdAliasLocalPath)
     download_s3_file(TemplateS3Key, lmdVersionTemplateS3Path, lmdVersionLocalPath)
+    download_s3_file(TemplateS3Key, apiManageResourceS3Path, apiManageResourceLocalPath)
     manage = open(mangeLocalPath, "a+")
     f1 = open(lmdVersionLocalPath, "r")
     f2 = open(lmdAliasLocalPath, "r")
+    f3 = open(apiManageResourceLocalPath, "r")
     versionResourceName = apiGateWayArgs["LmdName"] + "Version" + event["version"].replace("-", "") + str(int(round(time.time() * 1000)))
     versionAlisaName = apiGateWayArgs["LmdName"] + "Alias" + event["version"].replace("-", "")
     manage.write("  " + versionResourceName + ":\n")
@@ -237,12 +245,26 @@ def lambda_handler(event, context):
                      .replace("${ReplaceVersion}", event["version"])
                      )
     manage.write("\n")
+    apiCfnS3Path = resourcePathPrefix +  event["multistage"]["prefix"] + "/" + \
+                   event["multistage"]["functionName"] + "/api/" + runtime + "/cfn.yaml"
+    apiResourceName = runtime.upper() + apiGateWayArgs["LmdName"].upper() + "RESOURCE"
+    manage.write("  " + apiResourceName + ":\n")
+    for line in f3.readlines():
+        manage.write(line.replace("${ReplaceApiBucket}", apiTemplateS3Key)
+                     .replace("${ReplaceApiPath}", apiCfnS3Path)
+                     )
+    manage.write("\n")
     manage.close()
+    f3.close()
     f2.close()
     f1.close()
 
     # 5 将 api 相关信息写入到 manage中
 
+    apiManagelocalPath = apiManageLocalPathPrefix + event["multistage"]["functionName"] + "/api/" + runtime + apiManageLocalPathSuffix
+    print(apiManagelocalPath)
+    dealApiManagelocalPath = apiManageLocalPathPrefix + event["multistage"]["functionName"] + "/api/" + runtime + dealApiManageLocalPathSuffix
+    download_s3_file(apiTemplateS3Key, apiManageTemplateS3Path, apiManagelocalPath)
     pathParts = []
     resources = apiGateWayArgs["resources"]
     resource_id_map = {}
@@ -258,16 +280,15 @@ def lambda_handler(event, context):
 
     print(resource_id_map)
     for resourceName, resourceValue in resource_id_map.items():
-        write_api_resource(apiGateWayArgs, event["version"], runtime, mangeLocalPath, resource_id_map,
+        write_api_resource(apiGateWayArgs, event["version"], runtime, apiManagelocalPath, resource_id_map,
                            resourceName, resourceValue)
 
     # 6 处理manage文件
-    os.system("touch " + dealMangeLocalPath)
     m = open(mangeLocalPath, "a+")
     m.write("Transform: AWS::Serverless-2016-10-31")
     m.close()
-    ff = open(mangeLocalPath, "r+")
-    ff2 = open(dealMangeLocalPath, "r+")
+    ff = open(apiManagelocalPath, "r+")
+    ff2 = open(dealApiManagelocalPath,  "a+")
     for line in ff.readlines():
         if "method.response.header.Access-Control-Allow-Headers: Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token" in line:
             line = "            \"method.response.header.Access-Control-Allow-Headers\": \"\'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token\'\"\n"
@@ -287,8 +308,14 @@ def lambda_handler(event, context):
     upload_s3_file(
         bucket_name=manageTemplateS3Key,
         object_name=resourcePathPrefix + event["multistage"]["prefix"] + "/" +
+                    event["multistage"]["functionName"] + "/api/" + runtime + "/cfn.yaml",
+        file=dealApiManagelocalPath
+    )
+    upload_s3_file(
+        bucket_name=manageTemplateS3Key,
+        object_name=resourcePathPrefix + event["multistage"]["prefix"] + "/" +
                     event["multistage"]["functionName"] + "/manage.yaml",
-        file=dealMangeLocalPath
+        file=mangeLocalPath
     )
     manageUrl = manageUrlPrefix + event["multistage"]["prefix"] + "/" + event["multistage"]["functionName"] + "/manage.yaml"
     print(manageUrl)

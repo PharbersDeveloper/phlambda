@@ -107,7 +107,13 @@ def lambda_handler(event, context):
         Result = handleResultData(ResultData)
         print("*"*50 + "Result" + "*"*50)
         print(Result)
-        SendEmail(Result)
+
+        #---- 查scenario_report获取 接受邮箱地址 ---------#
+        #TODO 1,这里有个问题，reportId入参没有提供，看后续是否加入or通过建立索引通过traceId查找 2， 在接收邮箱获取不到时是否需要采用默认邮箱来确认
+        reportItem = query_item_of_dyTable('scenario_report', **{'scenarioId': event.get('scenarioId'), 'id': event.get('stepId')})[0] #暂且假定每次只有一个接受邮箱
+        ToNickName = "Hello, Stranger!"  #接受邮箱昵称
+        ToEmail = ChangeStrToDict(reportItem["detail"])["destination"]
+        SendEmail(Result, ToNickName, ToEmail)
 
     except Exception as e:
         print("*"*50 + "Error" + "*"*50)

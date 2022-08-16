@@ -90,8 +90,12 @@ def check_parameter(event):
     # 2. action 必须存在cat 必须是 scenarioTrigger
     if not event.get("action"):
         raise Exception('action must exist')
+
     if not event["action"].get("cat") == "changeResourcePosition":
         raise Exception('action.cat must be changeResourcePosition')
+
+    if not event.get("step") and not isinstance(event.get("step"), dict):
+        raise Exception('step error')
 
     # 3. datasets 中的 old["name"] 必须在dag中查询到
     # 3. datasets 中的 new["name"] 必须在dag中查询到
@@ -118,6 +122,7 @@ def check_parameter(event):
     dagconf_item = get_dag_conf_item_from_dynamodb(event["script"]["old"]["id"], event["common"]["projectId"])
     if len(dagconf_item) == 0:
         raise Exception('script item must exist')
+
 
     return True
 

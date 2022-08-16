@@ -547,6 +547,11 @@
                 "status": "failed"
             },
             "End": true
+        },
+        "FailState": {
+            "Type": "Fail",
+            "Cause.$": "$.error",
+            "Error.$": "$.error"
         }
     }
 }

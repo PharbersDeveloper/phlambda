@@ -15,6 +15,7 @@ class RollBack:
         self.scenario = event['scenario']
         self.trigger = event['triggers']
         self.step = event['steps']
+        self.reports = event['reports']
         self.errorMessage = {}
         print("*"*50+"event"+"*"*50)
         print(self.event)
@@ -93,6 +94,19 @@ class RollBack:
         }
         return step_Item
 
+    def get_reportItem(self, OldImage):
+        step_Item = {
+            'scenarioId': OldImage["scenarioId"],
+            'id': OldImage['id'],
+            'detail': OldImage['detail'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
+            'mode': OldImage['mode'],
+            'name': OldImage['name'],
+            'traceId': self.get_traceId()
+        }
+        return step_Item
+
+
     def put_item(self, tableName, Item):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table(tableName)
@@ -105,9 +119,11 @@ class RollBack:
         tableMap = {
             "scenario": self.get_scenarioItem,
             "scenario_trigger": self.get_triggerItem,
-            "scenario_step": self.get_stepItem
+            "scenario_step": self.get_stepItem,
+            "scenario_report": self.get_reportItem
         }
         return tableMap[tableName](OldImage)
+
     def NotNeedRollBack(self):
         print("not need RollBack...")
         pass
@@ -172,6 +188,21 @@ class RollBack:
             else:
                 return self.map_handle_mode(RollBackMode)()
 
+    def ReportsRollBack(self):
+        countNum = 0
+        for report in self.reports:
+            reportId = report["id"]
+            EachReportScenarioId = report["scenarioId"]
+            RollBackMode = self.check_OldImage(self.reports)
+            print(f"Mode: {RollBackMode}")
+            self.errorMessage['scenario_report_' + f"{str(countNum+1)}"] = f"error handle mode: {RollBackMode}"
+            if RollBackMode == "Delete":
+                return self.map_handle_mode(RollBackMode)("scenario_report", "scenarioId", "id", EachReportScenarioId, reportId)
+            elif RollBackMode == "RollBack":
+                return self.map_handle_mode(RollBackMode)(report, "scenario_report")
+            else:
+                return self.map_handle_mode(RollBackMode)()
+
 
     def del_table_item(self, tableName, partitionKey, sortKey, partitionValue, sortValue):
             dynamodb = boto3.resource('dynamodb')
@@ -188,12 +219,15 @@ class RollBack:
                 "cnotification": {"data": {"datasets": []}, "error": self.errorMessage}}
 
 def lambda_handler(event, context):
+
     try:
         #-------------------回滚操作-----------------------------------#
         rollBackClient = RollBack(event)
         rollBackClient.scenarioRollBack()
         rollBackClient.triggerRollBack()
         rollBackClient.stepsRollBack()
+        rollBackClient.ReportsRollBack()
+
         return rollBackClient.fetch_result()
     except Exception as e:
         print(f'UNKnonw ERROR: {str(e)}')

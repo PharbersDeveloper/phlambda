@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger
-          EDITION: "DEV"
+          EDITION: replaceEdition
       FunctionName: phscenarioexecutiontrigger
       Description: phscenarioexecutiontrigger
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

@@ -8,10 +8,13 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
-      FunctionName: phmapscenarioerror
-      Description: 转换error 所需要的参数返回给Notification使用
-      Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
+      FunctionName: phresourcechangeposupdatestep
       MemorySize: 1024
-      Timeout: 600
+      Description: "phresourcechangeposupdatestep"
+      Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Layers:
-        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PHErrorLayer:6
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PHErrorLayer:4
+      Environment:
+        Variables:
+          EDITION: "DEV"
+

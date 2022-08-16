@@ -105,6 +105,27 @@
                      "End": true
                   }
                }
+            },
+            {
+               "StartAt": "NewStepIndex",
+               "States": {
+                  "NewStepIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcechangeposupdatestep",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "datasets.$": "$.datasets",
+                        "script.$": "$.script",
+                        "step.$": "$.step"
+                     },
+                     "ResultPath": "$.stepItems",
+                     "End": true
+                  }
+               }
             }
          ],
          "Catch": [

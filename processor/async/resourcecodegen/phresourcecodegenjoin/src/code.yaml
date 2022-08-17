@@ -194,11 +194,11 @@ code:
           job_id = "$job_id"
 
           dag_conf = get_ds_with_index(project_id, job_id)
+          
+          dag_conf_prop = json.loads(dag_conf["prop"])
 
-          if len(dag_conf["prop"]) > 0:
-              join_args = code_free(join_args, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
-              logger.debug("Alex Join Args Logs ===>")
-              logger.debug(join_args)
+          if dag_conf_prop:
+              join_args = code_free(join_args, dag_conf_prop, kwargs.get("codeFree", {}))
 
           preFilters = join_args["preFilters"]
           preJoinComputedColumns = join_args["preJoinComputedColumns"]

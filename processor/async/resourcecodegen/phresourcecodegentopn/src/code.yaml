@@ -148,8 +148,9 @@ code:
           dag_conf = get_ds_with_index(project_id, job_id)
 
           if args:
-              if len(dag_conf["prop"]) > 0:
-                  args = code_free(args, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+              dag_conf_prop = json.loads(dag_conf["prop"])
+              if dag_conf_prop:
+                  args = code_free(args, dag_conf_prop, kwargs.get("codeFree", {}))
 
               data_frame = pre_filter(data_frame, args["preFilter"])
               data_frame = computed_columns(data_frame, args["computedColumns"])

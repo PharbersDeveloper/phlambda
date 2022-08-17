@@ -61,7 +61,8 @@ def lambda_handler(event, context):
         "inputs": event["script"]["inputs"],
         "join_args": event["steps"][0]["expressions"]["params"],
         "project_id": event["projectId"],
-        "job_id": event["steps"][0]["id"].split("_")[-1]
+        "job_id": event["steps"][0]["id"].split("_")[-1],
+        "code_free_placeholder": "$"
     }
     name = f"{event['projectName']}_{event['dagName']}_{event['flowVersion']}"
     job_full_name = f"""{name}_{event["script"]["jobName"]}"""

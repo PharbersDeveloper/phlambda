@@ -38,10 +38,7 @@ def SearchErrorType(error):
     if len(keys) == 0:
         return None
     else:
-        cause = list(filter(lambda x: FindErrorCause(error[x]) is not False, keys))
-        cause = list(map(lambda x: FindErrorCause(ChangeStrToDict(error[x])), cause))
-        if len(cause) == 0:
-            return None
+        cause = list(map(lambda x: ChangeStrToDict(error[x]), keys))
         return cause
 
 def MapErrorType(cause):
@@ -49,11 +46,20 @@ def MapErrorType(cause):
     if cause is None:
         tmp = serialization(Errors)
     else:
-        #--- 错误详情，用于解析映射用 -----#
-        #ErrorKeys = list(*map(lambda x: list(x.keys()), cause))
-        if "KeyError" in cause:
+        #1 错误类型
+        errorTypes = list(map(lambda x: x.get("errorType"), cause))
+        #----解析参数类型--------#
+        if "KeyError" in errorTypes:
             tmp = serialization(ParameterError)
-        #TODO 后续出现新的错误类型再添加
+        #--- 解析主动抛出的异常内容-----#
+        elif "Exception" in errorTypes:
+            Errordetails = list(map(lambda x: x.get("errorMessage"), cause))
+            print("解析错误内容")
+            #TODO 后续类型增多后再采用表驱动的形式来匹配，去掉if else
+            if "scenario name already exist" in Errordetails:
+                tmp = serialization(ScenarioNameDuplicateError)
+            else:
+                tmp = serialization(Errors)
         else:
             tmp = serialization(Errors)
     return tmp
@@ -88,11 +94,3 @@ def lambda_handler(event, context):
     print(result)
 
     return result
-
-
-#-- 本地测试用 --#
-if __name__ == '__main__':
-
-    event = {'traceId': '569abb059b0940a68f21f3erw24b060df77', 'owner': '35cca7e1-45d9-4a6e-80f6-09e5417feb33', 'showName': '朗轩齐', 'scenario': {'id': 'ggjpDje0HUC2JW_5c689d48746846958cb62582a3f46qwer083', 'active': True, 'scenarioName': '00000', 'deletion': False}, 'projectName': 'demo', 'triggers': [], 'error': {'Error': 'KeyError', 'Cause': '{"errorMessage": "\'index\'", "errorType": "KeyError", "stackTrace": ["  File \\"/var/task/main.py\\", line 119, in lambda_handler\\n    scenarioClient.put_item()\\n", "  File \\"/var/task/main.py\\", line 71, in put_item\\n    \'index\': self.turn_decimal_into_int(self.get_index()),\\n", "  File \\"/var/task/main.py\\", line 42, in get_index\\n    return self.scenario[\'index\']\\n"]}'}, 'projectId': 'ggjpDje0HeqrewUC2JW', 'steps': []}
-    lambda_handler(event,"")
-

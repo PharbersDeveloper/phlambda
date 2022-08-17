@@ -7,66 +7,59 @@ class TestGenerateCode:
     def test_generate(self):
         event = {
             "traceId": "alex-traceid",
-            "tenantId": "zudIcG_17yj8CEUoCTHg",
-            "projectId": "4pzAo3zNFF-gIrUQw9t1",
-            "projectName": "Tutorial",
+            "projectId": "ggjpDje0HUC2JW",
+            "projectName": "demo",
             "flowVersion": "developer",
-            "dagName": "Tutorial",
+            "dagName": "demo",
             "owner": "5UBSLZvV0w9zh7-lZQap",
             "showName": "鹏钱",
             "script": {
-                "id": "",
-                "jobName": "compute_tpn",
+                "id": "y68cqkuoE2rESML",
+                "jobName": "compute_t2",
                 "jobPath": "",
                 "inputs": [
-                    "A"
+                    "水果"
                 ],
                 "outputs": [
-                    "tpn"
+                    "t2"
                 ],
                 "runtime": "topn"
             },
             "steps": [
                 {
-                    "pjName": "4pzAo3zNFF-gIrUQw9t1_Tutorial_Tutorial_developer_compute_tpn",
+                    "pjName": "ggjpDje0HUC2JW_demo_demo_developer_compute_t2",
                     "stepId": "1",
                     "ctype": "TopN",
                     "expressions": {
                         "type": "topn",
                         "code": "pyspark",
                         "params": {
-                            "firstRows": 1,
-                            "lastRows": 0,
+                            "firstRows": 18,
+                            "lastRows": 11,
                             "keys": [],
                             "preFilter": {
                                 "distinct": False,
                                 "enabled": True,
-                                "expression": "`姓名` like '%$name%' and `学号` like '%$student_number%'"
+                                "expression": "`名称` like '%$fruit%'"
                             },
                             "orders": [
                                 {
-                                    "column": "学号",
+                                    "column": "利润",
                                     "desc": False
                                 }
                             ],
-                            "denseRank": True,
-                            "duplicateCount": True,
-                            "rank": True,
-                            "rowNumber": True,
+                            "denseRank": False,
+                            "duplicateCount": False,
+                            "rank": False,
+                            "rowNumber": False,
                             "retrievedColumns": [],
-                            "computedColumns": [
-                                {
-                                    "expr": "`学号`+$name",
-                                    "name": "学号_2",
-                                    "type": "string"
-                                }
-                            ]
+                            "computedColumns": []
                         }
                     },
                     "expressionsValue": "JSON",
                     "groupIndex": 0,
                     "groupName": "",
-                    "id": "4pzAo3zNFF-gIrUQw9t1_07TdynDmipR5IxA",
+                    "id": "ggjpDje0HUC2JW_y68cqkuoE2rESML",
                     "index": "1",
                     "runtime": "topn",
                     "stepName": "topn"
@@ -76,19 +69,6 @@ class TestGenerateCode:
                 "required": True
             },
             "oldImage": [
-                {
-                    "index": "1",
-                    "ctype": "TopN",
-                    "expressions": "{\"type\": \"topn\", \"code\": \"pyspark\", \"params\": {\"firstRows\": 1, \"lastRows\": 0, \"keys\": [], \"preFilter\": {\"distinct\": false, \"enabled\": false, \"expression\": \"\"}, \"orders\": [{\"column\": \"学号\", \"desc\": false}], \"denseRank\": false, \"duplicateCount\": false, \"rank\": false, \"rowNumber\": false, \"retrievedColumns\": [], \"computedColumns\": []}}",
-                    "runtime": "topn",
-                    "groupName": "",
-                    "groupIndex": "0",
-                    "pjName": "4pzAo3zNFF-gIrUQw9t1_Tutorial_Tutorial_developer_compute_tpn",
-                    "id": "4pzAo3zNFF-gIrUQw9t1_07TdynDmipR5IxA",
-                    "expressionsValue": "JSON",
-                    "stepId": "1",
-                    "stepName": "topn"
-                }
             ],
             "ifsteps": 1
         }

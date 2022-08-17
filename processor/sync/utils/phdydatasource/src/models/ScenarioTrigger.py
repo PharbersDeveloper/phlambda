@@ -11,6 +11,7 @@ class ScenarioTrigger(Model):
         "detail": fields.Str(dump_default="unknown"),
         "mode": fields.Str(dump_default="unknown"),
         "resrouceArn": fields.Str(dump_default="unknown"),
-        "traceId": fields.Str(dump_default="unknown")
+        "traceId": fields.Str(dump_default="unknown"),
+        "name": fields.Str(dump_default="unknown")
     }
 

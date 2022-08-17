@@ -103,6 +103,12 @@ class ParameterError(Errors):
         "zh": "输入参数错误"
     }
 
+class ScenarioNameDuplicateError(Errors):
+    errorcode = -90
+    errormessage = {
+        "en": "Scenario Name Duplicate error",
+        "zh": "Scenario名重复"
+    }
 
 
 #---序列化错误信息----#

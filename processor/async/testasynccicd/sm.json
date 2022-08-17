@@ -1,0 +1,118 @@
+{
+   "Comment": "Pharbers Resource Scripts Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "ResultPath": null,
+         "Next": "ScriptsFilesCreation"
+      },
+      "ScriptsFilesCreation": {
+         "Type": "Choice",
+         "InputPath": "$",
+         "Choices": [
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "pyspark",
+               "Next": "PysparkFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "python",
+               "Next": "PythonFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "r",
+               "Next": "RFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "sparkr",
+               "Next": "SparkrFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "sync",
+               "Next": "SyncFiles"
+            }
+         ],
+         "Default": "PysparkFiles"
+      },
+      "SyncFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncc",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "PythonFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasynca",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "PysparkFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasynca",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "RFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncb",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "SparkrFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtestasyncb",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      }
+   }
+}

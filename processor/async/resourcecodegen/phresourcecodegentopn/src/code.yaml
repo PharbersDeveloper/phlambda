@@ -73,7 +73,7 @@ code:
 
           df = window_df(df, keys, order_rule)
           max_number = df.select("__max").head()[0] if df.count() > 0 else 0
-          if max_number[0] == 1:
+          if max_number == 1:
               return df.filter(f"__row_number > 0 and __row_number <= {first_rows + last_rows}")
 
           first_rows_df = df.filter(f"__row_number > 0 and __row_number <= {first_rows}")
@@ -126,14 +126,17 @@ code:
       def code_free(args, prop, user_conf):
           args_str = json.dumps(args, ensure_ascii=False)
 
-          def generate_data(key):
-              if key in user_conf:
-                  return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+          def generate_data(item):
+              name = f"$code_free_placeholder{item['name']}"
+              if name in user_conf:
+                  return {name: transform_type(item["type"].lower(), user_conf[name])}
               else:
-                  return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+                  return {name: transform_type(item["type"].lower(), item["default"])}
 
-          result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
-          return json.loads(Template(args_str).substitute(reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+          result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop)))
+          return json.loads(Template(args_str).substitute(
+                reduce(lambda p, n: {**p, **n},
+                       list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
 
 
       def execute(**kwargs):
@@ -145,8 +148,9 @@ code:
           dag_conf = get_ds_with_index(project_id, job_id)
 
           if args:
-              if len(dag_conf["prop"]) > 0:
-                  args = code_free(args, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+              dag_conf_prop = json.loads(dag_conf["prop"])
+              if dag_conf_prop:
+                  args = code_free(args, dag_conf_prop, kwargs.get("codeFree", {}))
 
               data_frame = pre_filter(data_frame, args["preFilter"])
               data_frame = computed_columns(data_frame, args["computedColumns"])

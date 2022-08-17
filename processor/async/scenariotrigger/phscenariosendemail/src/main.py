@@ -120,14 +120,14 @@ def lambda_handler(event, context):
         print(Result)
 
         #---- 查scenario_report获取 接受邮箱地址 ---------#
-        #reportItem = query_item_of_dyTable('scenario_report', **{'scenarioId': event.get('scenarioId')})
-        reportItmes = QueryAllItemsOfDyTable('scenario_report',"scenarioId", event.get("scenarioId"))
-
+        reportItmes = QueryAllItemsOfDyTable('scenario_report', "scenarioId", event.get("scenarioId"))
         report_emails = list(map(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
         #--- 去重 ----#
-        to_emails = list(set(report_emails)).sort(key=report_emails.index)
-        ToNickName = "Hello, Stranger!"  #接受邮箱昵称
-        SendEmail(Result, ToNickName, ToEmail)
+        to_emails = list(set(report_emails))
+        to_emails.sort(key=report_emails.index)
+        if len(list(to_emails)) != 0:
+            ToNickName = "Hello, Stranger!"  #接受邮箱昵称
+            SendEmail(Result, ToNickName, to_emails)
 
     except Exception as e:
         print("*"*50 + "Error" + "*"*50)

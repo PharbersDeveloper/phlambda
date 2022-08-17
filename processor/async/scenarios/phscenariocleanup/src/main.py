@@ -77,7 +77,8 @@ class RollBack:
             'detail': OldImage['detail'],
             'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],
-            'traceId': self.get_traceId()
+            'traceId': self.get_traceId(),
+            'name': OldImage['name']
         }
         return trigger_Item
 

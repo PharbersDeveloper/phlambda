@@ -26,3 +26,4 @@ def SendEmail(Result, ToNickName, ToEmail):
     except Exception as e:
         print("*"*50 + "ERROR" + "*"*50, str(e))
         print("邮件发送失败")
+

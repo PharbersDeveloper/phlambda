@@ -41,6 +41,17 @@ def get_Item_of_dyTable(tableName, IndexName, traceId):
 def ChangeStrToDict(data):
     return json.loads(data) if isinstance(data, str) else data
 
+def QueryAllItemsOfDyTable(tableName, partitionKey, ValueOfpartitionKey):
+
+    dynamodb = boto3.resource('dynamodb')
+    ds_table = dynamodb.Table(tableName)
+    res = ds_table.query(
+        KeyConditionExpression=Key(partitionKey).eq(ValueOfpartitionKey)
+    )
+
+    return res["Items"]
+
+
 def query_item_of_dyTable(tableName, **kwargs):
     dynamodb = boto3.resource('dynamodb')
     ds_table = dynamodb.Table(tableName)
@@ -109,10 +120,13 @@ def lambda_handler(event, context):
         print(Result)
 
         #---- 查scenario_report获取 接受邮箱地址 ---------#
-        #TODO 1,这里有个问题，reportId入参没有提供，看后续是否加入or通过建立索引通过traceId查找 2， 在接收邮箱获取不到时是否需要采用默认邮箱来确认
-        reportItem = query_item_of_dyTable('scenario_report', **{'scenarioId': event.get('scenarioId'), 'id': event.get('stepId')})[0] #暂且假定每次只有一个接受邮箱
+        #reportItem = query_item_of_dyTable('scenario_report', **{'scenarioId': event.get('scenarioId')})
+        reportItmes = QueryAllItemsOfDyTable('scenario_report',"scenarioId", event.get("scenarioId"))
+
+        report_emails = list(map(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
+        #--- 去重 ----#
+        to_emails = list(set(report_emails)).sort(key=report_emails.index)
         ToNickName = "Hello, Stranger!"  #接受邮箱昵称
-        ToEmail = ChangeStrToDict(reportItem["detail"])["destination"]
         SendEmail(Result, ToNickName, ToEmail)
 
     except Exception as e:

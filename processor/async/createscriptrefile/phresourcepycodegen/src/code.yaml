@@ -359,10 +359,10 @@ code:
 
       # 写最终输出的数据
       def write_output_df(ph_conf, output_version, ch_client,
-                          df, tenant_ip, project_id, table, output_id,
+                          df, tenant_ip, project_id, output_ds_name, output_id,
                           mode="append", number_partitions=2, database="default"):
-          table_name = "_".join(table.split("_")[1:])
-          path = f"{lake_prefix}{project_id}/{table_name}/"
+          table = f"{project_id}_{output_ds_name}"
+          path = f"{lake_prefix}{project_id}/{output_ds_name}/"
 
           # 将数据转为多级Schema存入S3
           convert_consistency_schema(df, get_df_schema2json(df)) \
@@ -419,7 +419,7 @@ code:
 
           ch_client.execute(sql_create_table)
 
-          write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, table_name,
+          write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
 

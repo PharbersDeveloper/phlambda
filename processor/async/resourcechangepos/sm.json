@@ -401,6 +401,7 @@
             "showName.$": "$.common.showName",
             "scriptItems.$": "$.metadata.scriptItems",
             "dagItems.$": "$.metadata.dagItems",
+            "stepItems.$": "$.metadata.stepItems",
             "errors.$": "$.error",
             "status": "failed"
          },

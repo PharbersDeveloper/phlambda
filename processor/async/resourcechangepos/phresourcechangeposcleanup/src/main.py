@@ -66,6 +66,22 @@ def update_dagconf_item(scriptItems):
         )
 
 
+def update_step_item(stepItem):
+
+    step_table = dynamodb.Table('step')
+    delete_item = stepItem["insertItems"]
+    step_table.delete_item(
+        Key={
+            "projectId": delete_item["projectId"],
+            "jobName": delete_item["jobName"]
+        }
+    )
+
+    res = step_table.put_item(
+        Item=stepItem["deleteItems"]
+    )
+
+
 def errors_adapter(error):
     error = json.loads(error)
     Command = {
@@ -99,7 +115,8 @@ def lambda_handler(event, context):
     if event.get("scriptItems"):
         update_dagconf_item(event["scriptItems"])
     # 删除s3上脚本路径上的文件
-
+    if event.get("stepItems"):
+        update_dagconf_item(event["stepItems"])
     # 创建失败的 notification message
     return {
         "type": "notification",

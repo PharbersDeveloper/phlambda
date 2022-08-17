@@ -51,6 +51,20 @@ class FetchTriggersAndStepsFromScenarioId:
         }
         return StepItem
 
+
+    def MakeEachReportItem(self, EachReportItem):
+        StepItem = {
+            "detail": self.ChangeStringToDict(EachReportItem["detail"]),
+            "index": self.ChangeDecimalToInt(EachReportItem["index"]),
+            "mode": EachReportItem["mode"],
+            "name": EachReportItem["name"],
+            "id": EachReportItem["id"],
+            "scenarioId": EachReportItem['scenarioId'],
+            "traceId": EachReportItem['traceId']
+        }
+        return StepItem
+
+
     def GetTriggersItemsFromScenarioId(self, ScenrioId):
 
         ItemsOfQuery = self.query_table_item("scenario_trigger", "scenarioId", ScenrioId)
@@ -69,6 +83,16 @@ class FetchTriggersAndStepsFromScenarioId:
             AllStepsItems.append(EachStepItem)
         return AllStepsItems
 
+    def GetReportsItemsFromScenarioId(self, ScenarioId):
+        ItemsOfQuery = self.query_table_item("scenario_report", "scenarioId", ScenarioId)
+        AllReportsItems = []
+        for Item in ItemsOfQuery:
+            EachReportItem = self.MakeEachReportItem(Item)
+            AllReportsItems.append(EachReportItem)
+        return AllReportsItems
+
+
+
     def MakeEachScenarioToDict(self, ScenarioId, Triggers, Steps):
         EachScenario = {
             "id": ScenarioId,
@@ -83,6 +107,7 @@ class FetchTriggersAndStepsFromScenarioId:
             EachScenrioId = EachScenrio["id"]
             EachScenrio["triggers"] = self.GetTriggersItemsFromScenarioId(EachScenrioId)
             EachScenrio["steps"] = self.GetStepsItemsFromScenarioId(EachScenrioId)
+            EachScenrio["reports"] = self.GetReportsItemsFromScenarioId(EachScenrioId)
 
         return self.scenario
 

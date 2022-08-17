@@ -107,7 +107,8 @@ def TraverseDelete(TraverseTables, Partitionkey, PartitionkeyValue):
             if table == "scenario":
                 for item in ItemsOfTable:
                     ScenarioId = item["id"]
-                    TraverseDelete(TraverseTables=['scenario_trigger', 'scenario_step','scenario_execution'], Partitionkey="scenarioId", PartitionkeyValue=ScenarioId)
+                    TraverseDelete(TraverseTables=['scenario_trigger', 'scenario_step', 'scenario_execution',
+                                                   'scenario_report'], Partitionkey="scenarioId", PartitionkeyValue=ScenarioId)
             #----- 基于scenario表的处理 --------------------#
 
             print(f"正在删除第{str(str(count))}张表数据: {table}, 还剩{str(sum_of_tables-count)}张表")

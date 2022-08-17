@@ -2,7 +2,7 @@ from marshmallow_jsonapi import fields
 from models.Model import Model
 
 
-class ScenarioStep(Model):
+class ScenarioReport(Model):
     type = "scenario-reports"
     attributes = {
         "scenarioId": fields.Str(required=True),

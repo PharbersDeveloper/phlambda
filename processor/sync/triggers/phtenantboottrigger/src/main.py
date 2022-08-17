@@ -156,10 +156,11 @@ def lambda_handler(event, context):
 
     try:
         trace_id = args["common"]["traceId"]
-        # state_machine_arn = os.environ["ARN"]
-        state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenantboot"
+        edition = "-" + os.getenv("EDITION")
+        state_machine_arn = os.environ["ARN"]
+        # state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenantboot"
         client = boto3.client("stepfunctions")
-        res = client.start_execution(stateMachineArn=state_machine_arn,
+        res = client.start_execution(stateMachineArn=state_machine_arn + edition,
                                      name=trace_id, input=json.dumps(args, ensure_ascii=False))
         run_arn = res["executionArn"]
         print("Started run %s. ARN is %s.", trace_id, run_arn)

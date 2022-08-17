@@ -13,7 +13,6 @@ def lambda_handler(event, context):
     }
     trace_id = ""
     edition = "-" + os.getenv("EDITION")
-    #edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
     try:
         trace_id = event["common"]["traceId"]
         state_machine_arn = os.environ["ARN"]

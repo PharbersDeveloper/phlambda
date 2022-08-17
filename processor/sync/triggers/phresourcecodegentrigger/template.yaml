@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcecodegen
-          EDITION: "release"
+          EDITION: replaceEdition
       FunctionName: phresourcecodegentrigger
       Description: Http Post接口触发StepFunctions更新低代码脚本与Step索引（ResuourceCodeGen）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

@@ -11,6 +11,10 @@ Resources:
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       FunctionName: phsampletrigger
+      Environment:
+        Variables:
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:sample
+          EDITION: replaceEdition
       Description: "触发脚本运行 Start Execution(Sample专用)"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024

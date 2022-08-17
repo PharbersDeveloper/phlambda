@@ -10,7 +10,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "DEV"
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:personalresstops
+          EDITION: replaceEdition
       FunctionName: phjupyterstoptrigger
       Description: "stop jupyter trigger"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

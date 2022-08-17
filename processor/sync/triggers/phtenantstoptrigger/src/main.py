@@ -94,7 +94,7 @@ def lambda_handler(event, context):
         "trace_id": ""
     }
     trace_id = ""
-    edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
+    edition = "-" + os.getenv("EDITION")
     # TODO: ... 缺判断当前这个是否已经启动 @ylzhang
 
     # 1. event to args
@@ -148,10 +148,10 @@ def lambda_handler(event, context):
 
     try:
         trace_id = args["common"]["traceId"]
-        # state_machine_arn = os.environ["ARN"]
-        state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenantstop"
+        state_machine_arn = os.environ["ARN"]
+        # state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenantstop"
         client = boto3.client("stepfunctions")
-        res = client.start_execution(stateMachineArn=state_machine_arn,
+        res = client.start_execution(stateMachineArn=state_machine_arn + edition,
                                      name=trace_id, input=json.dumps(args, ensure_ascii=False))
         run_arn = res["executionArn"]
         print("Started run %s. ARN is %s.", trace_id, run_arn)

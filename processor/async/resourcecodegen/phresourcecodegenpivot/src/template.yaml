@@ -169,9 +169,10 @@ template:
             g_pivot = $g_pivot$
             g_otherColumns = $g_otherColumns$
 
-            if len(dag_conf["prop"]) > 0:
-                g_preFilter = code_free(g_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
-                g_computedColumns = code_free(g_computedColumns, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+            dag_conf_prop = json.loads(dag_conf["prop"])
+            if dag_conf_prop:
+                g_preFilter = code_free(g_preFilter, dag_conf_prop, kwargs.get("codeFree", {}))
+                g_computedColumns = code_free(g_computedColumns, dag_conf_prop, kwargs.get("codeFree", {}))
 
             g_pivot_globalCount = g_pivot['globalCount']
             g_pivot_keyColumns = g_pivot['keyColumns']

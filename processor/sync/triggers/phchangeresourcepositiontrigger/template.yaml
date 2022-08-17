@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcechangepos
-          EDITION: "dev"
+          EDITION: replaceEdition
       FunctionName: phchangeresourcepositiontrigger
       Description: "运行修改脚本信息的sfn"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

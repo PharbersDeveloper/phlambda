@@ -76,6 +76,7 @@ class DelRollBack:
         self.scenario = event['scenario']
         self.triggers = event['triggers']
         self.steps = event['steps']
+        self.reports = event['reports']
 
     def get_projectId(self):
         return self.event['common']['projectId']
@@ -142,6 +143,19 @@ class DelRollBack:
         }
         return step_Item
 
+    def get_reportItem(self, OldImage):
+        step_Item = {
+            'scenarioId': OldImage["scenarioId"],
+            'id': OldImage['id'],
+            'detail': OldImage['detail'],
+            'index': self.turn_decimal_into_int(OldImage['index']),
+            'mode': OldImage['mode'],
+            'name': OldImage['name'],
+            'traceId': OldImage["traceId"]
+        }
+        return step_Item
+
+
     def query_table_item(self, tableName, **kwargs):
         QueryItem = dict(kwargs.items())
         dynamodb = boto3.resource('dynamodb')
@@ -159,7 +173,8 @@ class DelRollBack:
         tableMap = {
             "scenario": self.get_scenarioItem,
             "scenario_trigger": self.get_triggerItem,
-            "scenario_step": self.get_stepItem
+            "scenario_step": self.get_stepItem,
+            "scenario_report": self.get_reportItem
         }
         return tableMap[tableName](OldImage)
 
@@ -264,11 +279,36 @@ class DelRollBack:
             StepRollBackResult.append(eachRollBackMessage)
         return StepRollBackResult
 
-    def fetch_result(self, scenarioRollBackResult, triggerRollBackResult, StepRollBackResult):
+    def reportRollBack(self):
+
+        reportCountNum = 0
+        ReportRollBackResult = []
+        for report in self.reports:
+            eachRollBackMessage = {}
+            reportId = report["id"]
+            scenarioId = report["scenarioId"]
+            #-------- rollback message --------------------#
+            eachRollBackMessage["index"] = reportCountNum + 1
+            eachRollBackMessage["name"] = report["name"]
+            RollBackMode = self.check_OldImage(report)
+            eachRollBackMessage["mode"] = f" error handle mode: {RollBackMode}"
+            #-------- rollback message --------------------#
+
+            if RollBackMode == "RollBack":
+                self.RollBackProcess(report, "scenario_step", **{"scenarioId": scenarioId, "id": reportId})
+            else:
+                self.NotNeedRollBack()
+            ReportRollBackResult.append(eachRollBackMessage)
+        return ReportRollBackResult
+
+
+    def fetch_result(self, scenarioRollBackResult, triggerRollBackResult,
+                     StepRollBackResult, ReportRollBackResult):
         errorMessage = {
             "scenario": scenarioRollBackResult,
             "triggers": triggerRollBackResult,
-            "steps": StepRollBackResult
+            "steps": StepRollBackResult,
+            "report": ReportRollBackResult
         }
 
         return {"type": "notification", "opname": self.get_owner(),
@@ -283,7 +323,9 @@ def lambda_handler(event, context):
         scenarioRollBackResult = delClient.scenarioRollBack()
         triggerRollBackResult  = delClient.triggerRollBack()
         StepRollBackResult = delClient.stepRollBack()
-        return delClient.fetch_result(scenarioRollBackResult, triggerRollBackResult, StepRollBackResult)
+        ReportRollBackResult = delClient.reportRollBack()
+
+        return delClient.fetch_result(scenarioRollBackResult, triggerRollBackResult, StepRollBackResult, ReportRollBackResult)
     except Exception as e:
         try:
             opname = event["common"]["owner"]

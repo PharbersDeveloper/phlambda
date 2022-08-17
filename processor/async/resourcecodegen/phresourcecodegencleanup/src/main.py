@@ -66,8 +66,8 @@ class CleanUp:
             }
         )
 
-    def run(self, steps, oldImage, ifsteps, **kwargs):
-        if ifsteps:
+    def run(self, steps, oldImage, **kwargs):
+        if len(steps):
             for step in steps:
                 pjName = step.get("pjName")
                 stepId = step.get("stepId")

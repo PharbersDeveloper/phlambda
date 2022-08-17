@@ -521,8 +521,7 @@
                 "projectName.$": "$.common.projectName",
                 "steps.$": "$.steps",
                 "oldImage.$": "$.oldImage",
-                "errors.$": "$.error",
-                "ifsteps.$": "$.ifsteps"
+                "errors.$": "$.error"
             },
             "ResultPath": "$.message",
             "Next": "Failed"
@@ -550,9 +549,8 @@
         },
         "FailState": {
             "Type": "Fail",
-            "Cause.$": "$.error.Cause",
-            "Error.$": "$.error.Error",
-            "End": true
+            "Cause": "code error",
+            "Error": "code error"
         }
     }
 }

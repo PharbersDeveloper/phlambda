@@ -546,12 +546,13 @@
                 "message.$": "$.message",
                 "status": "failed"
             },
-            "End": true
+            "Next": "FailState"
         },
         "FailState": {
             "Type": "Fail",
-            "Cause.$": "$.error",
-            "Error.$": "$.error"
+            "Cause.$": "$.error.Cause",
+            "Error.$": "$.error.Error",
+            "End": true
         }
     }
 }

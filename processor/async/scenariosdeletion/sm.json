@@ -168,6 +168,26 @@
                      "End": true
                   }
                }
+            },
+            {
+               "StartAt": "ReportsIndex",
+               "States": {
+                  "ReportsIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phdelreportindex",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scenario.$": "$.scenario",
+                        "reports.$": "$.reports"
+                     },
+                     "ResultPath": "$.reports",
+                     "End": true
+                  }
+               }
             }
          ],
          "Catch": [

@@ -39,15 +39,17 @@ template:
         def code_free(args, prop, user_conf):
             args_str = json.dumps(args, ensure_ascii=False)
 
-            def generate_data(key):
-                if key in user_conf:
-                    return {key: transform_type(prop[key]["type"].lower(), user_conf[key])}
+            def generate_data(item):
+                name = f"${item['name']}"
+                if name in user_conf:
+                    return {name: transform_type(item["type"].lower(), user_conf[name])}
                 else:
-                    return {key: transform_type(prop[key]["type"].lower(), prop[key]["default"])}
+                    return {name: transform_type(item["type"].lower(), item["default"])}
 
-            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop.keys())))
+            result_data = reduce(lambda p, n: {**p, **n}, list(map(generate_data, prop)))
             return json.loads(Template(args_str).substitute(
-                reduce(lambda p, n: {**p, **n}, list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
+                reduce(lambda p, n: {**p, **n},
+                       list(map(lambda key: {key[1:]: result_data[key]}, result_data.keys())))))
 
 
         def execute(**kwargs):

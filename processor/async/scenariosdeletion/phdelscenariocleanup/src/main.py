@@ -145,6 +145,7 @@ class DelRollBack:
 
     def get_reportItem(self, OldImage):
         step_Item = {
+            "active": OldImage['active'],
             'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
             'detail': OldImage['detail'],

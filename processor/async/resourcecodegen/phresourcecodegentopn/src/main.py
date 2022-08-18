@@ -94,7 +94,8 @@ def lambda_handler(event, context):
         "input": event["script"]["inputs"][0],
         "topn_args": params,
         "project_id": project_id,
-        "job_id": job_id
+        "job_id": job_id,
+        "code_free_placeholder": "$"
     }
     name = f"{event['projectName']}_{event['dagName']}_{event['flowVersion']}"
     job_full_name = f"""{name}_{event["script"]["jobName"]}"""

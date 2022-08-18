@@ -45,7 +45,7 @@ class TriggersIndex:
     def get_projectId(self):
         return self.event['projectId']
 
-    def put_item(self, scenarioId, TriggerId, active, detail, index, mode, traceId):
+    def put_item(self, scenarioId, TriggerId, active, detail, index, mode, traceId, name):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_trigger')
         response = table.put_item(
@@ -56,7 +56,9 @@ class TriggersIndex:
                 'detail': self.dumps_data_by_json(detail),
                 'index': index,
                 'mode': mode,
-                'traceId': traceId
+                'traceId': traceId,
+                'name': name
+
             }
         )
         return response
@@ -92,7 +94,8 @@ class TriggersIndex:
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
                 "id": ItemDict['id'],
-                "scenarioId": ItemDict["scenarioId"]
+                "scenarioId": ItemDict["scenarioId"],
+                "name": ItemDict["name"]
             }
         else:
             OldImage = {}
@@ -171,11 +174,12 @@ class TriggersIndex:
             active = trigger["active"]
             index = trigger["index"]
             mode = trigger["mode"]
+            name = trigger["name"]
             #-------- get oldImage -------------------------#
             oldImage = self.get_OldImage(scenarioId, triggerId)
             trigger["OldImage"] = oldImage
             #-------- put Trigger item int dyDB-----------------#
-            self.put_item(scenarioId, triggerId, active, detail, index, mode, self.get_traceId())
+            self.put_item(scenarioId, triggerId, active, detail, index, mode, self.get_traceId(), name)
         return self.triggers
 
 def lambda_handler(event, context):

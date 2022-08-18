@@ -95,7 +95,8 @@
          "InputPath": "$",
          "ResultSelector": {
             "triggers.$": "$.[0].triggers",
-            "steps.$": "$.[1].steps"
+            "steps.$": "$.[1].steps",
+            "reports.$": "$.[2].reports"
          },
          "ResultPath": "$.result",
          "Next": "ConvertScenariosMessage",
@@ -152,6 +153,26 @@
                         "steps.$": "$.steps"
                      },
                      "ResultPath": "$.steps",
+                     "End": true
+                  }
+               }
+            },
+            {
+               "StartAt": "ReportIndex",
+               "States": {
+                  "ReportIndex": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phreportindex",
+                     "Parameters": {
+                        "traceId.$": "$.common.traceId",
+                        "projectId.$": "$.common.projectId",
+                        "projectName.$": "$.common.projectName",
+                        "owner.$": "$.common.owner",
+                        "showName.$": "$.common.showName",
+                        "scenario.$": "$.scenario",
+                        "reports.$": "$.reports"
+                     },
+                     "ResultPath": "$.reports",
                      "End": true
                   }
                }
@@ -235,7 +256,7 @@
             "scenario.$": "$.scenario",
             "triggers.$": "$.triggers",
             "steps.$": "$.steps",
-            "error.$":"$.error"
+            "error.$": "$.error"
          },
          "ResultPath": "$.MapError",
          "Next": "Failed"

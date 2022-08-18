@@ -15,6 +15,7 @@ from models.Log import Log
 from models.Dashboard import Dashboard
 from models.Slide import Slide
 from models.Scenario import Scenario
+from models.ScenarioReport import ScenarioReport
 from models.ScenarioStep import ScenarioStep
 from models.ScenarioTrigger import ScenarioTrigger
 from models.Resource import Resource
@@ -54,6 +55,7 @@ __table_structure = {
     "scenario": Scenario,
     "scenario_step": ScenarioStep,
     "scenario_trigger": ScenarioTrigger,
+    "scenario_report": ScenarioReport,
     "resource": Resource
 }
 

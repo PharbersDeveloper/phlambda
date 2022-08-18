@@ -68,9 +68,10 @@ template:
             args_rowNumber = $args_rowNumber$
             args_computedColumns = $args_computedColumns$
 
-            if len(dag_conf["prop"]) > 0:
-                args_preFilter = code_free(args_preFilter, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
-                args_computedColumns = code_free(args_computedColumns, json.loads(dag_conf["prop"]), kwargs.get("codeFree", {}))
+            dag_conf_prop = json.loads(dag_conf["prop"])
+            if dag_conf_prop:
+                args_preFilter = code_free(args_preFilter, dag_conf_prop, kwargs.get("codeFree", {}))
+                args_computedColumns = code_free(args_computedColumns, dag_conf_prop, kwargs.get("codeFree", {}))
 
             # preFilter
             if args_preFilter['enabled'] == True:

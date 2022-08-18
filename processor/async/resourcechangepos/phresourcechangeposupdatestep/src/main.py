@@ -13,25 +13,26 @@ def query_table(pjName, stepId):
     return response.get("Items")[0]
 
 
-def update_step_item(dagItems):
+def update_step_item(stepItem):
 
-    # for delete_item in dagItems["insertItems"]:
+    # for delete_item in stepItems["insertItems"]:
     table.delete_item(
         Key={
-            "projectId": dagItems["pjName"],
-            "sortVersion": dagItems["stepId"]
+            "pjName": stepItem["pjName"],
+            "stepId": stepItem["stepId"]
         }
     )
 
-    # for insert_item in dagItems["deleteItems"]:
+    # for insert_item in stepItems["deleteItems"]:
     res = table.put_item(
-        Item=dagItems
+        Item=stepItem
     )
 
 
 def lambda_handler(event, context):
     print(event)
-    deleteItems = query_table(event.get("pjName"), event.get("stepId"))
+    stepItem = event["step"]
+    deleteItems = query_table(stepItem.get("pjName"), stepItem.get("stepId"))
     update_step_item(event)
 
     return {

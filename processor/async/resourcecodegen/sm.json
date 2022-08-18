@@ -545,7 +545,16 @@
           "message.$": "$.message",
           "status": "failed"
         },
-        "End": true
-      }
+        "Next": "FailState"
+      },
+        "FailState": {
+            "Type": "Task",
+            "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phresourcecodegenfailstate" ,
+            "Parameters": {
+                "message.$": "$.message",
+                "errors.$": "$.error"
+            },
+            "End": true
+        }
     }
-  }
+}

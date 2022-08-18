@@ -78,7 +78,7 @@ class ReportIndex:
         else:
             return json.dumps(data)
 
-    def put_item(self, scenarioId, reportID,  detail, index, mode, name, traceId):
+    def put_item(self, scenarioId, reportID,  detail, index, mode, name, active, traceId):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('scenario_report')
         response = table.put_item(
@@ -89,6 +89,7 @@ class ReportIndex:
                 'index': index,
                 'mode': mode,
                 'name': name,
+                'active': active,
                 'traceId': traceId
             }
         )
@@ -113,6 +114,7 @@ class ReportIndex:
         if len(Items) != 0:
             ItemDict = Items[0]
             OldImage = {
+                "active": ItemDict['active'],
                 "detail": ItemDict['detail'],
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],
@@ -172,11 +174,12 @@ class ReportIndex:
             index = report["index"]
             mode = report["mode"]
             name = report["name"]
+            active = report["active"]
             #-------- get oldImage -------------------------#
             oldImage = self.get_OldImage(scenarioId, reportID)
             report["OldImage"] = oldImage
             #-------- put report item int dyDB-----------------#
-            self.put_item(scenarioId, reportID,  detail, index, mode, name, self.get_traceId())
+            self.put_item(scenarioId, reportID,  detail, index, mode, name, active, self.get_traceId())
         return self.reports
 
 

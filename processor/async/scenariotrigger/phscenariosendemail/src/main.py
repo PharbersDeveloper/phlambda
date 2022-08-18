@@ -121,7 +121,9 @@ def lambda_handler(event, context):
 
         #---- 查scenario_report获取 接受邮箱地址 ---------#
         reportItmes = QueryAllItemsOfDyTable('scenario_report', "scenarioId", event.get("scenarioId"))
-        report_emails = list(map(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
+        #----基于acrtive 对email 过滤 -------------------#
+        report_emails = [ChangeStrToDict(x.get("detail")).get("destination") for x in reportItmes if x.get("active") is True]
+        #report_emails = list(filter(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
         #--- 去重 ----#
         to_emails = list(set(report_emails))
         to_emails.sort(key=report_emails.index)

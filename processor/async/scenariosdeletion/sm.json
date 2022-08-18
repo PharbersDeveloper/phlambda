@@ -108,7 +108,8 @@
          "InputPath": "$",
          "ResultSelector": {
             "triggers.$": "$.[0].triggers",
-            "steps.$": "$.[1].steps"
+            "steps.$": "$.[1].steps",
+            "reports.$": "$.[2].reports"
          },
          "ResultPath": "$.result",
          "Next": "ScenarioDeletion",

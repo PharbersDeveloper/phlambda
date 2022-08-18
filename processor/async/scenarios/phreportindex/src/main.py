@@ -139,7 +139,7 @@ class ReportIndex:
 
     def GetNeedDeleteItems(self, scenarioId):
 
-        AllScenarioItems = self.QueryAllItemsOfScenario("scenario_step", "scenarioId", scenarioId)
+        AllScenarioItems = self.QueryAllItemsOfScenario("scenario_report", "scenarioId", scenarioId)
         AllScenarioKey = list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, AllScenarioItems))
         CurrentReports = list(map(lambda x: {"id": x["id"], "scenarioId": x["scenarioId"]}, self.reports))
         NeedDeleteKey = [x for x in AllScenarioKey if x not in CurrentReports]
@@ -161,7 +161,7 @@ class ReportIndex:
         )
 
 
-    def putStepItemIntoDyDB(self):
+    def putReportItemIntoDyDB(self):
         #-------更新当前item--------------------#
         self.DeleteNotNeedItems()
 
@@ -184,6 +184,6 @@ def lambda_handler(event, context):
 
     StepsClient = ReportIndex(event)
 
-    result = StepsClient.putStepItemIntoDyDB()
+    result = StepsClient.putReportItemIntoDyDB()
 
     return result

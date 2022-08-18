@@ -69,6 +69,7 @@ class CheckParameters:
         self.scenario = event['scenario']
         self.triggers = event['triggers']
         self.steps = event['steps']
+        self.reports = event['reports']
         self.check_dict = {
             "common": self.check_common,
             "action": self.check_action,
@@ -76,6 +77,7 @@ class CheckParameters:
             "scenario": self.check_scenario,
             "triggers": self.check_triggers,
             "steps": self.check_steps,
+            "reports": self.check_reports,
         }
 
     def get_prefix_key(self):
@@ -134,6 +136,13 @@ class CheckParameters:
             scenarioId = step["scenarioId"]
             self.check_DsData_Exists('scenario_step', **{"scenarioId": scenarioId, "id": stepId})
 
+    def check_reports(self, key):
+        self.check_type(key, list)
+        for report in self.reports:
+            reportId = report["id"]
+            scenarioId = report["scenarioId"]
+            self.check_DsData_Exists('scenario_step', **{"scenarioId": scenarioId, "id": reportId})
+
     def get_stackName(self, triggerId):
 
         return str("-".join(["scenario", self.get_projectId(), str(triggerId)])).replace("_", "")
@@ -183,8 +192,8 @@ class CheckParameters:
                 if len(DiffElement) == 0:
                     raise Exception("A key fields may be missing from: [scenario, triggers, steps]")
                 #-------- 字段同时存在检测 --------------------------------#
-                if any(["scenario" and "triggers" in DiffElement, "steps" in DiffElement]) is False:
-                    raise Exception(f"scenario,triggers or steps may be missing in {list(DiffElement)}")
+                if any(["scenario" and "triggers" in DiffElement, "steps" in DiffElement, "reports" in DiffElement]) is False:
+                    raise Exception(f"scenario,triggers or steps or reports may be missing in {list(DiffElement)}")
             #if len(DiffElement) > 1:
             else:
                 missBasicKey = " or ".join([x for x in common if x not in IntersectionElement])
@@ -202,11 +211,14 @@ class Check:
         _key_scenario = ['common', 'action', 'notification', 'scenario']
         _key_triggers = ['common', 'action', 'notification', 'triggers']
         _key_steps = ['common', 'action', 'notification', 'steps']
-        _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps']
+        _key_reports = ['common', 'action', 'notification', 'reports']
+        _key_all = ['common', 'action', 'notification', 'scenario', 'triggers', 'steps', 'reports']
         IntersectionElement = set(input_keys) & set(_key_all)      #--交集
         print((IntersectionElement))
         print(IntersectionElement == set(_key_steps))
-        if any((IntersectionElement == set(_key_scenario), IntersectionElement == set(_key_steps), IntersectionElement == set(_key_triggers), IntersectionElement == set(_key_all))):
+        if any((IntersectionElement == set(_key_scenario), IntersectionElement == set(_key_steps),
+                IntersectionElement == set(_key_triggers), IntersectionElement == set(_key_all),
+                IntersectionElement == set(_key_reports))):
             for key in input_keys:
                 if key in _key_all:
                     #----检查内层每个字段------#

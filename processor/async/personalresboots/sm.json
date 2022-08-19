@@ -147,7 +147,30 @@
         "expect": "CREATE_COMPLETE"
       },
       "ResultPath": "$.iterator",
-      "Next": "CodeeditorStepsCountReached"
+      "Next": "CodeeditorStepsCountReached",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.Runtime"
+          ],
+          "ResultPath": "$.error",
+          "Next": "CleanUp"
+        },
+        {
+          "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+          "ResultPath": "$.error",
+          "Next": "CleanUp"
+        },
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error",
+          "Next": "CleanUp"
+        }
+      ]
     },
     "CodeeditorStepsCountReached": {
       "Type": "Choice",
@@ -186,8 +209,8 @@
       "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-utilscfnlambdaoutputs-dev",
       "Parameters": {
         "result": {
-               "traceId.$": "$.common.traceId"
-            },
+          "traceId.$": "$.common.traceId"
+        },
         "resultPath": "codeeditor[]",
         "resultType.$": "$.currentStep.type",
         "name.$": "$.currentStep.stackName"
@@ -224,18 +247,18 @@
       "Next": "SSMRead"
     },
     "SSMTrace": {
-       "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
-         "Parameters": {
-            "action": "write",
-            "key.$": "States.Format('{}-{}-{}', $.currentStep.type, $.common.owner, $.resourceId)",
-            "value": {
-               "traceId.$": "$.common.traceId"
-            }
-         },
-         "ResultPath": null,
-         "Next": "CodeeditorCreation"
+      "Type": "Task",
+      "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
+      "Parameters": {
+        "action": "write",
+        "key.$": "States.Format('{}-{}-{}', $.currentStep.type, $.common.owner, $.resourceId)",
+        "value": {
+          "traceId.$": "$.common.traceId"
+        }
       },
+      "ResultPath": null,
+      "Next": "CodeeditorCreation"
+    },
     "Success": {
       "Type": "Task",
       "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
@@ -248,13 +271,15 @@
         "jobDesc.$": "$.action.desc",
         "comments.$": "$.action.comments",
         "message": {
-               "type": "notification",
-               "opname.$": "$.common.owner",
-               "cnotification": {
-                  "data": {"personalResBoots":"success"},
-                  "error": {}
-               }
+          "type": "notification",
+          "opname.$": "$.common.owner",
+          "cnotification": {
+            "data": {
+              "personalResBoots": "success"
             },
+            "error": {}
+          }
+        },
         "status": "started"
       },
       "End": true

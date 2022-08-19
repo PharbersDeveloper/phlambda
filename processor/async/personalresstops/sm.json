@@ -58,7 +58,7 @@
             "showName.$": "$.common.showName",
             "resourceId.$": "$.resourceId"
          },
-         "ResultPath": "$.iterator",
+         "ResultPath": "$.iterators",
          "Next": "WaitCodeeditorDeletion",
          "Catch": [
             {
@@ -93,7 +93,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phterminationresourcecheck",
          "Parameters": {
-            "stackNames.$": "$.iterator.stackNames"
+            "stackNames.$": "$.iterators.stackNames"
          },
          "ResultPath": "$.iterator",
          "Next": "CodeeditorDeletionReached"
@@ -141,26 +141,26 @@
                "type": "notification",
                "opname.$": "$.common.owner",
                "cnotification": {
-                  "data": {"personalResStops":"success"},
+                  "data": {
+                     "personalResStops": "success"
+                  },
                   "error": {}
                }
             },
             "status": "stopped"
          },
          "End": true
-
       },
       "SSMDelete": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsssmps-dev",
          "Parameters": {
             "action": "delete",
-            "key.$": "States.Format('{}-{}-{}', $.iterator.type, $.common.owner, $.resourceId)",
+            "key.$": "States.Format('{}-{}-{}', $.iterators.type, $.common.owner, $.resourceId)",
             "value": {}
          },
          "ResultPath": "$.resources",
          "Next": "Success"
-
       },
       "CleanUp": {
          "Type": "Task",

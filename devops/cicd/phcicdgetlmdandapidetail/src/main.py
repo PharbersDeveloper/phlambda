@@ -111,9 +111,12 @@ def lambda_handler(event, context):
     }
     lmdCounts = 1
 
+    stackName = event["trigger"]["functionName"] + "-apiresource"
+
     return {
         "lmdCounts": lmdCounts,
         "iterator": iterator,
         "lambdaArgs": lmd_args,
-        "apiGateWayArgs": api_args
+        "apiGateWayArgs": api_args,
+        "stackName": stackName
     }

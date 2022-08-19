@@ -132,10 +132,11 @@ def lambda_handler(event, context):
         "currentStatus": "running"
     }
     lmdCounts = 1
-
+    stackName = event["multistage"]["functionName"] + "-apiresource"
     return {
         "lmdCounts": lmdCounts,
         "iterator": iterator,
         "lambdaArgs": lmd_args,
-        "apiGateWayArgs": api_args
+        "apiGateWayArgs": api_args,
+        "stackName": stackName
     }

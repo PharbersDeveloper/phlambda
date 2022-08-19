@@ -94,6 +94,12 @@ def handleResultData(ResultData):
         ResultList.append(tmp)
     return ResultList
 
+def get_ScenarioId(BasicData):
+    try:
+        ScenarioId = (BasicData[0]).get("scenarioId")
+    except:
+        ScenarioId = None
+    return ScenarioId
 
 def lambda_handler(event, context):
 
@@ -109,6 +115,8 @@ def lambda_handler(event, context):
         print("*"*50 + "BasicInfo" + "*"*50)
         print(BasicInfo)
 
+
+
         #2. 通过runnerid 以及当前的 projectid 在 notification中找到 当前runnerid的运行结果
         DataOfNotification = list(map(lambda x: query_item_of_dyTable('notification', **{'id': x['runnerId'], 'projectId': event['projectId']}), DataOfExecution))
         print("*"*50 + "DataOfNotification" + "*"*50)
@@ -119,17 +127,22 @@ def lambda_handler(event, context):
         print("*"*50 + "Result" + "*"*50)
         print(Result)
 
-        #---- 查scenario_report获取 接受邮箱地址 ---------#
-        reportItmes = QueryAllItemsOfDyTable('scenario_report', "scenarioId", event.get("scenarioId"))
-        #----基于acrtive 对email 过滤 -------------------#
-        report_emails = [ChangeStrToDict(x.get("detail")).get("destination") for x in reportItmes if x.get("active") is True]
-        #report_emails = list(filter(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
-        #--- 去重 ----#
-        to_emails = list(set(report_emails))
-        to_emails.sort(key=report_emails.index)
-        if len(list(to_emails)) != 0:
-            ToNickName = "Hello, Stranger!"  #接受邮箱昵称
-            SendEmail(Result, ToNickName, to_emails)
+        ScenarioId =get_ScenarioId(BasicData=BasicInfo)
+        if ScenarioId is None:
+            print("scenarioId not exits!")
+            pass
+        else:
+            #---- 查scenario_report获取 接受邮箱地址 ---------#
+            reportItmes = QueryAllItemsOfDyTable('scenario_report', "scenarioId", ScenarioId)
+            #----基于acrtive 对email 过滤 -------------------#
+            report_emails = [ChangeStrToDict(x.get("detail")).get("destination") for x in reportItmes if x.get("active") is True]
+            #report_emails = list(filter(lambda x:  ChangeStrToDict(x.get("detail")).get("destination"), reportItmes))
+            #--- 去重 ----#
+            to_emails = list(set(report_emails))
+            to_emails.sort(key=report_emails.index)
+            if len(list(to_emails)) != 0:
+                ToNickName = "Hello, Stranger!"  #接受邮箱昵称
+                SendEmail(Result, ToNickName, to_emails)
 
     except Exception as e:
         print("*"*50 + "Error" + "*"*50)

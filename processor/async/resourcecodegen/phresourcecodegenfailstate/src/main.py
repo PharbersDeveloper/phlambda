@@ -49,42 +49,7 @@ args:
 '''
 
 
-class CleanUp:
-    dynamodb = boto3.resource("dynamodb", region_name="cn-northwest-1")
-    table = dynamodb.Table("step")
-
-    def put_item(self, item):
-        response = self.table.put_item(
-            Item=item
-        )
-
-    def del_item(self, pjName, stepId):
-        self.table.delete_item(
-            Key={
-                "pjName": pjName,
-                "stepId": stepId
-            }
-        )
-
-    def run(self, steps, oldImage, **kwargs):
-        if len(steps):
-            for step in steps:
-                pjName = step.get("pjName")
-                stepId = step.get("stepId")
-                self.del_item(pjName, stepId)
-            for step in oldImage:
-                self.put_item(step)
-
-
 def lambda_handler(event, context):
     errors = event.get("errors")
     print(event)
-    CleanUp().run(**event)
-    return {
-        "type": "notification",
-        "opname": event["owner"],
-        "cnotification": {
-            "data": {},
-            "error": errors
-        }
-    }
+    raise Exception(f"{errors}")

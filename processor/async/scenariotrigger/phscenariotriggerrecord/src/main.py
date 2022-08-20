@@ -77,9 +77,19 @@ def lambda_handler(event, context):
         )
     else:
         #----- execution 结束 -------#
-        item_of_execution['stopdate'] = math.floor(datetime.datetime.now().timestamp() * 1000),
+
         response = ds_table.put_item(
-            Item=item_of_execution
+            Item={
+                'scenarioId': item_of_execution['scenarioId'],
+                'runnerId': item_of_execution['runnerId'],
+                'date': item_of_execution['date'],
+                'runtime': item_of_execution['runtime'],
+                'owner': item_of_execution['owner'],
+                'reporter': item_of_execution['reporter'],
+                'traceId': item_of_execution['traceId'],
+                'stepId': item_of_execution['stepId'],
+                'stopdate': math.floor(datetime.datetime.now().timestamp() * 1000)
+            }
         )
 
     return True

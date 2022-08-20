@@ -10,7 +10,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation",
          "ResultPath": null,
          "Next": "Actions",
          "Catch": [
@@ -76,7 +76,7 @@
       },
       "ScenarioTriggerCalCount": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercalcount:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercalcount",
          "Parameters": {
             "projectId.$": "$.common.projectId",
             "scenarioId.$": "$.scenario.scenarioId"
@@ -86,7 +86,7 @@
       },
       "ScenarioTriggerGetDetail": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggergetdetail:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggergetdetail",
          "Parameters": {
             "iterator.$": "$.iterator",
             "scenarioItems.$": "$.metadata.scenarioItems"
@@ -96,7 +96,7 @@
       },
       "ScenarioTriggerArgsCreation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargscreation:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargscreation",
          "Parameters": {
             "projectId.$": "$.common.projectId",
             "tenantId.$": "$.common.tenantId",
@@ -111,7 +111,7 @@
       },
       "ScenarioTriggerStartRecord": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord",
          "Parameters": {
             "scenarioId.$": "$.scenario.scenarioId",
             "runnerId.$": "$.currentTriggerStep.common.runnerId",
@@ -137,7 +137,7 @@
       },
       "ScenarioTriggerStopRecord": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord",
          "Parameters": {
             "scenarioId.$": "$.scenario.scenarioId",
             "runnerId.$": "$.currentTriggerStep.common.runnerId",
@@ -152,7 +152,7 @@
       },
       "ScenarioTriggerStepCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerstepcheck:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerstepcheck",
          "Parameters": {
             "scenarioStep.$": "$.currentScenarioStep",
             "count.$": "$.metadata.count",
@@ -193,7 +193,7 @@
       },
       "SendEmail": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariosendemail:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariosendemail",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -208,7 +208,7 @@
       },
       "SuccessMessage": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggersuccessmessage:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggersuccessmessage",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
@@ -240,7 +240,7 @@
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup",
          "Parameters": {
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",

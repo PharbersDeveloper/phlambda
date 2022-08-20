@@ -14,19 +14,9 @@ template:
       - key: output
         Index: 5
     content: |-
-        from pyspark.sql.functions import col
-        from pyspark.sql.types import StructType, StringType
-
-        def choiceVersion(version, df):
-            if len(version) > 0:
-                df = df.where(col("version").isin(version))
-            return df
-    
         def execute(**kwargs):
-            spark = kwargs['spark']
             df = kwargs['df_$inputs$']
-            df = choiceVersion($version$, df)
-            return {"out_df":df}
+            return {"out_df": df}
             
   phmain.py:
     args:
@@ -179,8 +169,11 @@ template:
                 df = df.where(df["traceId"].isin(version))
             return df
 
-        def catalog_to_df(database, table):
-            return spark.sql(f"SELECT * FROM {database}.{table}")
+        def catalog_to_df(database, table, versions):
+            if len(versions) != 0:
+                return spark.sql(f"""SELECT * FROM {database}.{table} WHERE version IN ({','.join(list(map(lambda x: f"'{x}'", versions)))})""")
+            else:
+                return spark.sql(f"SELECT * FROM {database}.{table}")
 
         def create_df(input_ds, output_version, project_id, project_name, is_single_run, logger):
             cat = input_ds.get("cat")
@@ -212,7 +205,7 @@ template:
                 prop = input_ds.get("prop")
                 database = prop.get("databaseName")
                 table = prop.get("tableName")
-                return catalog_to_df(database, table)
+                return catalog_to_df(database, table, version)
 
             def load_input_index_df():
                 prop = input_ds.get("prop")

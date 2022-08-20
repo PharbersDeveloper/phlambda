@@ -240,8 +240,11 @@ code:
 
 
       # 读取Glue数据转为DF
-      def catalog_to_df(database, table):
-          return spark.sql(f"SELECT * FROM {database}.{table}")
+      def catalog_to_df(database, table, versions):
+          if len(versions) != 0:
+              return spark.sql(f"""SELECT * FROM {database}.{table} WHERE version IN ({','.join(list(map(lambda x: f"'{x}'", versions)))})""")
+          else:
+              return spark.sql(f"SELECT * FROM {database}.{table}")
 
 
       # 根据cat类型、path来生成DF实体

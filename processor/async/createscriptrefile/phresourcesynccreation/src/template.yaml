@@ -323,7 +323,7 @@ template:
                 table_name = "_".join(table.split("_")[1:])
                 path = f"{lake_prefix}{project_id}/{table_name}/"
                 consistency_df = convert_consistency_schema(df, get_df_schema2json(df))
-                consistency_df.repartition(numPartitions).write.format("parquet") \
+                consistency_df.write.format("parquet") \
                         .mode("append") \
                         .partitionBy("traceId") \
                         .save(path)

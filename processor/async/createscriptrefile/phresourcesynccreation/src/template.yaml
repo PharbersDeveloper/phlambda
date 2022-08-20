@@ -14,19 +14,9 @@ template:
       - key: output
         Index: 5
     content: |-
-        from pyspark.sql.functions import col
-        from pyspark.sql.types import StructType, StringType
-
-        def choiceVersion(version, df):
-            if len(version) > 0:
-                df = df.where(col("version").isin(version))
-            return df
-    
         def execute(**kwargs):
-            spark = kwargs['spark']
             df = kwargs['df_$inputs$']
-            df = choiceVersion($version$, df)
-            return {"out_df":df}
+            return {"out_df": df}
             
   phmain.py:
     args:
@@ -65,14 +55,6 @@ template:
             for k, v in default_config.items():
                 spark = spark.config(k, v)
             spark = spark.enableHiveSupport().getOrCreate()
-            access_key = os.getenv("AWS_ACCESS_KEY_ID")
-            secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-            if access_key is not None:
-                spark._jsc.hadoopConfiguration().set("fs.s3a.access.key", access_key)
-                spark._jsc.hadoopConfiguration().set("fs.s3a.secret.key", secret_key)
-                spark._jsc.hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true")
-                spark._jsc.hadoopConfiguration().set("fs.s3a.impl","org.apache.hadoop.fs.s3a.S3AFileSystem")
-                spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.cn-northwest-1.amazonaws.com.cn")
             return spark
 
         # 获取Spark实例
@@ -187,8 +169,11 @@ template:
                 df = df.where(df["traceId"].isin(version))
             return df
 
-        def catalog_to_df(database, table):
-            return spark.sql(f"SELECT * FROM {database}.{table}")
+        def catalog_to_df(database, table, versions):
+            if len(versions) != 0:
+                return spark.sql(f"""SELECT * FROM {database}.{table} WHERE version IN ({','.join(list(map(lambda x: f"'{x}'", versions)))})""")
+            else:
+                return spark.sql(f"SELECT * FROM {database}.{table}")
 
         def create_df(input_ds, output_version, project_id, project_name, is_single_run, logger):
             cat = input_ds.get("cat")
@@ -220,7 +205,7 @@ template:
                 prop = input_ds.get("prop")
                 database = prop.get("databaseName")
                 table = prop.get("tableName")
-                return catalog_to_df(database, table)
+                return catalog_to_df(database, table, version)
 
             def load_input_index_df():
                 prop = input_ds.get("prop")
@@ -326,12 +311,12 @@ template:
                 sample_df = sample_df.limit(int(df_count) * 10000)
             return sample_df
 
-        def df_out(ph_conf, output_version, ch_client, df, project_ip, project_id,    table, output_id, mode="append", numPartitions = 2, database='default'):
+        def df_out(ph_conf, output_version, ch_client, df, project_ip, project_id, table, output_id, mode="append", numPartitions = 2, database='default'):
                 # 写入s3
                 table_name = "_".join(table.split("_")[1:])
                 path = f"{lake_prefix}{project_id}/{table_name}/"
                 consistency_df = convert_consistency_schema(df, get_df_schema2json(df))
-                consistency_df.repartition(numPartitions).write.format("parquet") \
+                consistency_df.write.format("parquet") \
                         .mode("append") \
                         .partitionBy("traceId") \
                         .save(path)
@@ -352,7 +337,6 @@ template:
                         .option("password", "") \
                         .option("batchsize", 1000) \
                         .option("socket_timeout", 300000) \
-                        .option("numPartitions", numPartitions) \
                         .option("rewrtieBatchedStatements", True) \
                         .save()
 

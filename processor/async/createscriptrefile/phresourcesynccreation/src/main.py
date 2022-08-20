@@ -54,7 +54,6 @@ def lambda_handler(event, context):
     output = args['script']['output']
     inputs = args['script']['inputs']
     inputs = json.loads(inputs)[0]
-    version = args['script']['version']
     flowVersion = args['script']['flowVersion']
     projectName = args['projectName']
     args_scripts = args['script']
@@ -66,8 +65,7 @@ def lambda_handler(event, context):
 
     # 获取phjob.py 模板
     phjob_script = template_yaml['template']['phjob.py']['content'] \
-                        .replace("$inputs$", str(inputs)) \
-                        .replace("$version$", str(version))
+                        .replace("$inputs$", str(inputs))
 
     # 获取phmain.py 模板
     phmain_script = template_yaml['template']['phmain.py']['content'] \

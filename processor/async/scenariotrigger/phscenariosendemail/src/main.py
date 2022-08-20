@@ -81,16 +81,15 @@ def time_transformate(timestamp):
 
 def handleResultData(ResultData):
 
-    ctime = time.time()*1000
     ResultList = []
     for result in ResultData:
         tmp = {}
         tmp['BasicInfo'] = ChangeStrToDict(result[-1]['detail'])
         tmp['stepIndex'] = turn_decimal_into_int(result[-1]['index'])
         tmp['startTime'] = time_transformate(result[0]['date'])
-        tmp['endTime'] = time_transformate(ctime)
+        tmp['endTime'] = time_transformate(result[0]['stopdate'])
         tmp['status'] = result[1]['status']
-        tmp['Error'] = ChangeStrToDict(ChangeStrToDict(result[1]['message'])['cnotification']['error']) if result[1]['status'] == 'failed' else ''
+        tmp['Error'] = ChangeStrToDict(ChangeStrToDict(result[1]['message'])['cnotification']['error']) if result[1]['status'] == 'failed' else ' '
         ResultList.append(tmp)
     return ResultList
 

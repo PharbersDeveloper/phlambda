@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:resourcecreation
-          EDITION: "release"
+          EDITION: replaceEdition
       FunctionName: phresourcecreationtrigger
       Description: Http Post接口触发StepFunctions创建资源（ResuourceCreation）
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

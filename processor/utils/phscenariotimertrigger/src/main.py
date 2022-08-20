@@ -109,7 +109,7 @@ def lambda_handler(event, context):
                 }
 
                 trace_id = args["common"]["traceId"]
-                state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger"
+                state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger-release"
                 client = boto3.client("stepfunctions")
                 res = client.start_execution(stateMachineArn=state_machine_arn,
                                              name=trace_id, input=json.dumps(args, ensure_ascii=False))

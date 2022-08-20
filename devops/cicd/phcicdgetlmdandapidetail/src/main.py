@@ -76,7 +76,8 @@ def create_lmd_args(event):
             "GitUrl": git_url,
             "BranchName": event["trigger"]["branch"],
             "RepoName": event["trigger"]["repo"],
-            "Version": event["version"]
+            "Version": event["version"],
+            "Runtime": event["runtime"]
         }
     }
     return lmd_args
@@ -110,9 +111,12 @@ def lambda_handler(event, context):
     }
     lmdCounts = 1
 
+    stackName = event["trigger"]["functionName"] + "-apiresource"
+
     return {
         "lmdCounts": lmdCounts,
         "iterator": iterator,
         "lambdaArgs": lmd_args,
-        "apiGateWayArgs": api_args
+        "apiGateWayArgs": api_args,
+        "stackName": stackName
     }

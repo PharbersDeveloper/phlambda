@@ -109,14 +109,14 @@ def write_api_resource(apiGateWayArgs, version, runtime, mangeLocalPath):
             apiTemplateS3PathPrefix + "api" + method.upper() + "Resource.yaml",
             apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml")
         f1 = open(apiResourceLocalPathPrefix + apiGateWayArgs["LmdName"] + "/api" + method.upper() + "Resource.yaml", "r")
-        f2.write("  " + runtime.upper() + version.replace("-", "").upper() + method.upper() + "METHOD:\n")
+        f2.write("  " + runtime.upper() + method.upper() + "METHOD:\n")
         for line in f1.readlines():
             f2.write(line.replace("${RestApiId}", apiGateWayArgs["RestApiId"])
                      .replace("${PathPart}", apiGateWayArgs["PathPart"])
                      .replace("${ParentId}", apiGateWayArgs["ParentId"])
                      .replace("${ReplaceLmdName}", apiGateWayArgs["LmdName"] + ":" + version)
                      .replace("${AuthorizerId}", apiGateWayArgs["AuthorizerId"])
-                     .replace("${ReplaceResource}", runtime.upper() + version.replace("-", "").upper() +"INITMETHOD")
+                     .replace("${ReplaceResource}", runtime.upper() +"INITMETHOD")
                      )
         f1.close()
     f2.close()
@@ -153,6 +153,11 @@ def lambda_handler(event, context):
         manage_result["Resources"] = {}
     if manage_result.get("Transform"):
         del manage_result["Transform"]
+    # 判断Resource 下以Runtime开头的 如果相同直接删除
+    manage_result_resources = list(manage_result["Resources"].keys())
+    for resourceName in manage_result_resources:
+        if resourceName.startswith(runtime.upper()):
+            del manage_result["Resources"][resourceName]
     # print(manage_result)
 
     # 3 下载function的package.yaml文件 resourcePathPrefix + functionPath + "/package/package.yaml"

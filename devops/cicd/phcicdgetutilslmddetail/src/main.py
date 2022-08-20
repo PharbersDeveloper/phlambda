@@ -80,9 +80,11 @@ def lambda_handler(event, context):
         "currentStatus": "running"
     }
     lmdCounts = 1
+    stackName = event["utils"]["functionName"] + "-utilsresource"
 
     return {
         "lmdCounts": lmdCounts,
         "iterator": iterator,
-        "lambdaArgs": lmd_args
+        "lambdaArgs": lmd_args,
+        "stackName": stackName
     }

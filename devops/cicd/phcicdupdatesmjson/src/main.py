@@ -72,7 +72,8 @@ def upload_s3_file(bucket, key, file_path):
 
 
 def replace_file(resource, target):
-    os.system(f"sed -i s#{resource}#{target}# '/tmp/sm.json'")
+    print(f"sed -i s#{resource}\"#{target}\"# '/tmp/sm.json'")
+    os.system(f"sed -i s#{resource}\\\"#{target}\\\"# '/tmp/sm.json'")
 
 
 def lambda_handler(event, context):
@@ -95,6 +96,10 @@ def lambda_handler(event, context):
     # 修改sm.json的内容
     for lmd, version in sm_value.items():
         replace_file(lmd, lmd + ":" + version)
+
+    stateMachines = get_dict_ssm_parameter("statemachine")
+    for statemachine in stateMachines:
+        replace_file(statemachine, statemachine + "-" + event["runtime"])
 
     # 上传sm.json
     upload_s3_file(event["smJsonPathBucket"], event["smJsonPathKey"].replace("sm.json", "modify_sm.json"), "/tmp/sm.json")

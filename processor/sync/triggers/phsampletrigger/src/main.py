@@ -38,10 +38,11 @@ def lambda_handler(event, context):
 
     print(event)
     if not dryRun:
-        state_machine_arn = f"arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:sample"
+        state_machine_arn = os.environ["ARN"]
+        edition = "-" + os.getenv("EDITION")
         run_name = event['common']['runnerId'].replace("_", "-").replace(":", "-").replace("+", "-")
         client = boto3.client('stepfunctions')
-        res = client.start_execution(stateMachineArn=state_machine_arn, name=run_name, input=json.dumps(event))
+        res = client.start_execution(stateMachineArn=state_machine_arn + edition, name=run_name, input=json.dumps(event))
         run_arn = res['executionArn']
         print("Started run %s. ARN is %s.", run_name, run_arn)
 

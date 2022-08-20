@@ -141,14 +141,15 @@
                "type": "notification",
                "opname.$": "$.common.owner",
                "cnotification": {
-                  "data": {"personalResStops":"success"},
+                  "data": {
+                     "personalResStops": "success"
+                  },
                   "error": {}
                }
             },
             "status": "stopped"
          },
          "End": true
-
       },
       "SSMDelete": {
          "Type": "Task",
@@ -160,7 +161,6 @@
          },
          "ResultPath": "$.resources",
          "Next": "Success"
-
       },
       "CleanUp": {
          "Type": "Task",

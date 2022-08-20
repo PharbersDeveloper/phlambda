@@ -12,4 +12,8 @@ Resources:
       Description: "停止集群"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
+      Environment:
+        Variables:
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:tenantstop
+          EDITION: replaceEdition
       Timeout: 600

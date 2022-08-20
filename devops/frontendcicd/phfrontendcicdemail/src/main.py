@@ -51,10 +51,15 @@ def send_email(address, subject, content, receiver, attach_files=None, content_t
 
 def lambda_handler(event, context):  # 主函数入口
 
+    components = event["components"]
+    l1 = []
+    for component in components:
+        l1.append(component["prefix"].split("/")[-1])
+
     if event["status"] == "success":
-        content = "本次CICD发布成功，部署名字为: " + event["executionName"]
+        content = "本次CICD部署成功，部署Id为" + event["executionName"] +", 发布的项目有: " + ",".join(l1)
     else:
-        content = "本次CICD发布失败，部署名字为: " + event["executionName"]
+        content = "本次CICD部署失败，部署Id为" + event["executionName"] +", 发布的项目有: " + ",".join(l1)
     send_email(
         address=event["email"],
         subject="前端CICD结果",

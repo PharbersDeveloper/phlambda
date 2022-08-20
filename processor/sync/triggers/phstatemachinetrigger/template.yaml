@@ -12,7 +12,8 @@ Resources:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Environment:
         Variables:
-          EDITION: "DEV"
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2
+          EDITION: replaceEdition
       FunctionName: phstatemachinetrigger
       Description: "触发脚本运行 Start Execution"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

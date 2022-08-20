@@ -277,7 +277,7 @@ code:
               prop = input_ds.get("prop")
               database = prop.get("databaseName")
               table = prop.get("tableName")
-              return transform_schema_type(catalog_to_df(database, table), schemas)
+              return transform_schema_type(catalog_to_df(database, table, versions), schemas)
 
           def load_input_index_df():
               prop = input_ds.get("prop")

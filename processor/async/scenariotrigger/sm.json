@@ -107,9 +107,9 @@
             "scenarioStep.$": "$.currentScenarioStep"
          },
          "ResultPath": "$.currentTriggerStep",
-         "Next": "ScenarioTriggerRecord"
+         "Next": "ScenarioTriggerStartRecord"
       },
-      "ScenarioTriggerRecord": {
+      "ScenarioTriggerStartRecord": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord:0-0-2",
          "Parameters": {
@@ -131,6 +131,21 @@
             "Input.$": "$.currentTriggerStep",
             "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2",
             "Name.$": "$.currentTriggerStep.common.runName"
+         },
+         "ResultPath": null,
+         "Next": "ScenarioTriggerStopRecord"
+      },
+      "ScenarioTriggerStopRecord": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerrecord:0-0-2",
+         "Parameters": {
+            "scenarioId.$": "$.scenario.scenarioId",
+            "runnerId.$": "$.currentTriggerStep.common.runnerId",
+            "owner.$": "$.common.owner",
+            "runtime.$": "$.scenario.runtime",
+            "reporter": "default_reporter",
+            "traceId.$": "$.common.traceId",
+            "stepId.$": "$.currentScenarioStep.stepId"
          },
          "ResultPath": null,
          "Next": "ScenarioTriggerStepCheck"

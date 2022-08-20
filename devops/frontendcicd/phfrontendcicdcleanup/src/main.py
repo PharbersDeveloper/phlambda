@@ -19,6 +19,6 @@ args:
 
 def lambda_handler(event, context):
     print(event)
-    # 将已经发布过的内容进行回滚
+    # 删除codebuild
     # 
     return 1

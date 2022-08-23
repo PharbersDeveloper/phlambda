@@ -65,8 +65,8 @@ code:
               df_map = get_df(ds_name)
               df = df_map["df"]
               computedColumns = args["computedColumns"]
+              df_columns = df.columns
               for item in computedColumns:
-                  df_columns = df.columns
                   _new_col = f"__computed_column_{item['name']}"
                   df = df.selectExpr('*', f"{item['expr']} AS `{_new_col}`").withColumn(_new_col, col(_new_col).cast(item["type"]))
                   if item['name'].lower() in list(map(lambda x: x.lower(), df_columns)):
@@ -102,8 +102,8 @@ code:
 
       def post_join_computed_columns(df, args):
           if len(args) > 0:
+              df_columns = df.columns
               for item in args:
-                  df_columns = df.columns
                   _new_col = f"__computed_column_{item['name']}"
                   df = df.selectExpr('*', f"{item['expr']} AS `{_new_col}`").withColumn(_new_col, col(_new_col).cast(item["type"]))
                   if item['name'].lower() in list(map(lambda x: x.lower(), df_columns)):

@@ -33,7 +33,7 @@ buildSpec = {
 }
 
 
-def get_client_id(client_name):
+def get_client_args(client_name):
     try:
         response = ssm_client.get_parameter(
             Name=client_name + "-client-args",
@@ -41,15 +41,16 @@ def get_client_id(client_name):
         value = json.loads(response["Parameter"]["Value"])
     except Exception as e:
         print(e)
-        value = {"Id": "default_id"}
+        value = {"Id": "default_id", "bucket": "default_bucket"}
 
-    return value.get("Id", "default_id")
+    return value
 
 
 def create_component_args(event):
     component_args = []
     frontend = event["frontend"]
     for component in frontend["components"]:
+        client_args = get_client_args(component.get("clientName", "default_name"))
         component_arg = {
             "stackName": component["prefix"].split("/")[-1] + "codebuild",
             "componentPrefix": component["prefix"],
@@ -57,7 +58,8 @@ def create_component_args(event):
             "codebuildCfn": codebuild_cfn_path,
             "componentName": component["prefix"].split("/")[-1],
             "clientName": component.get("clientName", "default_name"),
-            "clientId": get_client_id(component.get("clientName", "default_name")),
+            "clientId": client_args["Id"],
+            "clientBucket": client_args["Bucket"],
             "branchName": frontend["branch"],
             "repoName": frontend["repo"],
             "version": event["version"],

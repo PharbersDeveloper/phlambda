@@ -69,7 +69,7 @@ def lambda_handler(event, context):
     release_version = get_dict_ssm_parameter("release_version")
     dev_version = get_dict_ssm_parameter("dev_version")
     # 如果不是release 判断version是不是与ssm中release的version相同
-    if event["common"]["runtime"] == "dev" and event["common"]["version "] == release_version:
+    if event["common"]["runtime"] == "dev" and event["common"]["version"] == release_version:
         raise Exception("this version is release version")
     if event["common"]["runtime"] == "test" and event["common"]["version"] == release_version or dev_version:
         raise Exception("this version is invalid version")

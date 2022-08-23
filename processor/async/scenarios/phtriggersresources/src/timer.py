@@ -140,7 +140,7 @@ class TriggersResources:
         self.result['message'] = f'create resource {self.stackName} '
 
 
-def timer(tenantId, targetArn, projectId, trigger):
+def timer(tenantId, targetArn, projectId, trigger, **kwargs):
     triggerId = trigger['id']
     EachScenarioId = trigger["scenarioId"]
     # ------- 拼cron表达式------------------------------------#

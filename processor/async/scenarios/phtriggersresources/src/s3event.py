@@ -13,9 +13,19 @@ def get_uuid():
     return suu_id
 
 
-def s3_bucket_notification(**kwargs):
-    projectId = kwargs.get("projectId")
-    dsNames = kwargs.get("dsNames")
+def get_events():
+    client = boto3.client('s3')
+    response = client.get_bucket_notification_configuration(
+        Bucket='ph-platform',
+    )
+    return response.get("TopicConfigurations", [])
+
+
+def s3_bucket_notification(projectId, dsNames):
+
+    events = get_events()
+    print(events)
+
     notif_args = list(map(lambda ds_name: {
         'Id': f'{get_uuid()}',
         'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3',
@@ -25,10 +35,11 @@ def s3_bucket_notification(**kwargs):
             'Value': f'2020-11-11/lake/pharbers/{projectId}/{ds_name}/'}]}}
                     }, dsNames))
 
+    print(notif_args+get_events())
     bucket_notification = s3.BucketNotification('ph-platform')
     response = bucket_notification.put(
         NotificationConfiguration={
-            'TopicConfigurations': notif_args
+            'TopicConfigurations': notif_args+get_events()
         },
         SkipDestinationValidation=True
     )
@@ -52,24 +63,27 @@ def wirte_s3(tenantId, projectId, projectName, owner, showName, scenarioId, dsNa
         bucket.put_object(Body=s3_body, Key=f"2020-11-11/lake/pharbers/{projectId}/{dsName}/__resource.json")
 
 
-def dataset(trigger, **kwargs):
-    print(trigger)
-    wirte_s3(**trigger)
+def dataset(projectId, trigger, **kwargs):
+
+    scenarioId = trigger.get("scenarioId")
+    dsNames = trigger.get("detail").get("dsNames")
+
+    wirte_s3(scenarioId=scenarioId, dsNames=dsNames, projectId=projectId, **kwargs)
     time.sleep(1)
-    s3_bucket_notification(**trigger)
+    s3_bucket_notification(projectId, dsNames)
     return True
 
 
 
-# # args = {"projectId": "ggjpDje0HUC2JW", "dsNames": ["1112"]}
-# # s3_bucket_notification(**args)
-#
-# # bucket_notification = s3.BucketNotification('ph-platform')
-# # print(bucket_notification.load())
-# #
-# #
-# client = boto3.client('s3')
-# response = client.get_bucket_notification_configuration(
-#     Bucket='ph-platform',
-# )
-# print(response["TopicConfigurations"])
+# args = {"projectId": "ggjpDje0HUC2JW", "dsNames": ["1112"]}
+# s3_bucket_notification(**args)
+
+# bucket_notification = s3.BucketNotification('ph-platform')
+# print(bucket_notification.load())
+
+client = boto3.client('s3')
+response = client.get_bucket_notification_configuration(
+    Bucket='ph-platform',
+)
+print(response.get("TopicConfigurations", []))
+

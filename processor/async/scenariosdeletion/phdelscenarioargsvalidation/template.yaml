@@ -10,7 +10,7 @@ Resources:
       CodeUri: ./src
       FunctionName: phdelscenarioargsvalidation
       MemorySize: 1024
-      Description: "phscenarioargsvalidation"
+      Description: "phscenariocheckcallbackargsvalidation"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       Environment:
         Variables:

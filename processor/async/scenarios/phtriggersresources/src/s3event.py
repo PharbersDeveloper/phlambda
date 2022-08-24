@@ -87,3 +87,4 @@ response = client.get_bucket_notification_configuration(
 )
 print(response.get("TopicConfigurations", []))
 
+a= [{'Id': 'c19a14542420469bb1052f0e206a0d55', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/胖胖胖1/'}]}}}, {'Id': 'b8231e94b8274b55b3c6a8c3f48005cf', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/vcb/'}]}}}, {'Id': 'a1d061a741f64a59ad0e5cc5d3d1a5e0', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/1112/'}]}}}]

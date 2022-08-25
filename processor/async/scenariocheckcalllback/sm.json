@@ -4,277 +4,106 @@
    "States": {
       "StartState": {
          "Type": "Pass",
-         "ResultPath": null,
+         "Result": {},
+         "ResultPath": "$.iterator",
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenarioargsvalidation",
-         "ResultPath": null,
-         "Next": "Actions",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation:0-0-2",
+         "ResultPath": "$.TriggerCount",
+         "Next": "ScenarioCheck",
          "Catch": [
             {
                "ErrorEquals": [
                   "States.Runtime"
                ],
-               "ResultPath": "$.error",
+               "ResultPath": "$.iterator.error",
                "Next": "CleanUp"
             },
             {
                "ErrorEquals": [
                   "States.TaskFailed"
                ],
-               "ResultPath": "$.error",
+               "ResultPath": "$.iterator.error",
                "Next": "CleanUp"
             },
             {
                "ErrorEquals": [
                   "States.ALL"
                ],
-               "ResultPath": "$.error",
+               "ResultPath": "$.iterator.error",
                "Next": "CleanUp"
             }
          ]
       },
-      "Actions": {
+      "ScenarioCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsaction-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "required.$": "$.action.required",
-            "message.$": "$.action.message"
+            "projectId.$": "$.projectId",
+            "name.$": "$.name"
+         },
+         "ResultPath": "$.TriggerItem",
+         "Next": "ScenarioTriggerArgs"
+      },
+      "ScenarioTriggerArgs": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
+         "Parameters": {
+            "TriggerItem.$": "$.TriggerItem.item",
+            "count.$": "$.TriggerCount"
+         },
+         "ResultPath": "$.ScenarioTriggerArgs",
+         "Next": "ScenarioTrigger"
+      },
+      "ScenarioTrigger": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger-dev",
+         "Parameters": {
+            "Input.$": "$.ScenarioTriggerArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2-dev",
+            "Name.$": "$.ScenarioTriggerArgs"
          },
          "ResultPath": null,
-         "Next": "ScenarioCreationOrUpdation"
+         "Next": "ScenarioTriggerCount"
       },
-      "ScenarioCreationOrUpdation": {
+      "ScenarioTriggerCount": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenarioindex",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
          "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scenario.$": "$.scenario"
+            "TriggerCount.$": "$.TriggerCount"
          },
-         "Catch": [
+         "ResultPath": "$.TriggerCount",
+         "Next": "ScenarioTriggerCheck"
+      },
+      "ScenarioTriggerCheck": {
+         "Type": "Choice",
+         "Choices": [
             {
-               "ErrorEquals": [
-                  "States.Runtime"
+               "And": [
+                  {
+                     "Variable": "$.TriggerCount",
+                     "NumericEqualsPath": "$.TriggerItem.count"
+                  }
                ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.TaskFailed"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.ALL"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
+               "Next": "Success"
             }
          ],
-         "ResultPath": "$.scenario",
-         "Next": "ScenarioDetailCreationOrUpdation"
-      },
-      "ScenarioDetailCreationOrUpdation": {
-         "Type": "Parallel",
-         "InputPath": "$",
-         "ResultSelector": {
-            "triggers.$": "$.[0].triggers",
-            "steps.$": "$.[1].steps",
-            "reports.$": "$.[2].reports"
-         },
-         "ResultPath": "$.result",
-         "Next": "ConvertScenariosMessage",
-         "Branches": [
-            {
-               "StartAt": "TriggersIndex",
-               "States": {
-                  "TriggersIndex": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtriggersindex",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
-                     },
-                     "ResultPath": "$.triggers",
-                     "Next": "TriggersResources"
-                  },
-                  "TriggersResources": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtriggersresources",
-                     "Parameters": {
-                        "tenantId.$": "$.common.tenantId",
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
-                     },
-                     "ResultPath": null,
-                     "End": true
-                  }
-               }
-            },
-            {
-               "StartAt": "StepsIndex",
-               "States": {
-                  "StepsIndex": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstepsindex",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "steps.$": "$.steps"
-                     },
-                     "ResultPath": "$.steps",
-                     "End": true
-                  }
-               }
-            },
-            {
-               "StartAt": "ReportIndex",
-               "States": {
-                  "ReportIndex": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phreportindex",
-                     "Parameters": {
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "reports.$": "$.reports"
-                     },
-                     "ResultPath": "$.reports",
-                     "End": true
-                  }
-               }
-            }
-         ],
-         "Catch": [
-            {
-               "ErrorEquals": [
-                  "States.Runtime"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.TaskFailed"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            },
-            {
-               "ErrorEquals": [
-                  "States.ALL"
-               ],
-               "ResultPath": "$.error",
-               "Next": "CleanUp"
-            }
-         ]
-      },
-      "ConvertScenariosMessage": {
-         "Type": "Task",
-         "ResultPath": "$.result",
-         "Next": "Success",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phconvertscenariosmessage",
-         "Parameters": {
-            "owner.$": "$.common.owner",
-            "result.$": "$.result"
-         }
+         "Default": "ScenarioTriggerArgs"
       },
       "Success": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.result",
-            "status": "success"
-         },
+         "Parameters": {},
+         "ResultPath": null,
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocleanup",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scenario.$": "$.scenario",
-            "triggers.$": "$.triggers",
-            "steps.$": "$.steps"
-         },
-         "ResultPath": null,
-         "Next": "MapScenarioError"
-      },
-      "MapScenarioError": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phmapscenarioerror",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "projectName.$": "$.common.projectName",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "scenario.$": "$.scenario",
-            "triggers.$": "$.triggers",
-            "steps.$": "$.steps",
-            "error.$": "$.error"
-         },
-         "ResultPath": "$.MapError",
-         "Next": "Failed"
-      },
-      "Failed": {
-         "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
-         "Parameters": {
-            "traceId.$": "$.common.traceId",
-            "projectId.$": "$.common.projectId",
-            "owner.$": "$.common.owner",
-            "showName.$": "$.common.showName",
-            "jobCat.$": "$.action.cat",
-            "jobDesc.$": "$.action.desc",
-            "comments.$": "$.action.comments",
-            "message.$": "$.MapError",
-            "status": "failed"
-         },
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup:0-0-2",
+         "Parameters": {},
+         "ResultPath": "$.message",
          "End": true
       }
    }

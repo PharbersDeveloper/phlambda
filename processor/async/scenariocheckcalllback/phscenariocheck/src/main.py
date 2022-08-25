@@ -4,24 +4,6 @@ import boto3
 from boto3.dynamodb.conditions import Attr, Key
 from decimal import Decimal
 
-'''
-这个函数只做一件事情，将scenario的所有东西写到Scenario dynamodb中
-args:
-    event = {
-        "traceId.$": "$.common.traceId",
-        "projectId.$": "$.common.projectId",
-        "projectName.$": "$.common.projectName",
-        "owner.$": "$.common.owner",
-        "showName.$": "$.common.showName",
-        "scenario.$": {
-            "id": "scenario id",
-            "active": true,
-            "scenarioName": "scenario name",
-            "deletion": false, --舍弃
-            "index": "index"
-        }
-    }
-'''
 
 dynamodb = boto3.resource("dynamodb")
 
@@ -58,9 +40,9 @@ def query_trigger(scenarioId, names):
     return [trigger for trigger in response.get("Items") if trigger.get("detail", {}).get("dsNames") in names]
 
 
-
 def execution(projectId, name):
     names = []
+    triggers = []
     items = query_dag(projectId)
     job = query_dag(projectId, name)[0]
     representId = job["representId"]
@@ -72,7 +54,15 @@ def execution(projectId, name):
         if sourceId == representId:
             names.append(targetName)
     for id in query_scenario(projectId):
-        return query_trigger(id, names)
+        triggers += query_trigger(id, names)
+    return triggers
+
+
+def upload_share(projectId, name):
+    triggers = []
+    for id in query_scenario(projectId):
+        triggers += query_trigger(id, [name])
+    return triggers
 
 
 def timer():
@@ -82,12 +72,16 @@ def timer():
 Command = {
     "execution": execution,
     "timer": timer,
-    "upload": execution,
-    "share": execution
+    "upload": upload_share,
+    "share": upload_share
 }
 
 
 def lambda_handler(event, context):
     print(event)
     type = event.get("type")
-    Command[type](**event)
+    item = Command[type](**event)
+    return {
+                "item": item,
+                "count": len(item)
+           }

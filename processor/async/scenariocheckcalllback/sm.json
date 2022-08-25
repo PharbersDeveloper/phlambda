@@ -10,7 +10,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation",
          "ResultPath": "$.TriggerCount",
          "Next": "ScenarioCheck",
          "Catch": [
@@ -39,7 +39,7 @@
       },
       "ScenarioCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
          "Parameters": {
             "projectId.$": "$.projectId",
             "name.$": "$.name"
@@ -49,7 +49,7 @@
       },
       "ScenarioTriggerArgs": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
          "Parameters": {
             "TriggerItem.$": "$.TriggerItem.item",
             "count.$": "$.TriggerCount"
@@ -59,18 +59,18 @@
       },
       "ScenarioTrigger": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger-dev",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
          "Parameters": {
             "Input.$": "$.ScenarioTriggerArgs",
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2-dev",
-            "Name.$": "$.ScenarioTriggerArgs"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger",
+            "Name.$": "$.ScenarioTriggerArgs.common.traceId"
          },
          "ResultPath": null,
          "Next": "ScenarioTriggerCount"
       },
       "ScenarioTriggerCount": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
          "Parameters": {
             "TriggerCount.$": "$.TriggerCount"
          },
@@ -94,14 +94,14 @@
       },
       "Success": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification",
          "Parameters": {},
          "ResultPath": null,
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup:0-0-2",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup",
          "Parameters": {},
          "ResultPath": "$.message",
          "End": true

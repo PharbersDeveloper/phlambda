@@ -10,7 +10,7 @@
       },
       "ArgsValidation": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargsvalidation",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheckcallbackargsvalidation",
          "ResultPath": "$.TriggerCount",
          "Next": "ScenarioCheck",
          "Catch": [
@@ -49,7 +49,7 @@
       },
       "ScenarioTriggerArgs": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargs",
          "Parameters": {
             "TriggerItem.$": "$.TriggerItem.item",
             "count.$": "$.TriggerCount"
@@ -70,7 +70,7 @@
       },
       "ScenarioTriggerCount": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercount",
          "Parameters": {
             "TriggerCount.$": "$.TriggerCount"
          },
@@ -94,14 +94,14 @@
       },
       "Success": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
          "Parameters": {},
          "ResultPath": null,
          "End": true
       },
       "CleanUp": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercleanup",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheckcallbackcleanup",
          "Parameters": {},
          "ResultPath": "$.message",
          "End": true

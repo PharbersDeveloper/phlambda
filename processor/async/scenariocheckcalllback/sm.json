@@ -1,0 +1,110 @@
+{
+   "Comment": "Pharbers Resource Creation",
+   "StartAt": "StartState",
+   "States": {
+      "StartState": {
+         "Type": "Pass",
+         "Result": {},
+         "ResultPath": "$.iterator",
+         "Next": "ArgsValidation"
+      },
+      "ArgsValidation": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheckcallbackargsvalidation",
+         "ResultPath": "$.TriggerCount",
+         "Next": "ScenarioCheck",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            }
+         ]
+      },
+      "ScenarioCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
+         "Parameters": {
+            "projectId.$": "$.projectId",
+            "name.$": "$.name"
+         },
+         "ResultPath": "$.TriggerItem",
+         "Next": "ScenarioTriggerArgs"
+      },
+      "ScenarioTriggerArgs": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargs",
+         "Parameters": {
+            "TriggerItem.$": "$.TriggerItem.item",
+            "count.$": "$.TriggerCount"
+         },
+         "ResultPath": "$.ScenarioTriggerArgs",
+         "Next": "ScenarioTrigger"
+      },
+      "ScenarioTrigger": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.ScenarioTriggerArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger",
+            "Name.$": "$.ScenarioTriggerArgs.common.traceId"
+         },
+         "ResultPath": null,
+         "Next": "ScenarioTriggerCount"
+      },
+      "ScenarioTriggerCount": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggercount",
+         "Parameters": {
+            "TriggerCount.$": "$.TriggerCount"
+         },
+         "ResultPath": "$.TriggerCount",
+         "Next": "ScenarioTriggerCheck"
+      },
+      "ScenarioTriggerCheck": {
+         "Type": "Choice",
+         "Choices": [
+            {
+               "And": [
+                  {
+                     "Variable": "$.TriggerCount",
+                     "NumericEqualsPath": "$.TriggerItem.count"
+                  }
+               ],
+               "Next": "Success"
+            }
+         ],
+         "Default": "ScenarioTriggerArgs"
+      },
+      "Success": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:lmd-phutilsnotification-dev",
+         "Parameters": {},
+         "ResultPath": null,
+         "End": true
+      },
+      "CleanUp": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheckcallbackcleanup",
+         "Parameters": {},
+         "ResultPath": "$.message",
+         "End": true
+      }
+   }
+}

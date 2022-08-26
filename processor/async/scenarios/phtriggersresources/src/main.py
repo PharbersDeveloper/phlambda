@@ -59,10 +59,8 @@ Command ={
 def lambda_handler(event, context):
     print("*"*50 + " event " + "*"*50)
     print(event)
+    event["targetArn"] = os.getenv("TARGETARN")
 
-    tenantId = event['tenantId']
-    targetArn = os.getenv("TARGETARN")
-    projectId = event['projectId']
     messageList = []
 
     if len(event['triggers']) == 0:
@@ -74,9 +72,10 @@ def lambda_handler(event, context):
                        "cnotification": {"data": {"datasets": "", "error": result}}}
     else:
         #---------- 处理每一个trigger ------------------------------#
-        for trigger in event["triggers"]:
+        for trigger in event.pop("triggers"):
             mode = trigger.get("mode")
-            messageList.append(Command[mode](tenantId, targetArn, projectId, trigger))
+            event["trigger"] = trigger
+            messageList.append(Command[mode](**event))
 
         return {"type": "notification", "opname": event['owner'],
                 "cnotification": {"data": {"datasets": "", "error": messageList}}}

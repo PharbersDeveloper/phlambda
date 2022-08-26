@@ -104,6 +104,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
             "Input":{
                 "common": {
                     "traceId": event["runnerId"],
+                    "tenantId": event["tenantId"],
                     "runnerId": event["runnerId"],
                     "projectId": event["projectId"],
                     "projectName": event["projectName"],

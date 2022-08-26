@@ -52,15 +52,6 @@ code:
       for k, v in default_config.items():
           spark = spark.config(k, v)
       spark = spark.enableHiveSupport().getOrCreate()
-      access_key = os.getenv("AWS_ACCESS_KEY_ID")
-      secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-      if access_key is not None:
-          spark._jsc.hadoopConfiguration().set("fs.s3a.access.key", access_key)
-          spark._jsc.hadoopConfiguration().set("fs.s3a.secret.key", secret_key)
-          spark._jsc.hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true")
-          spark._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-          spark._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.cn-northwest-1.amazonaws.com.cn")
-
 
       # 解决在读取中间型DF Schema Type冲突后的选择
       # 在同Schema Col类型冲突后优先选择非String类型的描述 list(filter(lambda item: item["type"] != "String", values))
@@ -249,8 +240,11 @@ code:
 
 
       # 读取Glue数据转为DF
-      def catalog_to_df(database, table):
-          return spark.sql(f"SELECT * FROM {database}.{table}")
+      def catalog_to_df(database, table, versions):
+          if len(versions) != 0:
+              return spark.sql(f"""SELECT * FROM {database}.{table} WHERE version IN ({','.join(list(map(lambda x: f"'{x}'", versions)))})""")
+          else:
+              return spark.sql(f"SELECT * FROM {database}.{table}")
 
 
       # 根据cat类型、path来生成DF实体
@@ -283,7 +277,7 @@ code:
               prop = input_ds.get("prop")
               database = prop.get("databaseName")
               table = prop.get("tableName")
-              return transform_schema_type(catalog_to_df(database, table), schemas)
+              return transform_schema_type(catalog_to_df(database, table, versions), schemas)
 
           def load_input_index_df():
               prop = input_ds.get("prop")

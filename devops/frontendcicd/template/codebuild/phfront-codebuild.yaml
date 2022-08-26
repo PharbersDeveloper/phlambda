@@ -65,6 +65,10 @@ Parameters:
     Type: String
     Default: default_id
     Description: "Version"
+  ClientBucket:
+    Type: String
+    Default: default_bucket
+    Description: "ClientBucket"
 
 Resources:
   PharbersAutoBuildProject:
@@ -120,6 +124,9 @@ Resources:
           - Name: CLIENT_NAME
             Type: PLAINTEXT
             Value: !Ref ClientName
+          - Name: CLIENT_BUCKET
+            Type: PLAINTEXT
+            Value: !Ref ClientBucket
 
 #      FileSystemLocations:
 #        - Identifier: EFS

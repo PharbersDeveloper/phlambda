@@ -1,21 +1,26 @@
-
 import json
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
-from decimal import Decimal
-
+import uuid
 
 dynamodb = boto3.resource("dynamodb")
 
 
-def lambda_handler(event, context):
-    trigger = event.get("TriggerItem")[event.get("TriggerCount")]
+def get_uuid():
+    uu_id = uuid.uuid4()
+    suu_id = ''.join(str(uu_id).split('-'))
+    return suu_id
 
+
+def lambda_handler(event, context):
+    print(event)
+
+    trigger = event.get("TriggerItem")[event.get("count")]
     common = event.get("common")
+
     args = {
         "common": {
-            "tenantId": common["runnerId"],
-            "traceId": common["traceId"],
+            "tenantId": common["tenantId"],
+            "traceId": get_uuid(),
             "projectId": common["projectId"],
             "projectName": common["projectName"],
             "owner": common["owner"],

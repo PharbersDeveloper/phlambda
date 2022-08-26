@@ -35,12 +35,12 @@ def query_trigger(scenarioId, names):
     table = dynamodb.Table('scenario_trigger')
     response = table.query(
         KeyConditionExpression=Key('scenarioId').eq(scenarioId),
-        filter=Attr("mode").eq("dataset")
-    )
-    return [trigger for trigger in response.get("Items") if trigger.get("detail", {}).get("dsNames") in names]
+        FilterExpression=Attr("mode").eq("dataset")
+    ).get("Items")
+    return [trigger for trigger in response if list(set(json.loads(trigger.get("detail", {})).get("dsNames")) & set(names))]
 
 
-def execution(projectId, name):
+def execution(projectId, name, **kwargs):
     names = []
     triggers = []
     items = query_dag(projectId)
@@ -54,7 +54,7 @@ def execution(projectId, name):
         if sourceId == representId:
             names.append(targetName)
     for id in query_scenario(projectId):
-        triggers += query_trigger(id, names)
+        triggers = triggers + query_trigger(id, names)
     return triggers
 
 
@@ -79,8 +79,8 @@ Command = {
 
 def lambda_handler(event, context):
     print(event)
-    type = event.get("type")
-    item = Command[type](**event)
+    mode = event.pop("type")
+    item = Command[mode](**event)
     return {
                 "item": item,
                 "count": len(item)

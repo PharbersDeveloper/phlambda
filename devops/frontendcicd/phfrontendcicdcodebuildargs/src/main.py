@@ -41,7 +41,7 @@ def get_client_args(client_name):
         value = json.loads(response["Parameter"]["Value"])
     except Exception as e:
         print(e)
-        value = {"Id": "default_id", "bucket": "default_bucket"}
+        value = {"Id": "default_id", "Bucket": "default_bucket"}
 
     return value
 

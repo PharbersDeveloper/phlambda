@@ -46,7 +46,30 @@
             "type.$": "$.type"
          },
          "ResultPath": "$.TriggerItem",
-         "Next": "ScenarioTriggerArgs"
+         "Next": "ScenarioTriggerArgs",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "ScenarioTriggerArgs": {
          "Type": "Task",

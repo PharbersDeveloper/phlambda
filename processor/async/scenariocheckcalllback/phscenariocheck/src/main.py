@@ -81,6 +81,9 @@ def lambda_handler(event, context):
     print(event)
     mode = event.pop("type")
     item = Command[mode](**event)
+    if not item:
+        raise Exception("no scenario")
+
     return {
                 "item": item,
                 "count": len(item)

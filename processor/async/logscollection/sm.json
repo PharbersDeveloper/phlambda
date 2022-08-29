@@ -45,12 +45,12 @@
          "Parameters": {
             "Input.$": "$.ScenarioCheckArgs",
             "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariocheckcalllback-dev",
-            "Name.$": "$.ScenarioTriggerArgs.common.traceId"
+            "Name.$": "$.ScenarioCheckArgs.common.traceId"
          },
          "ResultPath": null,
          "Next": "waitLogsPath"
       },
-      "waitLogsPath": {
+q      "waitLogsPath": {
          "Type": "Wait",
          "Seconds": 30,
          "Next": "logsPathCheck"

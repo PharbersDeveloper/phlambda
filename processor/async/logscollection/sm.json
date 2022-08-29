@@ -50,7 +50,7 @@
          "ResultPath": null,
          "Next": "waitLogsPath"
       },
-q      "waitLogsPath": {
+      "waitLogsPath": {
          "Type": "Wait",
          "Seconds": 30,
          "Next": "logsPathCheck"

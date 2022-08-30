@@ -10,7 +10,8 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          EDITION: "V2"
+          ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:executionsv2
+          EDITION: replaceEdition
       FunctionName: phstatemachinestop
       Description: "Stop StepFunctions"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

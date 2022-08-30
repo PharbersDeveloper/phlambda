@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:projectdeletion
-          EDITION: "dev"
+          EDITION: replaceEdition
       FunctionName: phprojectdeletiontrigger
       Description: Http Post接口触发StepFunctions创建 删除project
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

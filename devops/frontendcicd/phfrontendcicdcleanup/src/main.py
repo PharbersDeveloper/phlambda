@@ -1,7 +1,7 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 
-dynamodb = boto3.resource('dynamodb')
+cfn_client = boto3.client('cloudformation')
 '''
 
 args:
@@ -17,8 +17,30 @@ args:
 '''
 
 
+def judge_stack_exist(stackName):
+    stack_exist = False
+    try:
+        response = cfn_client.describe_stacks(
+            StackName=stackName
+        )
+        stack_exist = True
+        print(response)
+    except Exception as e:
+        print(e)
+    return stack_exist
+
+
+def delete_stack(stackName):
+    response = cfn_client.delete_stack(
+        StackName=stackName
+    )
+
+
 def lambda_handler(event, context):
     print(event)
-    # 将已经发布过的内容进行回滚
-    # 
+    # 删除codebuild
+    for component in event["frontend"]["components"]:
+        stackName = component["prefix"].split("/")[-1] + "codebuild"
+        if judge_stack_exist(stackName):
+            delete_stack(stackName)
     return 1

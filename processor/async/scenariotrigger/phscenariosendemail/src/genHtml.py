@@ -123,7 +123,8 @@ def ConverResultDataType(Result):
         Basic = data['BasicInfo']
         tmpList = [data['stepIndex'], Basic['name'], Basic['type'], Basic['recursive'], data['startTime'], data['endTime'], data['status'], json.dumps(data['Error'], ensure_ascii=False)]
         result.append(tmpList)
-    return result
+    #---- 基于Stepindex 排序 -----#
+    return sorted(result, key=lambda x: x[0])
 
 
 

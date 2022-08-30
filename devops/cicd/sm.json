@@ -139,7 +139,34 @@
                         "name.$": "$.metadata.lambdaArgs.name"
                      },
                      "ResultPath": null,
-                     "Next": "UpdateTriggerManageYaml"
+                     "Next": "ApiCheckStackLock"
+                  },
+                  "ApiCheckStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "check"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "ApiCheckStackLockReached"
+                  },
+                  "ApiCheckStackLockReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.lockStatus",
+                           "BooleanEquals": true,
+                           "Next": "UpdateTriggerManageYaml"
+                        }
+                     ],
+                     "Default": "ApiLockCheckWait"
+                  },
+                  "ApiLockCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "ApiCheckStackLock"
                   },
                   "UpdateTriggerManageYaml": {
                      "Type": "Task",
@@ -238,10 +265,20 @@
                         {
                            "Variable": "$.StackStatus",
                            "BooleanEquals": true,
-                           "Next": "ApiBranchEnd"
+                           "Next": "ApiReleaseStackLock"
                         }
                      ],
                      "Default": "ApiStackStatusCheckWait"
+                  },
+                  "ApiReleaseStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "release"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "ApiBranchEnd"
                   },
                   "ApiBranchEnd": {
                      "Type": "Pass",
@@ -615,7 +652,34 @@
                         "name.$": "$.metadata.lambdaArgs.name"
                      },
                      "ResultPath": null,
-                     "Next": "UpdateUtilsManageYaml"
+                     "Next": "UtilsCheckStackLock"
+                  },
+                  "UtilsCheckStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "check"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "UtilsCheckStackLockReached"
+                  },
+                  "UtilsCheckStackLockReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.lockStatus",
+                           "BooleanEquals": true,
+                           "Next": "UpdateUtilsManageYaml"
+                        }
+                     ],
+                     "Default": "UtilsLockCheckWait"
+                  },
+                  "UtilsLockCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "UtilsCheckStackLock"
                   },
                   "UpdateUtilsManageYaml": {
                      "Type": "Task",
@@ -713,10 +777,20 @@
                         {
                            "Variable": "$.StackStatus",
                            "BooleanEquals": true,
-                           "Next": "UtilsBranchEnd"
+                           "Next": "UtilsReleaseStackLock"
                         }
                      ],
                      "Default": "UtilsStackStatusCheckWait"
+                  },
+                  "UtilsReleaseStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "release"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "UtilsBranchEnd"
                   },
                   "UtilsBranchEnd": {
                      "Type": "Pass",
@@ -814,7 +888,34 @@
                         "name.$": "$.metadata.lambdaArgs.name"
                      },
                      "ResultPath": null,
-                     "Next": "UpdateMultistageManageYaml"
+                     "Next": "MultistageCheckStackLock"
+                  },
+                  "MultistageCheckStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "check"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "MultistageCheckStackLockReached"
+                  },
+                  "MultistageCheckStackLockReached": {
+                     "Type": "Choice",
+                     "InputPath": "$",
+                     "Choices": [
+                        {
+                           "Variable": "$.lockStatus",
+                           "BooleanEquals": true,
+                           "Next": "UpdateMultistageManageYaml"
+                        }
+                     ],
+                     "Default": "MultistageLockCheckWait"
+                  },
+                  "MultistageLockCheckWait": {
+                     "Type": "Wait",
+                     "Seconds": 30,
+                     "Next": "MultistageCheckStackLock"
                   },
                   "UpdateMultistageManageYaml": {
                      "Type": "Task",
@@ -914,10 +1015,20 @@
                         {
                            "Variable": "$.StackStatus",
                            "BooleanEquals": true,
-                           "Next": "MultistageBranchEnd"
+                           "Next": "MultistageReleaseStackLock"
                         }
                      ],
                      "Default": "MultistageStackStatusCheckWait"
+                  },
+                  "MultistageReleaseStackLock": {
+                     "Type": "Task",
+                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phcicdaddorreleaselock",
+                     "Parameters": {
+                        "stackName.$": "$.metadata.stackName",
+                        "lockType": "release"
+                     },
+                     "ResultPath": "$.lockStatus",
+                     "Next": "MultistageBranchEnd"
                   },
                   "MultistageBranchEnd": {
                      "Type": "Pass",

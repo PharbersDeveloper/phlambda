@@ -55,19 +55,31 @@ def put_dict_ssm_parameter(parameter_name, parameter_value):
     return parameter_value
 
 
+def judge_runtime(runtime):
+    runtime_list = get_dict_ssm_parameter("runtime")
+    if runtime not in runtime_list:
+        raise Exception("this runtime is invalid runtime")
+
+
 def lambda_handler(event, context):
     print(event)
-    whether_continue = True
+    judge_runtime(event["common"]["runtime"])
     # 判断本次deploy的version是否正确
     # 普通用户不能发布release版本 release对应的version其他runtime不能发布
-    version = get_dict_ssm_parameter("release_version")
+    release_version = get_dict_ssm_parameter("release_version")
+    dev_version = get_dict_ssm_parameter("dev_version")
+    # 如果不是release 判断version是不是与ssm中release的version相同
+    if event["common"]["runtime"] == "dev" and event["common"]["version"] == release_version:
+        raise Exception("this version is release version")
+    if event["common"]["runtime"] == "test" and event["common"]["version"] == release_version or dev_version:
+        raise Exception("this version is invalid version")
+
     # 判断runtime是不是release
-    if event["common"]["runtime"] == "release" and event["common"]["version"] != version:
+    if event["common"]["runtime"] == "release" and event["common"]["version"] != release_version:
         # 如果是release 判断version是否与ssm中相同 不同的话则更新
         put_dict_ssm_parameter("release_version", event["common"]["version"])
-    # 如果不是release 判断version是不是与ssm中release的version相同
-    if event["common"]["runtime"] != "release" and event["common"]["version"] == version:
-        whether_continue = False
-        raise Exception("this version is release version")
+    if event["common"]["runtime"] == "dev" and event["common"]["version"] != dev_version:
+        # 如果是release 判断version是否与ssm中相同 不同的话则更新
+        put_dict_ssm_parameter("dev_version", event["common"]["version"])
 
     return 1

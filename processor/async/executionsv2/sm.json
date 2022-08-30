@@ -75,6 +75,7 @@
          "Parameters": {
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
+            "tenantId.$": "$.common.tenantId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",

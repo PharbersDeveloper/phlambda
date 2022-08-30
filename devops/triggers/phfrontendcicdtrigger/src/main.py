@@ -59,9 +59,10 @@ def lambda_handler(event, context):
                                  name=execution_time)
     run_arn = res['executionArn']
     print("Started  ARN is %s.", run_arn)
+
     result = {
         "status": "ok",
-        "message": "start run " + run_arn
+        "message": "start run " + run_arn + " deploy components:" + ",".join([i["prefix"].split("/")[-1] for i in event["frontend"]["components"]])
     }
     return {
         "statusCode": 200,

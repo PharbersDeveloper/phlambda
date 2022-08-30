@@ -15,6 +15,7 @@ phases:
       - ls
       - npm run build || (echo 'run build error')
       - npm run build || (echo 'run build error')
+      - npm run build
   build:
     commands:
       - ls dist

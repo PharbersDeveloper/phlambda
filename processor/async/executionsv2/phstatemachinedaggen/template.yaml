@@ -18,7 +18,7 @@ Resources:
           SPARK_EXECUTOR_EXTRAJAVAOPTIONS: "-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8"
           SPARK_SQL_BROADCASTTIMEOUT: 1200
           SPARK_SQL_AUTOBROADCASTJOINTHRESHOLD: 104857600
-          SPARK_FILE_MAX_RECORDS: 10000
+          SPARK_FILE_MAX_RECORDS: 100000
       FunctionName: phstatemachinedaggen
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1

@@ -65,8 +65,14 @@ code:
               df_map = get_df(ds_name)
               df = df_map["df"]
               computedColumns = args["computedColumns"]
+              df_columns = df.columns
               for item in computedColumns:
-                  df = df.selectExpr('*', f"{item['expr']} AS `{item['name']}`").withColumn(item["name"], col(item["name"]).cast(item["type"]))
+                  _new_col = f"__computed_column_{item['name']}"
+                  df = df.selectExpr('*', f"{item['expr']} AS `{_new_col}`").withColumn(_new_col, col(_new_col).cast(item["type"]))
+                  if item['name'].lower() in list(map(lambda x: x.lower(), df_columns)):
+                      df = df.drop(item["name"]).withColumnRenamed(_new_col, item["name"])
+                  else:
+                      df = df.withColumnRenamed(_new_col, item["name"])
               df_map["df"] = df
 
 
@@ -96,8 +102,14 @@ code:
 
       def post_join_computed_columns(df, args):
           if len(args) > 0:
+              df_columns = df.columns
               for item in args:
-                  df = df.selectExpr('*', f"{item['expr']} AS `{item['name']}`").withColumn(item["name"], col(item["name"]).cast(item["type"]))
+                  _new_col = f"__computed_column_{item['name']}"
+                  df = df.selectExpr('*', f"{item['expr']} AS `{_new_col}`").withColumn(_new_col, col(_new_col).cast(item["type"]))
+                  if item['name'].lower() in list(map(lambda x: x.lower(), df_columns)):
+                      df = df.drop(item["name"]).withColumnRenamed(_new_col, item["name"])
+                  else:
+                      df = df.withColumnRenamed(_new_col, item["name"])
           return df
 
 
@@ -147,6 +159,8 @@ code:
               ds_is_used.add(first_join["datasets"][1]["name"])
               for item in args:
                   ds_name = list(set(map(lambda ds: ds["name"], item["datasets"])) - ds_is_used)
+                  ds_is_used.add(item["datasets"][0]["name"])
+                  ds_is_used.add(item["datasets"][1]["name"])
                   for ds in ds_name:
                       if item["type"].lower() == "cross":
                           join_str += f""".crossJoin({concat_select_df(ds)})"""
@@ -194,7 +208,7 @@ code:
           job_id = "$job_id"
 
           dag_conf = get_ds_with_index(project_id, job_id)
-          
+
           dag_conf_prop = json.loads(dag_conf["prop"])
 
           if dag_conf_prop:

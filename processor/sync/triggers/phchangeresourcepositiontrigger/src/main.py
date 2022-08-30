@@ -43,12 +43,12 @@ def lambda_handler(event, context):
         "trace_id": ""
     }
     trace_id = ""
-    edition = "-dev" #if os.getenv("EDITION") == "V2" else "-dev"
+    edition = "-" + os.getenv("EDITION")
     try:
         trace_id = event["common"]["traceId"]
         state_machine_arn = os.environ["ARN"]
         client = boto3.client("stepfunctions")
-        res = client.start_execution(stateMachineArn=state_machine_arn,#+ edition,
+        res = client.start_execution(stateMachineArn=state_machine_arn + edition,
                                      name=trace_id, input=json.dumps(event, ensure_ascii=False))
         run_arn = res["executionArn"]
         print("Started run %s. ARN is %s.", trace_id, run_arn)

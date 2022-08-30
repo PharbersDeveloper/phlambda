@@ -382,8 +382,17 @@ code:
           return(df)
       }
 
-      catalog_to_df <- function(database, table) {
-          return(SparkR::sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
+      catalog_to_df <- function(database, table, version) {
+          if (length(version) != 0) {
+              versions = ""
+              for (item in version) {
+                  versions <- paste("'", versions, "'" , ",", sep = "")
+              }
+              versions <- sub(",$", "", versions)
+              return(SparkR::sql(paste("SELECT * FROM ", database, ".", table, "WHERE version IN (", versions, ")", sep = "")))
+          } else {
+              return(SparkR::sql(paste("SELECT * FROM ", database, ".", table, sep = "")))
+          }
       }
 
       load_df <- function(input_ds, output_version, project_id, project_name, is_single_run) {
@@ -435,7 +444,7 @@ code:
               prop <- input_ds$prop
               database <- prop$databaseName
               table <- prop$tableName
-              return(transform_schema_type(catalog_to_df(database, table), convert_schemas))
+              return(transform_schema_type(catalog_to_df(database, table, version), convert_schemas))
           }
 
           load_input_index_df <- function() {

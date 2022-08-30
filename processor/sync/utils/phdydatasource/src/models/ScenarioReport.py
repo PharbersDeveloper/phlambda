@@ -10,6 +10,7 @@ class ScenarioReport(Model):
         "detail": fields.Str(dump_default="unknown"),
         "mode": fields.Str(dump_default="unknown"),
         "name": fields.Str(dump_default="unknown"),
+        "active": fields.Boolean(dump_default=False),
         "traceId": fields.Str(dump_default="unknown")
     }
 

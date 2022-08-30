@@ -99,6 +99,7 @@ class RollBack:
         step_Item = {
             'scenarioId': OldImage["scenarioId"],
             'id': OldImage['id'],
+            'active': OldImage['active'],
             'detail': OldImage['detail'],
             'index': self.turn_decimal_into_int(OldImage['index']),
             'mode': OldImage['mode'],

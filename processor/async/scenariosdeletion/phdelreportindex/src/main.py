@@ -55,6 +55,7 @@ class DelReportsIndex:
     def get_OldImage(self, ItemDict):
         if len(ItemDict) != 0:
             OldImage = {
+                "active": ItemDict['active'],
                 "detail": ItemDict['detail'],
                 "index": self.turn_decimal_into_int(ItemDict['index']),
                 "mode": ItemDict['mode'],

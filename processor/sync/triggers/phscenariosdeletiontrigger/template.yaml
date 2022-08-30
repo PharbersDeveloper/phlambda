@@ -13,7 +13,7 @@ Resources:
       Environment:
         Variables:
           ARN: arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariosdeletion
-          EDITION: "DEV"
+          EDITION: replaceEdition
       FunctionName: phscenariosdeletiontrigger
       Description: Http Post接口触发StepFunctions 删除 sceanrio（scenarios)
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin

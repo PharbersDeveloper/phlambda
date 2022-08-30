@@ -177,8 +177,10 @@
                         "invalidate.$": "$.common.invalidate",
                         "deployS3Paths.$": "$.deployS3Paths"
                      },
+                     "ResultPath": null,
                      "Next": "FrontendBranchEnd"
                   },
+
                   "FrontendBranchEnd": {
                      "Type": "Pass",
                      "ResultPath": "$",
@@ -216,6 +218,7 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdemail",
          "Parameters": {
             "executionName.$": "$.frontendMetadata.common.executionName",
+            "components.$": "$.frontendMetadata.frontend.components",
             "email.$": "$.frontendMetadata.common.email",
             "publisher.$": "$.frontendMetadata.common.publisher",
             "status": "success"
@@ -227,7 +230,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdcleanup",
          "Parameters": {
-            "frontend.$": "$.frontendMetadata.frontend",
+            "frontend.$": "$.frontend",
             "status": "failed"
          },
          "ResultPath": "$.message",
@@ -237,9 +240,10 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phfrontendcicdemail",
          "Parameters": {
-            "executionName.$": "$.frontendMetadata.common.executionName",
-            "email.$": "$.frontendMetadata.common.email",
-            "publisher.$": "$.frontendMetadata.common.publisher",
+            "executionName.$": "$.common.executionName",
+            "components.$": "$.frontend.components",
+            "email.$": "$.common.email",
+            "publisher.$": "$.common.publisher",
             "status": "failed"
          },
          "ResultPath": "$.message",

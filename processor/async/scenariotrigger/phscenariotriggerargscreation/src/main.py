@@ -165,7 +165,7 @@ def create_trigger_args(trigger_datasets, event):
     calculate["conf"]["ownerId"] = event["owner"]
     calculate["conf"]["showName"] = event["showName"]
     calculate["conf"]["jobDesc"] = "runDag" + str(int(round(time.time() * 1000)))
-    calculate["recursive"] = json.loads(event["scenarioStep"].get("detail").get("recursive")) #False
+    calculate["recursive"] = event["scenarioStep"].get("detail").get("recursive") #False
     trigger_args["calculate"] = calculate
 
     # trigger的engine部分

@@ -76,6 +76,7 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargs",
          "Parameters": {
             "TriggerItem.$": "$.TriggerItem.item",
+            "scenario_mapping.$": "$.TriggerItem.scenario_mapping",
             "count.$": "$.TriggerCount",
             "common.$": "$.common"
          },

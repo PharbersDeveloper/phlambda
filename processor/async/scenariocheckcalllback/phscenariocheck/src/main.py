@@ -71,39 +71,45 @@ def execution(projectId, name, **kwargs):
             names.append(targetName)
     for id in query_scenario(projectId):
         triggers = triggers + query_trigger(id, names)
-
-    put_item(triggers)
-    return triggers
+    return triggers, {}
 
 
-def upload_share(projectId, name):
+def upload_share(projectId, name, **kwargs):
     triggers = []
     for id in query_scenario(projectId):
         triggers += query_trigger(id, [name])
-    return triggers
+    return triggers, {}
 
 
-def timer():
+def timer(tenantId, **kwargs):
     triggers = []
+    scenario_mapping = {}
     period = {
         "minute": 60, "hour": 3600, "day": 86400, "week": 604800, "month": 2628000,
     }
     table = dynamodb.Table('scenario')
     scenario_response = table.scan(
         FilterExpression=Attr("mode").eq("dataset") & Attr("active").eq(True)
-    )
-    scenario_ids = [scenario.get("id") for scenario in scenario_response.get("Items")]
-    table = dynamodb.Table('scenario_trigger')
-    for scenarioid in scenario_ids:
-        response = table.query(
+    ).get("Items")
+    scenario_trigger = dynamodb.Table('scenario_trigger')
+    for scenario in scenario_response:
+        scenarioid = scenario.get("id")
+        response = scenario_trigger.query(
             KeyConditionExpression=Key('scenarioId').eq(scenarioid),
             FilterExpression=Attr("mode").eq("timer")
         ).get("Items")
-        triggers += [trigger for trigger in response if now_time >= int(trigger.get("lastruntime")) +
-                     period[json.loads(trigger.get("detail", {})).get("period")] *
-                     int(json.loads(trigger.get("detail", {})).get("value"))]
-
-    return triggers
+        add_trigger = [trigger for trigger in response if now_time >= int(trigger.get("lastruntime")) +
+                       period[json.loads(trigger.get("detail", {})).get("period")] *
+                       int(json.loads(trigger.get("detail", {})).get("value"))]
+        if add_trigger:
+            scenario_mapping[scenarioid] = {"tenantId": tenantId,
+                                            "projectId": scenario["projectId"],
+                                            "projectName": scenario["projectName"],
+                                            "owner": scenario["owner"],
+                                            "showName": scenario["showName"]}
+            triggers += add_trigger
+    put_item(triggers)
+    return triggers, scenario_mapping
 
 
 Command = {
@@ -117,11 +123,12 @@ Command = {
 def lambda_handler(event, context):
     print(event)
     mode = event.pop("type")
-    item = Command[mode](**event)
+    item, scenario_mapping = Command[mode](**event)
     if not item:
         raise Exception("no scenario")
 
     return {
                 "item": item,
-                "count": len(item)
+                "count": len(item),
+                "scenario_mapping": scenario_mapping
            }

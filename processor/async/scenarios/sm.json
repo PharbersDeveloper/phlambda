@@ -117,22 +117,6 @@
                         "triggers.$": "$.triggers"
                      },
                      "ResultPath": "$.triggers",
-                     "Next": "TriggersResources"
-                  },
-                  "TriggersResources": {
-                     "Type": "Task",
-                     "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phtriggersresources",
-                     "Parameters": {
-                        "tenantId.$": "$.common.tenantId",
-                        "traceId.$": "$.common.traceId",
-                        "projectId.$": "$.common.projectId",
-                        "projectName.$": "$.common.projectName",
-                        "owner.$": "$.common.owner",
-                        "showName.$": "$.common.showName",
-                        "scenario.$": "$.scenario",
-                        "triggers.$": "$.triggers"
-                     },
-                     "ResultPath": null,
                      "End": true
                   }
                }

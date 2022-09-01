@@ -89,7 +89,7 @@ def timer(tenantId, **kwargs):
     }
     table = dynamodb.Table('scenario')
     scenario_response = table.scan(
-        FilterExpression=Attr("mode").eq("dataset") & Attr("active").eq(True)
+        FilterExpression=Attr("active").eq(True)
     ).get("Items")
     scenario_trigger = dynamodb.Table('scenario_trigger')
     for scenario in scenario_response:
@@ -98,7 +98,7 @@ def timer(tenantId, **kwargs):
             KeyConditionExpression=Key('scenarioId').eq(scenarioid),
             FilterExpression=Attr("mode").eq("timer")
         ).get("Items")
-        add_trigger = [trigger for trigger in response if now_time >= int(trigger.get("lastruntime")) +
+        add_trigger = [trigger for trigger in response if now_time >= int(trigger.get("lastruntime", 0)) +
                        period[json.loads(trigger.get("detail", {})).get("period")] *
                        int(json.loads(trigger.get("detail", {})).get("value"))]
         if add_trigger:
@@ -107,7 +107,7 @@ def timer(tenantId, **kwargs):
                                             "projectName": scenario["projectName"],
                                             "owner": scenario["owner"],
                                             "showName": scenario["showName"]}
-            triggers += add_trigger
+            triggers = triggers + add_trigger
     put_item(triggers)
     return triggers, scenario_mapping
 

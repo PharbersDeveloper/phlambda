@@ -17,6 +17,4 @@ def lambda_handler(event, context):
     event["common"]["traceId"] = get_uuid()
     event["common"]["name"] = event.get("jobName")
     event["type"] = "execution"
-    event["common"]["tenantId"] = "zudIcG_17yj8CEUoCTHg"
-
     return event

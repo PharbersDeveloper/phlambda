@@ -8,7 +8,6 @@ from decimal import Decimal
 
 
 dynamodb = boto3.resource("dynamodb")
-now_time = int(time.time())
 
 # def make_time(strtime):
 #     a = datetime.strptime(strtime, '%Y-%m-%d %H:%M:%S').timetuple()
@@ -122,6 +121,8 @@ Command = {
 
 def lambda_handler(event, context):
     print(event)
+    global now_time
+    now_time = int(time.time())
     mode = event.pop("type")
     common = event.get("common")
     item, scenario_mapping = Command[mode](**common)

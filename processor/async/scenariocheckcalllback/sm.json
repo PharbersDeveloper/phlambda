@@ -41,8 +41,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
          "Parameters": {
-            "projectId.$": "$.common.projectId",
-            "name.$": "$.name",
+            "common.$": "$.common",
             "type.$": "$.type"
          },
          "ResultPath": "$.TriggerItem",

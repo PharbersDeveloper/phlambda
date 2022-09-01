@@ -123,7 +123,8 @@ Command = {
 def lambda_handler(event, context):
     print(event)
     mode = event.pop("type")
-    item, scenario_mapping = Command[mode](**event)
+    common = event.get("common")
+    item, scenario_mapping = Command[mode](**common)
     if not item:
         raise Exception("no scenario")
 

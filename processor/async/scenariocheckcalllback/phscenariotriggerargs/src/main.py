@@ -13,9 +13,16 @@ def get_uuid():
 
 def lambda_handler(event, context):
     print(event)
-
     trigger = event.get("TriggerItem")[event.get("count")]
-    common = event.get("common")
+
+    common_dict = {
+        "execution": event.get("common"),
+        "timer": event.get("scenario_mapping")[trigger["scenarioId"]],
+        "upload": event.get("common"),
+        "share": event.get("common")
+    }
+
+    common = common_dict[event.get("type")]
 
     args = {
         "common": {
@@ -38,7 +45,7 @@ def lambda_handler(event, context):
         },
         "scenario": {
             "scenarioId": trigger["scenarioId"],
-            "runtime": "timer"
+            "runtime": trigger["mode"]
         }
     }
     return args

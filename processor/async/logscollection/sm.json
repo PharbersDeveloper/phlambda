@@ -11,7 +11,7 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phlogscollectionargsvalidation",
          "ResultPath": null,
-         "Next": "waitLogsPath",
+         "Next": "ScenarioCheckArgs",
          "Catch": [ {
             "ErrorEquals": [ "States.Runtime" ],
             "ResultPath": "$.error",
@@ -25,6 +25,30 @@
             "ResultPath": "$.error",
             "Next": "CleanUp"
          } ]
+      },
+      "ScenarioCheckArgs": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheckargs",
+         "Parameters": {
+            "common.$": "$.common",
+            "clusterId.$": "$.clusterId",
+            "jobName.$": "$.jobName",
+            "date.$": "$.date",
+            "stepId.$": "$.stepId"
+         },
+         "ResultPath": "$.ScenarioCheckArgs",
+         "Next": "ScenarioCheck"
+      },
+      "ScenarioCheck": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Parameters": {
+            "Input.$": "$.ScenarioCheckArgs",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariocheckcalllback-dev",
+            "Name.$": "$.ScenarioCheckArgs.common.traceId"
+         },
+         "ResultPath": null,
+         "Next": "waitLogsPath"
       },
       "waitLogsPath": {
          "Type": "Wait",

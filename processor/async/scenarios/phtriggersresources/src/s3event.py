@@ -65,12 +65,12 @@ def wirte_s3(tenantId, projectId, projectName, owner, showName, scenarioId, dsNa
 
 def dataset(projectId, trigger, **kwargs):
 
-    scenarioId = trigger.get("scenarioId")
-    dsNames = trigger.get("detail").get("dsNames")
-
-    wirte_s3(scenarioId=scenarioId, dsNames=dsNames, projectId=projectId, **kwargs)
-    time.sleep(1)
-    s3_bucket_notification(projectId, dsNames)
+    # scenarioId = trigger.get("scenarioId")
+    # dsNames = trigger.get("detail").get("dsNames")
+    #
+    # wirte_s3(scenarioId=scenarioId, dsNames=dsNames, projectId=projectId, **kwargs)
+    # time.sleep(1)
+    # s3_bucket_notification(projectId, dsNames)
     return True
 
 
@@ -81,10 +81,10 @@ def dataset(projectId, trigger, **kwargs):
 # bucket_notification = s3.BucketNotification('ph-platform')
 # print(bucket_notification.load())
 
-client = boto3.client('s3')
-response = client.get_bucket_notification_configuration(
-    Bucket='ph-platform',
-)
-print(response.get("TopicConfigurations", []))
-
-a= [{'Id': 'c19a14542420469bb1052f0e206a0d55', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/胖胖胖1/'}]}}}, {'Id': 'b8231e94b8274b55b3c6a8c3f48005cf', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/vcb/'}]}}}, {'Id': 'a1d061a741f64a59ad0e5cc5d3d1a5e0', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/1112/'}]}}}]
+# client = boto3.client('s3')
+# response = client.get_bucket_notification_configuration(
+#     Bucket='ph-platform',
+# )
+# print(response.get("TopicConfigurations", []))
+#
+# a= [{'Id': 'c19a14542420469bb1052f0e206a0d55', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/胖胖胖1/'}]}}}, {'Id': 'b8231e94b8274b55b3c6a8c3f48005cf', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/vcb/'}]}}}, {'Id': 'a1d061a741f64a59ad0e5cc5d3d1a5e0', 'TopicArn': 'arn:aws-cn:sns:cn-northwest-1:444603803904:PH_NOTICE_S3', 'Events': ['s3:ObjectCreated:Put'], 'Filter': {'Key': {'FilterRules': [{'Name': 'Prefix', 'Value': '2020-11-11/lake/pharbers/ggjpDje0HUC2JW/1112/'}]}}}]

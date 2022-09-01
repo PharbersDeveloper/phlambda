@@ -41,27 +41,51 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariocheck",
          "Parameters": {
-            "projectId.$": "$.common.projectId",
-            "name.$": "$.name",
+            "common.$": "$.common",
             "type.$": "$.type"
          },
          "ResultPath": "$.TriggerItem",
-         "Next": "ScenarioTriggerArgs"
+         "Next": "ScenarioTriggerArgs",
+         "Catch": [
+            {
+               "ErrorEquals": [
+                  "States.Runtime"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.TaskFailed"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            },
+            {
+               "ErrorEquals": [
+                  "States.ALL"
+               ],
+               "ResultPath": "$.iterator.error",
+               "Next": "CleanUp"
+            }
+         ]
       },
       "ScenarioTriggerArgs": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggerargs",
          "Parameters": {
             "TriggerItem.$": "$.TriggerItem.item",
+            "scenario_mapping.$": "$.TriggerItem.scenario_mapping",
             "count.$": "$.TriggerCount",
-            "common.$": "$.common"
+            "common.$": "$.common",
+            "type.$": "$.type"
          },
          "ResultPath": "$.ScenarioTriggerArgs",
          "Next": "ScenarioTrigger"
       },
       "ScenarioTrigger": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Resource": "arn:aws-cn:states:::states:startExecution",
          "Parameters": {
             "Input.$": "$.ScenarioTriggerArgs",
             "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariotrigger",

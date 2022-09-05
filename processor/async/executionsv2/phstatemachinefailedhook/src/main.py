@@ -166,11 +166,17 @@ def put_item(tableName, event, Status):
             print("item not exit")
             response = "item not exit"
         else:
-            oldItem["status"] = Status
             dynamodb = boto3.resource('dynamodb')
             table = dynamodb.Table(tableName)
             response = table.put_item(
-                Item=oldItem
+                Item={
+                    'projectId': oldItem["projectId"],
+                    'date': oldItem['date'],
+                    'current': oldItem['current'],
+                    'runnerId': oldItem["runnerId"],
+                    'owner': oldItem["owner"],
+                    'status': Status
+                    }
             )
     return response
 

@@ -86,7 +86,7 @@ def put_item(tableName, event, Status):
         date = str(event["runnerId"]).split("_")[-1]
         response = table.put_item(
             Item={
-                'id': event["projectId"],
+                'projectId': event["projectId"],
                 'date': date, #"runnerId 后面的时间",
                 'current': get_timeStamp(date) + event["runnerId"], #date变时间搓 +  runnerId,
                 'runnerId': event["runnerId"],

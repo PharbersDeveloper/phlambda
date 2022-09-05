@@ -88,7 +88,7 @@ def put_item(tableName, event, Status):
             Item={
                 'projectId': event["projectId"],
                 'date': date, #"runnerId 后面的时间",
-                'current': get_timeStamp(date) + event["runnerId"], #date变时间搓 +  runnerId,
+                'current': get_timeStamp(date) + "_" + event["runnerId"], #date变时间搓 +  runnerId,
                 'runnerId': event["runnerId"],
                 'owner': event["showName"],
                 'status': Status

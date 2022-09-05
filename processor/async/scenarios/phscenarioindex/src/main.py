@@ -100,7 +100,8 @@ class ScenarioIndex:
                 "id": ItemDict['id'],
                 "active": ItemDict['active'],
                 "scenarioName": ItemDict['scenarioName'],
-                "index": self.turn_decimal_into_int(ItemDict['index'])
+                "index": self.turn_decimal_into_int(ItemDict['index']),
+                "args": ItemDict['args']
             }
         else:
             OldImage = {}

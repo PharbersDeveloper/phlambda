@@ -50,11 +50,12 @@ def args_setting(projectId, scenarioId, codeFree, confData, **kwargs):
     confData = json.loads(confData)
     scenario_args: list = json.loads(get_scenario(projectId, scenarioId).get("args"))
     for key, value in confData.items():
-        name = value[value.rfind("$"):]
-        value = codeFree.get("name", "")
+        name = value[value.rfind("$")+1:]
+        value = codeFree.get(name, "")
         if not value:
-            value = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
-        confData = {confData[key]: value[0]} if value else {}
+            value_list = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
+            value = value_list[0] if value_list else ""
+        confData = {key: value} if value else {}
     return confData
 
 

@@ -117,14 +117,13 @@ def lambda_handler(event, context):
     print(event)
     projectId = event.get("projectId")
     scenarioId = event.get("scenarioId")
-    steo_id = event.get("steo_id")
     CodeFree = event.get("CodeFree")
-    scenario_args:list = json.loads(get_scenario(projectId, scenarioId).get("args"))
-    step_confData:dict = get_scenario_step(scenarioId, steo_id).get("confData")
-    for key, value in step_confData.items():
+    confData = json.loads(event.get("confData"))
+    scenario_args: list = json.loads(get_scenario(projectId, scenarioId).get("args"))
+    for key, value in confData.items():
         name = value[value.rfind("$"):]
         value = CodeFree.get("name", "")
         if not value:
             value = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
-        step_confData[key] = value[0] if value else ""
-    return step_confData
+        confData[key] = value[0] if value else ""
+    return confData

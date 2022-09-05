@@ -111,7 +111,8 @@ def create_trigger_datasets(select_res, dag_items):
     selected_items = list(filter(lambda x: x['representId'] in select_res["selected"] and
                                            x['representId'] != select_res["calculate"]["represent-id"] and
                                            x["cat"] == "dataset" and
-                                           x["runtime"] != "intermediate", dag_items))
+                                           x["runtime"] == "catalog" and
+                                           x["runtime"] == "uploaded", dag_items))
     for selected_item in selected_items:
         trigger_datasets.append({
             "name": selected_item["name"],

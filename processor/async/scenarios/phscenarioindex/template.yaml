@@ -8,7 +8,7 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
-      FunctionName: phscenariocheck
+      FunctionName: phscenarioindex
       MemorySize: 1024
       Description: "phscenariocheck"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW

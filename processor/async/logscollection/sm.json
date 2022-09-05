@@ -41,10 +41,10 @@
       },
       "ScenarioCheck": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:states:::states:startExecution.sync:2",
+         "Resource": "arn:aws-cn:states:::states:startExecution",
          "Parameters": {
             "Input.$": "$.ScenarioCheckArgs",
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariocheckcalllback-dev",
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:scenariocheckcalllback",
             "Name.$": "$.ScenarioCheckArgs.common.traceId"
          },
          "ResultPath": null,

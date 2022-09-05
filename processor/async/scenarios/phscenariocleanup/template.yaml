@@ -10,7 +10,7 @@ Resources:
       CodeUri: ./src
       FunctionName: phscenariocleanup
       MemorySize: 1024
-      Description: "phscenariocheckcallbackcleanup"
+      Description: "phscenariocleanup"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Timeout: 300
       Environment:

@@ -89,7 +89,10 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariotriggergetdetail",
          "Parameters": {
             "iterator.$": "$.iterator",
-            "scenarioItems.$": "$.metadata.scenarioItems"
+            "scenarioItems.$": "$.metadata.scenarioItems",
+            "projectId.$": "$.common.projectId",
+            "scenarioId.$": "$.scenario.scenarioId",
+            "codeFree.$": "$.scenario.codeFree"
          },
          "ResultPath": "$.currentScenarioStep",
          "Next": "ScenarioTriggerArgsCreation"

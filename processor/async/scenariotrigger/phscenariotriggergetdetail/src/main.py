@@ -48,7 +48,8 @@ def get_scenario(projectId, id):
 
 def args_setting(projectId, scenarioId, codeFree, confData, **kwargs):
     confData = json.loads(confData)
-    scenario_args: list = json.loads(get_scenario(projectId, scenarioId).get("args"))
+    args = get_scenario(projectId, scenarioId).get("args")
+    scenario_args: list = json.loads(args) if isinstance(args, str) else []
     for key, value in confData.items():
         name = value[value.rfind("$")+1:]
         value = codeFree.get(name, "")

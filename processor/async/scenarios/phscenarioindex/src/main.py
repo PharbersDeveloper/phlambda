@@ -36,7 +36,7 @@ class ScenarioIndex:
         return self.scenario['active']
 
     def get_args(self):
-        return ''
+        return self.dumps_data_by_json(self.scenario['args'])
 
     def get_index(self):
         return self.scenario['index']
@@ -55,6 +55,9 @@ class ScenarioIndex:
 
     def get_showName(self):
         return self.event['showName']
+
+    def dumps_data_by_json(self, data):
+        return data if isinstance(data, str) else json.dumps(data)
 
     def turn_decimal_into_int(self, data):
         return int(data) if isinstance(data, Decimal) else data
@@ -97,7 +100,8 @@ class ScenarioIndex:
                 "id": ItemDict['id'],
                 "active": ItemDict['active'],
                 "scenarioName": ItemDict['scenarioName'],
-                "index": self.turn_decimal_into_int(ItemDict['index'])
+                "index": self.turn_decimal_into_int(ItemDict['index']),
+                "args": ItemDict['args']
             }
         else:
             OldImage = {}

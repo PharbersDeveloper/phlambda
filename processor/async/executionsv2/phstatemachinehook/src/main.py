@@ -95,7 +95,7 @@ def put_item(tableName, event, Status):
             }
         )
     else:
-        oldItem = query_table_item(tableName, id=event["projectId"], runnerId=event["runnerId"])
+        oldItem = query_table_item(tableName, projectId=event["projectId"], runnerId=event["runnerId"])
         if len(oldItem) == 0:
             print("item not exit")
             response = "item not exit"

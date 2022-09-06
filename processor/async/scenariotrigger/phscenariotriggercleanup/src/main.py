@@ -50,6 +50,7 @@ def query_status(projectId, traceId, **kwargs):
 
 def lambda_handler(event, context):
     print(event)
+    put_item(query_status(**event))
     opname = event["owner"]
     message = {
         "type": "notification",

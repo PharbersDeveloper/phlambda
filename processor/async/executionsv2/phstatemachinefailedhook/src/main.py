@@ -125,6 +125,63 @@ def errorHandle(error, runnerId):
 
     raise Exception('unknown')
 
+
+def get_timeStamp(strTime):
+    import time
+    timeArray = time.strptime(strTime, "%Y-%m-%dT%H:%M:%S+00:00")
+    timeStamp = str(int(time.mktime(timeArray)) * 1000)
+    return timeStamp
+
+def query_table_item(tableName, **kwargs):
+    dynamodb = boto3.resource('dynamodb')
+    ds_table = dynamodb.Table(tableName)
+    res = ds_table.get_item(
+        Key=kwargs,
+    )
+    try:
+        Item = res["Item"]
+    except:
+        Item = {}
+    return Item
+
+def put_item(tableName, event, Status):
+
+    if str(Status) == "running":
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        date = str(event["runnerId"]).split("_")[-1]
+        response = table.put_item(
+            Item={
+                'projectId': event["projectId"],
+                'date': date, #"runnerId 后面的时间",
+                'current': get_timeStamp(date) + "_" + event["runnerId"], #date变时间搓 +  runnerId,
+                'runnerId': event["runnerId"],
+                'owner': event["showName"],
+                'status': Status
+            }
+        )
+    else:
+        oldItem = query_table_item(tableName, projectId=event["projectId"], runnerId=event["runnerId"])
+        if len(oldItem) == 0:
+            print("item not exit")
+            response = "item not exit"
+        else:
+            dynamodb = boto3.resource('dynamodb')
+            table = dynamodb.Table(tableName)
+            response = table.put_item(
+                Item={
+                    'projectId': oldItem["projectId"],
+                    'date': oldItem['date'],
+                    'current': oldItem['current'],
+                    'runnerId': oldItem["runnerId"],
+                    'owner': oldItem["owner"],
+                    'status': Status
+                    }
+            )
+    return response
+
+
+
 def lambda_handler(event, context):
     # cicd 0717 1206
     print(event)
@@ -166,7 +223,8 @@ def lambda_handler(event, context):
                 put_failed_execution(item['id'], item['projectId'], str(int(ts)), "", status="failed", dynamodb=None)
             elif item['status'] == 'queued':
                 put_notification(item['id'], item['projectId'], None, 0, "", int(ts), event['owner'], event['showName'], status ='canceled')
-    
+
+    put_item("executionStatus", event, "failed")
     return {
         "status": "ok"
     }

@@ -5,7 +5,8 @@ from decimal import Decimal
 def getResultHTML(result):
     resultData = ConverResultDataType(result)
     pd.set_option('display.max_colwidth', 200)
-    columns = ['Index', 'DsName', 'Type', 'Recursive', 'StartTime', 'EndTime', 'Status', 'Error']
+    columns = ['Index', 'DsName', 'Type', 'StepName', 'RunnerId', 'ShowName', 'Recursive',
+               'StartTime', 'EndTime', 'Status', 'Error']
 
     filter_merge_data = pd.DataFrame(resultData, columns=columns)
 
@@ -121,7 +122,9 @@ def ConverResultDataType(Result):
     result = []
     for data in Result:
         Basic = data['BasicInfo']
-        tmpList = [data['stepIndex'], Basic['name'], Basic['type'], Basic['recursive'], data['startTime'], data['endTime'], data['status'], json.dumps(data['Error'], ensure_ascii=False)]
+        tmpList = [data['stepIndex'], Basic['name'], Basic['type'], data['stepName'], data['runnerId'],
+                   data['showName'], Basic['recursive'], data['startTime'], data['endTime'],
+                   data['status'], json.dumps(data['Error'], ensure_ascii=False)]
         result.append(tmpList)
     #---- 基于Stepindex 排序 -----#
     return sorted(result, key=lambda x: x[0])

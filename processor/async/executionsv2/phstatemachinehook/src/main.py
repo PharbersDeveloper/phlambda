@@ -60,6 +60,61 @@ def put_notification(runnerId, projectId, category, code, comments, date, owner,
 #                                     1,
 #                                     'Count')
 
+def get_timeStamp(strTime):
+    import time
+    timeArray = time.strptime(strTime, "%Y-%m-%dT%H:%M:%S+00:00")
+    timeStamp = str(int(time.mktime(timeArray)) * 1000)
+    return timeStamp
+
+def query_table_item(tableName, **kwargs):
+    dynamodb = boto3.resource('dynamodb')
+    ds_table = dynamodb.Table(tableName)
+    res = ds_table.get_item(
+        Key=kwargs,
+    )
+    try:
+        Item = res["Item"]
+    except:
+        Item = {}
+    return Item
+
+def put_item(tableName, event, Status):
+
+    if str(Status) == "running":
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table(tableName)
+        date = str(event["runnerId"]).split("_")[-1]
+        response = table.put_item(
+            Item={
+                'projectId': event["projectId"],
+                'date': date, #"runnerId 后面的时间",
+                'current': get_timeStamp(date) + "_" + event["runnerId"], #date变时间搓 +  runnerId,
+                'runnerId': event["runnerId"],
+                'owner': event["showName"],
+                'status': Status
+            }
+        )
+    else:
+        oldItem = query_table_item(tableName, projectId=event["projectId"], runnerId=event["runnerId"])
+        if len(oldItem) == 0:
+            print("item not exit")
+            response = "item not exit"
+        else:
+            dynamodb = boto3.resource('dynamodb')
+            table = dynamodb.Table(tableName)
+            response = table.put_item(
+                Item={
+                    'projectId': oldItem["projectId"],
+                    'date': oldItem['date'],
+                    'current': oldItem['current'],
+                    'runnerId': oldItem["runnerId"],
+                    'owner': oldItem["owner"],
+                    'status': Status
+                }
+            )
+    return response
+
+
 
 def lambda_handler(event, context):
     print(event)
@@ -80,10 +135,15 @@ def lambda_handler(event, context):
 
             tmpJobName = '_'.join([pn, pn, flowVersion, iter])
             put_notification(event['runnerId'], tmpJobName, None, 0, "", int(ts), event['owner'], event['showName'])
+        #---- running -----#
+        put_item(tableName="executionStatus", event=event, Status="running")
         
     else:
         pid = event['projectId']
         # 1. put notification for dag
         put_notification(event['runnerId'], pid, None, 0, "", int(ts), event['owner'], event['showName'], status='success')
-    
+        #---- success -----#
+        put_item(tableName="executionStatus", event=event, Status="success")
+
     return { "status": "ok"  }
+

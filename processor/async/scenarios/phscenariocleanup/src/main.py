@@ -59,7 +59,7 @@ class RollBack:
             'projectId': self.get_projectId(),
             'id': OldImage['id'],
             'active': OldImage['active'],
-            'args': '',
+            'args': OldImage['args'],
             'index': self.turn_decimal_into_int(OldImage['index']),
             'owner': self.get_owner(),
             'projectName': self.get_projectName(),

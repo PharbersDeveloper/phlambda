@@ -19,6 +19,7 @@ from models.ScenarioReport import ScenarioReport
 from models.ScenarioStep import ScenarioStep
 from models.ScenarioTrigger import ScenarioTrigger
 from models.Resource import Resource
+from models.ExecutionStatus import ExecutionStatus
 
 # import base64
 # from util.AWS.STS import STS
@@ -56,7 +57,8 @@ __table_structure = {
     "scenario_step": ScenarioStep,
     "scenario_trigger": ScenarioTrigger,
     "scenario_report": ScenarioReport,
-    "resource": Resource
+    "resource": Resource,
+    "executionStatus": ExecutionStatus
 }
 
 

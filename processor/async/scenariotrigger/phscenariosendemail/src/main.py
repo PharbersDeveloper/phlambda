@@ -79,11 +79,14 @@ def time_transformate(timestamp):
 
 
 
-def handleResultData(ResultData):
+def handleResultData(ResultData, showName):
 
     ResultList = []
     for result in ResultData:
         tmp = {}
+        tmp['runnerId'] = result[0]['runnerId']
+        tmp['showName'] = showName
+        tmp['stepName'] = result[-1]['name']
         tmp['BasicInfo'] = ChangeStrToDict(result[-1]['detail'])
         tmp['stepIndex'] = turn_decimal_into_int(result[-1]['index'])
         tmp['startTime'] = time_transformate(result[0]['date'])
@@ -122,7 +125,8 @@ def lambda_handler(event, context):
         print(DataOfNotification)
 
         ResultData = list(zip(DataOfExecution, DataOfNotification, BasicInfo))
-        Result = handleResultData(ResultData)
+        showName = event['showName']
+        Result = handleResultData(ResultData, showName)
         print("*"*50 + "Result" + "*"*50)
         print(Result)
 

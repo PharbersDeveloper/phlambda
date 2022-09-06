@@ -33,6 +33,8 @@ def lambda_handler(event, context):
     #     print(e)
 
     #     raise e
+    print("event ----->")
+    print(event)
     app = AppLambdaDelegate(event=event, context=context)
     #---------------------- 埋点 -------------------------------------#
     '''

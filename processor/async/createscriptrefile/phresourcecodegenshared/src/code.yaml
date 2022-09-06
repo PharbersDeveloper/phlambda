@@ -507,12 +507,12 @@ code:
           def getClient():
               return boto3.client('glue', 'cn-northwest-1')
 
-          def judgeVersionToGlue(table):
+          def judgeVersionToGlue():
               # 判断写入数据目录的version是否已经存在
               outPartitionsList = [i['version'] for i in spark.read.parquet(glue_path).select('version').distinct().collect()]
 
               if kwargs["version"] in outPartitionsList:
-                  raise ValueError(f"已经存在该version:{version}")
+                  raise ValueError(f"已经存在该version:{kwargs['version']}")
               return outPartitionsList
 
           def judgeColumns(cols, table):
@@ -526,7 +526,7 @@ code:
 
           def writeToDataGlue(df, gluetable, glueversion):
               # 判断version是否已存在
-              judgeVersionToGlue(gluetable)
+              judgeVersionToGlue()
               # 判断列名是否存在
               judgeColumns(df.columns, gluetable)
               # 写出

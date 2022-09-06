@@ -100,9 +100,9 @@ dynamodb = boto3.resource('dynamodb')
 def status_itme(projectId, traceId):
     item = {
         "id": projectId,
-        "startAt": int(round(time.time()*1000)),
+        "startAt": str(int(round(time.time()*1000))),
         "traceId": traceId,
-        "endAt": None,
+        "endAt": "",
         "status": "running"
     }
     return item

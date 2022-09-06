@@ -43,7 +43,7 @@ def query_status(projectId, traceId, **kwargs):
                 IndexName='id-traceId-index',
                 KeyConditionExpression=Key('Id').eq(projectId) & Key('traceId').eq(traceId),
                 ).get("Items")[0]
-    responses["endAt"] = int(round(time.time()*1000))
+    responses["endAt"] = str(int(round(time.time()*1000)))
     responses["status"] = "failed"
     return responses
 

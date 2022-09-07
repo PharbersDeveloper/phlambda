@@ -81,7 +81,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-dev"
         },
         "ResultPath": None,
         "Next": curJ + "EndHook"
@@ -116,7 +116,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-dev"
         },
         "ResultPath": None,
         "Next": curJ + "Failed"

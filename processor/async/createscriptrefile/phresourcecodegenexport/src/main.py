@@ -47,7 +47,7 @@ def lambda_handler(event, context):
 
     if event["script"].get("name"):
         inputs = json.loads(event["script"]["inputs"])
-        datasets = json.loads(event["datasets"])
+        datasets = event["datasets"]
         download_name = list(filter(lambda x : x["cat"].lower() == "download", datasets))[0]["schema"]
         download_url = f"s3://{os.environ['BUCKET']}/{os.environ['CLI_VERSION']}/{os.environ['DOWNLOAD_PATH']}/{event['tenantId']}/{event['projectId']}/{download_name}"
         args = {

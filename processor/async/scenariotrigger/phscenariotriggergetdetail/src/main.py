@@ -55,8 +55,8 @@ def args_setting(projectId, scenarioId, codeFree, confData, **kwargs):
         value = codeFree.get(name, "")
         if not value:
             value_list = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
-            value = value_list[0] if value_list else ""
-        confData = {key: value} if value else {}
+            value = value_list[0] if value_list else name
+        confData[key] = value
     return confData
 
 
@@ -78,3 +78,13 @@ def lambda_handler(event, context):
     # 'scenarioStep': {'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}
 
     return scenarioStep
+
+
+# a = {"monthly_update":"True","project_name":"Takeda","if_two_source":"True","max_month":"Empty","year_missing":"Empty","current_year":"2021","first_month":"1","current_month":"3","all_models":"TK1","time_left":"202101","time_right":"202103","model_month_left":"202001","model_month_right":"202012","if_add_data":"True","add_47":"True","minimum_product_columns":"Brand, Form, Specifications, Pack_Number, Manufacturer","minimum_product_sep":"|","minimum_product_newname":"min1","need_cleaning_cols":"Molecule, Brand, Form, Specifications, Pack_Number, Manufacturer, min1, Route, Corp","if_base":"False","universe_choice":"Empty","factor_choice":"TK1:Takeda_TK1_20210623","universe_outlier_choice":"TK1:Takeda_TK1_20210623","use_d_weight":"Empty","hospital_level":"False","bedsize":"True","g_input_version":{"prod_mapping":"Takeda_202103","max_raw_data_delivery":"Takeda_202103","max_raw_data_std":"Takeda_202103","max_raw_data":"Takeda_202103","universe_base_common":"common_2020","universe_base":"Takeda_2020","weight_default":"Takeda_20210624","weight":"Takeda_20210624","province_city_mapping_common":"common_20210623","province_city_mapping":"Takeda_20210623","cpa_pha_mapping_common":"common_20210623","cpa_pha_mapping":"Takeda_20210623","id_bedsize":"common_20210623","product_map_all_atc":"common_20210617","master_data_map":"common_20210623","mkt_mapping":"Takeda_20210623","poi":"Takeda_20210623","not_arrived":"common_201812,common_201912,common_202012,common_202103","published":"common_2017,common_2018,common_2019,common_2020,common_2021,common_2022"}}
+
+# def read(dic):
+#     for k, v in dic.items():
+#         if isinstance(v, dict):
+#             read(v)
+#         else:
+#             print(v)

@@ -151,7 +151,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(dagName)
         tmp.append('--run_id')
         tmp.append(event['runnerId'])
-        tmp.append('--versionAlias')
+        tmp.append('--version_alias')
         tmp.append(versionAlias)
         tmp.append('--job_full_name')
         tmp.append(jobName)

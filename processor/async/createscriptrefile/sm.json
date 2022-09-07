@@ -40,6 +40,11 @@
                "Variable": "$.script.runtime",
                "StringEquals": "shared",
                "Next": "SharedFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "download",
+               "Next": "DownloadFiles"
             }
          ],
          "Default": "PysparkFiles"
@@ -93,6 +98,23 @@
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenshared",
          "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script",
+            "datasets.$": "$.datasets"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "DownloadFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegendownload",
+         "Parameters": {
+            "tenantId": "$.common.tenantId",
             "traceId.$": "$.common.traceId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",

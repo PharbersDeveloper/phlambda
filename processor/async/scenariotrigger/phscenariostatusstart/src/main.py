@@ -97,33 +97,25 @@ return:
 dynamodb = boto3.resource('dynamodb')
 
 
-def get_scenario_step(scenarioId, id):
-    ds_table = dynamodb.Table('scenario_step')
-    res = ds_table.query(
-        KeyConditionExpression=Key("scenarioId").eq(scenarioId) & Key("id").eq(id)
-    )
-    return res.get("Items")[0]
+def status_itme(projectId, traceId):
+    item = {
+        "id": projectId,
+        "startAt": str(int(round(time.time()*1000))),
+        "traceId": traceId,
+        "endAt": "",
+        "status": "running"
+    }
+    return item
 
 
-def get_scenario(projectId, id):
-    ds_table = dynamodb.Table('scenario')
-    res = ds_table.query(
-        KeyConditionExpression=Key("projectId").eq(projectId) & Key("id").eq(id)
+def put_item(item):
+    dynamodb_table = dynamodb.Table("scenario_status")
+    response = dynamodb_table.put_item(
+        Item=item
     )
-    return res.get("Items")[0]
 
 
 def lambda_handler(event, context):
     print(event)
-    projectId = event.get("projectId")
-    scenarioId = event.get("scenarioId")
-    CodeFree = event.get("CodeFree")
-    confData = json.loads(event.get("confData"))
-    scenario_args: list = json.loads(get_scenario(projectId, scenarioId).get("args"))
-    for key, value in confData.items():
-        name = value[value.rfind("$"):]
-        value = CodeFree.get("name", "")
-        if not value:
-            value = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
-        confData[key] = value[0] if value else ""
-    return confData
+    put_item(status_itme(**event))
+    return True

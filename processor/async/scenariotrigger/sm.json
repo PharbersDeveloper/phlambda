@@ -6,6 +6,16 @@
          "Type": "Pass",
          "Result": {},
          "ResultPath": "$.iterator",
+         "Next": "ScenarioStatusStart"
+      },
+      "ScenarioStatusStart": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariostatusstart",
+         "Parameters": {
+            "projectId.$": "$.common.projectId",
+            "traceId.$": "$.common.traceId"
+         },
+         "ResultPath": null,
          "Next": "ArgsValidation"
       },
       "ArgsValidation": {

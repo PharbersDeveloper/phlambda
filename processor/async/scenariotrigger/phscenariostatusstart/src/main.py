@@ -97,11 +97,20 @@ return:
 dynamodb = boto3.resource('dynamodb')
 
 
+def scenario_name(projectId, scenarioId):
+    table = dynamodb.Table("scenario")
+    response = table.query(
+        KeyConditionExpression=Key('projectId').eq(projectId) & Key('id').eq(scenarioId)
+    )
+    return response.get("Items")[0].get("scenarioName", "")
+
+
 def status_itme(projectId, traceId, scenarioId):
     item = {
         "id": projectId,
         "startAt": str(int(round(time.time()*1000))),
         "scenarioId": scenarioId,
+        "name": scenario_name(projectId, scenarioId),
         "traceId": traceId,
         "endAt": "",
         "status": "running"

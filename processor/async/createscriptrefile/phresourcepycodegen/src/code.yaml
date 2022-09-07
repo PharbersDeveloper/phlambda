@@ -353,7 +353,7 @@ code:
 
 
       # 写最终输出的数据
-      def write_output_df(ph_conf, output_version, alias_version ch_client,
+      def write_output_df(ph_conf, output_version, alias_version, ch_client,
                           df, tenant_ip, project_id, output_ds_name, output_id,
                           mode="append", number_partitions=2, database="default"):
           table = f"{project_id}_{output_ds_name}"

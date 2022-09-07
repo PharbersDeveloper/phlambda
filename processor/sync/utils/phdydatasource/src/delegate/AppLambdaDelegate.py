@@ -27,4 +27,5 @@ class AppLambdaDelegate:
 
             return Response(json_api_data, 200).build
         except Exception as e:
+            print("*"*50 + "ERROR" + "*"*50, str(e))
             return Response(PhError(str(e)).messages, 500).build

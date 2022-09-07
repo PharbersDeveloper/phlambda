@@ -45,7 +45,8 @@ def lambda_handler(event, context):
         },
         "scenario": {
             "scenarioId": trigger["scenarioId"],
-            "runtime": trigger["mode"]
+            "runtime": trigger["mode"],
+            "codeFree": {}
         }
     }
     return args

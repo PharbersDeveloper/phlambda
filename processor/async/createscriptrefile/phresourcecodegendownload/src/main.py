@@ -49,7 +49,7 @@ def lambda_handler(event, context):
         inputs = json.loads(event["script"]["inputs"])
         # datasets = json.loads(event["datasets"])
         # download_name = list(filter(lambda x : x["cat"].lower() == "download", datasets))[0]["schema"]
-        download_url = f"s3://{os.environ['BUCKET']}/{os.environ['CLI_VERSION']}/{os.environ['DOWNLOAD_PATH']}/{event['tenantId']}/{event['projectId']}/"
+        # download_url = f"s3://{os.environ['BUCKET']}/{os.environ['CLI_VERSION']}/{os.environ['DOWNLOAD_PATH']}/{event['tenantId']}/{event['projectId']}/"
         args = {
             "inputs": inputs,
             "output": event["script"]["output"],
@@ -59,7 +59,7 @@ def lambda_handler(event, context):
             "dag_name": event["dagName"],
             "script_name": event["script"]["name"],
             "rep": "$",
-            "download_url": download_url,
+            # "download_url": download_url,
             "input_var_args": "\n\t\t".join(list(map(lambda ds: f"data_frame = kwargs['df_{ds}']", inputs))) \
                 .replace("\t", "    ")
         }

@@ -416,6 +416,9 @@ code:
           write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
+        def write_downlowd_data(df, run_id, project_id, out_ds_name):
+            path = f"{lake_prefix}{project_id}/{out_ds_name}/{run_id}"
+            data_frame.write.option("header",True).csv(path)
 
       @click.command()
       @click.option("--owner")
@@ -445,13 +448,17 @@ code:
               args.update(kwargs)
               output_version = args.get("run_id") + "_" + ph_conf.get("showName")
               
-              args.update({"run_id": args.get("run_id")})
-              args.update({"version": output_version})
+              # args.update({"run_id": args.get("run_id")})
+              # args.update({"version": output_version})
               df_map = build_inputs_df(runtime, inputs, args, project_id, output_version, logger)
 
               args.update(df_map)
               result = execute(**args)
               args.update(result if isinstance(result, dict) else {})
+              
+              # 专门写入下载数据 但是与平常的格式不同，每次run都只会有一个version的数据，因此不需要多schema
+              # 因为要找到本次运行后的数据，会在写入时追加run id的路径 确保 能找到当次的结果来生成压缩包
+              write_downlowd_data(result["out_df"], args.get("run_id"), project_id, output )
 
               return result
           except Exception as e:
@@ -473,11 +480,11 @@ code:
           data_frame = None
           $input_var_args
         
-          download_url = "$download_url" + kwargs["run_id"]
+          # download_url = "$download_url" + kwargs["run_id"]
 
           # data_frame = data_frame.withColumn("version", lit(kwargs["version"]))
           # data_frame.write.partitionBy("version").option("header",True).csv(download_url)
-          data_frame.write.option("header",True).csv(download_url)
+          # data_frame.write.option("header",True).csv(download_url)
         
           return {"out_df": data_frame}
 

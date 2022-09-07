@@ -414,7 +414,7 @@ code:
 
           ch_client.execute(sql_create_table)
 
-          write_output_df(ph_conf, output_version, kwargs["versionAlias"], ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
+          write_output_df(ph_conf, output_version, kwargs.get("versionAlias", "undefined"), ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
 

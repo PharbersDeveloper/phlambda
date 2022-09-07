@@ -43,8 +43,8 @@
             },
             {
                "Variable": "$.script.runtime",
-               "StringEquals": "download",
-               "Next": "DownloadFiles"
+               "StringEquals": "export",
+               "Next": "ExportFiles"
             }
          ],
          "Default": "PysparkFiles"
@@ -110,7 +110,7 @@
          "ResultPath": "$.script",
          "End": true
       },
-      "DownloadFiles": {
+      "ExportFiles": {
          "Type": "Task",
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegendownload",
          "Parameters": {

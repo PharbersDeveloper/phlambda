@@ -8,11 +8,11 @@ Resources:
       Handler: main.lambda_handler
       Runtime: python3.8
       CodeUri: ./src
-      FunctionName: phresourcecodegendownload
+      FunctionName: phresourcecodegenexport
       Layers:
         - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:pyyaml:1
       MemorySize: 1024
-      Description: "创建Download PySpark脚本"
+      Description: "创建Export PySpark脚本"
       Role: arn:aws-cn:iam::444603803904:role/Ph-Back-RW
       Environment:
         Variables:

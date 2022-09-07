@@ -115,6 +115,7 @@ def submitArgsByEngine(curJ, event):
     jobId = curJ["representId"]
     inputs = json.loads(get_dagcof_item_by_jobId(projectId, jobId)["inputs"])
     datasets = event['calculate']['conf']['datasets']
+    versionAlias = event["versionAlias"] if event.get("versionAlias") else event['showName']
     input_datasets = []
     for dataset in datasets:
         if dataset["name"] in inputs:
@@ -133,7 +134,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(event['showName'])
         tmp.append(dagName)
         tmp.append(event['runnerId'])
-        tmp.append(event['versionAlias'])
+        tmp.append(versionAlias)
         tmp.append(jobName)
         tmp.append('job_id_not_implementation')
         tmp.append(projectIp)
@@ -150,8 +151,8 @@ def submitArgsByEngine(curJ, event):
         tmp.append(dagName)
         tmp.append('--run_id')
         tmp.append(event['runnerId'])
-        tmp.append('--versionAlias')
-        tmp.append(event['versionAlias'])
+        tmp.append('--version_alias')
+        tmp.append(versionAlias)
         tmp.append('--job_full_name')
         tmp.append(jobName)
         tmp.append('--project_ip')

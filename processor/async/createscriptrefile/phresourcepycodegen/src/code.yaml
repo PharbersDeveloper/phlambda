@@ -175,7 +175,7 @@ code:
 
 
       # Dynamodb 添加version
-      def put_item_to_version(output_id, project_id, output_version, owner):
+      def put_item_to_version(output_id, project_id, output_version, alias_version, owner):
           table_name = "version"
           version_item = {
               "id": f"{project_id}_{output_id}",
@@ -183,7 +183,8 @@ code:
               "datasetId": output_id,
               "name": output_version,
               "date": str(int(round(time.time() * 1000))),
-              "owner": owner
+              "owner": owner,
+              "alias": alias_version
           }
           put_dynamodb_item(table_name, version_item)
 
@@ -352,7 +353,7 @@ code:
 
 
       # 写最终输出的数据
-      def write_output_df(ph_conf, output_version, ch_client,
+      def write_output_df(ph_conf, output_version, alias_version ch_client,
                           df, tenant_ip, project_id, output_ds_name, output_id,
                           mode="append", number_partitions=2, database="default"):
           table = f"{project_id}_{output_ds_name}"
@@ -389,7 +390,7 @@ code:
               put_scheme_to_dataset(output_id, project_id, sample_df, output_version)
 
           # 插入新version
-          put_item_to_version(output_id, project_id, output_version, ph_conf.get("ownerId"))
+          put_item_to_version(output_id, project_id, output_version, alias_version, ph_conf.get("ownerId"))
 
 
       # build output DF
@@ -413,7 +414,7 @@ code:
 
           ch_client.execute(sql_create_table)
 
-          write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
+          write_output_df(ph_conf, output_version, kwargs["versionAlias"], ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
 

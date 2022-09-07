@@ -444,14 +444,14 @@ code:
               args.update({"spark": spark})
               args.update(kwargs)
               output_version = args.get("run_id") + "_" + ph_conf.get("showName")
-
+              
+              args.update({"run_id": args.get("run_id")})
+              args.update({"version": output_version})
               df_map = build_inputs_df(runtime, inputs, args, project_id, output_version, logger)
 
               args.update(df_map)
               result = execute(**args)
               args.update(result if isinstance(result, dict) else {})
-
-              build_output_df(runtime, args, ph_conf, output, output_version, ip, project_id)
 
               return result
           except Exception as e:
@@ -472,6 +472,12 @@ code:
       def execute(**kwargs):
           data_frame = None
           $input_var_args
+        
+          download_url = "$download_url" + kwargs["run_id"]
 
+          # data_frame = data_frame.withColumn("version", lit(kwargs["version"]))
+          # data_frame.write.partitionBy("version").option("header",True).csv(download_url)
+          data_frame.write.option("header",True).csv(download_url)
+        
           return {"out_df": data_frame}
 

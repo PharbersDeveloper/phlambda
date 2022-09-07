@@ -9,13 +9,13 @@ from util.AWS.ph_s3 import PhS3
 '''
 创建pyspark
 args = {
-    "traceId": "String",
-    "projectId": "String",
-    "owner": "String",
-    "showName": "String",
-    "dagName": "String",
-    "owner": "String",
-    "projectName": "String",
+    "tenantId": "",
+    "traceId": "$.common.traceId",
+    "projectId": "$.common.projectId",
+    "projectName": "$.common.projectName",
+    "dagName": "$.common.dagName",
+    "owner": "$.common.owner",
+    "showName": "$.common.showName",
     "script": {
         "id": "String",
         "runtime": "String",
@@ -23,7 +23,8 @@ args = {
         "flowVersion": "developer",
         "inputs": "[]",
         "output": "{}"
-    }
+    },
+    "datasets": []
 }
 '''
 
@@ -46,8 +47,9 @@ def lambda_handler(event, context):
 
     if event["script"].get("name"):
         inputs = json.loads(event["script"]["inputs"])
-        datasets = json.loads(event["datasets"])
-        download_url = list(filter(lambda x : x["cat"].lower() == "download", datasets))[0]["schema"]
+        # datasets = json.loads(event["datasets"])
+        # download_name = list(filter(lambda x : x["cat"].lower() == "download", datasets))[0]["schema"]
+        download_url = f"s3://{os.environ['BUCKET']}/{os.environ['CLI_VERSION']}/{os.environ['DOWNLOAD_PATH']}/{event['tenantId']}/{event['projectId']}/"
         args = {
             "inputs": inputs,
             "output": event["script"]["output"],

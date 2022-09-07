@@ -20,5 +20,6 @@ Resources:
           CLI_VERSION: 2020-11-11
           JOB_PATH_PREFIX: /tmp/phjobs/
           DAG_S3_JOBS_PATH: /jobs/python/phcli/
+          DOWNLOAD_PATH: downloads
       Timeout: 600
 

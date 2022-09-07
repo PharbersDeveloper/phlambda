@@ -414,7 +414,7 @@ code:
 
           ch_client.execute(sql_create_table)
 
-          write_output_df(ph_conf, output_version, kwargs.get("versionAlias", "undefined"), ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
+          write_output_df(ph_conf, output_version, kwargs.get("version_alias", "undefined"), ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
 
@@ -425,7 +425,7 @@ code:
       @click.option("--job_full_name")
       @click.option("--project_ip")
       @click.option("--ph_conf")
-      @click.option("--versionAlias")
+      @click.option("--version_alias")
       def debug_execute(**kwargs):
           logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
           try:

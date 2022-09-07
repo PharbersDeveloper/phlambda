@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         inputs = json.loads(event["script"]["inputs"])
         datasets = event["datasets"]
         glue_table = list(filter(lambda x : x["cat"].lower() == "shared", datasets))[0]["schema"]
+        
         args = {
             "inputs": inputs,
             "output": event["script"]["output"],

@@ -425,6 +425,7 @@ code:
       @click.option("--job_full_name")
       @click.option("--project_ip")
       @click.option("--ph_conf")
+      @click.option("--versionAlias")
       def debug_execute(**kwargs):
           logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
           try:

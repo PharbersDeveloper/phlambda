@@ -118,7 +118,7 @@ def lambda_handler(event, context):
             dataset.update({"id": id})
             result.append(dataset)
             dataset_cat = dataset["cat"].lower()
-            if dataset_cat == "shared" or dataset_cat == "download":
+            if dataset_cat == "shared" or dataset_cat == "export":
                 put_dataset_item(id, event["projectId"], dataset["name"], label="[]", schema=dataset["schema"], path="",
                              format=dataset["format"], cat=dataset["cat"], prop="", traceId=event["traceId"])
             else:

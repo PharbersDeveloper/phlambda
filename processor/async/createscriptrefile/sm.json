@@ -112,7 +112,7 @@
       },
       "ExportFiles": {
          "Type": "Task",
-         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegendownload",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenexport",
          "Parameters": {
             "tenantId": "$.common.tenantId",
             "traceId.$": "$.common.traceId",

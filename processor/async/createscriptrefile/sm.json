@@ -35,6 +35,16 @@
                "Variable": "$.script.runtime",
                "StringEquals": "sync",
                "Next": "SyncFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "shared",
+               "Next": "SharedFiles"
+            },
+            {
+               "Variable": "$.script.runtime",
+               "StringEquals": "export",
+               "Next": "ExportFiles"
             }
          ],
          "Default": "PysparkFiles"
@@ -80,6 +90,39 @@
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "script.$": "$.script"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "SharedFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenshared",
+         "Parameters": {
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script",
+            "datasets.$": "$.datasets"
+         },
+         "ResultPath": "$.script",
+         "End": true
+      },
+      "ExportFiles": {
+         "Type": "Task",
+         "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phresourcecodegenexport",
+         "Parameters": {
+            "tenantId.$": "$.common.tenantId",
+            "traceId.$": "$.common.traceId",
+            "projectId.$": "$.common.projectId",
+            "projectName.$": "$.common.projectName",
+            "dagName.$": "$.common.dagName",
+            "owner.$": "$.common.owner",
+            "showName.$": "$.common.showName",
+            "script.$": "$.script",
+            "datasets.$": "$.datasets"
          },
          "ResultPath": "$.script",
          "End": true

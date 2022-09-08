@@ -9,6 +9,7 @@
             "runnerId.$": "$.common.runnerId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
+            "versionAlias.$": "$.common.versionAlias",
             "owner.$": "$.common.owner",
             "showName.$": "$.common.showName",
             "tenantId.$": "$.common.tenantId",

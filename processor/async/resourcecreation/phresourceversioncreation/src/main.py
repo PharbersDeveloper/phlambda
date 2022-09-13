@@ -46,7 +46,8 @@ def lambda_handler(event, context):
                     "datasetId": ds_id,
                     "date": str(int(round(time.time() * 1000))),
                     "owner": event["owner"],
-                    "projectId": event["projectId"]
+                    "projectId": event["projectId"],
+                    "alias": item["version"]
                 }
             )
 

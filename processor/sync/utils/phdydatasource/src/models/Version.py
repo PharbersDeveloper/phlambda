@@ -9,5 +9,6 @@ class Version(Model):
         "datasetId": fields.Str(required=True),
         "name": fields.Str(required=True),
         "date": fields.Str(dump_default="unknown"),
-        "owner": fields.Str(dump_default="unknown")
+        "owner": fields.Str(dump_default="unknown"),
+        "alias": fields.Str(dump_default="")
     }

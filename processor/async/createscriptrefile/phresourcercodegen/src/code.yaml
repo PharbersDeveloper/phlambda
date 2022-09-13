@@ -33,10 +33,11 @@ code:
       owner <- cmd_args[1]
       dag_name <- cmd_args[2]
       run_id <- cmd_args[3]
-      job_full_name <- cmd_args[4]
-      job_id <- cmd_args[5]
-      project_ip <- cmd_args[6]
-      ph_conf <- cmd_args[7]
+      version_alias <- cmd_args[4]
+      job_full_name <- cmd_args[5]
+      job_id <- cmd_args[6]
+      project_ip <- cmd_args[7]
+      ph_conf <- cmd_args[8]
       tenant <- "pharbers"
 
       Encoding(owner)
@@ -47,11 +48,13 @@ code:
       Encoding(dag_name) <- "UTF-8"
       Encoding(job_full_name)
       Encoding(job_full_name) <- "UTF-8"
+      Encoding(version_alias)
+      Encoding(version_alias) <- "UTF-8"
 
       input_args <- list(
           owner = owner, dag_name = dag_name, run_id = run_id,
           job_full_name = job_full_name, job_id = job_id, ph_conf = ph_conf,
-          project_ip = project_ip
+          project_ip = project_ip, version_alias=version_alias
       )
 
       sparkJars <- "s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar"
@@ -305,7 +308,7 @@ code:
           put_dy_item("dataset", item)
       }
 
-      handle_msg_to_version <- function(project_id, output_id, output_version, owner) {
+      handle_msg_to_version <- function(project_id, output_id, output_version, alias_version, owner) {
           item = list(
               id = list(
                   S = paste(project_id, "_", output_id, sep = "")
@@ -324,7 +327,10 @@ code:
               ),
               owner = list(
                   S = owner
-              )
+              ),
+              alias = list(
+                  S = alias_version
+              ),
           )
           put_dy_item("version", item)
       }
@@ -601,6 +607,10 @@ code:
           Encoding(table_name)
           Encoding(table_name) <- "UTF-8"
 
+          alias_version <- args$version_alias
+          Encoding(alias_version)
+          Encoding(alias_version) <- "UTF-8"
+
           normal_out_df <- add_column(out_df, output_version, "version")
           normal_out_df <- SparkR::drop(normal_out_df, "traceId")
 
@@ -640,7 +650,7 @@ code:
 
           handle_msg_to_ds(project_id, output, out_df)
 
-          handle_msg_to_version(project_id, output_id, output_version, owner)
+          handle_msg_to_version(project_id, output_id, output_version, alias_version, owner)
       }
 
       source("phjob.R")

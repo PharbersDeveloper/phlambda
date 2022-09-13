@@ -175,7 +175,7 @@ code:
 
 
       # Dynamodb 添加version
-      def put_item_to_version(output_id, project_id, output_version, alias_version, owner):
+      def put_item_to_version(output_id, project_id, output_version, owner):
           table_name = "version"
           version_item = {
               "id": f"{project_id}_{output_id}",
@@ -183,8 +183,7 @@ code:
               "datasetId": output_id,
               "name": output_version,
               "date": str(int(round(time.time() * 1000))),
-              "owner": owner,
-              "alias": alias_version
+              "owner": owner
           }
           put_dynamodb_item(table_name, version_item)
 
@@ -353,7 +352,7 @@ code:
 
 
       # 写最终输出的数据
-      def write_output_df(ph_conf, output_version, alias_version, ch_client,
+      def write_output_df(ph_conf, output_version, ch_client,
                           df, tenant_ip, project_id, output_ds_name, output_id,
                           mode="append", number_partitions=2, database="default"):
           table = f"{project_id}_{output_ds_name}"
@@ -390,7 +389,7 @@ code:
               put_scheme_to_dataset(output_id, project_id, sample_df, output_version)
 
           # 插入新version
-          put_item_to_version(output_id, project_id, output_version, alias_version, ph_conf.get("ownerId"))
+          put_item_to_version(output_id, project_id, output_version, ph_conf.get("ownerId"))
 
 
       # build output DF
@@ -414,7 +413,7 @@ code:
 
           ch_client.execute(sql_create_table)
 
-          write_output_df(ph_conf, output_version, kwargs.get("version_alias", "undefined"), ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
+          write_output_df(ph_conf, output_version, ch_client, add_traceId_df, tenant_ip, project_id, output_ds_name,
                           output_id)
 
 
@@ -425,7 +424,6 @@ code:
       @click.option("--job_full_name")
       @click.option("--project_ip")
       @click.option("--ph_conf")
-      @click.option("--version_alias")
       def debug_execute(**kwargs):
           logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
           try:
@@ -446,14 +444,14 @@ code:
               args.update({"spark": spark})
               args.update(kwargs)
               output_version = args.get("run_id") + "_" + ph_conf.get("showName")
-
+              args.update({"version": output_version})
               df_map = build_inputs_df(runtime, inputs, args, project_id, output_version, logger)
 
               args.update(df_map)
               result = execute(**args)
               args.update(result if isinstance(result, dict) else {})
 
-              build_output_df(runtime, args, ph_conf, output, output_version, ip, project_id)
+            #   build_output_df(runtime, args, ph_conf, output, output_version, ip, project_id)
 
               return result
           except Exception as e:
@@ -469,11 +467,108 @@ code:
 
 
   phjob:
-    input_var_args: ~
     code: |
+      from phcli.ph_logs.ph_logs import phs3logger, LOG_DEBUG_LEVEL
+      from pyspark.sql.functions import lit, col, struct, to_json, json_tuple
+      from functools import reduce
+      from pyspark.sql.types import StringType, IntegerType, DoubleType, StructType, StructField
+      from pyspark.sql import functions as func 
+      import os
+      import pandas as pd
+      import json
+      import boto3
+      import time
+      import re
+
       def execute(**kwargs):
+          logger = phs3logger(kwargs["run_id"], LOG_DEBUG_LEVEL)
+          spark = kwargs['spark']
+          
           data_frame = None
           $input_var_args
 
-          return {"out_df": data_frame}
+          glue_table = "$glue_table"
+          tenant_id="zudIcG_17yj8CEUoCTHg"
+          glue_path = f"s3://ph-platform/2020-11-11/lake/pharbers/{tenant_id}/{glue_table}"
+          data_frame = data_frame.withColumn("version", lit(kwargs["version"]))
+
+          def dealCol(df, version):
+              # 列名统一小写，类型统一字符型，点替换为-
+              reg = "[\r\n\n（） ， +()-./\"]"
+              df = df.toDF(*(re.sub(reg, '_', c).lower() for c in df.columns))
+              return df.select(*[col(i).astype("string") for i in df.columns])
+
+          def outFile(df, outpath):
+              # 写出到s3
+              df.write.format("parquet") \
+                          .mode("append").partitionBy("version") \
+                          .parquet(outpath)
+
+          def getClient():
+              return boto3.client('glue', 'cn-northwest-1')
+
+          def judgeVersionToGlue():
+              # 判断写入数据目录的version是否已经存在
+              outPartitionsList = [i['version'] for i in spark.read.parquet(glue_path).select('version').distinct().collect()]
+
+              if kwargs["version"] in outPartitionsList:
+                  raise ValueError(f"已经存在该version:{kwargs['version']}")
+              return outPartitionsList
+
+          def judgeColumns(cols, table):
+              client = getClient()
+              columns_response = client.get_table(DatabaseName=tenant_id, Name=table)['Table']['StorageDescriptor']['Columns']
+              glueColumns = [i['Name'] for i in columns_response] + ['version']
+              not_in_glue_cols = [i for i in cols if i not in glueColumns]
+              if len(not_in_glue_cols) > 0:
+                  raise ValueError(f"列名不在{table}中:{not_in_glue_cols}")
+
+
+          def writeToDataGlue(df, gluetable, glueversion):
+              # 判断version是否已存在
+              judgeVersionToGlue()
+              # 判断列名是否存在
+              judgeColumns(df.columns, gluetable)
+              # 写出
+              outFile(df, outpath=glue_path)
+
+          def runCrawler(crawlerName):
+              client = getClient()
+              response = client.start_crawler(
+                  Name = crawlerName
+              )
+
+          def addToDynamodb(table_name, version_name):
+              item = {
+                  'id': {'S': "zudicg_17yj8ceuocthg" + '_' + table_name},
+                  'name': {'S': str(version_name)},
+                  'datasetId': {'S': str(table_name)},
+                  'date': {'S': str(time.time())},
+                  'owner': {'S': "pharbers"},
+                  'projectId': {'S': "zudicg_17yj8ceuocthg"}
+              }
+              client_dynamodb = boto3.client('dynamodb', 'cn-northwest-1')
+              respose = client_dynamodb.put_item(
+                      TableName="version",
+                      Item=item)
+              return respose
+
+              
+          # 列处理
+          dfout = dealCol(data_frame, kwargs["version"])
+
+          dfout.show(2)
+
+          # 写出到数据目录
+          writeToDataGlue(dfout, glue_table, kwargs["version"])
+          # 爬取到glue
+          try:
+              runCrawler('ph_etl_for_max')
+          except:
+              print("Crawler 进行中")
+          # 写入到dynamodb的version表
+          time.sleep(90)
+          addToDynamodb(glue_table, kwargs["version"])
+
+          return {"out_df": dfout}
 

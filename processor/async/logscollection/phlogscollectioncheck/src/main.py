@@ -5,7 +5,7 @@ import gzip
 from datetime import datetime, timedelta
 
 _s3 = boto3.client('s3')
-waitTotal = timedelta(hours=1)
+waitTotal = timedelta(hours=3)
 
 
 '''

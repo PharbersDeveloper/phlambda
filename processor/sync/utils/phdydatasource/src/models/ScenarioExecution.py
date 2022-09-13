@@ -10,6 +10,9 @@ class ScenarioExecution(Model):
         "date": fields.Int(dump_default=0),
         "owner": fields.Str(dump_default="unknown"),
         "reporter": fields.Str(dump_default="unknown"),
+        "traceId": fields.Str(dump_default="unknown"),
+        "stepId": fields.Str(dump_default="unknown"),
+        "stopdate": fields.Int(dump_default=0),
         "runtime": fields.Str(dump_default="unknown")
     }
 

@@ -46,18 +46,26 @@ def get_scenario(projectId, id):
     return res.get("Items")[0]
 
 
+def make_data(confData, codeFree, scenario_args):
+    for key, value in confData.items():
+        if isinstance(value, dict):
+            make_data(value, codeFree, scenario_args)
+        else:
+            name = value[value.rfind("$")+1:]
+            value = codeFree.get(name, "")
+            if not value:
+                value_list = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
+                value = value_list[0] if value_list else name
+            confData[key] = value
+    return confData
+
+
 def args_setting(projectId, scenarioId, codeFree, confData, **kwargs):
     confData = json.loads(confData)
     args = get_scenario(projectId, scenarioId).get("args")
     scenario_args: list = json.loads(args) if isinstance(args, str) and args else []
-    for key, value in confData.items():
-        name = value[value.rfind("$")+1:]
-        value = codeFree.get(name, "")
-        if not value:
-            value_list = [arg.get("default", "") for arg in scenario_args if arg.get("name") == name]
-            value = value_list[0] if value_list else ""
-        confData = {key: value} if value else {}
-    return confData
+    new_data = make_data(confData, codeFree, scenario_args)
+    return new_data
 
 
 def lambda_handler(event, context):
@@ -78,3 +86,4 @@ def lambda_handler(event, context):
     # 'scenarioStep': {'detail': '{"type": "dataset", "recursive": false, "ignore-error": true, "name": "A1"}', 'confData': {}}
 
     return scenarioStep
+

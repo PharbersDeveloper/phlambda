@@ -13,7 +13,8 @@
          "Resource": "arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phscenariostatusstart",
          "Parameters": {
             "projectId.$": "$.common.projectId",
-            "traceId.$": "$.common.traceId"
+            "traceId.$": "$.common.traceId",
+            "scenarioId.$": "$.scenario.scenarioId"
          },
          "ResultPath": null,
          "Next": "ArgsValidation"

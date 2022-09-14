@@ -140,6 +140,7 @@ def create_trigger_args(trigger_datasets, event):
     common["owner"] = event["owner"]
     common["showName"] = event["showName"]
     common["tenantId"] = event["tenantId"]
+    common["versionAlias"] = ""
     trigger_args["common"] = common
 
     # trigger的action部分

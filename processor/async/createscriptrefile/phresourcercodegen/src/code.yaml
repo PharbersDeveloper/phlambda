@@ -37,13 +37,13 @@ code:
       job_full_name <- cmd_args[5]
       job_id <- cmd_args[6]
       project_ip <- cmd_args[7]
-      ph_conf <- cmd_args[8]
+      ph_conf_path <- cmd_args[8]
       tenant <- "pharbers"
 
       Encoding(owner)
       Encoding(owner) <- "UTF-8"
-      Encoding(ph_conf)
-      Encoding(ph_conf) <- "UTF-8"
+      Encoding(ph_conf_path)
+      Encoding(ph_conf_path) <- "UTF-8"
       Encoding(dag_name)
       Encoding(dag_name) <- "UTF-8"
       Encoding(job_full_name)
@@ -53,7 +53,7 @@ code:
 
       input_args <- list(
           owner = owner, dag_name = dag_name, run_id = run_id,
-          job_full_name = job_full_name, job_id = job_id, ph_conf = ph_conf,
+          job_full_name = job_full_name, job_id = job_id, ph_conf_path = ph_conf_path,
           project_ip = project_ip, version_alias=version_alias
       )
 
@@ -76,6 +76,12 @@ code:
 
 
       db <- dynamodb(
+          config = list(
+              region = "cn-northwest-1"
+          )
+      )
+
+      phs3 <- s3(
           config = list(
               region = "cn-northwest-1"
           )
@@ -667,8 +673,15 @@ code:
       project_id <- "$$project_id"
       project_name <- "$$project_name"
       runtime <- "$$runtime"
+      
+      ph_conf_path <- input_args$ph_conf_path
 
-      ph_conf <- fromJSON(input_args$ph_conf, simplifyVector=FALSE)
+      ph_conf_result <- phs3$get_object(
+          Bucket = "ph-platform",
+          Key = ph_conf_path
+      )
+
+      ph_conf <- fromJSON(rawToChar(ph_conf_result$Body), simplifyVector=FALSE)
 
       user_conf <- ph_conf$userConf
 

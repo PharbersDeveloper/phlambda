@@ -117,6 +117,7 @@ template:
             version_item.update({"name": output_version})
             version_item.update({"date": str(int(round(time.time() * 1000)))})
             version_item.update({"owner": owner})
+            version_item.update({"alias": output_version})
             put_dynamodb_item(table_name, version_item)
 
         # dataset 更新Schema
@@ -383,6 +384,7 @@ template:
         @click.option("--job_full_name")
         @click.option("--project_ip")
         @click.option("--ph_conf")
+        @click.option("--version_alias")
         def debug_execute(**kwargs):
             logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
             try:

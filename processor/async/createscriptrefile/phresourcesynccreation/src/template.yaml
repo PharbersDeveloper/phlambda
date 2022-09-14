@@ -60,6 +60,17 @@ template:
         # 获取Spark实例
         spark = get_spark()
 
+        # 读取S3文件内容
+        def open_object(bucket_name, object_name):
+            response = phs3.get_object(
+                Bucket=bucket_name,
+                Key=object_name
+            )
+            if sys.version_info > (3, 0):
+                return response["Body"].read().decode()
+            else:
+                return response["Body"].read()
+
         # 获取DataFrame Schema转JSON字符串
         def get_df_schema2json(df):
             schema_list = list(filter(lambda item: item["name"] != "traceId", list(map(lambda item: {"name": item["name"], "type": item["type"]},
@@ -117,6 +128,7 @@ template:
             version_item.update({"name": output_version})
             version_item.update({"date": str(int(round(time.time() * 1000)))})
             version_item.update({"owner": owner})
+            version_item.update({"alias": output_version})
             put_dynamodb_item(table_name, version_item)
 
         # dataset 更新Schema
@@ -382,7 +394,8 @@ template:
         @click.option("--run_id")
         @click.option("--job_full_name")
         @click.option("--project_ip")
-        @click.option("--ph_conf")
+        @click.option("--ph_conf_path")
+        @click.option("--version_alias")
         def debug_execute(**kwargs):
             logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
             try:
@@ -395,7 +408,8 @@ template:
                 project_name = "$project_name"
                 runtime = "$runtime"
                 ip = kwargs.get("project_ip")
-                ph_conf = json.loads(kwargs.get("ph_conf", {}))
+                ph_conf = json.loads(open_object("ph-platform", kwargs.get("ph_conf_path")))
+                # ph_conf = json.loads(kwargs.get("ph_conf", {}))
                 user_conf = ph_conf.get("userConf", {})
                 ds_conf = ph_conf.get("datasets", {})
                 args.update(user_conf)

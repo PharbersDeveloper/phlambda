@@ -4,6 +4,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
+s3 = boto3.client('s3')
 
 
 def get_dagcof_item_by_jobId(projectId, jobId):
@@ -125,6 +126,22 @@ def submitArgsByEngine(curJ, event):
     dict_ph_conf["datasets"] = input_datasets
 
     ph_conf = json.dumps(dict_ph_conf, ensure_ascii=False).replace("}}", "} }").replace("{{", "{ {")
+
+    # 上传脚本运行ph_conf
+    ph_conf_path = '2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + 'conf_' + curJ['name'] + '.json'
+    s3.put_object(
+        Body=json.dumps(dict_ph_conf).encode(),
+        Bucket='ph-platform',
+        Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + 'conf_' + curJ['name'] + '.json'
+    )
+
+    s3.put_object(
+        Body=json.dumps(event['calculate']['conf']['userConf']).encode(),
+        Bucket='ph-platform',
+        Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + 'conf_user.json'
+    )
+
+
     if curJ['runtime'] == 'r' or curJ['runtime'] == 'sparkr':
         tmp.append('--jars')
         tmp.append('/jars/clickhouse-jdbc-0.2.4.jar,/jars/guava-30.1.1-jre.jar')
@@ -138,7 +155,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(jobName)
         tmp.append('job_id_not_implementation')
         tmp.append(projectIp)
-        tmp.append(ph_conf)
+        tmp.append(ph_conf_path)
     else:
         tmp.append('--jars')
         tmp.append('s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/clickhouse-jdbc-0.2.4.jar,s3://ph-platform/2020-11-11/emr/client/clickhouse-connector/guava-30.1.1-jre.jar')
@@ -157,8 +174,8 @@ def submitArgsByEngine(curJ, event):
         tmp.append(jobName)
         tmp.append('--project_ip')
         tmp.append(projectIp)
-        tmp.append('--ph_conf')
-        tmp.append(ph_conf)
+        tmp.append('--ph_conf_path')
+        tmp.append(ph_conf_path)
 
     result['HadoopJarStep']['Args'] = tmp
 

@@ -336,7 +336,7 @@ code:
               ),
               alias = list(
                   S = alias_version
-              ),
+              )
           )
           put_dy_item("version", item)
       }

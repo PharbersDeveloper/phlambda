@@ -36,7 +36,7 @@ class ScenarioIndex:
         return self.scenario['active']
 
     def get_args(self):
-        return self.dumps_data_by_json(self.scenario['args'])
+        return self.dumps_data_by_json(self.scenario.get('args', {}))
 
     def get_index(self):
         return self.scenario['index']

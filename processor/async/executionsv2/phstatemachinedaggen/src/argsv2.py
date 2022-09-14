@@ -130,7 +130,7 @@ def submitArgsByEngine(curJ, event):
     # 上传脚本运行ph_conf
 
     s3.put_object(
-        Body=json.dumps(ph_conf).encode(),
+        Body=json.dumps(dict_ph_conf).encode(),
         Bucket='ph-platform',
         Key='2020-11-11/jobs/statemachine/pharbers/' + dagName + '/' + event['runnerId'] + '/' + 'conf_' + curJ['name'] + '.json'
     )

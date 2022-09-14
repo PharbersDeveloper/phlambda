@@ -174,7 +174,7 @@ def submitArgsByEngine(curJ, event):
         tmp.append(jobName)
         tmp.append('--project_ip')
         tmp.append(projectIp)
-        tmp.append('--ph_conf')
+        tmp.append('--ph_conf_path')
         tmp.append(ph_conf_path)
 
     result['HadoopJarStep']['Args'] = tmp

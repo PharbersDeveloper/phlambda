@@ -25,6 +25,7 @@ def extractJobArgs(jobNames, jobs, event):
     common['runnerId'] = event['runnerId']
     common['projectId'] = event['projectId']
     common['projectName'] = event['projectName']
+    common['tenantId'] = event['tenantId']
     common['owner'] = event['owner']
     common['showName'] = event['showName']
     common['versionAlias'] = event["versionAlias"] if event.get("versionAlias") else event['showName']

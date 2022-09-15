@@ -21,6 +21,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
         "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
+            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
@@ -133,6 +134,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
         "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
+            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",

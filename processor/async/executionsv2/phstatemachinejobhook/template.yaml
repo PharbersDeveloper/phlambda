@@ -10,6 +10,8 @@ Resources:
       CodeUri: ./src
       FunctionName: phstatemachinejobhook
       Description: "phstatemachinejobhook"
+      Layers:
+        - arn:aws-cn:lambda:cn-northwest-1:444603803904:layer:PhMetricLayer:1
       Role: arn:aws-cn:iam::444603803904:role/Ph-Data-Resource-Admin
       MemorySize: 1024
       Timeout: 600

@@ -41,6 +41,7 @@ code:
       tenant = "pharbers"
       lake_prefix = f"s3://ph-platform/2020-11-11/lake/{tenant}/"
       dynamodb_resource = boto3.resource("dynamodb", region_name="cn-northwest-1")
+      phs3 = boto3.client('s3', region_name='cn-northwest-1')
 
       # 获取Spark实例
       os.environ["PYSPARK_PYTHON"] = "python3"

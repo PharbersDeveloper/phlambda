@@ -53,6 +53,17 @@ code:
           spark = spark.config(k, v)
       spark = spark.enableHiveSupport().getOrCreate()
 
+      # 读取S3文件内容
+      def open_object(bucket_name, object_name):
+          response = phs3.get_object(
+              Bucket=bucket_name,
+              Key=object_name
+          )
+          if sys.version_info > (3, 0):
+              return response["Body"].read().decode()
+          else:
+              return response["Body"].read()
+
       # 解决在读取中间型DF Schema Type冲突后的选择
       # 在同Schema Col类型冲突后优先选择非String类型的描述 list(filter(lambda item: item["type"] != "String", values))
       # 这部分在后续扩展时不是很友好，原因是后续会扩展很多类型
@@ -423,7 +434,8 @@ code:
       @click.option("--run_id")
       @click.option("--job_full_name")
       @click.option("--project_ip")
-      @click.option("--ph_conf")
+      @click.option("--ph_conf_path")
+      @click.option("--version_alias")
       def debug_execute(**kwargs):
           logger = phs3logger("emr_log", LOG_DEBUG_LEVEL)
           try:
@@ -436,7 +448,8 @@ code:
               project_name = "$project_name"
               runtime = "$runtime"
               ip = kwargs.get("project_ip")
-              ph_conf = json.loads(kwargs.get("ph_conf", {}))
+              ph_conf = json.loads(open_object("ph-platform", kwargs.get("ph_conf_path")))
+              # ph_conf = json.loads(kwargs.get("ph_conf", {}))
               user_conf = ph_conf.get("userConf", {})
               ds_conf = ph_conf.get("datasets", {})
               args.update(user_conf)

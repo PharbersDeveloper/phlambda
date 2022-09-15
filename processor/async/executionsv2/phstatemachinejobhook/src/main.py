@@ -3,7 +3,7 @@ import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
 from logpath import *
-from phmetrixlayer import aws_cloudwatch_put_metric_data
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 
 def put_notification(jobShowName, jobName, runnerId, projectId, category, code, comments, date, owner, showName,

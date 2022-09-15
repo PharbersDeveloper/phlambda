@@ -63,6 +63,7 @@ def create_sample_args(event, ts):
             "runnerId": event["runnerId"],
             "projectId": event["projectId"],
             "projectName": event["projectName"],
+            "tenantId": event["tenantId"],
             "owner": event["owner"],
             "showName": event["showName"]
         },

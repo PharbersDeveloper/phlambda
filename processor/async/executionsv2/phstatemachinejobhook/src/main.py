@@ -3,7 +3,7 @@ import boto3
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
 from logpath import *
-# from phmetrixlayer import aws_cloudwatch_put_metric_data
+from phmetriclayer import aws_cloudwatch_put_metric_data
 
 
 def put_notification(jobShowName, jobName, runnerId, projectId, category, code, comments, date, owner, showName,
@@ -103,6 +103,7 @@ def put_success_execution(runnerId, jobName, date, logs, status, dynamodb=None):
     return response
 
 
+
 # def put_metrics(runnerId, projectId, projectName, currentUserId, currentName, action="dag_execution_end"):
 #     aws_cloudwatch_put_metric_data(projectId, projectName,
 #                                     currentUserId,
@@ -137,8 +138,9 @@ def lambda_handler(event, context):
     # 1. put notification
     put_notification(jobShowName, tmpJobName, event['runnerId'], tmpJobName, None, 0, "", str(int(ts)), event['owner'], event['showName'], status = status)
     # 2. put metrics
-    # put_metrics(event["runnerId"], pid, event['projectName'], event["owner"], event["showName"], action = hid)
-
+    aws_cloudwatch_put_metric_data(NameSpace='pharbers-platform',
+                                   MetricName='platform-usage',
+                                   tenantId=event["tenantId"])
 
 
     return {

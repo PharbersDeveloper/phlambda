@@ -21,6 +21,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
         "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
+            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",
@@ -81,7 +82,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-dev"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-release"
         },
         "ResultPath": None,
         "Next": curJ + "EndHook"
@@ -116,7 +117,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
                 "jobName": curJ,
                 "date": ts
             },
-            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-dev"
+            "StateMachineArn": "arn:aws-cn:states:cn-northwest-1:444603803904:stateMachine:logscollection-release"
         },
         "ResultPath": None,
         "Next": curJ + "Failed"
@@ -133,6 +134,7 @@ def linearJobWithHooksByJobName(curJ, event, sm, parallelSteps):
         "Resource": f"arn:aws-cn:lambda:cn-northwest-1:444603803904:function:phstatemachinejobhook",
         "Parameters": {
             "runnerId.$": "$.common.runnerId",
+            "tenantId.$": "$.common.tenantId",
             "projectId.$": "$.common.projectId",
             "projectName.$": "$.common.projectName",
             "owner.$": "$.common.owner",

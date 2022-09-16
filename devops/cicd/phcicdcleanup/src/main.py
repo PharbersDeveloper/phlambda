@@ -106,7 +106,7 @@ def lambda_handler(event, context):
         lock_name = event["processor"]["stateMachineName"] + "-resource" + "-lock"
         if get_dict_ssm_parameter(lock_name):
             delete_ssm_parameter(lock_name)
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage.yaml")
+        # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["processor"]["prefix"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         if get_stack_status(event["processor"]["stateMachineName"] + "-resource") and judge_stack_exist(event["processor"]["stateMachineName"] + "-resource"):
             # 如果update失败 将cicd/prefix/manage_back.yaml 文件恢复到manage.yaml文件
@@ -117,7 +117,7 @@ def lambda_handler(event, context):
                 delete_stack(function["name"] + "codebuild")
 
     if event["trigger"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + event["trigger"]["functionName"] + "/manage.yaml")
+        # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["trigger"]["prefix"] + event["trigger"]["functionName"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         functionName = event["trigger"]["functionName"]
         lock_name = functionName + "-apiresource" + "-lock"
@@ -131,7 +131,7 @@ def lambda_handler(event, context):
             delete_stack(event["trigger"]["functionName"] + "codebuild")
 
     if event["utils"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["utils"]["prefix"] + event["utils"]["functionName"] + "/manage.yaml")
+        # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["utils"]["prefix"] + event["utils"]["functionName"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         functionName = event["utils"]["functionName"]
         lock_name = functionName + "-utilsresource" + "-lock"
@@ -145,7 +145,7 @@ def lambda_handler(event, context):
             delete_stack(event["utils"]["functionName"] + "codebuild")
 
     if event["multistage"]["required"]:
-        del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["multistage"]["prefix"] + event["multistage"]["functionName"] + "/manage.yaml")
+        # del_s3_resource("ph-platform", "2020-11-11/cicd/" + event["multistage"]["prefix"] + event["multistage"]["functionName"] + "/manage.yaml")
         # 判断这次操作是不是update操作
         functionName = event["multistage"]["functionName"]
         lock_name = functionName + "-apiresource" + "-lock"
